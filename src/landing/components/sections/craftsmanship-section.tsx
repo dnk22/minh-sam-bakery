@@ -1,16 +1,32 @@
 import { Flame, Hammer, Leaf } from "lucide-react";
 
+import { Reveal } from "@/landing/components/motion/reveal";
+import { StaggerReveal } from "@/landing/components/motion/stagger-reveal";
+
 export function CraftsmanshipSection() {
   return (
     <section className="w-full min-h-[96vh] lg:min-h-screen flex flex-col justify-between bg-surface-container-low text-on-surface px-6 md:px-12 lg:px-20 py-16">
       <div className="w-full max-w-7xl mx-auto my-auto">
         <div className="max-w-2xl mb-12">
-          <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Quy chuẩn nghề bánh • 06</span>
-          <h2 className="font-headline-lg text-headline-lg text-primary mb-3">Không chỉ làm bánh. Minh Sâm hiểu nghề bánh.</h2>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">Bánh ngon không đến từ sự vội vàng. Đằng sau mỗi chiếc bánh là sự chiêm nghiệm về nguyên liệu, cảm giác của đôi bàn tay và sự nhạy bén trước nhiệt độ lò nướng.</p>
+          <Reveal duration={0.65} y={22}>
+            <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Quy chuẩn nghề bánh • 06</span>
+          </Reveal>
+          <Reveal delay={0.06} duration={0.65} y={22}>
+            <h2 className="font-headline-lg text-headline-lg text-primary mb-3">Không chỉ làm bánh. Minh Sâm hiểu nghề bánh.</h2>
+          </Reveal>
+          <Reveal delay={0.12} duration={0.65} y={22}>
+            <p className="font-body-lg text-body-lg text-on-surface-variant">Bánh ngon không đến từ sự vội vàng. Đằng sau mỗi chiếc bánh là sự chiêm nghiệm về nguyên liệu, cảm giác của đôi bàn tay và sự nhạy bén trước nhiệt độ lò nướng.</p>
+          </Reveal>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-8 bg-surface-container-lowest rounded shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+        <StaggerReveal
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          delay={0.08}
+          itemClassNames={["h-full", "h-full", "h-full"]}
+          scale={0.99}
+          stagger={0.08}
+          y={24}
+        >
+          <div className="h-full p-8 bg-surface-container-lowest rounded shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
               <span className="font-display-hero text-headline-md text-secondary block mb-4">01</span>
               <h3 className="font-headline-sm text-headline-sm text-primary mb-3">Nguyên liệu tuyển trạch</h3>
@@ -21,7 +37,7 @@ export function CraftsmanshipSection() {
               <span>Thuần khiết &amp; Minh bạch</span>
             </div>
           </div>
-          <div className="p-8 bg-surface-container-lowest rounded shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="h-full p-8 bg-surface-container-lowest rounded shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
               <span className="font-display-hero text-headline-md text-secondary block mb-4">02</span>
               <h3 className="font-headline-sm text-headline-sm text-primary mb-3">Đôi tay &amp; khuôn gỗ khắc hoa</h3>
@@ -32,7 +48,7 @@ export function CraftsmanshipSection() {
               <span>Thủ công chạm khắc gỗ</span>
             </div>
           </div>
-          <div className="p-8 bg-surface-container-lowest rounded shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="h-full p-8 bg-surface-container-lowest rounded shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
               <span className="font-display-hero text-headline-md text-secondary block mb-4">03</span>
               <h3 className="font-headline-sm text-headline-sm text-primary mb-3">Kỹ thuật canh lửa &amp; độ ẩm</h3>
@@ -43,16 +59,18 @@ export function CraftsmanshipSection() {
               <span>Canh lửa chuẩn xác</span>
             </div>
           </div>
-        </div>
+        </StaggerReveal>
       </div>
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between pt-6 text-on-surface-variant">
-        <div className="flex items-center gap-3">
-          <span className="font-label-eyebrow text-label-eyebrow text-secondary uppercase tracking-[0.2em]">06 / 07</span>
-          <span className="w-8 h-[1px] bg-outline-variant" />
-          <span className="font-label-eyebrow text-label-eyebrow uppercase">Quy Chuẩn Nghề Bánh</span>
+      <Reveal className="w-full max-w-7xl mx-auto" delay={0.12} duration={0.6} y={18}>
+        <div className="flex items-center justify-between pt-6 text-on-surface-variant">
+          <div className="flex items-center gap-3">
+            <span className="font-label-eyebrow text-label-eyebrow text-secondary uppercase tracking-[0.2em]">06 / 07</span>
+            <span className="w-8 h-[1px] bg-outline-variant" />
+            <span className="font-label-eyebrow text-label-eyebrow uppercase">Quy Chuẩn Nghề Bánh</span>
+          </div>
+          <span className="font-body-sm text-body-sm">Được chứng nhận quy trình vệ sinh an toàn thực phẩm chuẩn quốc gia</span>
         </div>
-        <span className="font-body-sm text-body-sm">Được chứng nhận quy trình vệ sinh an toàn thực phẩm chuẩn quốc gia</span>
-      </div>
+      </Reveal>
     </section>
   );
 }

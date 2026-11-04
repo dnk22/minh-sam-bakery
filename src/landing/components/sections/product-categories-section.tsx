@@ -1,20 +1,37 @@
 /* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
 
 import { ArrowRight } from "lucide-react";
+import { Reveal } from "@/landing/components/motion/reveal";
+import { StaggerReveal } from "@/landing/components/motion/stagger-reveal";
 
 export function ProductCategoriesSection() {
   return (
     <section className="w-full min-h-[96vh] lg:min-h-screen flex flex-col justify-between bg-surface text-on-surface px-6 md:px-12 lg:px-20 py-16" id="danh-muc">
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <div>
-            <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Danh mục tiêu biểu • 02</span>
-            <h2 className="font-headline-lg text-headline-lg text-primary">Khám phá các dòng bánh Minh Sâm</h2>
-          </div>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-md">Từ những hương vị truyền thống đến những dòng bánh mới cho nhịp sống hôm nay, gói trọn tinh tế ẩm thực đất kinh kỳ.</p>
+          <Reveal>
+            <div>
+              <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Danh mục tiêu biểu • 02</span>
+              <h2 className="font-headline-lg text-headline-lg text-primary">Khám phá các dòng bánh Minh Sâm</h2>
+            </div>
+          </Reveal>
+          <Reveal className="max-w-md" delay={0.08}>
+            <p className="font-body-md text-body-md text-on-surface-variant">Từ những hương vị truyền thống đến những dòng bánh mới cho nhịp sống hôm nay, gói trọn tinh tế ẩm thực đất kinh kỳ.</p>
+          </Reveal>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 auto-rows-[140px] md:auto-rows-[170px] lg:auto-rows-[185px]">
-          <div className="lg:col-span-5 lg:row-span-2 relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-6 shadow-sm hover:shadow-md transition-all duration-300">
+        <StaggerReveal
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 auto-rows-[140px] md:auto-rows-[170px] lg:auto-rows-[185px]"
+          delay={0.06}
+          itemClassNames={[
+            "lg:col-span-5 lg:row-span-2 min-h-0",
+            "lg:col-span-4 lg:row-span-2 min-h-0",
+            "lg:col-span-3 lg:row-span-1 min-h-0",
+            "lg:col-span-3 lg:row-span-1 min-h-0",
+            "lg:col-span-6 lg:row-span-1 min-h-0",
+            "lg:col-span-6 lg:row-span-1 min-h-0",
+          ]}
+        >
+          <div className="h-full relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-6 shadow-sm hover:shadow-md transition-all duration-300">
             <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="Traditional golden baked Vietnamese mooncake cut in half showcasing rich lotus seed and salted egg yolk paste texture on vintage ceramic tray." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB73xf6iJ9hZhRkkCq0283fpDzeVOiKmypilGhWNZdNzNUaZ8TQkpRX0iPa_A-yOzcQzbGiutYXDqjjCXEmOyJGI2CIRlhvWB7vVYTPTTq0-5Q67Ui8-m2NVx5qIrsLrb3eo_WvqMN0pxuNLstCG9JENHMiB0RCfXkeeihrya5VBESQS2jbG8JiO10ylrf4iJImYRSnhsmVZBa2RS-pa8Ab0QvlrDq2LaidyOudLK7oQkOwHdsB5PDa" />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/40 to-transparent" />
             <div className="relative z-10 text-on-primary">
@@ -24,7 +41,7 @@ export function ProductCategoriesSection() {
               <span className="inline-flex items-center gap-1 font-label-ui text-label-ui text-secondary-fixed uppercase tracking-wider group-hover:translate-x-1 transition-transform">Khám phá →</span>
             </div>
           </div>
-          <div className="lg:col-span-4 lg:row-span-2 relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="h-full relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-6 shadow-sm hover:shadow-md transition-all duration-300">
             <img alt="Dòng sản phẩm truyền thống bánh cốm bánh chả" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn4-fwG3T0mHPcpxyVz2zeiA3akkBYusSEQQPB452WZDys7mh4p-zfWYsbS-EfYVYZkZzNglH17ir-ar7MyvDwuo6tYftjCfpRS6Lt5Z6hdqcG_WvI2SMJAdV_uL_HnNnsaAhiwRyxaGkUwOmqXiBqPerjrTxx9S6S0kAI3w32c3rFGV6K2thgodJ5aMCxzqjph92eF0n9otfKtiJBCNE9RSjTBKB2bNOjU5yQ8fiIjq2PilTxnkqWS2ECR89FKCkJ_w" />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/45 to-transparent" />
             <div className="relative z-10 text-on-primary">
@@ -34,7 +51,7 @@ export function ProductCategoriesSection() {
               <span className="inline-flex items-center gap-1 font-label-ui text-label-ui text-secondary-fixed uppercase tracking-wider group-hover:translate-x-1 transition-transform">Khám phá →</span>
             </div>
           </div>
-          <div className="lg:col-span-3 lg:row-span-1 relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-4 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="h-full relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-4 shadow-sm hover:shadow-md transition-all duration-300">
             <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="Soft delicate Vietnamese rice mochi pastries in pastel shades of matcha green and blossom pink arranged on handmade paper." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvfMDppkhcp5dgt57NfhXiARBkEawTj2GOupHmsLKS6IVAjcsD3bZcY6VnRSkIWZIwN8_-UsFnsubKPrhrhAZZHH4CQoNQLdJ0KbPAD7Q4Wfp24vR2Xu8YlTyAUyWjwXi0_aPrUhKBpesQvDbdGt50_3LzHSrQ0fSLshh-cysBLG45ctj4NFjbTj_XUGRRxzevUtiUrL4beXEva3OsCzSGA7UsBNGAZBFC3bdmBakwS5PTpKwjxPsa" />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent" />
             <div className="relative z-10 text-on-primary">
@@ -43,7 +60,7 @@ export function ProductCategoriesSection() {
               <p className="font-body-sm text-body-sm text-secondary-fixed-dim/80 line-clamp-1">Mochi ngũ sắc nếp dẻo mát lành, vị thanh nhẹ.</p>
             </div>
           </div>
-          <div className="lg:col-span-3 lg:row-span-1 relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-4 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="h-full relative group overflow-hidden rounded bg-surface-container flex flex-col justify-end p-4 shadow-sm hover:shadow-md transition-all duration-300">
             <img alt="Bánh Cookie giòn thơm Minh Sam" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuIDsFVLtaNopHdn0wDfqe9i5G2qiigo-XedBjxhb4qVQp-qQTglConbltDYwcXjB4ZmbqTSQZBeuEOvgZagFWA-afeOAUPtfsIot7P7PX8nlQ_coeg9dkQLuT6QhQHNyrcs0nQ2BvDr69ibEmQ_deltrfNWzEZZdDZ_OpgLKog2MRzrcNs9_7P0LytppisjCZZLsi5TjaGH1iA22rSNZ6u_EU4C6tjdlRhMIFxnBEbMZ1ZynXA2F-O2PCiEgyTnWN6g" />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent" />
             <div className="relative z-10 text-on-primary">
@@ -52,7 +69,7 @@ export function ProductCategoriesSection() {
               <p className="font-body-sm text-body-sm text-secondary-fixed-dim/80 line-clamp-1">Bơ hạt giòn rụm, ngọt dịu cho tiệc trà tao nhã.</p>
             </div>
           </div>
-          <div className="lg:col-span-6 lg:row-span-1 relative group overflow-hidden rounded bg-surface-container flex flex-col justify-center p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="h-full relative group overflow-hidden rounded bg-surface-container flex flex-col justify-center p-6 shadow-sm hover:shadow-md transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-r from-surface-container-high via-surface-container to-surface-container-low" />
             <div className="relative z-10 flex items-center justify-between">
               <div>
@@ -65,7 +82,7 @@ export function ProductCategoriesSection() {
               </span>
             </div>
           </div>
-          <div className="lg:col-span-6 lg:row-span-1 relative group overflow-hidden rounded bg-surface-container flex flex-col justify-center p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="h-full relative group overflow-hidden rounded bg-surface-container flex flex-col justify-center p-6 shadow-sm hover:shadow-md transition-all duration-300">
             <img alt="Bánh hạt dinh dưỡng Minh Sam" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy4q29gVY855g_aoS-e0PnofwMzijHJBo_KxEfM99ceYAWXZ4rs8KwSclrM4q4dxN4JG1439eWs-75V6lYYCyeqEjgqfLBypCjyPOzJUoZw-MyYakQr6SlwLSUHvcgkUAJM3-jhg_f7CTvEVDVaJcl7w6xPPUqkvRVQfvj6QVYJObnA5tjzI5G5bVgHcvhu5m1xPg02LaWqoyGZuwx1CrlaoByxmEAPjgq4PeksFEZvOvJM8YeZaHczuBf7I8Y4-paDQ" />
             <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/60" />
             <div className="relative z-10 flex items-center justify-between text-on-primary">
@@ -79,16 +96,16 @@ export function ProductCategoriesSection() {
               </span>
             </div>
           </div>
-        </div>
+        </StaggerReveal>
       </div>
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between pt-8 text-on-surface-variant">
+      <Reveal className="w-full max-w-7xl mx-auto flex items-center justify-between pt-8 text-on-surface-variant" delay={0.12} y={14}>
         <div className="flex items-center gap-3">
           <span className="font-label-eyebrow text-label-eyebrow text-secondary uppercase tracking-[0.2em]">02 / 07</span>
           <span className="w-8 h-[1px] bg-outline-variant" />
           <span className="font-label-eyebrow text-label-eyebrow uppercase">Danh Mục Sản Phẩm</span>
         </div>
         <a className="font-label-ui text-label-ui text-primary uppercase tracking-wider hover:text-secondary transition-colors" href="#">Xem toàn bộ menu bánh →</a>
-      </div>
+      </Reveal>
     </section>
   );
 }
