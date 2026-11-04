@@ -1,11 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
 
 import {
-  //  CircleUserRound, 
+   CircleUserRound,
   // Search,
-  ShoppingBag,
+  // ShoppingBag,
 } from "lucide-react";
 import Image from "next/image";
+
+const navigationItems = [
+  { label: "Trang chủ", path: "trang-chu" },
+  { label: "Sản phẩm", path: "san-pham" },
+  { label: "Tin tức", path: "qua-tang" },
+  { label: "Về Minh Sâm", path: "ve-minh-sam" },
+];
 
 export function LandingHeader() {
   return (
@@ -22,7 +29,7 @@ export function LandingHeader() {
             width={64}
             height={64}
             priority
-            className="size-14 object-contain transition-transform group-hover:scale-105"
+            className="size-14 object-contain transition-transform group-hover:scale-105 xs:w-16 xs:h-16"
           />
           <span className="font-headline-sm text-headline-sm text-secondary-fixed tracking-wide group-hover:text-secondary-fixed-dim transition-colors">
             MINH SÂM
@@ -32,48 +39,16 @@ export function LandingHeader() {
           className="hidden lg:flex items-center gap-space-lg"
           data-active-classes="text-secondary-fixed font-semibold"
         >
-          <a
-            className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
-            data-path="trang-chu"
-            href="#"
-          >
-            Trang chủ
-          </a>
-          <a
-            className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
-            data-path="san-pham"
-            href="#"
-          >
-            Sản phẩm
-          </a>
-          <a
-            className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
-            data-path="ve-minh-sam"
-            href="#"
-          >
-            Về Minh Sâm
-          </a>
-          <a
-            className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
-            data-path="qua-tang"
-            href="#"
-          >
-            Quà tặng
-          </a>
-          <a
-            className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
-            data-path="dao-tao-chuyen-giao"
-            href="#"
-          >
-            Đào tạo &amp; Chuyển giao
-          </a>
-          <a
-            className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
-            data-path="lien-he"
-            href="#"
-          >
-            Liên hệ
-          </a>
+          {navigationItems.map(({ label, path }) => (
+            <a
+              className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
+              data-path={path}
+              href="#"
+              key={path}
+            >
+              {label}
+            </a>
+          ))}
         </nav>
         <div className="flex items-center gap-space-md">
           {/* <button
@@ -83,21 +58,21 @@ export function LandingHeader() {
           >
             <Search aria-hidden="true" className="size-5" />
           </button> */}
-          {/* <button
+          <button
             aria-label="Tài khoản khách hàng"
             className="w-9 h-9 rounded-full flex items-center justify-center text-secondary-fixed-dim hover:text-secondary-fixed hover:bg-primary-container transition-all"
             type="button"
           >
             <CircleUserRound aria-hidden="true" className="size-5" />
-          </button> */}
-          <button
+          </button>
+          {/* <button
             aria-label="Giỏ hàng quà tặng"
             className="relative w-9 h-9 rounded-full flex items-center justify-center text-secondary-fixed-dim hover:text-secondary-fixed hover:bg-primary-container transition-all"
             type="button"
           >
             <ShoppingBag aria-hidden="true" className="size-5" />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary-fixed" />
-          </button>
+          </button> */}
         </div>
       </div>
     </header>
