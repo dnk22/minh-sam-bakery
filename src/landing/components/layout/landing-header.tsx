@@ -1,25 +1,26 @@
 import {
-   CircleUserRound,
+  CircleUserRound,
   // Search,
   // ShoppingBag,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const navigationItems = [
-  { label: "Trang chủ", path: "trang-chu" },
-  { label: "Sản phẩm", path: "san-pham" },
-  { label: "Tin tức", path: "qua-tang" },
-  { label: "Về Minh Sâm", path: "ve-minh-sam" },
+  { label: "Trang chủ", path: "trang-chu", href: "/" },
+  { label: "Sản phẩm", path: "san-pham", href: "/san-pham" },
+  { label: "Tin tức", path: "tin-tuc", href: "/tin-tuc" },
+  { label: "Về Minh Sâm", path: "ve-minh-sam", href: "#" },
 ];
 
 export function LandingHeader() {
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-primary/95 backdrop-blur-md shadow-[0_4px_24px_rgba(46,2,8,0.18)]">
       <div className="h-20 max-w-[1360px] mx-auto px-gutter-desktop flex items-center justify-between gap-space-lg">
-        <a
+        <Link
           className="flex items-center gap-space-sm group text-left"
           data-path="trang-chu"
-          href="#"
+          href="/"
         >
           <Image
             src="/images/minh-sam-logo.webp"
@@ -32,20 +33,20 @@ export function LandingHeader() {
           <span className="font-headline-sm text-headline-sm text-secondary-fixed tracking-wide group-hover:text-secondary-fixed-dim transition-colors">
             MINH SÂM
           </span>
-        </a>
+        </Link>
         <nav
           className="hidden lg:flex items-center gap-space-lg"
           data-active-classes="text-secondary-fixed font-semibold"
         >
-          {navigationItems.map(({ label, path }) => (
-            <a
+          {navigationItems.map(({ label, path, href }) => (
+            <Link
               className="font-label-ui text-label-ui text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-space-xs tracking-wider uppercase"
               data-path={path}
-              href="#"
+              href={href}
               key={path}
             >
               {label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="flex items-center gap-space-md">
