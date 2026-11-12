@@ -8,7 +8,7 @@ import { routes } from "@/landing/lib/routes";
 
 export function GiftingSection() {
   return (
-    <section className="w-full min-h-[96vh] lg:min-h-screen flex flex-col justify-between bg-primary-container text-on-primary px-6 md:px-12 lg:px-20 py-16 relative overflow-hidden">
+    <section className="relative w-full flex flex-col justify-between overflow-hidden bg-primary-container px-6 py-16 text-on-primary md:px-12 lg:min-h-screen lg:px-20">
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl opacity-50 pointer-events-none" />
       <div className="w-full max-w-7xl mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         <Reveal className="reveal-split-left lg:col-span-6 relative order-2 lg:order-1" scale={1.015} x="var(--reveal-x)" y="var(--reveal-y)">

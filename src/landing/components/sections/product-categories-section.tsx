@@ -8,7 +8,7 @@ import { routes } from "@/landing/lib/routes";
 
 export function ProductCategoriesSection() {
   return (
-    <section className="w-full min-h-[96vh] lg:min-h-screen flex flex-col justify-between bg-surface text-on-surface px-6 md:px-12 lg:px-20 py-16" id="danh-muc">
+    <section className="w-full flex flex-col justify-between bg-surface text-on-surface px-6 py-16 md:px-12 lg:min-h-screen lg:px-20" id="danh-muc">
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <Reveal>

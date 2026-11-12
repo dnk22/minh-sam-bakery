@@ -3,7 +3,7 @@ import { StaggerReveal } from "@/landing/components/motion/stagger-reveal";
 
 export function TrainingTransferSection() {
   return (
-    <section className="w-full min-h-[96vh] lg:min-h-screen flex flex-col justify-between bg-primary text-on-primary px-6 md:px-12 lg:px-20 py-16 relative overflow-hidden">
+    <section className="relative w-full flex flex-col justify-between overflow-hidden bg-primary px-6 py-16 text-on-primary md:px-12 lg:min-h-screen lg:px-20">
       <div className="w-full max-w-7xl mx-auto my-auto">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
           <Reveal duration={0.62} y={20}>

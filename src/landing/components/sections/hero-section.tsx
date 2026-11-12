@@ -3,7 +3,7 @@ import { ScrollParallax } from "@/landing/components/motion/scroll-parallax";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full min-h-[96vh] lg:min-h-screen flex flex-col justify-between overflow-hidden bg-primary text-on-primary -mt-20 pt-24 px-6 md:px-12 lg:px-20 pb-10">
+    <section className="relative w-full flex flex-col justify-between overflow-hidden bg-primary text-on-primary -mt-20 pt-24 px-6 md:px-12 lg:min-h-screen lg:px-20 pb-10">
       <div className="absolute inset-0 z-0">
         <ScrollParallax
           className="w-full h-full bg-cover bg-center opacity-40 scale-105"
