@@ -102,7 +102,6 @@ export function ProductCategoriesSection() {
       </div>
       <Reveal className="w-full max-w-7xl mx-auto flex items-center justify-between pt-8 text-on-surface-variant" delay={0.12} y={14}>
         <div className="flex items-center gap-3">
-          <span className="font-label-eyebrow text-label-eyebrow text-secondary uppercase tracking-[0.2em]">02 / 07</span>
           <span className="w-8 h-[1px] bg-outline-variant" />
           <span className="font-label-eyebrow text-label-eyebrow uppercase">Danh Mục Sản Phẩm</span>
         </div>

@@ -62,7 +62,6 @@ export function TrainingTransferSection() {
       <Reveal className="w-full max-w-7xl mx-auto" delay={0.1} duration={0.58} y={16}>
         <div className="flex items-center justify-between pt-6 text-secondary-fixed-dim/70">
           <div className="flex items-center gap-3">
-            <span className="font-label-eyebrow text-label-eyebrow text-secondary-fixed tracking-[0.2em] uppercase">07 / 07</span>
             <span className="w-8 h-[1px] bg-secondary-fixed/30" />
             <span className="font-label-eyebrow text-label-eyebrow uppercase">Đào Tạo &amp; Chuyển Giao</span>
           </div>

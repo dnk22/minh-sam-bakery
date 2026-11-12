@@ -20,7 +20,7 @@ export function LandingFooter() {
               <Link className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="trang-chu" href={routes.home}>Trang chủ</Link>
               <Link className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="san-pham" href={routes.category("san-pham-truyen-thong")}>Sản phẩm truyền thống</Link>
               <Link className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="qua-tang" href={routes.category("qua-tang")}>Hộp quà tri ân</Link>
-              <span aria-disabled="true" className="font-body-sm text-body-sm text-secondary-fixed-dim/80 py-0.5">Câu chuyện thương hiệu</span>
+              <Link className="py-0.5 font-body-sm text-body-sm text-secondary-fixed-dim/80 transition-colors hover:text-secondary-fixed" href={routes.about}>Câu chuyện thương hiệu</Link>
               <span aria-disabled="true" className="font-body-sm text-body-sm text-secondary-fixed-dim/80 py-0.5">Lớp học làm bánh</span>
             </nav>
           </div>

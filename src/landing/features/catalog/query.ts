@@ -59,8 +59,8 @@ export function filterCatalogProducts(categorySlug: string, query: CatalogQuery)
   const categoryBySlug = new Map(catalogCategories.map((category) => [category.slug, category]));
 
   const products = catalogProducts.filter((product) => {
-    if (product.categorySlug !== categorySlug) return false;
-    if (query.types.length > 0 && !query.types.includes(product.categorySlug)) return false;
+    if (product.status !== "published" || !product.categorySlugs.includes(categorySlug)) return false;
+    if (query.types.length > 0 && !query.types.some((type) => product.categorySlugs.includes(type))) return false;
     if (query.mode !== "all" && product.pricing.mode !== query.mode) return false;
     if (query.price !== "all") {
       if (product.pricing.mode !== "fixed") return false;
@@ -99,5 +99,5 @@ export function catalogQueryToSearchParams(query: CatalogQuery) {
 }
 
 export function productCountForCategory(slug: string) {
-  return catalogProducts.filter((product) => product.categorySlug === slug).length;
+  return catalogProducts.filter((product) => product.status === "published" && product.categorySlugs.includes(slug)).length;
 }

@@ -2,10 +2,12 @@
 
 import { ArrowRight, ReceiptText } from "lucide-react";
 
-// Future quotation integration attaches here; no submission is simulated.
-const handleRequestQuotation = () => undefined;
+import { useQuotationFlow } from "@/landing/features/quotation/components/quotation-flow-provider";
 
 export function QuotationActionButton({ mobile = false }: { mobile?: boolean }) {
+  const { openQuotation } = useQuotationFlow();
+  const handleRequestQuotation = (event: React.MouseEvent<HTMLButtonElement>) => openQuotation(event.currentTarget);
+
   if (mobile) {
     return <button className="flex items-center gap-1.5 rounded bg-primary-container px-5 py-2.5 font-label-ui text-label-ui font-bold uppercase tracking-wider text-on-primary shadow transition-colors hover:bg-primary" onClick={handleRequestQuotation} type="button"><ReceiptText className="size-[18px]" /> YÊU CẦU BÁO GIÁ</button>;
   }

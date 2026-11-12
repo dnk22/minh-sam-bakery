@@ -64,7 +64,6 @@ export function CraftsmanshipSection() {
       <Reveal className="w-full max-w-7xl mx-auto" delay={0.12} duration={0.6} y={18}>
         <div className="flex items-center justify-between pt-6 text-on-surface-variant">
           <div className="flex items-center gap-3">
-            <span className="font-label-eyebrow text-label-eyebrow text-secondary uppercase tracking-[0.2em]">06 / 07</span>
             <span className="w-8 h-[1px] bg-outline-variant" />
             <span className="font-label-eyebrow text-label-eyebrow uppercase">Quy Chuẩn Nghề Bánh</span>
           </div>

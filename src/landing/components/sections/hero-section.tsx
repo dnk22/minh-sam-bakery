@@ -1,5 +1,7 @@
 import { Reveal } from "@/landing/components/motion/reveal";
 import { ScrollParallax } from "@/landing/components/motion/scroll-parallax";
+import Link from "next/link";
+import { routes } from "@/landing/lib/routes";
 
 export function HeroSection() {
   return (
@@ -42,7 +44,7 @@ export function HeroSection() {
           <Reveal delay={0.28} enterOnMount y={18}>
             <div className="flex flex-wrap items-center gap-5">
               <a className="inline-flex items-center justify-center px-8 py-4 bg-secondary-fixed text-on-secondary-fixed font-label-ui text-label-ui tracking-wider uppercase rounded hover:bg-secondary-fixed-dim transition-all duration-300 shadow-lg shadow-black/30" href="#danh-muc">Khám phá các dòng bánh</a>
-              <span aria-disabled="true" className="inline-flex items-center justify-center px-8 py-4 bg-primary-container text-secondary-fixed font-label-ui text-label-ui tracking-wider uppercase rounded">Về Minh Sâm</span>
+              <Link className="inline-flex items-center justify-center rounded bg-primary-container px-8 py-4 font-label-ui text-label-ui uppercase tracking-wider text-secondary-fixed transition-colors hover:bg-primary-container/80" href={routes.about}>Về Minh Sâm</Link>
             </div>
           </Reveal>
         </div>
@@ -58,7 +60,6 @@ export function HeroSection() {
       </div>
       <Reveal className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-between pt-4" delay={0.36} enterOnMount y={12}>
         <div className="flex items-center gap-3">
-          <span className="font-label-eyebrow text-label-eyebrow text-secondary-fixed tracking-[0.2em] uppercase">01 / 07</span>
           <span className="w-8 h-[1px] bg-secondary-fixed/40" />
           <span className="hero-scroll-hint font-label-eyebrow text-label-eyebrow text-secondary-fixed-dim/70 uppercase">Cuộn để khám phá theo từng chương ↓</span>
         </div>

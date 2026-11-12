@@ -1,4 +1,7 @@
-import { catalogProducts } from "@/landing/features/catalog/data";
+import { catalogCategories, catalogProducts } from "../catalog/data.ts";
+import { merchandising } from "../catalog/merchandising.ts";
+import { getProductById } from "../catalog/selectors.ts";
+import { routes } from "../../lib/routes.ts";
 
 import type {
   DetailCatalogProduct,
@@ -39,6 +42,16 @@ const fixedPriceProduct: FixedPriceProductDetail = {
       { id: "premium-450g", label: "Hộp Thượng Hạng 450g", price: 235000, currency: "VND" },
     ],
   },
+  presentation: {
+    eyebrow: "DÒNG THƯỜNG NHẬT • BÁNH COOKIE THỦ CÔNG",
+    priceUnitLabel: "/ hộp tiêu chuẩn",
+    productionNote: "Mẻ nướng thủ công",
+    availabilityNote: "Mẻ nướng sáng nay sẵn sàng",
+    pairingEyebrow: "GỢI Ý KẾT HỢP HOÀN HẢO",
+    pairingTitle: "Thức Trà & Hương Bánh Thường Nhật",
+    pairingDescription: "Nghệ nhân Minh Sâm gợi ý thưởng thức bánh cookie bơ hạt cùng tách trà mộc thanh hương để tôn vị béo ngậy tao nhã.",
+    trustBadges: ["100% bơ Pháp tự nhiên", "Đóng gói giữ nhiệt", "Đổi trả nếu hư tổn"],
+  },
   complementaryProducts: [
     { eyebrow: "Trà Quán Cổ Truyền", title: "Trà Sen Tây Hồ Thượng Hạng", description: "Búp trà Tân Cương ủ trong nhụy sen Bách Diệp sớm hạ. Vị chát dịu, hậu ngọt sâu lắng.", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBZT3AFvx46Ih0q77NM0P4Re6VPtn3Kwpz0IugYlsQa92L48HJdwbM_has8CprEQRhF4DavoBqhsbeME9Pp9aQ-xVYO_FvmMPyrlpEbfqqjfKhvSOW3GTmfkotuGy4CpA4nbLSRY0b0fdudcY3xHx70r-6MRpCgRTMJu1iQHlYno6s9P_ie0oL5wIbti6pFqNi99NfmlhmdOA5UufKmBrBk4mytvgBEiWfxKmjj4y8", imageAlt: "Trà Sen Tây Hồ ướp bông tươi", badge: "Ướp Bông Tươi", price: "180.000đ / Hộp" },
     { eyebrow: "Điểm Tâm Mùa Vụ", title: "Bánh Mochi Gạo Nếp Hoa Vàng", description: "Vỏ nếp nương xay nước dẻo quánh, nhân đậu xanh sên đường phèn bùi thanh không gắt.", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAgbX7M50YF7tSb-ip60xe7faZG0I6g67GNJ_BK4TPUKT3jQI3mzCe_XvXTF_DmN9T_ma7LwxIogElQ7FHVn9yt1k8I5Owid1wfPdO7A4UAH4258nRI9DhyKlcg4finYdVPJtnfqUo6kJz7kRuO0BiuI1Uf08NzglmgjLhKT_YiLF2F9rf1WEwdipdtl0NvWHnAJaCS39bO36lGoyReEjS1jN2tbRD6QNLGTJQ6TZw", imageAlt: "Bánh Mochi Ngũ Sắc Thủ Công", badge: "Dẻo Thơm Mộc", price: "95.000đ / Khay" },
@@ -64,6 +77,22 @@ const quotationProduct: QuotationProductDetail = {
     { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuA7ePbgQDcShz3hgEj95vVovFnlt2QMQQNRfpY47UayufshqI0rTSsTiOieWLXfGjuE_U4yD7x-YnkeNWVLAuYS3JSesUjb95w7JL-pwZiPXc-s1Lgu1j0uk8IYDXtrdK-HomUbW3axXByGS-OZfMjk5DfaSAEvTfRKdErqYRGmbIAk5BpSEe7LG2pw5AMagjNZ38wtJGu2sBgj8TEfN4IYP7OdMaJhkrZ4DdxxvNU", alt: "Toàn bộ quy cách hộp quà doanh nghiệp" },
   ],
   pricing: { mode: "quote" },
+  presentation: {
+    quotationProfile: "corporate-gift",
+    eyebrow: "DỊCH VỤ QUÀ TẶNG DOANH NGHIỆP & SỰ KIỆN CAO CẤP",
+    specificationEyebrow: "Quy Cách Chuẩn Phẩm B2B",
+    pricingExplanation: "Giá và phương án đóng gói sẽ được tư vấn theo số lượng, quy cách và yêu cầu cá nhân hóa của bạn.",
+    serviceBenefits: [
+      { icon: "package", title: "Số lượng linh hoạt", text: "Tư vấn quy cách theo nhu cầu của từng chương trình" },
+      { icon: "gift", title: "Tư vấn đóng gói", text: "Lựa chọn hộp, phụ kiện và thiệp theo phương án quà tặng" },
+      { icon: "brush", title: "Cá nhân hóa theo nhu cầu", text: "Trao đổi phương án nhận diện phù hợp với sản phẩm" },
+    ],
+    drawerFooter: "Trao đổi về số lượng, ngày nhận và nhu cầu cá nhân hóa.",
+    collectionTitle: "Các mẫu quà tặng doanh nghiệp khác",
+    experienceTitle: "Hoàn thiện món quà của bạn",
+    experienceDescription: "Các thức quà phong vị bổ trợ được tuyển chọn để hoàn thiện phương án quà tặng.",
+    mobileLabel: "Quà Tặng Doanh Nghiệp",
+  },
   specifications: [
     { label: "Kích thước hộp:", value: "36cm x 24cm x 11cm" },
     { label: "Chất liệu thân hộp:", value: "Gỗ tự nhiên sơn mài 7 lớp" },
@@ -84,10 +113,123 @@ const quotationProduct: QuotationProductDetail = {
   ],
 };
 
-export const productDetails: ProductDetail[] = [fixedPriceProduct, quotationProduct];
+function categoryLabel(slug: string) {
+  return catalogCategories.find((category) => category.slug === slug)?.name ?? slug;
+}
+
+function repeatedGallery(product: DetailCatalogProduct) {
+  return Array.from({ length: 5 }, (_, index) => ({
+    src: product.image,
+    alt: `${product.imageAlt} — ảnh minh họa lặp ${index + 1}/5`,
+  }));
+}
+
+function productCard(productId: string) {
+  const product = getProductById(productId);
+  if (!product) throw new Error(`Missing merchandising product: ${productId}`);
+  return {
+    productId: product.id,
+    href: routes.product(product.slug),
+    eyebrow: "",
+    title: product.name,
+    description: product.description,
+    image: product.image,
+    imageAlt: product.imageAlt,
+    badge: product.badge,
+    price: product.pricing.mode === "fixed" ? product.pricing.price : "Báo giá theo yêu cầu",
+    meta: product.pricing.mode === "quote" ? product.pricing.detail : product.pricing.unit,
+  };
+}
+
+function uniqueRecommendations(preferredIds: readonly string[], productId: string, mode: "fixed" | "quote", count: number) {
+  return [...preferredIds, ...catalogProducts.filter((item) => item.status === "published" && item.pricing.mode === mode).map((item) => item.id)]
+    .filter((id, index, ids) => id !== productId && ids.indexOf(id) === index)
+    .slice(0, count);
+}
+
+function createDetail(product: DetailCatalogProduct): ProductDetail {
+  const gallery = repeatedGallery(product);
+  if (product.pricing.mode === "fixed") {
+    const relatedIds = uniqueRecommendations(merchandising.relatedFixedProductIds, product.id, "fixed", 4);
+    return {
+      catalog: product,
+      categoryLabel: categoryLabel(product.categorySlug),
+      heroImage: { src: product.image, alt: product.imageAlt },
+      gallery,
+      galleryStrategy: "repeated-mock",
+      pricing: { mode: "fixed", variants: product.pricing.variants.map((variant) => ({ id: variant.id, label: variant.label, price: variant.amount, currency: variant.currency })) },
+      presentation: {
+        eyebrow: `DÒNG ${categoryLabel(product.categorySlug).toLocaleUpperCase("vi")} • SẢN PHẨM MINH SÂM`,
+        priceUnitLabel: product.pricing.unit,
+        productionNote: "Phiên bản minh họa",
+        availabilityNote: "Vui lòng xác nhận trước khi đặt",
+        pairingEyebrow: "GỢI Ý THƯỞNG THỨC",
+        pairingTitle: `Thưởng thức ${product.name}`,
+        pairingDescription: `Các gợi ý đi kèm được trình bày theo phong vị của ${product.name}; thông tin bán hàng cần được xác nhận trước khi đặt.`,
+        trustBadges: ["Nguyên liệu tuyển chọn", "Đóng gói cẩn thận", "Thông tin demo"],
+      },
+      complementaryProducts: fixedPriceProduct.complementaryProducts,
+      relatedProducts: relatedIds.map(productCard),
+    };
+  }
+
+  const customEvent = product.pricing.quotationProfile === "custom-event";
+  const alternativeIds = uniqueRecommendations(merchandising.alternativeGiftProductIds, product.id, "quote", 3);
+  return {
+    catalog: product,
+    categoryLabel: categoryLabel(product.categorySlug),
+    heroImage: { src: product.image, alt: product.imageAlt },
+    gallery,
+    galleryStrategy: "repeated-mock",
+    pricing: { mode: "quote" },
+    presentation: {
+      quotationProfile: product.pricing.quotationProfile,
+      eyebrow: customEvent ? "BÁNH THIẾT KẾ THEO YÊU CẦU CHO SINH NHẬT & SỰ KIỆN" : "DỊCH VỤ QUÀ TẶNG THEO YÊU CẦU",
+      specificationEyebrow: customEvent ? "Thông Tin Thiết Kế Dự Kiến" : "Quy Cách Quà Tặng Dự Kiến",
+      pricingExplanation: customEvent ? "Giá được tư vấn theo quy mô bánh, phong cách trang trí và yêu cầu của sự kiện." : "Giá và phương án đóng gói được tư vấn theo số lượng, quy cách và nhu cầu cá nhân hóa.",
+      serviceBenefits: customEvent
+        ? [{ icon: "package", title: "Thiết kế theo dịp", text: "Trao đổi phong cách và quy mô phù hợp với sự kiện" }, { icon: "gift", title: "Tư vấn trình bày", text: "Gợi ý bố cục bánh và bàn tiệc trong phạm vi demo" }, { icon: "brush", title: "Cá nhân hóa", text: "Điều chỉnh màu sắc và thông điệp theo yêu cầu" }]
+        : [{ icon: "package", title: "Quy cách linh hoạt", text: "Tư vấn lựa chọn theo nhu cầu chương trình" }, { icon: "gift", title: "Tư vấn đóng gói", text: "Phối hộp và phụ kiện theo phương án quà tặng" }, { icon: "brush", title: "Cá nhân hóa", text: "Trao đổi phương án nhận diện phù hợp" }],
+      drawerFooter: customEvent ? "Trao đổi về quy mô, ngày tổ chức và mong muốn thiết kế." : "Trao đổi về số lượng, ngày nhận và nhu cầu cá nhân hóa.",
+      collectionTitle: customEvent ? "Các sản phẩm đặt theo yêu cầu khác" : "Các mẫu quà tặng khác",
+      experienceTitle: customEvent ? "Gợi ý cho bàn tiệc của bạn" : "Hoàn thiện món quà của bạn",
+      experienceDescription: customEvent ? "Các lựa chọn bổ trợ được trình bày để trao đổi khi tư vấn sự kiện." : "Các thức quà phong vị bổ trợ được trình bày để hoàn thiện phương án quà tặng.",
+      mobileLabel: customEvent ? "Sinh Nhật & Sự Kiện" : "Quà Tặng Theo Yêu Cầu",
+    },
+    specifications: customEvent
+      ? [{ label: "Loại yêu cầu:", value: "Sinh nhật hoặc sự kiện" }, { label: "Quy mô:", value: "Xác nhận khi tư vấn" }, { label: "Phong cách:", value: "Thiết kế theo yêu cầu" }, { label: "Ngày nhận:", value: "Xác nhận khi tư vấn" }]
+      : [{ label: "Quy cách:", value: "Xác nhận khi tư vấn" }, { label: "Thành phần:", value: "Phối theo phương án đã chọn" }, { label: "Cá nhân hóa:", value: "Theo yêu cầu phù hợp" }, { label: "Ngày nhận:", value: "Xác nhận khi tư vấn" }],
+    addons: quotationProduct.addons,
+    alternatives: alternativeIds.map(productCard),
+  };
+}
+
+const productByName = new Map(catalogProducts.map((product) => [product.name, product]));
+const linkCards = (cards: typeof fixedPriceProduct.relatedProducts) => cards.map((card) => {
+  const product = productByName.get(card.title);
+  return product ? { ...card, productId: product.id, href: routes.product(product.slug) } : card;
+});
+
+fixedPriceProduct.relatedProducts = linkCards(fixedPriceProduct.relatedProducts);
+quotationProduct.alternatives = linkCards(quotationProduct.alternatives);
+
+const preservedIds = new Set([fixedPriceProduct.catalog.id, quotationProduct.catalog.id]);
+const generatedDetails = catalogProducts
+  .filter((product): product is DetailCatalogProduct => product.status === "published" && !preservedIds.has(product.id))
+  .map(createDetail);
+
+export const productDetails: ProductDetail[] = [fixedPriceProduct, quotationProduct, ...generatedDetails];
 
 export function findProductDetail(slug: string) {
   return productDetails.find((product) => product.catalog.slug === slug);
+}
+
+export const getProductDetailBySlug = findProductDetail;
+
+export function getRelatedProducts(productId: string) {
+  const detail = productDetails.find((item) => item.catalog.id === productId);
+  if (!detail) return [];
+  return isQuotationProduct(detail) ? detail.alternatives : detail.relatedProducts;
 }
 
 export function isQuotationProduct(product: ProductDetail): product is QuotationProductDetail {

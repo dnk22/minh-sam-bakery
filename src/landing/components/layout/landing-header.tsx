@@ -3,6 +3,7 @@
 import {  Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { routes } from "@/landing/lib/routes";
@@ -11,10 +12,12 @@ const navigationItems = [
   { label: "Trang chủ", path: "trang-chu", href: routes.home },
   { label: "Sản phẩm", path: "san-pham", href: routes.products },
   { label: "Tin tức", path: "tin-tuc", href: routes.journal },
+  { label: "Về Minh Sâm", path: "ve-minh-sam", href: routes.about },
 ];
 
 export function LandingHeader() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isDrawerOpen) return;
@@ -38,8 +41,7 @@ export function LandingHeader() {
         <BrandLink onNavigate={closeDrawer} />
 
         <nav className="hidden items-center gap-space-lg lg:flex" data-active-classes="text-secondary-fixed font-semibold">
-          {navigationItems.map(({ label, path, href }) => <NavigationLink href={href} key={path} label={label} path={path} />)}
-          <span aria-disabled="true" className="py-space-xs font-label-ui text-label-ui uppercase tracking-wider text-secondary-fixed-dim/80">Về Minh Sâm</span>
+          {navigationItems.map(({ label, path, href }) => <NavigationLink active={pathname === href} href={href} key={path} label={label} path={path} />)}
         </nav>
 
         <div className="flex items-center gap-space-sm md:gap-space-md">
@@ -60,11 +62,10 @@ export function LandingHeader() {
           </div>
           <nav className="flex flex-1 flex-col px-6 py-8">
             {navigationItems.map(({ label, path, href }, index) => (
-              <Link className="flex items-center justify-between border-b border-secondary-fixed/15 py-5 font-headline-sm text-headline-sm text-secondary-fixed transition-colors hover:text-secondary-fixed-dim" data-path={path} href={href} key={path} onClick={closeDrawer} tabIndex={isDrawerOpen ? 0 : -1}>
+              <Link aria-current={pathname === href ? "page" : undefined} className={`flex items-center justify-between border-b border-secondary-fixed/15 py-5 font-headline-sm text-headline-sm transition-colors hover:text-secondary-fixed-dim ${pathname === href ? "font-semibold text-secondary-fixed" : "text-secondary-fixed"}`} data-path={path} href={href} key={path} onClick={closeDrawer} tabIndex={isDrawerOpen ? 0 : -1}>
                 <span>{label}</span><span className="font-label-eyebrow text-label-eyebrow text-secondary-fixed-dim/60">0{index + 1}</span>
               </Link>
             ))}
-            <span aria-disabled="true" className="flex items-center justify-between border-b border-secondary-fixed/15 py-5 font-headline-sm text-headline-sm text-secondary-fixed-dim/50"><span>Về Minh Sâm</span><span className="font-label-eyebrow text-label-eyebrow">04</span></span>
           </nav>
           <div className="border-t border-secondary-fixed/15 px-6 py-6">
             <p className="font-label-eyebrow text-label-eyebrow uppercase tracking-[0.2em] text-secondary-fixed-dim/60">Hà Nội • Hương vị di sản</p>
@@ -84,6 +85,6 @@ function BrandLink({ compact = false, onNavigate }: { compact?: boolean; onNavig
   );
 }
 
-function NavigationLink({ href, label, path }: { href: string; label: string; path: string }) {
-  return <Link className="py-space-xs font-label-ui text-label-ui uppercase tracking-wider text-secondary-fixed-dim/80 transition-colors hover:text-secondary-fixed" data-path={path} href={href}>{label}</Link>;
+function NavigationLink({ active, href, label, path }: { active: boolean; href: string; label: string; path: string }) {
+  return <Link aria-current={active ? "page" : undefined} className={`py-space-xs font-label-ui text-label-ui uppercase tracking-wider transition-colors hover:text-secondary-fixed ${active ? "font-semibold text-secondary-fixed" : "text-secondary-fixed-dim/80"}`} data-path={path} href={href}>{label}</Link>;
 }

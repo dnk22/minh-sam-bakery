@@ -61,7 +61,6 @@ export function GiftingSection() {
       </div>
       <Reveal className="w-full max-w-7xl mx-auto flex items-center justify-between pt-6 text-secondary-fixed-dim/70" delay={0.36} y={14}>
         <div className="flex items-center gap-3">
-          <span className="font-label-eyebrow text-label-eyebrow text-secondary-fixed tracking-[0.2em] uppercase">03 / 07</span>
           <span className="w-8 h-[1px] bg-secondary-fixed/30" />
           <span className="font-label-eyebrow text-label-eyebrow uppercase">Nghệ Thuật Trao Tặng</span>
         </div>
