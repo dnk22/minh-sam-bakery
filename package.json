@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

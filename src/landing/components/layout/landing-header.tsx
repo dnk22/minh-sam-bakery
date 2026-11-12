@@ -5,12 +5,12 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { routes } from "@/landing/lib/routes";
 
 const navigationItems = [
-  { label: "Trang chủ", path: "trang-chu", href: "/" },
-  { label: "Sản phẩm", path: "san-pham", href: "/san-pham" },
-  { label: "Tin tức", path: "tin-tuc", href: "/tin-tuc" },
-  { label: "Về Minh Sâm", path: "ve-minh-sam", href: "#" },
+  { label: "Trang chủ", path: "trang-chu", href: routes.home },
+  { label: "Sản phẩm", path: "san-pham", href: routes.products },
+  { label: "Tin tức", path: "tin-tuc", href: routes.journal },
 ];
 
 export function LandingHeader() {
@@ -48,6 +48,7 @@ export function LandingHeader() {
               {label}
             </Link>
           ))}
+          <span aria-disabled="true" className="font-label-ui text-label-ui text-secondary-fixed-dim/80 py-space-xs tracking-wider uppercase">Về Minh Sâm</span>
         </nav>
         <div className="flex items-center gap-space-md">
           {/* <button

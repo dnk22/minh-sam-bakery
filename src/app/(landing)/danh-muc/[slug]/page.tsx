@@ -3,8 +3,12 @@ import { notFound } from "next/navigation";
 
 import { CategoryListingPage } from "@/landing/features/catalog/category-listing-page";
 import { catalogCategories, findCatalogCategory } from "@/landing/features/catalog/data";
+import { parseCatalogQuery, type RawSearchParams } from "@/landing/features/catalog/query";
 
-type CategoryRouteProps = { params: Promise<{ slug: string }> };
+type CategoryRouteProps = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<RawSearchParams>;
+};
 
 export const instant = false;
 
@@ -19,9 +23,9 @@ export async function generateMetadata({ params }: CategoryRouteProps): Promise<
   return { title: `${category.name} | Minh Sâm Bakery`, description: category.description };
 }
 
-export default async function CategoryRoute({ params }: CategoryRouteProps) {
-  const { slug } = await params;
+export default async function CategoryRoute({ params, searchParams }: CategoryRouteProps) {
+  const [{ slug }, rawSearchParams] = await Promise.all([params, searchParams]);
   const category = findCatalogCategory(slug);
   if (!category) notFound();
-  return <CategoryListingPage category={category} />;
+  return <CategoryListingPage category={category} query={parseCatalogQuery(rawSearchParams)} />;
 }

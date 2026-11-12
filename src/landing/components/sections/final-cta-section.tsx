@@ -1,4 +1,6 @@
 import { Reveal } from "@/landing/components/motion/reveal";
+import Link from "next/link";
+import { routes } from "@/landing/lib/routes";
 
 export function FinalCtaSection() {
   return (
@@ -16,8 +18,8 @@ export function FinalCtaSection() {
         <Reveal delay={0.15} duration={0.55} y={18}>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a className="px-8 py-4 bg-primary text-on-primary font-label-ui text-label-ui tracking-wider uppercase rounded hover:bg-primary-container transition-all" href="#danh-muc">Xem các dòng bánh</a>
-            <a className="px-8 py-4 bg-surface-container-high text-primary font-label-ui text-label-ui tracking-wider uppercase rounded hover:bg-surface-container-highest transition-all" href="#">Khám phá quà tặng</a>
-            <a className="px-8 py-4 bg-transparent text-secondary font-label-ui text-label-ui tracking-wider uppercase rounded hover:bg-surface-container-high transition-all" href="#">Liên hệ Minh Sâm</a>
+            <Link className="px-8 py-4 bg-surface-container-high text-primary font-label-ui text-label-ui tracking-wider uppercase rounded hover:bg-surface-container-highest transition-all" href={routes.category("qua-tang")}>Khám phá quà tặng</Link>
+            <span aria-disabled="true" className="px-8 py-4 bg-transparent text-secondary font-label-ui text-label-ui tracking-wider uppercase rounded">Liên hệ Minh Sâm</span>
           </div>
         </Reveal>
       </div>

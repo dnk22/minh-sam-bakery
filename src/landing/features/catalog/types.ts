@@ -13,7 +13,7 @@ export type CatalogCategory = {
 export type CatalogProduct = {
   id: string;
   slug?: string;
-  categorySlug?: string;
+  categorySlug: string;
   name: string;
   description: string;
   image: string;
@@ -21,6 +21,6 @@ export type CatalogProduct = {
   badge?: string;
   badgeClassName?: string;
   pricing:
-    | { mode: "fixed"; price: string; unit: string }
+    | { mode: "fixed"; amount: number; price: string; unit: string }
     | { mode: "quote"; detail: string; icon: "calendar" | "palette" | "cake" };
 };

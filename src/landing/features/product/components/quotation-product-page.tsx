@@ -6,6 +6,7 @@ import type { PresentationCard, QuotationProductDetail } from "../types";
 import { ProductBreadcrumb } from "./product-breadcrumb";
 import { ProductGallery } from "./product-gallery";
 import { QuotationActionButton } from "./quotation-action-button";
+import { routes } from "@/landing/lib/routes";
 
 export function QuotationProductPage({ product }: { product: QuotationProductDetail }) {
   return (
@@ -40,7 +41,7 @@ export function QuotationProductPage({ product }: { product: QuotationProductDet
               <div className="flex flex-col gap-3 pt-1">
                 <QuotationActionButton />
                 <p className="text-center font-body-sm text-body-sm text-on-surface-variant">Trao đổi về số lượng, ngày nhận và nhu cầu cá nhân hóa.</p>
-                <div className="flex items-center justify-center pt-1"><Link className="flex items-center gap-1 font-label-ui text-body-sm font-medium text-primary transition-colors hover:text-secondary" href="/san-pham">Xem các mẫu quà khác <ArrowRight className="size-4" /></Link></div>
+                <div className="flex items-center justify-center pt-1"><Link className="flex items-center gap-1 font-label-ui text-body-sm font-medium text-primary transition-colors hover:text-secondary" href={routes.category("qua-tang")}>Xem các mẫu quà khác <ArrowRight className="size-4" /></Link></div>
               </div>
             </div>
           </div>
@@ -55,7 +56,7 @@ export function QuotationProductPage({ product }: { product: QuotationProductDet
       </section>
 
       <section className="mx-auto w-full max-w-[1360px] px-margin py-space-xl md:px-margin-tablet lg:px-margin-desktop">
-        <div className="mb-space-lg flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">BỘ SƯU TẬP LIÊN QUAN</span><h2 className="mt-1 font-headline-lg text-headline-lg font-bold text-primary">Các mẫu quà tặng doanh nghiệp khác</h2></div><Link className="flex items-center gap-1 font-label-ui text-label-ui text-primary transition-colors hover:text-secondary" href="/san-pham">Xem toàn bộ ấn phẩm B2B <ArrowRight className="size-4" /></Link></div>
+        <div className="mb-space-lg flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">BỘ SƯU TẬP LIÊN QUAN</span><h2 className="mt-1 font-headline-lg text-headline-lg font-bold text-primary">Các mẫu quà tặng doanh nghiệp khác</h2></div><Link className="flex items-center gap-1 font-label-ui text-label-ui text-primary transition-colors hover:text-secondary" href={routes.category("qua-tang")}>Xem toàn bộ ấn phẩm B2B <ArrowRight className="size-4" /></Link></div>
         <div className="grid grid-cols-1 gap-gutter-desktop md:grid-cols-3">{product.alternatives.map((card) => <AlternativeGiftCard card={card} key={card.title} />)}</div>
       </section>
 

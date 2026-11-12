@@ -1,4 +1,5 @@
 import type { JournalArticle, JournalTopic } from "./types";
+import { routes } from "@/landing/lib/routes";
 
 const images = {
   gift: "https://lh3.googleusercontent.com/aida-public/AB6AXuC4mdErU6r-RaTos9-YqyolB8WSinJR-UTfAsbxPmnsKieX7aAYOOzt_jfTaYMA__1xd6-h8uw42wqH-s_-OWXaALkgC0byOq00NDI7ic4weEl8OnYvPmB2gEOUcbgx32EXpx9wBPQ5d52jkZCoudR6hoQFiREBWWQxY1qy1FeBTkXwdAqYf-5YFGTPxhVOUuWOvx64rj8lZDnBs2Su6FCLOPSz4gMlcBWBAq_r_O8",
@@ -37,11 +38,11 @@ export const popularStories = [
 ];
 
 export const journalTopics: JournalTopic[] = [
-  { number: "01 / Ký ức", label: "Ký ức", title: "Câu chuyện Minh Sâm", description: "Gìn giữ ký ức, gia bảo mộc bản và triết lý làm bánh từ tâm thức xưa.", count: "24 bài viết", icon: "history" },
-  { number: "02 / Thưởng vị", label: "Thưởng vị", title: "Văn hóa & Nghệ thuật", description: "Nghệ thuật ủ hương trà sen, thưởng bánh thanh vị và lễ nghi giao đãi.", count: "38 bài viết", icon: "tea" },
-  { number: "03 / Đoàn viên", label: "Đoàn viên", title: "Mùa Lễ Hội", description: "Cảm hứng mâm cỗ Tết cổ truyền, Trung Thu đoàn viên và tiết thanh minh.", count: "42 bài viết", icon: "celebration", highlighted: true },
-  { number: "04 / Tri ân", label: "Tri ân", title: "Cẩm Nang Chọn Quà", description: "Nghệ thuật biếu tặng tinh tế, quà sơn mài cao cấp cho đối tác & tri kỷ.", count: "19 bài viết", icon: "gift" },
-  { number: "05 / Bếp lửa", label: "Bếp lửa", title: "Tin Từ Cửa Hàng", description: "Góc lò bánh, mẻ bánh theo mùa, hoạt động workshop nghệ thuật làm bánh.", count: "15 bài viết", icon: "store" },
+  { number: "01 / Ký ức", label: "Ký ức", title: "Câu chuyện Minh Sâm", description: "Gìn giữ ký ức, gia bảo mộc bản và triết lý làm bánh từ tâm thức xưa.", count: "0 bài viết", icon: "history" },
+  { number: "02 / Thưởng vị", label: "Thưởng vị", title: "Văn hóa & Nghệ thuật", description: "Nghệ thuật ủ hương trà sen, thưởng bánh thanh vị và lễ nghi giao đãi.", count: "2 bài viết", icon: "tea" },
+  { number: "03 / Đoàn viên", label: "Đoàn viên", title: "Mùa Lễ Hội", description: "Cảm hứng mâm cỗ Tết cổ truyền, Trung Thu đoàn viên và tiết thanh minh.", count: "1 bài viết", icon: "celebration", highlighted: true },
+  { number: "04 / Tri ân", label: "Tri ân", title: "Cẩm Nang Chọn Quà", description: "Nghệ thuật biếu tặng tinh tế, quà sơn mài cao cấp cho đối tác & tri kỷ.", count: "1 bài viết", icon: "gift" },
+  { number: "05 / Bếp lửa", label: "Bếp lửa", title: "Tin Từ Cửa Hàng", description: "Góc lò bánh, mẻ bánh theo mùa, hoạt động workshop nghệ thuật làm bánh.", count: "0 bài viết", icon: "store" },
 ];
 
 export const commerceImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuB1HwideL-vOpF18h1_0VmeGzrUw7PWCjkv815q35Z_sFOLOnsQugO0bY7QGcgf0SSEQe5jWjL3u79Ih3552qsOLP9N7kmHC0se5w6EjaFt98DyMgkL7KmNQRwUaKwXeBFhXzNFBi8rcQBcmlV9V-n-XTo9jXu7cXdwHQzreppY_R1g33aTeegXpawx9xHaoVFIZMD1wXLpjqoLWi3qZGtHJcfk25uch1yXTGYw8TM";
@@ -51,5 +52,5 @@ export function findArticle(slug: string) {
 }
 
 export function articleHref(article: JournalArticle) {
-  return `/tin-tuc/${article.slug}`;
+  return routes.article(article.slug);
 }

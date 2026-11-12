@@ -1,4 +1,6 @@
 import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
+import { routes } from "@/landing/lib/routes";
 
 export function LandingFooter() {
   return (
@@ -15,11 +17,11 @@ export function LandingFooter() {
           <div className="lg:col-span-2 flex flex-col gap-space-sm">
             <span className="font-headline-sm text-headline-sm text-secondary-fixed">Khám Phá</span>
             <nav className="flex flex-col gap-space-xs">
-              <a className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="trang-chu" href="#">Trang chủ</a>
-              <a className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="san-pham" href="#">Sản phẩm truyền thống</a>
-              <a className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="qua-tang" href="#">Hộp quà tri ân</a>
-              <a className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="ve-minh-sam" href="#">Câu chuyện thương hiệu</a>
-              <a className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="dao-tao-chuyen-giao" href="#">Lớp học làm bánh</a>
+              <Link className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="trang-chu" href={routes.home}>Trang chủ</Link>
+              <Link className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="san-pham" href={routes.category("san-pham-truyen-thong")}>Sản phẩm truyền thống</Link>
+              <Link className="font-body-sm text-body-sm text-secondary-fixed-dim/80 hover:text-secondary-fixed transition-colors py-0.5" data-path="qua-tang" href={routes.category("qua-tang")}>Hộp quà tri ân</Link>
+              <span aria-disabled="true" className="font-body-sm text-body-sm text-secondary-fixed-dim/80 py-0.5">Câu chuyện thương hiệu</span>
+              <span aria-disabled="true" className="font-body-sm text-body-sm text-secondary-fixed-dim/80 py-0.5">Lớp học làm bánh</span>
             </nav>
           </div>
           <div className="lg:col-span-3 flex flex-col gap-space-sm">
@@ -43,9 +45,9 @@ export function LandingFooter() {
         <div className="pt-space-md flex flex-col md:flex-row items-center justify-between gap-space-sm font-body-sm text-body-sm text-secondary-fixed-dim/60">
           <p>© 2025 Minh Sâm Bakery. Bảo lưu mọi quyền.</p>
           <div className="flex items-center gap-space-md">
-            <a className="hover:text-secondary-fixed transition-colors" data-path="chinh-sach-bao-mat" href="#">Chính sách bảo mật</a>
-            <a className="hover:text-secondary-fixed transition-colors" data-path="dieu-khoan-dich-vu" href="#">Điều khoản dịch vụ</a>
-            <a className="hover:text-secondary-fixed transition-colors" data-path="lien-he" href="#">Chăm sóc khách hàng</a>
+            <span aria-disabled="true" data-path="chinh-sach-bao-mat">Chính sách bảo mật</span>
+            <span aria-disabled="true" data-path="dieu-khoan-dich-vu">Điều khoản dịch vụ</span>
+            <span aria-disabled="true" data-path="lien-he">Chăm sóc khách hàng</span>
           </div>
         </div>
       </div>

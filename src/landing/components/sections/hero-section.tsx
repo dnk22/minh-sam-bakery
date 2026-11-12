@@ -42,7 +42,7 @@ export function HeroSection() {
           <Reveal delay={0.28} enterOnMount y={18}>
             <div className="flex flex-wrap items-center gap-5">
               <a className="inline-flex items-center justify-center px-8 py-4 bg-secondary-fixed text-on-secondary-fixed font-label-ui text-label-ui tracking-wider uppercase rounded hover:bg-secondary-fixed-dim transition-all duration-300 shadow-lg shadow-black/30" href="#danh-muc">Khám phá các dòng bánh</a>
-              <a className="inline-flex items-center justify-center px-8 py-4 bg-primary-container text-secondary-fixed font-label-ui text-label-ui tracking-wider uppercase rounded hover:bg-primary-container/80 transition-all duration-300" href="#cau-chuyen">Về Minh Sâm</a>
+              <span aria-disabled="true" className="inline-flex items-center justify-center px-8 py-4 bg-primary-container text-secondary-fixed font-label-ui text-label-ui tracking-wider uppercase rounded">Về Minh Sâm</span>
             </div>
           </Reveal>
         </div>

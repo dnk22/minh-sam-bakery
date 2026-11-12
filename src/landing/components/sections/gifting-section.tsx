@@ -1,8 +1,10 @@
 /* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
 
 import { BriefcaseBusiness, UsersRound } from "lucide-react";
+import Link from "next/link";
 import { Reveal } from "@/landing/components/motion/reveal";
 import { StaggerReveal } from "@/landing/components/motion/stagger-reveal";
+import { routes } from "@/landing/lib/routes";
 
 export function GiftingSection() {
   return (
@@ -51,7 +53,7 @@ export function GiftingSection() {
           </StaggerReveal>
           <Reveal className="reveal-split-right" delay={0.3} x="var(--reveal-x)" y="var(--reveal-y)">
             <div className="flex flex-wrap items-center gap-4">
-              <button className="px-8 py-3.5 bg-secondary-fixed text-on-secondary-fixed font-label-ui text-label-ui uppercase tracking-wider rounded hover:bg-secondary-fixed-dim transition-all shadow-md">Khám phá bộ sưu tập quà tặng</button>
+              <Link className="px-8 py-3.5 bg-secondary-fixed text-on-secondary-fixed font-label-ui text-label-ui uppercase tracking-wider rounded hover:bg-secondary-fixed-dim transition-all shadow-md" href={routes.category("qua-tang")}>Khám phá bộ sưu tập quà tặng</Link>
               <button className="px-8 py-3.5 bg-transparent text-secondary-fixed font-label-ui text-label-ui uppercase tracking-wider rounded hover:bg-primary/50 transition-all">Tư vấn quà doanh nghiệp</button>
             </div>
           </Reveal>
