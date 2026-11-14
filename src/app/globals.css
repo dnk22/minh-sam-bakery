@@ -134,7 +134,7 @@
 
 @layer base {
   :root {
-    --landing-header-height: 4rem;
+    --landing-header-height: 6rem;
   }
 
   html,
