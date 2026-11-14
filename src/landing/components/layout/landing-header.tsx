@@ -73,7 +73,7 @@ export function LandingHeader() {
           >
             {navigationItems.map(({ label, path, href }) => (
               <NavigationLink
-                active={pathname === href}
+                active={isNavigationItemActive(pathname, href)}
                 href={href}
                 key={path}
                 label={label}
@@ -131,8 +131,8 @@ export function LandingHeader() {
           <nav className="flex flex-1 flex-col px-6 py-8">
             {navigationItems.map(({ label, path, href }) => (
               <Link
-                aria-current={pathname === href ? "page" : undefined}
-                className={`flex items-center justify-between border-b border-secondary-fixed/15 py-5 font-headline-sm text-headline-sm transition-colors hover:text-secondary-fixed-dim ${pathname === href ? "font-semibold text-secondary-fixed" : "text-secondary-fixed"}`}
+                aria-current={isNavigationItemActive(pathname, href) ? "page" : undefined}
+                className={`flex items-center justify-between border-b border-secondary-fixed/15 py-5 font-headline-sm text-headline-sm transition-colors hover:text-secondary-fixed-dim ${isNavigationItemActive(pathname, href) ? "font-semibold text-secondary-fixed" : "text-secondary-fixed"}`}
                 data-path={path}
                 href={href}
                 key={path}
@@ -207,4 +207,10 @@ function NavigationLink({
       {label}
     </Link>
   );
+}
+
+function isNavigationItemActive(pathname: string, href: string) {
+  return href === routes.home
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
