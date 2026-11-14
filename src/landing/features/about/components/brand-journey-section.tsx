@@ -6,7 +6,7 @@ import { aboutContent } from "../data/about-content";
 export function BrandJourneySection() {
   const content = aboutContent.journey;
   return (
-    <section className="relative w-full scroll-mt-20 bg-surface-container-low py-space-xl lg:py-28" id="chuong-02">
+    <section className="relative w-full scroll-mt-[var(--landing-header-height)] bg-surface-container-low py-space-xl lg:py-28" id="chuong-02">
       <div className="mx-auto max-w-7xl px-margin md:px-margin-tablet lg:px-margin-desktop">
         <div className="flex items-center gap-space-md pb-space-lg"><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">02 / HÀNH TRÌNH MINH SÂM</span><div className="h-px flex-1 bg-surface-variant" /></div>
         <div className="grid grid-cols-1 items-start gap-gutter-desktop lg:grid-cols-12">

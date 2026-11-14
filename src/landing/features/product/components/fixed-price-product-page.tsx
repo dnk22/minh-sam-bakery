@@ -8,7 +8,7 @@ import { ProductBreadcrumb } from "./product-breadcrumb";
 
 export function FixedPriceProductPage({ product }: { product: FixedPriceProductDetail }) {
   return (
-    <main className="min-h-[calc(100vh-20rem)] w-full bg-surface pt-20">
+    <main className="min-h-[calc(100vh-20rem)] w-full bg-surface pt-[var(--landing-header-height)]">
       <ProductBreadcrumb categoryHref={`/danh-muc/${product.catalog.categorySlug}`} categoryLabel={product.categoryLabel} productName={product.catalog.name} />
       <FixedPricePurchaseExperience product={product} />
 

@@ -13,7 +13,7 @@ const topicIcons = { history: History, tea: Coffee, celebration: PartyPopper, gi
 
 export function JournalListingPage() {
   return (
-    <main className="w-full bg-surface pt-20">
+    <main className="w-full bg-surface pt-[var(--landing-header-height)]">
       <JournalIntro />
       <section className="w-full pb-20"><div className="mx-auto max-w-[1360px] px-margin md:px-margin-tablet lg:px-margin-desktop"><FeaturedStoryCarousel /></div></section>
       <TopicDiscoverySection />

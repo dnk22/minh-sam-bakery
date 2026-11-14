@@ -54,7 +54,7 @@ export function StorefrontPage() {
     if (match) router.push(`${routes.category(match.categorySlug)}?q=${encodeURIComponent(q)}`);
   }
   return (
-    <main className="min-h-[calc(100vh-500px)] w-full bg-surface pt-20">
+    <main className="min-h-[calc(100vh-500px)] w-full bg-surface pt-[var(--landing-header-height)]">
       <section className="w-full bg-surface-container-low px-gutter py-space-sm shadow-sm lg:px-gutter-desktop">
         <div className="mx-auto flex max-w-[1360px] flex-col items-center justify-between gap-space-sm md:flex-row">
           <div className="w-full md:w-7/12"><CatalogSearchForm compact onSearch={searchCatalog} /></div>

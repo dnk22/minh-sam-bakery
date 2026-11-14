@@ -9,7 +9,7 @@ import { TrainingTransferSection } from "@/landing/components/sections/training-
 
 export default function HomePage() {
   return (
-    <main className="w-full pt-20 bg-surface min-h-[calc(100vh-80px)]">
+    <main className="min-h-[calc(100vh-var(--landing-header-height))] w-full bg-surface pt-[var(--landing-header-height)]">
       <div className="flex flex-col w-full">
         <HeroSection />
         <ProductCategoriesSection />

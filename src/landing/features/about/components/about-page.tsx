@@ -6,5 +6,5 @@ import { CraftProcessSection } from "./craft-process-section";
 import { PeopleAndCraftSection } from "./people-and-craft-section";
 
 export function AboutPage() {
-  return <main className="min-h-screen w-full bg-background pt-20"><AboutHeroSection /><BrandJourneySection /><PeopleAndCraftSection /><CraftProcessSection /><BrandWorldSection /><AboutClosingSection /></main>;
+  return <main className="min-h-screen w-full bg-background pt-[var(--landing-header-height)]"><AboutHeroSection /><BrandJourneySection /><PeopleAndCraftSection /><CraftProcessSection /><BrandWorldSection /><AboutClosingSection /></main>;
 }

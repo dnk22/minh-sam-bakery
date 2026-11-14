@@ -13,7 +13,7 @@ export function QuotationProductPage({ product }: { product: QuotationProductDet
   const serviceIcons = { package: Package, gift: Gift, brush: Brush } as const;
   return (
     <QuotationFlowProvider key={product.catalog.id} product={{ id: product.catalog.id, slug: product.catalog.slug, name: product.catalog.name, categoryLabel: product.categoryLabel, image: product.heroImage.src, imageAlt: product.heroImage.alt, quotationProfile: product.presentation.quotationProfile }}>
-    <main className="min-h-[calc(100vh-20rem)] w-full bg-surface pt-20">
+    <main className="min-h-[calc(100vh-20rem)] w-full bg-surface pt-[var(--landing-header-height)]">
       <ProductBreadcrumb categoryHref={`/danh-muc/${product.catalog.categorySlug}`} categoryLabel={product.categoryLabel} productName={product.catalog.name} />
 
       <section className="mx-auto w-full max-w-[1360px] px-margin pt-space-xs pb-space-xl md:px-margin-tablet lg:px-margin-desktop">

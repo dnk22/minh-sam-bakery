@@ -133,6 +133,10 @@
 }
 
 @layer base {
+  :root {
+    --landing-header-height: 4rem;
+  }
+
   html,
   body {
     margin: 0;
@@ -150,6 +154,22 @@
 
   main > :last-child {
     margin-bottom: 0 !important;
+  }
+}
+
+#danh-muc {
+  scroll-margin-top: var(--landing-header-height);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --landing-header-height: 4.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --landing-header-height: 5rem;
   }
 }
 

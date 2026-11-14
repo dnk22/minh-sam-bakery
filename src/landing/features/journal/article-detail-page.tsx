@@ -13,7 +13,7 @@ const artisanPhoto = "https://lh3.googleusercontent.com/aida-public/AB6AXuDFwalt
 const productPhoto = "https://lh3.googleusercontent.com/aida-public/AB6AXuD1DxzTqstkuxDc_OInz3n73opdUr6nILbHl9cKuTB8VfKK0duYu53A-jcROAHt_qZWlvEfXjxs0w8Vr1XtbudOVgLI6Eluky-WQqRPzQabXVoGzCpqnCVBQtyvFfj343V1s06UJIfEWvZjBFIYxYH0nuKfta3GWGFPsUgXS-4JqX_BFpJjfKikx7VV6pRMNj71r9IRzHRu4twApw2JCwdFQfLpSdzrPJtEh-R5P3JzXmKWhjEjsMYs";
 
 export function ArticleDetailPage({ article }: { article: JournalArticle }) {
-  return <main className="w-full bg-surface pt-20"><ArticleHeader article={article} />{article.fullArticle ? <><ArticleCover /><ArticleReadingLayout article={article} /><RelatedStoriesSection article={article} /></> : <PreviewOnlyArticle article={article} />}</main>;
+  return <main className="w-full bg-surface pt-[var(--landing-header-height)]"><ArticleHeader article={article} />{article.fullArticle ? <><ArticleCover /><ArticleReadingLayout article={article} /><RelatedStoriesSection article={article} /></> : <PreviewOnlyArticle article={article} />}</main>;
 }
 
 function ArticleHeader({ article }: { article: JournalArticle }) {

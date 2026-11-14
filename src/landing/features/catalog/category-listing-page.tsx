@@ -30,7 +30,7 @@ export function CategoryListingPage({ category, query }: { category: CatalogCate
   };
   const resetQuery = () => updateQuery({ q: "", types: [], price: "all", mode: "all", sort: "default", page: 1 });
   return (
-    <main className="min-h-[calc(100vh-80px)] w-full bg-surface pt-20">
+    <main className="min-h-[calc(100vh-var(--landing-header-height))] w-full bg-surface pt-[var(--landing-header-height)]">
       <section className="w-full bg-surface-container-low pt-space-lg pb-space-xl">
         <div className="mx-auto max-w-[1360px] px-margin md:px-margin-tablet xl:px-margin-desktop">
           <nav aria-label="Đường dẫn trang" className="mb-space-sm flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">

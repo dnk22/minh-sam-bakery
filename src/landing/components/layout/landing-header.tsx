@@ -1,10 +1,10 @@
 "use client";
 
-import {  Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { routes } from "@/landing/lib/routes";
 
@@ -18,18 +18,39 @@ const navigationItems = [
 export function LandingHeader() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isDrawerOpen) return;
     const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = "hidden";
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsDrawerOpen(false);
+    closeButtonRef.current?.focus();
+    const handleDrawerKeys = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsDrawerOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || !drawerRef.current) return;
+      const focusable = drawerRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("keydown", handleDrawerKeys);
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("keydown", handleDrawerKeys);
+      previousFocus?.focus();
     };
   }, [isDrawerOpen]);
 
@@ -37,7 +58,7 @@ export function LandingHeader() {
 
   return (
     <header className="fixed top-0 left-0 z-50 w-full bg-primary/95 shadow-[0_4px_24px_rgba(46,2,8,0.18)] backdrop-blur-md">
-      <div className="mx-auto flex h-20 max-w-[1360px] items-center justify-between gap-space-lg px-6 md:px-12 lg:px-gutter-desktop">
+      <div className="mx-auto flex h-[var(--landing-header-height)] max-w-[1360px] items-center justify-between gap-space-md px-6 md:gap-space-lg md:px-12 lg:px-gutter-desktop">
         <BrandLink onNavigate={closeDrawer} />
 
         <nav className="hidden items-center gap-space-lg lg:flex" data-active-classes="text-secondary-fixed font-semibold">
@@ -45,7 +66,7 @@ export function LandingHeader() {
         </nav>
 
         <div className="flex items-center gap-space-sm md:gap-space-md">
-          <button aria-controls="mobile-navigation-drawer" aria-expanded={isDrawerOpen} aria-label="Mở menu điều hướng" className="flex size-10 items-center justify-center rounded text-secondary-fixed transition-colors hover:bg-primary-container lg:hidden" onClick={() => setIsDrawerOpen(true)} type="button">
+          <button aria-controls="mobile-navigation-drawer" aria-expanded={isDrawerOpen} aria-label="Mở menu điều hướng" className="flex size-11 items-center justify-center rounded text-secondary-fixed transition-colors hover:bg-primary-container lg:hidden" onClick={() => setIsDrawerOpen(true)} ref={menuButtonRef} type="button">
             <Menu aria-hidden="true" className="size-6" />
           </button>
         </div>
@@ -53,10 +74,10 @@ export function LandingHeader() {
 
       <div aria-hidden={!isDrawerOpen} className={`fixed inset-0 z-[60] lg:hidden ${isDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
         <button aria-label="Đóng menu điều hướng" className={`absolute inset-0 bg-black/55 transition-opacity duration-300 ${isDrawerOpen ? "opacity-100" : "opacity-0"}`} onClick={closeDrawer} tabIndex={isDrawerOpen ? 0 : -1} type="button" />
-        <aside aria-label="Menu điều hướng mobile" aria-modal="true" className={`absolute top-0 right-0 flex h-dvh w-[min(86vw,360px)] flex-col bg-primary shadow-2xl transition-transform duration-300 ease-out ${isDrawerOpen ? "translate-x-0" : "translate-x-full"}`} id="mobile-navigation-drawer" inert={!isDrawerOpen} role="dialog">
-          <div className="flex h-20 items-center justify-between border-b border-secondary-fixed/15 px-6">
+        <aside aria-label="Menu điều hướng mobile" aria-modal="true" className={`absolute top-0 right-0 flex h-dvh w-[min(86vw,360px)] flex-col bg-primary shadow-2xl transition-transform duration-300 ease-out ${isDrawerOpen ? "translate-x-0" : "translate-x-full"}`} id="mobile-navigation-drawer" inert={!isDrawerOpen} ref={drawerRef} role="dialog">
+          <div className="flex h-[var(--landing-header-height)] items-center justify-between border-b border-secondary-fixed/15 px-6">
             <BrandLink onNavigate={closeDrawer} compact />
-            <button aria-label="Đóng menu điều hướng" className="flex size-10 items-center justify-center rounded text-secondary-fixed transition-colors hover:bg-primary-container" onClick={closeDrawer} type="button">
+            <button aria-label="Đóng menu điều hướng" className="flex size-11 items-center justify-center rounded text-secondary-fixed transition-colors hover:bg-primary-container" onClick={closeDrawer} ref={closeButtonRef} type="button">
               <X aria-hidden="true" className="size-6" />
             </button>
           </div>
@@ -79,8 +100,8 @@ export function LandingHeader() {
 function BrandLink({ compact = false, onNavigate }: { compact?: boolean; onNavigate: () => void }) {
   return (
     <Link className="group flex items-center gap-space-sm text-left" data-path="trang-chu" href={routes.home} onClick={onNavigate}>
-      <Image alt="Minh Sâm Bakery" className={`${compact ? "size-11" : "size-14 xs:size-16"} object-contain transition-transform group-hover:scale-105`} height={64} priority={!compact} src="/images/minh-sam-logo.webp" width={64} />
-      <span className={`${compact ? "text-subheading" : "text-headline-sm"} font-headline-sm tracking-wide text-secondary-fixed transition-colors group-hover:text-secondary-fixed-dim`}>MINH SÂM</span>
+      <Image alt="Minh Sâm Bakery" className={`${compact ? "size-10 md:size-11" : "size-8 md:size-12 lg:size-16"} object-contain transition-transform group-hover:scale-105`} height={64} priority={!compact} src="/images/minh-sam-logo.webp" width={64} />
+      <span className={`${compact ? "text-[15px] md:text-subheading" : "text-[16px] md:text-[18px] lg:text-headline-sm"} font-headline-sm tracking-wide text-secondary-fixed transition-colors group-hover:text-secondary-fixed-dim`}>MINH SÂM</span>
     </Link>
   );
 }
