@@ -66,22 +66,22 @@ export function LandingHeader() {
       <div className="mx-auto flex h-[var(--landing-header-height)] max-w-[1360px] items-center justify-between gap-space-md px-6 md:gap-space-lg md:px-12 lg:px-gutter-desktop">
         <BrandLink onNavigate={closeDrawer} />
 
-        <nav
-          className="hidden items-center gap-space-lg lg:flex"
-          data-active-classes="text-secondary-fixed font-semibold"
-        >
-          {navigationItems.map(({ label, path, href }) => (
-            <NavigationLink
-              active={pathname === href}
-              href={href}
-              key={path}
-              label={label}
-              path={path}
-            />
-          ))}
-        </nav>
+        <div className="flex items-center gap-space-lg">
+          <nav
+            className="hidden items-center gap-space-lg lg:flex"
+            data-active-classes="text-secondary-fixed font-semibold"
+          >
+            {navigationItems.map(({ label, path, href }) => (
+              <NavigationLink
+                active={pathname === href}
+                href={href}
+                key={path}
+                label={label}
+                path={path}
+              />
+            ))}
+          </nav>
 
-        <div className="flex items-center gap-space-sm md:gap-space-md">
           <button
             aria-controls="mobile-navigation-drawer"
             aria-expanded={isDrawerOpen}
