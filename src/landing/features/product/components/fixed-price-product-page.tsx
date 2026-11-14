@@ -3,11 +3,13 @@ import { ArrowRight, ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
 
 import type { FixedPriceProductDetail, PresentationCard } from "../types";
+import { CheckoutFlowProvider } from "@/landing/features/checkout/components/checkout-flow-provider";
 import { FixedPricePurchaseExperience } from "./fixed-price-purchase-experience";
 import { ProductBreadcrumb } from "./product-breadcrumb";
 
 export function FixedPriceProductPage({ product }: { product: FixedPriceProductDetail }) {
   return (
+    <CheckoutFlowProvider>
     <main className="min-h-[calc(100vh-20rem)] w-full bg-surface pt-[var(--landing-header-height)]">
       <ProductBreadcrumb categoryHref={`/danh-muc/${product.catalog.categorySlug}`} categoryLabel={product.categoryLabel} productName={product.catalog.name} />
       <FixedPricePurchaseExperience product={product} />
@@ -22,6 +24,7 @@ export function FixedPriceProductPage({ product }: { product: FixedPriceProductD
         <div className="grid grid-cols-2 gap-gutter-desktop md:grid-cols-4">{product.relatedProducts.map((card) => <RelatedProductCard card={card} key={card.title} />)}</div>
       </section>
     </main>
+    </CheckoutFlowProvider>
   );
 }
 

@@ -175,7 +175,6 @@ function BrandLink({
         height={48}
         priority={!compact}
         src="/images/minh-sam-logo.webp"
-        width={64}
       />
       <span
         className={`${compact ? "text-[15px] md:text-subheading" : "text-[16px] md:text-[18px] lg:text-headline-sm"} font-headline-sm tracking-wide text-secondary-fixed transition-colors group-hover:text-secondary-fixed-dim`}

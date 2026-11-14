@@ -2,7 +2,9 @@
 
 import { ArrowRight, BadgeCheck, CalendarDays, CheckCircle2, ChevronRight, Minus, Package, Plus, RefreshCw, ShoppingBag, Truck, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
+
+import { useCheckoutFlow } from "@/landing/features/checkout/components/checkout-flow-provider";
 
 import type { FixedPriceProductDetail } from "../types";
 import { ProductGallery } from "./product-gallery";
@@ -10,14 +12,25 @@ import { ProductGallery } from "./product-gallery";
 const formatVnd = (amount: number) => `${new Intl.NumberFormat("vi-VN").format(amount)}đ`;
 
 export function FixedPricePurchaseExperience({ product }: { product: FixedPriceProductDetail }) {
+  const { openCheckout } = useCheckoutFlow();
   const [selectedVariantId, setSelectedVariantId] = useState(product.pricing.variants[0].id);
   const [quantity, setQuantity] = useState(1);
   const selectedVariant = product.pricing.variants.find((variant) => variant.id === selectedVariantId) ?? product.pricing.variants[0];
   const total = selectedVariant.price * quantity;
 
-  // Future cart and checkout adapters attach here; no success state is simulated.
-  const handleAddToCart = () => undefined;
-  const handlePurchase = () => undefined;
+  const openOrder = (trigger: HTMLElement) => openCheckout({
+    productId: product.catalog.id,
+    productName: product.catalog.name,
+    productImage: product.heroImage.src,
+    productImageAlt: product.heroImage.alt,
+    variantId: selectedVariant.id,
+    variantLabel: selectedVariant.label,
+    unitPrice: selectedVariant.price,
+    quantity,
+  }, trigger);
+
+  const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => openOrder(event.currentTarget);
+  const handlePurchase = (event: MouseEvent<HTMLButtonElement>) => openOrder(event.currentTarget);
 
   return (
     <>
