@@ -22,9 +22,6 @@ export function GiftingSection() {
           </div>
         </Reveal>
         <div className="lg:col-span-6 flex flex-col justify-center order-1 lg:order-2">
-          <Reveal className="reveal-split-right" x="var(--reveal-x)" y="var(--reveal-y)">
-            <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary-fixed tracking-[0.25em] block mb-3">Nghệ thuật trao tặng • 03</span>
-          </Reveal>
           <Reveal className="reveal-split-right" delay={0.07} x="var(--reveal-x)" y="var(--reveal-y)">
             <h2 className="font-display-hero text-headline-lg lg:text-[46px] text-secondary-fixed font-normal leading-[1.2] mb-4">Món quà mang theo hương vị.</h2>
           </Reveal>
@@ -54,7 +51,7 @@ export function GiftingSection() {
           <Reveal className="reveal-split-right" delay={0.3} x="var(--reveal-x)" y="var(--reveal-y)">
             <div className="flex flex-wrap items-center gap-4">
               <Link className="px-8 py-3.5 bg-secondary-fixed text-on-secondary-fixed font-label-ui text-label-ui uppercase tracking-wider rounded hover:bg-secondary-fixed-dim transition-all shadow-md" href={routes.category("qua-tang")}>Khám phá bộ sưu tập quà tặng</Link>
-              <button className="px-8 py-3.5 bg-transparent text-secondary-fixed font-label-ui text-label-ui uppercase tracking-wider rounded hover:bg-primary/50 transition-all">Tư vấn quà doanh nghiệp</button>
+              {/* <button className="px-8 py-3.5 bg-transparent text-secondary-fixed font-label-ui text-label-ui uppercase tracking-wider rounded hover:bg-primary/50 transition-all">Tư vấn quà doanh nghiệp</button> */}
             </div>
           </Reveal>
         </div>
@@ -64,7 +61,6 @@ export function GiftingSection() {
           <span className="w-8 h-[1px] bg-secondary-fixed/30" />
           <span className="font-label-eyebrow text-label-eyebrow uppercase">Nghệ Thuật Trao Tặng</span>
         </div>
-        <span className="font-label-ui text-label-ui uppercase tracking-wider">Hộp Sơn Mài • Hộp Giấy Mỹ Thuật Bespoke</span>
       </Reveal>
     </section>
   );

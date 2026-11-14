@@ -9,7 +9,7 @@ export function CraftsmanshipSection() {
       <div className="w-full max-w-7xl mx-auto my-auto">
         <div className="max-w-2xl mb-12">
           <Reveal duration={0.65} y={22}>
-            <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Quy chuẩn nghề bánh • 06</span>
+            <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Quy chuẩn nghề bánh</span>
           </Reveal>
           <Reveal delay={0.06} duration={0.65} y={22}>
             <h2 className="font-headline-lg text-headline-lg text-primary mb-3">Không chỉ làm bánh. Minh Sâm hiểu nghề bánh.</h2>
@@ -45,7 +45,7 @@ export function CraftsmanshipSection() {
             </div>
             <div className="pt-4 flex items-center gap-2 text-secondary font-label-ui text-label-ui uppercase tracking-wider">
               <Hammer aria-hidden="true" className="size-4" />
-              <span>Thủ công chạm khắc gỗ</span>
+              <span>Thủ công chạm khắc</span>
             </div>
           </div>
           <div className="h-full p-8 bg-surface-container-lowest rounded shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">

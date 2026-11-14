@@ -13,7 +13,7 @@ export function ProductCategoriesSection() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <Reveal>
             <div>
-              <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Danh mục tiêu biểu • 02</span>
+              <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary tracking-[0.25em] block mb-2">Danh mục tiêu biểu</span>
               <h2 className="font-headline-lg text-headline-lg text-primary">Khám phá các dòng bánh Minh Sâm</h2>
             </div>
           </Reveal>

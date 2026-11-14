@@ -8,7 +8,7 @@ export function TrainingTransferSection() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
           <Reveal duration={0.62} y={20}>
             <div>
-              <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary-fixed tracking-[0.25em] block mb-2">Dịch vụ chuyên môn • 07</span>
+              <span className="font-label-eyebrow text-label-eyebrow uppercase text-secondary-fixed tracking-[0.25em] block mb-2">Dịch vụ chuyên môn</span>
               <h2 className="font-headline-lg text-headline-lg text-secondary-fixed">Từ nghề bánh đến đào tạo &amp; chuyển giao.</h2>
             </div>
           </Reveal>
@@ -30,7 +30,6 @@ export function TrainingTransferSection() {
               <h3 className="font-headline-sm text-headline-sm text-secondary-fixed mb-2">Đào tạo tay nghề thợ bánh</h3>
               <p className="font-body-md text-body-md text-secondary-fixed-dim/80 leading-relaxed">Chuyển giao bí quyết nhào bột, sên nhân sen nhuyễn mịn, căn chỉnh nhiệt độ nướng cho các dòng bánh cổ truyền và đương đại.</p>
             </div>
-            <div className="pt-6"><span className="font-label-ui text-label-ui text-secondary-fixed uppercase tracking-wider">Khóa học chuyên sâu →</span></div>
           </div>
           <div className="h-full p-8 bg-primary-container rounded flex flex-col justify-between hover:bg-primary-container/80 transition-colors">
             <div>
@@ -38,7 +37,6 @@ export function TrainingTransferSection() {
               <h3 className="font-headline-sm text-headline-sm text-secondary-fixed mb-2">Tư vấn công thức &amp; thực đơn</h3>
               <p className="font-body-md text-body-md text-secondary-fixed-dim/80 leading-relaxed">Nghiên cứu R&amp;D phát triển menu độc quyền cho chuỗi cà phê, nhà hàng và thương hiệu tiệm bánh cao cấp theo mùa lễ hội.</p>
             </div>
-            <div className="pt-6"><span className="font-label-ui text-label-ui text-secondary-fixed uppercase tracking-wider">Dịch vụ R&amp;D Menu →</span></div>
           </div>
           <div className="h-full p-8 bg-primary-container rounded flex flex-col justify-between hover:bg-primary-container/80 transition-colors">
             <div>
@@ -46,7 +44,6 @@ export function TrainingTransferSection() {
               <h3 className="font-headline-sm text-headline-sm text-secondary-fixed mb-2">Chuyển giao công nghệ xưởng</h3>
               <p className="font-body-md text-body-md text-secondary-fixed-dim/80 leading-relaxed">Tư vấn thiết lập dây chuyền sản xuất bán tự động, quy trình kiểm soát vi sinh, định lượng nguyên liệu và bảo quản không dùng hóa chất.</p>
             </div>
-            <div className="pt-6"><span className="font-label-ui text-label-ui text-secondary-fixed uppercase tracking-wider">Quy chuẩn xưởng →</span></div>
           </div>
         </StaggerReveal>
         <Reveal delay={0.1} duration={0.6} y={18}>
