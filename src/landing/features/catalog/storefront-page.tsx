@@ -8,10 +8,7 @@ import {
   Building2,
   Coffee,
   HandHeart,
-  Headset,
   PartyPopper,
-  Phone,
-  ShoppingBag,
   TrendingUp,
   UsersRound,
 } from "lucide-react";
@@ -19,10 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { CatalogSearchForm } from "./catalog-controls";
-import { featuredCatalogCategories } from "./data";
-import { merchandising } from "./merchandising";
 import { productCountForCategory } from "./query";
-import { getProductById } from "./selectors";
 import type { CatalogCategory, CatalogProduct } from "./types";
 import { routes } from "@/landing/lib/routes";
 import { SafeImage } from "@/landing/components/ui/safe-image";
@@ -279,11 +273,10 @@ export function StorefrontPage({ catalogCategories, catalogProducts }: { catalog
           description="Từ những dòng bánh quen thuộc đến các bộ sưu tập theo mùa và hương vị phục vụ mỗi ngày."
         />
         <div className="grid grid-cols-1 gap-space-lg md:grid-cols-2 lg:grid-cols-3">
-          {featuredCatalogCategories.map((category) => {
-            const available = catalogCategories.some((item) => item.slug === category.slug);
+          {catalogCategories.map((category) => {
             const content = <>
               <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
-                <img
+                <SafeImage
                   alt={category.imageAlt}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   src={category.image}
@@ -311,13 +304,13 @@ export function StorefrontPage({ catalogCategories, catalogProducts }: { catalog
                     {category.label}
                   </span>
                   <span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold text-primary transition-colors group-hover:text-secondary">
-                    {available ? "Xem tất cả" : "Sắp ra mắt"} {available && <ArrowRight className="size-4" />}
+                    Xem tất cả <ArrowRight className="size-4" />
                   </span>
                 </div>
               </div>
             </>;
-            const className = `group relative flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-sm transition-all ${available ? "hover:shadow-md" : "opacity-75"}`;
-            return available ? <Link className={className} href={routes.category(category.slug)} key={category.slug}>{content}</Link> : <article className={className} key={category.slug}>{content}</article>;
+            const className = "group relative flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-sm transition-all hover:shadow-md";
+            return <Link className={className} href={routes.category(category.slug)} key={category.id ?? category.slug}>{content}</Link>;
           })}
         </div>
       </section>
@@ -347,7 +340,7 @@ export function StorefrontPage({ catalogCategories, catalogProducts }: { catalog
         </div> : <div className="rounded-xl bg-surface-container-lowest p-space-lg text-center font-body-md text-on-surface-variant shadow-sm">Chưa có sản phẩm được công khai.</div>}
       </section>
 
-      <FeaturedSeason />
+      <FeaturedSeason products={catalogProducts} />
 
       <section className="mx-auto w-full max-w-[1360px] px-gutter py-space-xl lg:px-gutter-desktop">
         <SectionHeading
@@ -432,125 +425,51 @@ function SectionHeading({
   );
 }
 
-function productHref(productId: string) {
-  const product = getProductById(productId);
-  if (!product) throw new Error(`Missing storefront product: ${productId}`);
-  return routes.product(product.slug);
-}
+function FeaturedSeason({ products }: { products: CatalogProduct[] }) {
+  const featuredProduct = products.find((product) => product.isFeatured) ?? products[0];
+  if (!featuredProduct) return null;
+  const supportingProducts = products.filter((product) => product.id !== featuredProduct.id).slice(0, 3);
 
-const supportingProducts = [
-  {
-    productId: "traditional-mixed-mooncake",
-    name: "Bánh Thập Cẩm Truyền Thống Xưa",
-    label: "VỊ CỔ TRUYỀN",
-    price: "110.000đ / chiếc",
-    weight: "Trọng lượng: 200g",
-    description:
-      "Lạp xưởng Mai Quế Lộ nướng thơm, hạt sen Bắc xào, mứt bí giòn & tinh chất lá chanh thái chỉ thủ công.",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAA95yb_nfP638btizdiChDJsk1GNL-QRX9cuIYE0RTwGFqmB60yI5sWSlBvg3u8TTW-hcoF5Yqa4pYGuXQ8DcLUA-IvmP0okO1keUwsWXYHoSfUP28JoHKls8T5GmDdKRuPCHavSFoFdhf6UKaaj9K3l8jtpzjWPfrFZOexO--rV5CWqHe7beb43RK2IEXLZrwpPFzlItbCAeeeKPiKs-5kaNyFOI_PfHGpQ2hd5FwGZPrvp_k8flh",
-    consultation: false,
-  },
-  {
-    productId: "almond-young-rice-mooncake",
-    name: "Bánh Nướng Hạnh Nhân Cốm Non",
-    label: "HƯƠNG VỊ MỚI",
-    price: "125.000đ / chiếc",
-    weight: "Trọng lượng: 180g",
-    description:
-      "Cốm mộc làng Vòng dẻo thơm quyện cùng hạnh nhân lát nướng giòn và hương hoa bưởi Hà Thành thanh khiết.",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuA19j2ydSzthw4DyQOGHNxAuR0ZqLmNA-O8X2E6rCUla9ogA7-fqM90oQSDJMdoZhjTee_2-4frxHdHg9-e48drdC2-mKg06ANo4dPFRaI3Qpam8mCml_XiV-rQ9vbLEXbUCshTXr1luPLuuKnPvCjxQlDpNqI6va2vD7mFL182dYIwPQJy1FDUfkQLNckQqHFHTDApCXtWI65RtK5ye9MKAupiYZ5Y0ze1uMN8xWM2SGeZ8tBpVBQD",
-    consultation: false,
-  },
-  {
-    productId: "corporate-lacquer-gratitude-box",
-    name: "Bộ Hộp Doanh Nghiệp Sơn Mài Tri Ân",
-    label: "BỘ QUÀ DOANH NGHIỆP",
-    price: "Liên hệ tư vấn",
-    weight: "Số lượng: Từ 10 set",
-    description:
-      "Thiết kế trang trọng mang dấu ấn đối tác, khắc logo mạ vàng, dập nổi thiệp chúc và tinh tế theo từng ngân sách.",
-    image: promotions[2].image,
-    consultation: true,
-  },
-];
-
-function FeaturedSeason() {
   return (
     <section className="w-full bg-surface-container-low px-gutter py-space-xl lg:px-gutter-desktop">
       <div className="mx-auto max-w-[1360px]">
-        <SectionHeading
-          title="Nổi bật mùa này"
-        />
+        <SectionHeading title="Nổi bật mùa này" />
         <div className="grid grid-cols-1 items-stretch gap-space-lg lg:grid-cols-12">
           <article className="group flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-md lg:col-span-6">
             <div className="relative h-[340px] overflow-hidden bg-primary lg:h-[380px]">
-              <img
-                alt="Hộp Quà Di Sản Đoan Viên (Bespoke 2026)"
+              <SafeImage
+                alt={featuredProduct.imageAlt}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                src={promotions[0].image}
+                src={featuredProduct.image}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent" />
-              <div className="absolute top-4 left-4 flex flex-col gap-1">
+              <div className="absolute top-4 left-4">
                 <span className="rounded bg-secondary px-3 py-1 font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-on-secondary shadow">
-                  PHIÊN BẢN HOÀNG GIA
-                </span>
-                <span className="rounded bg-primary/90 px-2.5 py-0.5 font-label-eyebrow text-[10px] uppercase tracking-wider text-secondary-fixed">
-                  GIỚI HẠN 200 HỘP
+                  {featuredProduct.isBestSeller ? "SẢN PHẨM BÁN CHẠY" : "SẢN PHẨM NỔI BẬT"}
                 </span>
               </div>
               <div className="absolute right-4 bottom-4 left-4 text-surface-bright">
                 <span className="font-label-eyebrow text-[10px] uppercase tracking-widest text-secondary-fixed">
-                  HỘP SƠN MÀI CẨN HOA VĂN
+                  {featuredProduct.sku ? `MÃ SP: ${featuredProduct.sku}` : "MINH SÂM BAKERY"}
                 </span>
-                <p className="mt-0.5 font-body-sm text-body-sm text-primary-fixed-dim">
-                  Kèm 4 vị bánh di sản thủ công và 01 hũ trà Shan Tuyết cổ thụ
-                  Hà Giang.
-                </p>
+                {featuredProduct.description ? <p className="mt-0.5 font-body-sm text-body-sm text-primary-fixed-dim">{featuredProduct.description}</p> : null}
               </div>
             </div>
             <div className="flex flex-1 flex-col justify-between gap-space-md p-space-lg">
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-on-surface-variant">
-                    MÃ SP: MS-TET-2026
-                  </span>
-                </div>
                 <h3 className="mt-1 font-headline-lg text-headline-sm text-primary lg:text-headline-md">
-                  Hộp Quà Di Sản Đoan Viên (Bespoke 2026)
+                  {featuredProduct.name}
                 </h3>
-                <p className="mt-2 font-body-md text-body-md leading-relaxed text-on-surface-variant">
-                  Tác phẩm sơn mài cẩn trứng và hoa văn truyền thống Thăng Long,
-                  bảo quản bốn phong vị bánh nướng di sản thượng hạng, hạt sen
-                  sấy long nhãn và trà Shan Tuyết thượng đỉnh. Hỗ trợ in gia huy
-                  hoặc logo doanh nghiệp độc quyền.
-                </p>
+                {featuredProduct.description ? <p className="mt-2 font-body-md text-body-md leading-relaxed text-on-surface-variant">{featuredProduct.description}</p> : null}
               </div>
               <div className="flex flex-col justify-between gap-space-sm pt-space-md sm:flex-row sm:items-center">
                 <div>
-                  <span className="block font-label-eyebrow text-[11px] uppercase text-outline">
-                    MỨC GIÁ & ĐẶT MAY ĐO
-                  </span>
+                  <span className="block font-label-eyebrow text-[11px] uppercase text-outline">GIÁ HIỆN TẠI</span>
                   <span className="font-headline-sm text-subheading font-semibold text-secondary">
-                    Liên hệ tư vấn chi tiết
+                    {catalogPrice(featuredProduct)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Link
-                    className="flex items-center gap-1.5 rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-secondary-fixed shadow-sm hover:bg-primary-container"
-                    href={productHref(merchandising.seasonalFeaturedProductId)}
-                  >
-                    <Headset className="size-[18px]" />
-                    Nhận tư vấn
-                  </Link>
-                  <Link
-                    className="rounded bg-surface-container px-space-md py-2.5 font-label-ui text-label-ui text-on-surface hover:bg-surface-variant"
-                    href={productHref(merchandising.seasonalFeaturedProductId)}
-                  >
-                    Xem chi tiết
-                  </Link>
-                </div>
+                <Link className="rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-secondary-fixed shadow-sm hover:bg-primary-container" href={routes.product(featuredProduct.slug)}>Xem chi tiết</Link>
               </div>
             </div>
           </article>
@@ -558,11 +477,11 @@ function FeaturedSeason() {
             {supportingProducts.map((item) => (
               <article
                 className="group flex flex-col items-center gap-space-md rounded bg-surface-container-lowest p-space-md shadow-sm transition-all hover:shadow-md sm:flex-row"
-                key={item.name}
+                key={item.id}
               >
                 <div className="h-36 w-full shrink-0 overflow-hidden rounded bg-surface-container sm:w-36">
-                  <img
-                    alt={item.name}
+                  <SafeImage
+                    alt={item.imageAlt}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     src={item.image}
                   />
@@ -571,35 +490,22 @@ function FeaturedSeason() {
                   <div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-label-eyebrow text-label-eyebrow font-semibold uppercase text-secondary">
-                        {item.label}
+                        {item.isBestSeller ? "BÁN CHẠY" : item.isFeatured ? "NỔI BẬT" : "SẢN PHẨM MINH SÂM"}
                       </span>
-                      <span
-                        className={`font-price-serif text-price-serif font-bold ${item.consultation ? "text-secondary" : "text-primary"}`}
-                      >
-                        {item.price}
-                      </span>
+                      <span className="font-price-serif text-price-serif font-bold text-primary">{catalogPrice(item)}</span>
                     </div>
                     <h4 className="mt-0.5 font-headline-sm text-subheading text-primary group-hover:text-secondary">
                       {item.name}
                     </h4>
-                    <p className="mt-1 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">
-                      {item.description}
-                    </p>
+                    {item.description ? <p className="mt-1 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">{item.description}</p> : null}
                   </div>
                   <div className="mt-space-xs flex items-center justify-between pt-space-sm">
-                    <span className="font-body-sm text-body-sm text-outline">
-                      {item.weight}
-                    </span>
+                    <span className="font-body-sm text-body-sm text-outline">{item.sku ? `Mã SP: ${item.sku}` : "Minh Sâm Bakery"}</span>
                     <Link
-                      className={`flex items-center gap-1 rounded px-space-md py-1.5 font-label-ui text-label-ui ${item.consultation ? "bg-secondary text-on-secondary" : "bg-primary text-secondary-fixed"}`}
-                      href={productHref(item.productId)}
+                      className="flex items-center gap-1 rounded bg-primary px-space-md py-1.5 font-label-ui text-label-ui text-secondary-fixed"
+                      href={routes.product(item.slug)}
                     >
-                      {item.consultation ? (
-                        <Phone className="size-4" />
-                      ) : (
-                        <ShoppingBag className="size-4" />
-                      )}
-                      {item.consultation ? "Nhận tư vấn" : "Mua ngay"}
+                      Xem chi tiết <ArrowRight className="size-4" />
                     </Link>
                   </div>
                 </div>
@@ -610,4 +516,8 @@ function FeaturedSeason() {
       </div>
     </section>
   );
+}
+
+function catalogPrice(product: CatalogProduct) {
+  return product.pricing.mode === "fixed" ? product.pricing.price : "Liên hệ tư vấn";
 }

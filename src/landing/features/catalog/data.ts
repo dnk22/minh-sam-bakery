@@ -69,21 +69,6 @@ export const catalogCategories: CatalogCategory[] = [
   },
 ];
 
-export const featuredCategorySlugs = [
-  "banh-trung-thu",
-  "san-pham-truyen-thong",
-  "san-pham-moi",
-  "banh-cookie",
-  "sinh-nhat-su-kien",
-  "banh-hat",
-] as const;
-
-export const featuredCatalogCategories = featuredCategorySlugs.map((slug) => {
-  const category = catalogCategories.find((item) => item.slug === slug);
-  if (!category) throw new Error(`Missing featured catalog category: ${slug}`);
-  return category;
-});
-
 export const catalogProducts: CatalogProduct[] = [
   {
     id: "traditional-mixed-mooncake",

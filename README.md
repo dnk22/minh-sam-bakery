@@ -24,7 +24,7 @@ pnpm dev
 
 ## Public catalog API
 
-The public catalog uses server-side native `fetch` against `BACKEND_BASE_URL`. Set `CATALOG_DATA_SOURCE=api` for the live public API or `CATALOG_DATA_SOURCE=mock` for the explicit local demo dataset. Production defaults to `api`; development defaults to `mock` when the variable is omitted. There is no automatic fallback between the two sources.
+The public catalog always uses the backend API through server-side native `fetch`. Configure the service origin with `BACKEND_BASE_URL`; development and production use the same API-backed repository and never fall back to local mock products or categories.
 
 Public catalog responses are revalidated every five minutes. The current UI supports filters that are not all available in the backend contract, so the data layer aggregates complete API result pages before applying those filters. Aggregation is bounded to 20 pages of 100 records; exceeding that limit fails explicitly instead of showing misleading partial results. If the catalog grows beyond 2,000 records, add backend price/sort filters or replace this bounded aggregation with server-supported cursor/page filtering.
 
@@ -37,4 +37,4 @@ pnpm lint
 pnpm build
 ```
 
-Visible editorial content, Lucide icons, layout classes, and responsive behavior are preserved from the supplied HTML while catalog identity, pricing, images, variants, and category availability come from the selected data source.
+Visible editorial content, Lucide icons, layout classes, and responsive behavior are preserved from the supplied HTML while catalog identity, pricing, images, variants, and category availability come from the public backend API.

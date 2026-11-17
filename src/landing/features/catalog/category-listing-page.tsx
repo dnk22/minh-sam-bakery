@@ -22,6 +22,7 @@ export function CategoryListingPage({ category, categories, products, query }: {
   const currentPage = Math.min(query.page, pageCount);
   const visibleProducts = filteredProducts.slice((currentPage - 1) * CATALOG_PAGE_SIZE, currentPage * CATALOG_PAGE_SIZE);
   const categoryCounts = Object.fromEntries(categories.map(({ slug }) => [slug, productCountForCategory(slug, products)]));
+  const typeOptions = categories.map(({ slug, name }) => ({ value: slug, label: name }));
   const updateQuery = (patch: Partial<CatalogQuery>) => {
     const next = { ...query, ...patch, page: patch.page ?? 1 };
     const params = catalogQueryToSearchParams(next);
@@ -46,9 +47,9 @@ export function CategoryListingPage({ category, categories, products, query }: {
 
       <section className="w-full py-space-xl">
         <div className="mx-auto flex max-w-[1360px] flex-col items-start gap-gutter-desktop px-margin md:px-margin-tablet lg:flex-row xl:px-margin-desktop">
-          <aside className="w-full rounded-xl bg-surface-container-lowest p-space-lg shadow-sm lg:sticky lg:top-28 lg:w-72 lg:shrink-0"><CatalogFilterForm counts={categoryCounts} onChange={updateQuery} onReset={resetQuery} query={query} /></aside>
+          <aside className="w-full rounded-xl bg-surface-container-lowest p-space-lg shadow-sm lg:sticky lg:top-28 lg:w-72 lg:shrink-0"><CatalogFilterForm counts={categoryCounts} onChange={updateQuery} onReset={resetQuery} query={query} typeOptions={typeOptions} /></aside>
           <div className="w-full min-w-0 flex-1">
-            <CatalogToolbar onChange={updateQuery} onReset={resetQuery} query={query} resultCount={filteredProducts.length} />
+            <CatalogToolbar onChange={updateQuery} onReset={resetQuery} query={query} resultCount={filteredProducts.length} typeOptions={typeOptions} />
             {visibleProducts.length > 0 ? <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">{visibleProducts.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm"><h3 className="font-headline-sm text-headline-sm text-primary">Chưa có sản phẩm phù hợp</h3><p className="mt-space-xs font-body-md text-body-md text-on-surface-variant">Danh mục này hiện chưa có sản phẩm khớp với bộ lọc. Vui lòng thử tiêu chí khác.</p><button className="mt-space-md rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-on-primary" onClick={resetQuery} type="button">Xóa bộ lọc</button></div>}
             <div className="mt-space-xl flex flex-col items-center gap-space-md pt-space-lg"><div className="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant"><span>Trang {currentPage} / {pageCount}</span><span>•</span><span>Hiển thị {visibleProducts.length} trên tổng số {filteredProducts.length} dòng bánh</span></div>{pageCount > 1 && <div className="flex items-center gap-space-sm"><PageButton disabled={currentPage === 1} label="Trang trước" onClick={() => updateQuery({ page: currentPage - 1 })}><ChevronLeft className="size-[18px]" /></PageButton>{Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => <button className={`flex size-10 items-center justify-center rounded font-medium ${page === currentPage ? "bg-primary text-secondary-fixed" : "bg-surface-container-lowest text-on-surface hover:bg-surface-container"}`} key={page} onClick={() => updateQuery({ page })} type="button">{page}</button>)}<PageButton disabled={currentPage === pageCount} label="Trang sau" onClick={() => updateQuery({ page: currentPage + 1 })}><ChevronRight className="size-[18px]" /></PageButton></div>}</div>
           </div>

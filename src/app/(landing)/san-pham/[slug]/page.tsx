@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 
 import { FixedPriceProductPage } from "@/landing/features/product/components/fixed-price-product-page";
 import { QuotationProductPage } from "@/landing/features/product/components/quotation-product-page";
-import { findProductDetail, isQuotationProduct } from "@/landing/features/product/data";
 import { adaptApiProductDetail } from "@/landing/features/product/api-adapter";
-import { catalogDataSource, getRelatedCatalogProducts, resolveProductBySlug } from "@/landing/features/catalog/repository";
+import type { ProductDetail, QuotationProductDetail } from "@/landing/features/product/types";
+import { getRelatedCatalogProducts, resolveProductBySlug } from "@/landing/features/catalog/repository";
 
 type ProductRouteProps = { params: Promise<{ slug: string }> };
 
@@ -14,10 +14,9 @@ export const instant = false;
 export async function generateMetadata({ params }: ProductRouteProps): Promise<Metadata> {
   const { slug } = await params;
   const resolved = await resolveProductBySlug(slug);
-  const editorialProduct = findProductDetail(slug);
   const product = resolved.dto
     ? adaptApiProductDetail(resolved.dto, [])
-    : editorialProduct && (catalogDataSource() === "mock" || isQuotationProduct(editorialProduct)) ? editorialProduct : undefined;
+    : await findEditorialQuotation(slug);
   if (!product) return {};
   return {
     title: `${product.catalog.name} | Minh Sâm Bakery`,
@@ -29,15 +28,24 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
 export default async function ProductRoute({ params }: ProductRouteProps) {
   const { slug } = await params;
   const resolved = await resolveProductBySlug(slug);
-  const editorialProduct = findProductDetail(slug);
   const product = resolved.dto
     ? adaptApiProductDetail(resolved.dto, await getRelatedCatalogProducts(resolved.dto))
-    : editorialProduct && (catalogDataSource() === "mock" || isQuotationProduct(editorialProduct)) ? editorialProduct : undefined;
+    : await findEditorialQuotation(slug);
   if (!product) notFound();
 
-  if (isQuotationProduct(product)) {
+  if (isQuotationProductDetail(product)) {
     return <QuotationProductPage product={product} />;
   }
 
   return <FixedPriceProductPage product={product} />;
+}
+
+async function findEditorialQuotation(slug: string): Promise<QuotationProductDetail | undefined> {
+  const { findProductDetail, isQuotationProduct } = await import("@/landing/features/product/data");
+  const product = findProductDetail(slug);
+  return product && isQuotationProduct(product) ? product : undefined;
+}
+
+function isQuotationProductDetail(product: ProductDetail): product is QuotationProductDetail {
+  return product.pricing.mode === "quote";
 }

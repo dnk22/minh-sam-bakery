@@ -21,7 +21,9 @@ export type CatalogProduct = {
   description: string;
   image: string;
   imageAlt: string;
-  source?: "api" | "mock";
+  sku?: string;
+  isFeatured?: boolean;
+  isBestSeller?: boolean;
   badge?: string;
   badgeClassName?: string;
   pricing:

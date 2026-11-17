@@ -1,10 +1,9 @@
-import { catalogCategories, catalogProducts, featuredCategorySlugs } from "../src/landing/features/catalog/data.ts";
+import { catalogProducts } from "../src/landing/features/catalog/data.ts";
 import { merchandising } from "../src/landing/features/catalog/merchandising.ts";
 import { productDetails } from "../src/landing/features/product/data.ts";
 import { articles } from "../src/landing/features/journal/data.ts";
 import { routes } from "../src/landing/lib/routes.ts";
 
-const expectedCategories = ["banh-trung-thu", "san-pham-truyen-thong", "san-pham-moi", "banh-cookie", "sinh-nhat-su-kien", "banh-hat", "qua-tang"];
 const validQuotationProfiles = new Set(["corporate-gift", "custom-event"]);
 
 function assert(condition, message) {
@@ -15,14 +14,8 @@ function assertUnique(values, label) {
   assert(new Set(values).size === values.length, `${label} must be unique`);
 }
 
-const categorySlugs = catalogCategories.map(({ slug }) => slug);
-const categorySet = new Set(categorySlugs);
-assertUnique(categorySlugs, "Category slugs");
-assert(expectedCategories.every((slug) => categorySet.has(slug)), "Canonical category taxonomy is incomplete");
-assert(featuredCategorySlugs.length === 6, "Visible category grids must keep exactly six categories");
-assert(!featuredCategorySlugs.includes("qua-tang"), "Quà tặng must remain outside the six-card featured grid");
-
 const published = catalogProducts.filter((product) => product.status === "published");
+const categorySet = new Set(published.flatMap((product) => product.categorySlugs));
 assertUnique(catalogProducts.map(({ id }) => id), "Product IDs");
 assertUnique(published.map(({ slug }) => slug), "Published product slugs");
 
@@ -40,11 +33,6 @@ for (const product of published) {
     assert(validQuotationProfiles.has(product.pricing.quotationProfile), `Invalid quotation profile for ${product.id}`);
     assert(!("amount" in product.pricing), `Quote product ${product.id} must not have a numeric price`);
   }
-}
-
-for (const slug of expectedCategories) {
-  const count = published.filter((product) => product.categorySlugs.includes(slug)).length;
-  assert(count >= 2, `Category ${slug} needs at least two published products; found ${count}`);
 }
 
 assertUnique(productDetails.map(({ catalog }) => catalog.id), "Product detail product IDs");
@@ -72,7 +60,6 @@ articles.forEach((article) => {
 });
 for (const promotion of merchandising.promotions) {
   if (promotion.target.type === "product") assert(productById.has(promotion.target.productId), `Promotion ${promotion.id} references missing product`);
-  if (promotion.target.type === "category") assert(categorySet.has(promotion.target.slug), `Promotion ${promotion.id} references missing category`);
 }
 
 assert(routes.category("qua-tang") === "/danh-muc/qua-tang", "Category route helper is inconsistent");
@@ -80,4 +67,4 @@ assert(routes.product("sample") === "/san-pham/sample", "Product route helper is
 assert(routes.article("sample") === "/tin-tuc/sample", "Article route helper is inconsistent");
 assert(routes.about === "/ve-minh-sam", "About route helper is inconsistent");
 
-console.log(`Navigation validation passed: ${catalogCategories.length} categories, ${published.length} published products, ${productDetails.length} product details.`);
+console.log(`Navigation fixture validation passed: ${published.length} editorial products, ${productDetails.length} product details.`);

@@ -15,15 +15,15 @@ export function FixedPriceProductPage({ product }: { product: FixedPriceProductD
       <ProductBreadcrumb categoryHref={`/danh-muc/${product.catalog.categorySlug}`} categoryLabel={product.categoryLabel} productName={product.catalog.name} />
       <FixedPricePurchaseExperience product={product} />
 
-      <section className="mx-auto w-full max-w-[1360px] px-margin py-space-xl md:px-margin-tablet lg:px-margin-desktop">
+      {product.complementaryProducts.length > 0 ? <section className="mx-auto w-full max-w-[1360px] px-margin py-space-xl md:px-margin-tablet lg:px-margin-desktop">
         <div className="mb-space-md flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">{product.presentation.pairingEyebrow}</span><h2 className="mt-1 font-headline-lg text-headline-md text-primary">{product.presentation.pairingTitle}</h2></div><p className="max-w-md font-body-sm text-body-sm text-on-surface-variant">{product.presentation.pairingDescription}</p></div>
         <div className="grid grid-cols-1 gap-gutter-desktop md:grid-cols-3">{product.complementaryProducts.map((card) => <ComplementaryCard card={card} key={card.title} />)}</div>
-      </section>
+      </section> : null}
 
-      <section className="mx-auto w-full max-w-[1360px] px-margin pb-space-xl md:px-margin-tablet lg:px-margin-desktop">
+      {product.relatedProducts.length > 0 ? <section className="mx-auto w-full max-w-[1360px] px-margin pb-space-xl md:px-margin-tablet lg:px-margin-desktop">
         <div className="mb-space-md flex items-center justify-between"><div><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">BỘ SƯU TẬP TƯƠNG ĐỒNG</span><h2 className="mt-1 font-headline-md text-headline-md text-primary">Có Thể Bạn Cũng Thích</h2></div><Link className="flex items-center gap-1 font-label-ui text-body-sm font-semibold text-primary hover:text-on-primary-container" href="/san-pham">Xem tất cả sản phẩm <ChevronRight className="size-[18px]" /></Link></div>
         <div className="grid grid-cols-2 gap-gutter-desktop md:grid-cols-4">{product.relatedProducts.map((card) => <RelatedProductCard card={card} key={card.title} />)}</div>
-      </section>
+      </section> : null}
     </main>
     </CheckoutFlowProvider>
   );

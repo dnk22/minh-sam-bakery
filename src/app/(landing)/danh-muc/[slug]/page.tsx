@@ -26,5 +26,5 @@ export default async function CategoryRoute({ params, searchParams }: CategoryRo
     getCatalogCategory(slug),
   ]);
   if (!category) notFound();
-  return <CategoryListingPage categories={categories} category={category} products={products} query={parseCatalogQuery(rawSearchParams)} />;
+  return <CategoryListingPage categories={categories} category={category} products={products} query={parseCatalogQuery(rawSearchParams, categories.map(({ slug: categorySlug }) => categorySlug))} />;
 }

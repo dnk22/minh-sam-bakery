@@ -1,17 +1,8 @@
-import { catalogCategories, catalogProducts } from "./data";
-import type { CatalogProduct } from "./types";
+import type { CatalogCategory, CatalogProduct } from "./types";
 
 export const CATALOG_PAGE_SIZE = 9;
 
-export const catalogTypeOptions = [
-  { value: "banh-trung-thu", label: "Bánh Trung Thu" },
-  { value: "san-pham-truyen-thong", label: "Bánh truyền thống" },
-  { value: "san-pham-moi", label: "Dòng sản phẩm mới" },
-  { value: "banh-cookie", label: "Cookie thủ công" },
-  { value: "banh-hat", label: "Bánh hạt dinh dưỡng" },
-  { value: "sinh-nhat-su-kien", label: "Sinh nhật & Sự kiện" },
-  { value: "qua-tang", label: "Quà tặng" },
-] as const;
+export type CatalogTypeOption = { value: string; label: string };
 
 export type CatalogSort = "default" | "price-asc" | "price-desc";
 export type CatalogPrice = "all" | "under-200" | "200-500" | "over-500";
@@ -28,7 +19,6 @@ export type CatalogQuery = {
 
 export type RawSearchParams = Record<string, string | string[] | undefined>;
 
-const validTypes = new Set<string>(catalogTypeOptions.map(({ value }) => value));
 const validPrices = new Set<CatalogPrice>(["all", "under-200", "200-500", "over-500"]);
 const validModes = new Set<CatalogMode>(["all", "fixed", "quote"]);
 const validSorts = new Set<CatalogSort>(["default", "price-asc", "price-desc"]);
@@ -37,7 +27,8 @@ function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export function parseCatalogQuery(params: RawSearchParams): CatalogQuery {
+export function parseCatalogQuery(params: RawSearchParams, allowedTypes: Iterable<string> = []): CatalogQuery {
+  const validTypes = new Set(allowedTypes);
   const rawTypes = Array.isArray(params.type) ? params.type : params.type ? [params.type] : [];
   const price = first(params.price) as CatalogPrice | undefined;
   const mode = first(params.mode) as CatalogMode | undefined;
@@ -54,7 +45,7 @@ export function parseCatalogQuery(params: RawSearchParams): CatalogQuery {
   };
 }
 
-export function filterCatalogProducts(categorySlug: string, query: CatalogQuery, products = catalogProducts, categories = catalogCategories) {
+export function filterCatalogProducts(categorySlug: string, query: CatalogQuery, products: CatalogProduct[], categories: CatalogCategory[]) {
   const normalizedSearch = query.q.toLocaleLowerCase("vi");
   const categoryBySlug = new Map(categories.map((category) => [category.slug, category]));
 
@@ -98,6 +89,6 @@ export function catalogQueryToSearchParams(query: CatalogQuery) {
   return params;
 }
 
-export function productCountForCategory(slug: string, products = catalogProducts) {
+export function productCountForCategory(slug: string, products: CatalogProduct[]) {
   return products.filter((product) => product.status === "published" && product.categorySlugs.includes(slug)).length;
 }

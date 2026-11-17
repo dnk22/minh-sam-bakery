@@ -7,7 +7,8 @@ const PAGE_LIMIT = 100;
 const MAX_PAGES = 20;
 
 export async function fetchCategories() {
-  return fetchAllPages<CategoryResponseDto>("/api/v1/public/categories", isCategory, "catalog-categories");
+  const categories = await fetchAllPages<CategoryResponseDto>("/api/v1/public/categories", isCategory, "catalog-categories");
+  return categories.filter((category) => category.status === "VISIBLE");
 }
 
 export async function fetchCategoryById(id: string) {
@@ -91,7 +92,7 @@ function isPagination(value: unknown): value is PaginationMetaDto {
 function isCategory(value: unknown): value is CategoryResponseDto {
   return isRecord(value) &&
     typeof value.id === "string" && nullableString(value.parentId) && typeof value.name === "string" && typeof value.slug === "string" &&
-    nullableString(value.description) && nullableString(value.imageUrl) && value.status === "VISIBLE" && typeof value.sortOrder === "number" &&
+    nullableString(value.description) && nullableString(value.imageUrl) && (value.status === "VISIBLE" || value.status === "HIDDEN") && typeof value.sortOrder === "number" &&
     nullableString(value.seoTitle) && nullableString(value.seoDescription) && typeof value.createdAt === "string" && typeof value.updatedAt === "string";
 }
 
