@@ -4,12 +4,13 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { routes } from "@/landing/lib/routes";
 
 const navigationItems = [
-  { label: "Trang chủ", path: "trang-chu", href: routes.home },
+  { label: "Trang chủ", path: "trang-chu", href: routes.homeHero },
   { label: "Sản phẩm", path: "san-pham", href: routes.products },
   { label: "Tin tức", path: "tin-tuc", href: routes.journal },
   { label: "Về Minh Sâm", path: "ve-minh-sam", href: routes.about },
@@ -60,11 +61,32 @@ export function LandingHeader() {
   }, [isDrawerOpen]);
 
   const closeDrawer = () => setIsDrawerOpen(false);
+  const navigateToHero = (event: MouseEvent<HTMLAnchorElement>) => {
+    closeDrawer();
+    if (
+      pathname !== routes.home ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    const hero = document.getElementById("trang-chu");
+    if (!hero) return;
+
+    event.preventDefault();
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    hero.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    window.history.replaceState(window.history.state, "", routes.homeHero);
+  };
 
   return (
     <header className="fixed top-0 left-0 z-50 w-full bg-primary/95 shadow-[0_4px_24px_rgba(46,2,8,0.18)] backdrop-blur-md">
       <div className="mx-auto flex h-[var(--landing-header-height)] max-w-[1360px] items-center justify-between gap-space-md px-6 md:gap-space-lg md:px-12 lg:px-gutter-desktop">
-        <BrandLink onNavigate={closeDrawer} />
+        <BrandLink onNavigate={navigateToHero} />
 
         <div className="flex items-center gap-space-lg">
           <nav
@@ -77,6 +99,7 @@ export function LandingHeader() {
                 href={href}
                 key={path}
                 label={label}
+                onNavigate={href === routes.homeHero ? navigateToHero : undefined}
                 path={path}
               />
             ))}
@@ -117,7 +140,7 @@ export function LandingHeader() {
           role="dialog"
         >
           <div className="flex h-[var(--landing-header-height)] items-center justify-between border-b border-secondary-fixed/15 px-6">
-            <BrandLink onNavigate={closeDrawer} compact />
+            <BrandLink onNavigate={navigateToHero} compact />
             <button
               aria-label="Đóng menu điều hướng"
               className="flex size-11 items-center justify-center rounded text-secondary-fixed transition-colors hover:bg-primary-container"
@@ -136,7 +159,7 @@ export function LandingHeader() {
                 data-path={path}
                 href={href}
                 key={path}
-                onClick={closeDrawer}
+                onClick={href === routes.homeHero ? navigateToHero : closeDrawer}
                 tabIndex={isDrawerOpen ? 0 : -1}
               >
                 <span>{label}</span>
@@ -159,13 +182,13 @@ function BrandLink({
   onNavigate,
 }: {
   compact?: boolean;
-  onNavigate: () => void;
+  onNavigate: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
   return (
     <Link
       className="group flex items-center gap-space-sm text-left"
       data-path="trang-chu"
-      href={routes.home}
+      href={routes.homeHero}
       onClick={onNavigate}
     >
       <Image
@@ -189,11 +212,13 @@ function NavigationLink({
   active,
   href,
   label,
+  onNavigate,
   path,
 }: {
   active: boolean;
   href: string;
   label: string;
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
   path: string;
 }) {
   return (
@@ -202,6 +227,7 @@ function NavigationLink({
       className={`py-space-xs font-label-ui text-label-ui uppercase tracking-wider transition-colors hover:text-secondary-fixed ${active ? "font-semibold text-secondary-fixed" : "text-secondary-fixed-dim/80"}`}
       data-path={path}
       href={href}
+      onClick={onNavigate}
     >
       {label}
     </Link>
@@ -209,7 +235,7 @@ function NavigationLink({
 }
 
 function isNavigationItemActive(pathname: string, href: string) {
-  return href === routes.home
-    ? pathname === href
+  return href === routes.homeHero
+    ? pathname === routes.home
     : pathname === href || pathname.startsWith(`${href}/`);
 }

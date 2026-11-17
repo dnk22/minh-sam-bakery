@@ -1,5 +1,6 @@
 export const routes = {
   home: "/",
+  homeHero: "/#trang-chu",
   products: "/san-pham",
   journal: "/tin-tuc",
   about: "/ve-minh-sam",

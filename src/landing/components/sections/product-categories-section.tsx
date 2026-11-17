@@ -13,7 +13,7 @@ export function ProductCategoriesSection({ categories, loadFailed = false }: { c
   const itemClassNames = categories.map((_, index) => categoryLayout(index, categories.length));
 
   return (
-    <section className="flex w-full flex-col justify-between bg-surface px-6 py-16 text-on-surface md:px-12 lg:min-h-screen lg:px-20" id="danh-muc">
+    <section className="flex w-full flex-col justify-between bg-surface px-6 py-16 text-on-surface md:px-12 lg:min-h-[calc(100vh-var(--landing-header-height))] lg:px-20" id="danh-muc">
       <div className="mx-auto w-full max-w-7xl">
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <Reveal>

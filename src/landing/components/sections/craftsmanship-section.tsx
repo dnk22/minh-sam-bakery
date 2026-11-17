@@ -5,7 +5,7 @@ import { StaggerReveal } from "@/landing/components/motion/stagger-reveal";
 
 export function CraftsmanshipSection() {
   return (
-    <section className="w-full flex flex-col justify-between bg-surface-container-low px-6 py-16 text-on-surface md:px-12 lg:min-h-screen lg:px-20">
+    <section className="w-full flex flex-col justify-between bg-surface-container-low px-6 py-16 text-on-surface md:px-12 lg:min-h-[calc(100vh-var(--landing-header-height))] lg:px-20">
       <div className="w-full max-w-7xl mx-auto my-auto">
         <div className="max-w-2xl mb-12">
           <Reveal delay={0.06} duration={0.65} y={22}>

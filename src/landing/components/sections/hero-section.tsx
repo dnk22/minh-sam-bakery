@@ -5,7 +5,7 @@ import { routes } from "@/landing/lib/routes";
 
 export function HeroSection() {
   return (
-    <section className="relative -mt-[var(--landing-header-height)] flex min-h-[100svh] w-full flex-col justify-between overflow-hidden bg-primary px-5 pt-[calc(var(--landing-header-height)+1rem)] pb-6 text-on-primary sm:px-6 sm:pb-8 md:px-12 lg:min-h-screen lg:px-20 lg:pt-24 lg:pb-10">
+    <section className="relative -mt-[var(--landing-header-height)] flex min-h-[100svh] w-full flex-col justify-between overflow-hidden bg-primary px-5 pt-[calc(var(--landing-header-height)+1rem)] pb-6 text-on-primary sm:px-6 sm:pb-8 md:px-12 lg:min-h-screen lg:px-20 lg:pt-24 lg:pb-10" id="trang-chu">
       <div className="absolute inset-0 z-0">
         <ScrollParallax
           className="h-full w-full scale-105 bg-cover bg-[position:58%_center] opacity-40 sm:bg-center"
