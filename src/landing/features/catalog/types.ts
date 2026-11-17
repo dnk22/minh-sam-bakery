@@ -1,4 +1,5 @@
 export type CatalogCategory = {
+  id?: string;
   slug: string;
   name: string;
   description: string;
@@ -20,6 +21,7 @@ export type CatalogProduct = {
   description: string;
   image: string;
   imageAlt: string;
+  source?: "api" | "mock";
   badge?: string;
   badgeClassName?: string;
   pricing:

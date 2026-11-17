@@ -6,6 +6,7 @@ import type { FixedPriceProductDetail, PresentationCard } from "../types";
 import { CheckoutFlowProvider } from "@/landing/features/checkout/components/checkout-flow-provider";
 import { FixedPricePurchaseExperience } from "./fixed-price-purchase-experience";
 import { ProductBreadcrumb } from "./product-breadcrumb";
+import { SafeImage } from "@/landing/components/ui/safe-image";
 
 export function FixedPriceProductPage({ product }: { product: FixedPriceProductDetail }) {
   return (
@@ -33,6 +34,6 @@ function ComplementaryCard({ card }: { card: PresentationCard }) {
 }
 
 function RelatedProductCard({ card }: { card: PresentationCard }) {
-  const content = <article className="group flex h-full flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-all hover:shadow-md"><div className="relative aspect-square overflow-hidden bg-surface-container-low"><img alt={card.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={card.image} />{card.badge ? <span className="absolute top-2 left-2 rounded-sm bg-surface/90 px-2 py-0.5 font-label-eyebrow text-[10px] text-primary">{card.badge}</span> : null}</div><div className="flex flex-1 flex-col justify-between p-3.5"><div><h3 className="font-headline-sm text-[16px] leading-snug text-primary transition-colors group-hover:text-primary-container">{card.title}</h3><p className="mt-1 line-clamp-1 font-body-sm text-body-sm text-on-surface-variant">{card.description}</p></div><div className="mt-3 flex items-center justify-between pt-2"><span className="font-price-serif text-price-serif font-bold text-primary">{card.price}</span><span className="flex size-7 items-center justify-center rounded-full bg-surface-container-low text-primary"><ArrowRight className="size-4" /></span></div></div></article>;
+  const content = <article className="group flex h-full flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-all hover:shadow-md"><div className="relative aspect-square overflow-hidden bg-surface-container-low"><SafeImage alt={card.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={card.image} />{card.badge ? <span className="absolute top-2 left-2 rounded-sm bg-surface/90 px-2 py-0.5 font-label-eyebrow text-[10px] text-primary">{card.badge}</span> : null}</div><div className="flex flex-1 flex-col justify-between p-3.5"><div><h3 className="font-headline-sm text-[16px] leading-snug text-primary transition-colors group-hover:text-primary-container">{card.title}</h3><p className="mt-1 line-clamp-1 font-body-sm text-body-sm text-on-surface-variant">{card.description}</p></div><div className="mt-3 flex items-center justify-between pt-2"><span className="font-price-serif text-price-serif font-bold text-primary">{card.price}</span><span className="flex size-7 items-center justify-center rounded-full bg-surface-container-low text-primary"><ArrowRight className="size-4" /></span></div></div></article>;
   return card.href ? <Link href={card.href}>{content}</Link> : content;
 }

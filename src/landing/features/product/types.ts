@@ -44,6 +44,8 @@ type ProductDetailBase = {
 };
 
 export type FixedPricePresentation = {
+  checkoutAvailable?: boolean;
+  checkoutUnavailableMessage?: string;
   eyebrow: string;
   priceUnitLabel: string;
   productionNote: string;

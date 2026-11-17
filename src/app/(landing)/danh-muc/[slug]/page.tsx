@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CategoryListingPage } from "@/landing/features/catalog/category-listing-page";
-import { catalogCategories, findCatalogCategory } from "@/landing/features/catalog/data";
+import { getCatalogCategory, getCatalogSnapshot } from "@/landing/features/catalog/repository";
 import { parseCatalogQuery, type RawSearchParams } from "@/landing/features/catalog/query";
 
 type CategoryRouteProps = {
@@ -12,20 +12,19 @@ type CategoryRouteProps = {
 
 export const instant = false;
 
-export function generateStaticParams() {
-  return catalogCategories.map(({ slug }) => ({ slug }));
-}
-
 export async function generateMetadata({ params }: CategoryRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = findCatalogCategory(slug);
+  const category = await getCatalogCategory(slug);
   if (!category) return {};
   return { title: `${category.name} | Minh Sâm Bakery`, description: category.description };
 }
 
 export default async function CategoryRoute({ params, searchParams }: CategoryRouteProps) {
   const [{ slug }, rawSearchParams] = await Promise.all([params, searchParams]);
-  const category = findCatalogCategory(slug);
+  const [{ categories, products }, category] = await Promise.all([
+    getCatalogSnapshot({ categorySlug: slug, search: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined }),
+    getCatalogCategory(slug),
+  ]);
   if (!category) notFound();
-  return <CategoryListingPage category={category} query={parseCatalogQuery(rawSearchParams)} />;
+  return <CategoryListingPage categories={categories} category={category} products={products} query={parseCatalogQuery(rawSearchParams)} />;
 }

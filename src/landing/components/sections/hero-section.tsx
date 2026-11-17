@@ -72,7 +72,7 @@ export function HeroSection() {
             </div>
           </Reveal>
         </div>
-        <div className="hidden lg:flex lg:col-span-4 flex-col justify-end items-end text-right">
+        {/* <div className="hidden lg:flex lg:col-span-4 flex-col justify-end items-end text-right">
           <Reveal className="max-w-xs" delay={0.25} enterOnMount x={20} y={0}>
             <div className="p-6 bg-primary-container/50 backdrop-blur-md rounded max-w-xs shadow-xl">
               <span className="block font-label-eyebrow text-label-eyebrow uppercase text-secondary-fixed-dim tracking-[0.2em] mb-2">
@@ -87,7 +87,7 @@ export function HeroSection() {
               </p>
             </div>
           </Reveal>
-        </div>
+        </div> */}
       </div>
       <Reveal
         className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between gap-4 pt-2 sm:pt-3 lg:pt-4"

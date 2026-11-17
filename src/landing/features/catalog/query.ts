@@ -54,11 +54,11 @@ export function parseCatalogQuery(params: RawSearchParams): CatalogQuery {
   };
 }
 
-export function filterCatalogProducts(categorySlug: string, query: CatalogQuery) {
+export function filterCatalogProducts(categorySlug: string, query: CatalogQuery, products = catalogProducts, categories = catalogCategories) {
   const normalizedSearch = query.q.toLocaleLowerCase("vi");
-  const categoryBySlug = new Map(catalogCategories.map((category) => [category.slug, category]));
+  const categoryBySlug = new Map(categories.map((category) => [category.slug, category]));
 
-  const products = catalogProducts.filter((product) => {
+  const filtered = products.filter((product) => {
     if (product.status !== "published" || !product.categorySlugs.includes(categorySlug)) return false;
     if (query.types.length > 0 && !query.types.some((type) => product.categorySlugs.includes(type))) return false;
     if (query.mode !== "all" && product.pricing.mode !== query.mode) return false;
@@ -76,8 +76,8 @@ export function filterCatalogProducts(categorySlug: string, query: CatalogQuery)
     return true;
   });
 
-  if (query.sort === "default") return products;
-  return [...products].sort((a, b) => compareByPrice(a, b, query.sort));
+  if (query.sort === "default") return filtered;
+  return [...filtered].sort((a, b) => compareByPrice(a, b, query.sort));
 }
 
 function compareByPrice(a: CatalogProduct, b: CatalogProduct, sort: CatalogSort) {
@@ -98,6 +98,6 @@ export function catalogQueryToSearchParams(query: CatalogQuery) {
   return params;
 }
 
-export function productCountForCategory(slug: string) {
-  return catalogProducts.filter((product) => product.status === "published" && product.categorySlugs.includes(slug)).length;
+export function productCountForCategory(slug: string, products = catalogProducts) {
+  return products.filter((product) => product.status === "published" && product.categorySlugs.includes(slug)).length;
 }

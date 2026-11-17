@@ -19,15 +19,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { CatalogSearchForm } from "./catalog-controls";
-import {
-  catalogCategories,
-  catalogProducts,
-  featuredCatalogCategories,
-} from "./data";
+import { featuredCatalogCategories } from "./data";
 import { merchandising } from "./merchandising";
 import { productCountForCategory } from "./query";
 import { getProductById } from "./selectors";
+import type { CatalogCategory, CatalogProduct } from "./types";
 import { routes } from "@/landing/lib/routes";
+import { SafeImage } from "@/landing/components/ui/safe-image";
 
 const promotions = [
   {
@@ -104,7 +102,7 @@ const occasions = [
   },
 ];
 
-export function StorefrontPage() {
+export function StorefrontPage({ catalogCategories, catalogProducts }: { catalogCategories: CatalogCategory[]; catalogProducts: CatalogProduct[] }) {
   const router = useRouter();
   function searchCatalog(value: string) {
     const q = value.trim();
@@ -281,12 +279,9 @@ export function StorefrontPage() {
           description="Từ những dòng bánh quen thuộc đến các bộ sưu tập theo mùa và hương vị phục vụ mỗi ngày."
         />
         <div className="grid grid-cols-1 gap-space-lg md:grid-cols-2 lg:grid-cols-3">
-          {featuredCatalogCategories.map((category) => (
-            <Link
-              className="group relative flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-sm transition-all hover:shadow-md"
-              href={routes.category(category.slug)}
-              key={category.slug}
-            >
+          {featuredCatalogCategories.map((category) => {
+            const available = catalogCategories.some((item) => item.slug === category.slug);
+            const content = <>
               <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
                 <img
                   alt={category.imageAlt}
@@ -316,13 +311,40 @@ export function StorefrontPage() {
                     {category.label}
                   </span>
                   <span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold text-primary transition-colors group-hover:text-secondary">
-                    Xem tất cả <ArrowRight className="size-4" />
+                    {available ? "Xem tất cả" : "Sắp ra mắt"} {available && <ArrowRight className="size-4" />}
                   </span>
                 </div>
               </div>
+            </>;
+            const className = `group relative flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-sm transition-all ${available ? "hover:shadow-md" : "opacity-75"}`;
+            return available ? <Link className={className} href={routes.category(category.slug)} key={category.slug}>{content}</Link> : <article className={className} key={category.slug}>{content}</article>;
+          })}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1360px] px-gutter py-space-xl lg:px-gutter-desktop" id="san-pham-truc-tuyen">
+        <SectionHeading
+          eyebrow="DỮ LIỆU SẢN PHẨM TRỰC TUYẾN"
+          title="Sản phẩm đang phục vụ"
+          description="Danh mục, giá và quy cách bên dưới được đồng bộ từ hệ thống Minh Sâm Bakery."
+        />
+        <div className="mb-space-lg flex flex-wrap gap-space-xs">
+          {catalogCategories.map((category) => (
+            <Link className="rounded-full bg-surface-container-lowest px-4 py-2 font-label-ui text-label-ui text-primary shadow-sm transition-colors hover:bg-primary hover:text-on-primary" href={routes.category(category.slug)} key={category.slug}>
+              {category.name} <span className="text-on-surface-variant">({productCountForCategory(category.slug, catalogProducts)})</span>
             </Link>
           ))}
         </div>
+        {catalogProducts.length ? <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2 lg:grid-cols-3">
+          {catalogProducts.map((product) => (
+            <article className="group overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md" key={product.id}>
+              <Link href={routes.product(product.slug)}>
+                <div className="aspect-[4/3] overflow-hidden bg-surface-container"><SafeImage alt={product.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={product.image} /></div>
+                <div className="p-space-md"><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-secondary">{catalogCategories.find((category) => category.slug === product.categorySlug)?.name ?? product.categorySlug}</span><h3 className="mt-1 font-headline-sm text-headline-sm text-primary">{product.name}</h3><p className="mt-1 line-clamp-2 font-body-sm text-body-sm text-on-surface-variant">{product.description}</p><div className="mt-space-sm flex items-center justify-between"><span className="font-price-serif text-price-serif font-semibold text-primary">{product.pricing.mode === "fixed" ? product.pricing.price : "Liên hệ tư vấn"}</span><span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold text-primary">Chi tiết <ArrowRight className="size-4" /></span></div></div>
+              </Link>
+            </article>
+          ))}
+        </div> : <div className="rounded-xl bg-surface-container-lowest p-space-lg text-center font-body-md text-on-surface-variant shadow-sm">Chưa có sản phẩm được công khai.</div>}
       </section>
 
       <FeaturedSeason />
@@ -355,7 +377,7 @@ export function StorefrontPage() {
                 </p>
               </div>
               <div className="mt-space-md pt-space-xs font-label-eyebrow text-label-eyebrow font-semibold uppercase tracking-wider text-secondary">
-                Xem {productCountForCategory(slug)} sản phẩm →
+                Xem {productCountForCategory(slug, catalogProducts)} sản phẩm →
               </div>
             </Link>
           ))}

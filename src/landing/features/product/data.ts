@@ -147,7 +147,7 @@ function uniqueRecommendations(preferredIds: readonly string[], productId: strin
     .slice(0, count);
 }
 
-function createDetail(product: DetailCatalogProduct): ProductDetail {
+export function createDetail(product: DetailCatalogProduct): ProductDetail {
   const gallery = repeatedGallery(product);
   if (product.pricing.mode === "fixed") {
     const relatedIds = uniqueRecommendations(merchandising.relatedFixedProductIds, product.id, "fixed", 4);

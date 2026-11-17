@@ -1,9 +1,9 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 import { Award, Flame, Hammer, History, ZoomIn } from "lucide-react";
 import { useState } from "react";
 
+import { SafeImage } from "@/landing/components/ui/safe-image";
 import type { ProductImage } from "../types";
 
 type ProductGalleryProps = {
@@ -21,7 +21,7 @@ export function ProductGallery({ heroImage, images, variant, galleryStrategy = "
   return (
     <div className="flex flex-col gap-space-md">
       <div className={`group relative aspect-[4/3] w-full overflow-hidden bg-surface-container shadow-md ${variant === "fixed" ? "rounded-xl" : "rounded-lg"}`}>
-        <img alt={activeImage.alt} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={activeImage.src} />
+        <SafeImage alt={activeImage.alt} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={activeImage.src} />
         {galleryStrategy === "repeated-mock" ? (
           <div className="pointer-events-none absolute top-4 left-4"><span className="rounded-sm bg-surface/90 px-3 py-1 font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-primary shadow-sm backdrop-blur-md">Ảnh minh họa demo • lặp để giữ bố cục</span></div>
         ) : variant === "fixed" ? (
@@ -46,7 +46,7 @@ export function ProductGallery({ heroImage, images, variant, galleryStrategy = "
           const active = activeIndex === index || (activeIndex === null && index === 0);
           return (
             <button aria-label={`Xem ${image.alt.toLocaleLowerCase("vi")}`} className={`group relative aspect-square overflow-hidden bg-surface-container p-0.5 transition-all focus:outline-none ${variant === "fixed" ? "rounded-lg" : "rounded-sm shadow-sm"} ${active ? "ring-2 ring-primary" : "opacity-80 hover:opacity-100"}`} key={`${image.src}-${index}`} onClick={() => setActiveIndex(index)} type="button">
-              <img alt={image.alt} className="h-full w-full rounded object-cover" src={image.src} />
+              <SafeImage alt={image.alt} className="h-full w-full rounded object-cover" src={image.src} />
               {active && variant === "quote" ? <span className="absolute inset-0 bg-primary/20" /> : null}
             </button>
           );

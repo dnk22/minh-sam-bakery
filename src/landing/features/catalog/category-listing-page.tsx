@@ -1,6 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 import {
   Award, CakeSlice, CalendarDays, ChevronLeft, ChevronRight, Eye, Leaf,
   MessageSquare, Palette, ShoppingBag, Sparkles, Truck,
@@ -9,20 +8,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { CatalogFilterForm, CatalogSearchForm, CatalogToolbar, OccasionTabs } from "./catalog-controls";
-import { catalogProducts } from "./data";
 import { CATALOG_PAGE_SIZE, catalogQueryToSearchParams, filterCatalogProducts, productCountForCategory, type CatalogQuery } from "./query";
-import type { CatalogCategory } from "./types";
+import type { CatalogCategory, CatalogProduct } from "./types";
 import { routes } from "@/landing/lib/routes";
+import { SafeImage } from "@/landing/components/ui/safe-image";
 
 const quoteIcons = { calendar: CalendarDays, palette: Palette, cake: CakeSlice };
 
-export function CategoryListingPage({ category, query }: { category: CatalogCategory; query: CatalogQuery }) {
+export function CategoryListingPage({ category, categories, products, query }: { category: CatalogCategory; categories: CatalogCategory[]; products: CatalogProduct[]; query: CatalogQuery }) {
   const router = useRouter();
-  const filteredProducts = filterCatalogProducts(category.slug, query);
+  const filteredProducts = filterCatalogProducts(category.slug, query, products, categories);
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / CATALOG_PAGE_SIZE));
   const currentPage = Math.min(query.page, pageCount);
   const visibleProducts = filteredProducts.slice((currentPage - 1) * CATALOG_PAGE_SIZE, currentPage * CATALOG_PAGE_SIZE);
-  const categoryCounts = Object.fromEntries(["banh-trung-thu", "san-pham-truyen-thong", "san-pham-moi", "banh-cookie", "sinh-nhat-su-kien", "banh-hat", "qua-tang"].map((slug) => [slug, productCountForCategory(slug)]));
+  const categoryCounts = Object.fromEntries(categories.map(({ slug }) => [slug, productCountForCategory(slug, products)]));
   const updateQuery = (patch: Partial<CatalogQuery>) => {
     const next = { ...query, ...patch, page: patch.page ?? 1 };
     const params = catalogQueryToSearchParams(next);
@@ -64,13 +63,13 @@ function PageButton({ children, disabled, label, onClick }: { children: React.Re
   return <button aria-label={label} className={`flex size-10 items-center justify-center rounded ${disabled ? "cursor-not-allowed bg-surface-container-high text-outline" : "bg-surface-container-lowest text-on-surface hover:bg-surface-container"}`} disabled={disabled} onClick={onClick} type="button">{children}</button>;
 }
 
-function ProductCard({ product }: { product: (typeof catalogProducts)[number] }) {
+function ProductCard({ product }: { product: CatalogProduct }) {
   const pricing = product.pricing;
   const detailHref = routes.product(product.slug);
   const QuoteIcon = pricing.mode === "quote" ? quoteIcons[pricing.icon] : MessageSquare;
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container"><img alt={product.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={product.image} />{product.badge && <span className={`absolute top-3 left-3 rounded px-2 py-0.5 font-label-eyebrow text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>{product.badge}</span>}</div>
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container"><SafeImage alt={product.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={product.image} />{product.badge && <span className={`absolute top-3 left-3 rounded px-2 py-0.5 font-label-eyebrow text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>{product.badge}</span>}</div>
       <div className="flex flex-1 flex-col justify-between p-space-md"><div><h3 className="mb-1 font-headline-sm text-headline-sm text-primary transition-colors group-hover:text-primary-container">{product.name}</h3><p className="mb-space-sm line-clamp-2 font-body-md text-body-md text-on-surface-variant">{product.description}</p></div><div className="mt-space-xs flex flex-col gap-space-sm pt-space-sm">
         {pricing.mode === "fixed" ? <div className="flex items-baseline justify-between"><span className="font-price-serif text-[18px] text-primary">{pricing.price}</span><span className="font-body-sm text-body-sm text-outline">{pricing.unit}</span></div> : <div className="flex items-center justify-between"><span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold uppercase tracking-wider text-secondary"><QuoteIcon className="size-4" /> Liên hệ tư vấn</span><span className="font-body-sm text-body-sm text-outline">{pricing.detail}</span></div>}
         <div className="flex items-center gap-space-xs"><Link className={`flex flex-1 items-center justify-center gap-1 rounded px-space-sm py-2 font-label-ui text-label-ui uppercase tracking-wider transition-colors ${pricing.mode === "fixed" ? "bg-primary text-on-primary hover:bg-primary-container" : "bg-secondary text-on-secondary hover:bg-on-secondary-container"}`} href={detailHref}>{pricing.mode === "fixed" ? <ShoppingBag className="size-4" /> : <MessageSquare className="size-4" />}{pricing.mode === "fixed" ? "Mua ngay" : "Nhận tư vấn"}</Link><Link aria-label={`Xem chi tiết ${product.name}`} className="rounded p-2 text-primary transition-colors hover:bg-surface-container" href={detailHref}><Eye className="size-5" /></Link></div>
