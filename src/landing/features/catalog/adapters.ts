@@ -1,7 +1,6 @@
 import type { CategoryResponseDto, ProductResponseDto, ProductVariantResponseDto } from "@/lib/api/types";
 import { backendAssetUrl } from "@/lib/api/client";
 
-import { catalogCategories } from "./data";
 import type { CatalogCategory, CatalogProduct } from "./types";
 
 const FALLBACK_IMAGE = "/images/catalog/product-placeholder.svg";
@@ -16,19 +15,17 @@ export function parseBackendPrice(value: string, field = "price") {
 }
 
 export function adaptCategory(dto: CategoryResponseDto): CatalogCategory {
-  const editorial = catalogCategories.find((category) => category.slug === dto.slug);
-  const image = backendAssetUrl(dto.imageUrl) ?? editorial?.image ?? FALLBACK_IMAGE;
   return {
     id: dto.id,
     slug: dto.slug,
     name: dto.name,
-    description: dto.description ?? editorial?.description ?? "Khám phá các sản phẩm trong danh mục Minh Sâm Bakery.",
-    image,
-    imageAlt: editorial?.imageAlt ?? dto.name,
-    badge: editorial?.badge ?? "Minh Sâm Bakery",
-    badgeClassName: editorial?.badgeClassName ?? "left-2.5 bg-primary text-on-primary",
-    number: editorial?.number ?? String(dto.sortOrder).padStart(2, "0"),
-    label: editorial?.label ?? "Danh mục sản phẩm",
+    description: dto.description ?? "",
+    image: backendAssetUrl(dto.imageUrl) ?? FALLBACK_IMAGE,
+    imageAlt: dto.name,
+    badge: "Minh Sâm Bakery",
+    badgeClassName: "left-2.5 bg-primary text-on-primary",
+    number: String(dto.sortOrder).padStart(2, "0"),
+    label: "Danh mục sản phẩm",
   };
 }
 

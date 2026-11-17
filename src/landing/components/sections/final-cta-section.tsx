@@ -17,7 +17,7 @@ export function FinalCtaSection() {
         </Reveal>
         <Reveal delay={0.15} duration={0.55} y={18}>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a className="w-full px-6 py-4 bg-primary text-on-primary font-label-ui font-medium text-[12px] leading-[18px] tracking-[0.06em] uppercase rounded hover:bg-primary-container transition-all sm:w-auto sm:px-8 md:text-label-ui md:tracking-wider" href="#danh-muc">Xem các dòng bánh</a>
+            <Link className="w-full px-6 py-4 bg-primary text-on-primary font-label-ui font-medium text-[12px] leading-[18px] tracking-[0.06em] uppercase rounded hover:bg-primary-container transition-all sm:w-auto sm:px-8 md:text-label-ui md:tracking-wider" href={`${routes.products}#danh-muc`}>Xem các dòng bánh</Link>
             <Link className="w-full px-6 py-4 bg-surface-container-high text-primary font-label-ui font-medium text-[12px] leading-[18px] tracking-[0.06em] uppercase rounded hover:bg-surface-container-highest transition-all sm:w-auto sm:px-8 md:text-label-ui md:tracking-wider" href={routes.category("qua-tang")}>Khám phá quà tặng</Link>
           </div>
         </Reveal>

@@ -270,7 +270,7 @@ export function StorefrontPage({ catalogCategories, catalogProducts }: { catalog
       </section>
 
       <section
-        className="mx-auto w-full max-w-[1360px] px-gutter py-space-xl lg:px-gutter-desktop"
+        className="mx-auto w-full max-w-[1360px] scroll-mt-[var(--landing-header-height)] px-gutter py-space-xl lg:px-gutter-desktop"
         id="danh-muc"
       >
         <SectionHeading

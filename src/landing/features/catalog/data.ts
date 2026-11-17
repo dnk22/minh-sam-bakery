@@ -67,17 +67,6 @@ export const catalogCategories: CatalogCategory[] = [
     number: "06",
     label: "Dưỡng Lành",
   },
-  {
-    slug: "qua-tang",
-    name: "Quà Tặng",
-    description: "Hộp quà cá nhân và doanh nghiệp được thiết kế, cá nhân hóa theo từng dịp tri ân.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDuJnzg1O8twBoUv1KrBl3DQbcxKtg0_f7PV3OT39DEIT_lmsHTF85GOSS_2fZsOkd2iloijm-CmsFB9xXbIY8LS_fkDMsI14ANTKkOGIu99il7vgNLTYxI8hK8YJh0Ci5tgoUv7d1AGjedBoa2HelLrxcBcC-gClVxjgRFCuce2D5YzWrVkqCNxteyiHDp1445-zUMUmBIXBL0SPOa0pw5rRq0Xk8tOSjv2CYosiQ",
-    imageAlt: "Hộp quà tri ân Minh Sâm",
-    badge: "QUÀ TẶNG TRI ÂN",
-    badgeClassName: "left-2.5 bg-secondary-fixed text-on-secondary-fixed",
-    number: "07",
-    label: "Trao Tặng",
-  },
 ];
 
 export const featuredCategorySlugs = [

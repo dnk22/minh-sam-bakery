@@ -11,12 +11,18 @@ import { getCatalogCategories } from "@/landing/features/catalog/repository";
 export const instant = false;
 
 export default async function HomePage() {
-  const categories = await getCatalogCategories();
+  let categories: Awaited<ReturnType<typeof getCatalogCategories>> = [];
+  let categoryLoadFailed = false;
+  try {
+    categories = await getCatalogCategories();
+  } catch {
+    categoryLoadFailed = true;
+  }
   return (
     <main className="min-h-[calc(100vh-var(--landing-header-height))] w-full bg-surface pt-[var(--landing-header-height)]">
       <div className="flex flex-col w-full">
         <HeroSection />
-        <ProductCategoriesSection availableCategorySlugs={categories.map(({ slug }) => slug)} />
+        <ProductCategoriesSection categories={categories} loadFailed={categoryLoadFailed} />
         <GiftingSection />
         <BrandStorySection />
         <TraditionDevelopmentSection />
