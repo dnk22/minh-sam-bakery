@@ -1,10 +1,8 @@
-import { BrandStorySection } from "@/landing/components/sections/brand-story-section";
 import { CraftsmanshipSection } from "@/landing/components/sections/craftsmanship-section";
 import { FinalCtaSection } from "@/landing/components/sections/final-cta-section";
 import { GiftingSection } from "@/landing/components/sections/gifting-section";
 import { HeroSection } from "@/landing/components/sections/hero-section";
 import { ProductCategoriesSection } from "@/landing/components/sections/product-categories-section";
-import { TraditionDevelopmentSection } from "@/landing/components/sections/tradition-development-section";
 import { TrainingTransferSection } from "@/landing/components/sections/training-transfer-section";
 import { getCatalogCategories } from "@/landing/features/catalog/repository";
 
@@ -24,8 +22,6 @@ export default async function HomePage() {
         <HeroSection />
         <ProductCategoriesSection categories={categories} loadFailed={categoryLoadFailed} />
         <GiftingSection />
-        <BrandStorySection />
-        <TraditionDevelopmentSection />
         <CraftsmanshipSection />
         <TrainingTransferSection />
         <FinalCtaSection />
