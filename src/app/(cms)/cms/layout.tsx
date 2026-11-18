@@ -11,5 +11,14 @@ export const metadata: Metadata = {
 };
 
 export default function CmsLayout({ children }: { children: ReactNode }) {
-  return <CmsPreferencesProvider><CmsShell>{children}</CmsShell></CmsPreferencesProvider>;
+  return (
+    <>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem("minhsam-cms-theme");document.documentElement.setAttribute("data-cms-theme",t==="light"||t==="dark"||t==="system"?t:"system")}catch(e){document.documentElement.setAttribute("data-cms-theme","system")}})();`,
+        }}
+      />
+      <CmsPreferencesProvider><CmsShell>{children}</CmsShell></CmsPreferencesProvider>
+    </>
+  );
 }

@@ -50,6 +50,28 @@
   --cms-ring: oklch(0.551 0.027 264.364);
 }
 
+:root[data-cms-theme="dark"] :where(.cms-root, .cms-portal) {
+  color-scheme: dark;
+  --cms-background: oklch(0.129 0.042 264.695);
+  --cms-foreground: oklch(0.984 0.003 247.858);
+  --cms-card: oklch(0.14 0.04 259.21);
+  --cms-card-foreground: oklch(0.984 0.003 247.858);
+  --cms-popover: oklch(0.208 0.042 265.755);
+  --cms-popover-foreground: oklch(0.984 0.003 247.858);
+  --cms-primary: oklch(0.929 0.013 255.508);
+  --cms-primary-foreground: oklch(0.208 0.042 265.755);
+  --cms-secondary: oklch(0.279 0.041 260.031);
+  --cms-secondary-foreground: oklch(0.984 0.003 247.858);
+  --cms-muted: oklch(0.279 0.041 260.031);
+  --cms-muted-foreground: oklch(0.704 0.04 256.788);
+  --cms-accent: oklch(0.279 0.041 260.031);
+  --cms-accent-foreground: oklch(0.984 0.003 247.858);
+  --cms-destructive: oklch(0.704 0.191 22.216);
+  --cms-border: oklch(1 0 0 / 10%);
+  --cms-input: oklch(1 0 0 / 15%);
+  --cms-ring: oklch(0.551 0.027 264.364);
+}
+
 @media (prefers-color-scheme: dark) {
   :where(.cms-root, .cms-portal)[data-cms-theme="system"] {
     color-scheme: dark;
@@ -72,12 +94,67 @@
     --cms-input: oklch(1 0 0 / 15%);
     --cms-ring: oklch(0.551 0.027 264.364);
   }
+
+  :root[data-cms-theme="system"] :where(.cms-root, .cms-portal) {
+    color-scheme: dark;
+    --cms-background: oklch(0.129 0.042 264.695);
+    --cms-foreground: oklch(0.984 0.003 247.858);
+    --cms-card: oklch(0.14 0.04 259.21);
+    --cms-card-foreground: oklch(0.984 0.003 247.858);
+    --cms-popover: oklch(0.208 0.042 265.755);
+    --cms-popover-foreground: oklch(0.984 0.003 247.858);
+    --cms-primary: oklch(0.929 0.013 255.508);
+    --cms-primary-foreground: oklch(0.208 0.042 265.755);
+    --cms-secondary: oklch(0.279 0.041 260.031);
+    --cms-secondary-foreground: oklch(0.984 0.003 247.858);
+    --cms-muted: oklch(0.279 0.041 260.031);
+    --cms-muted-foreground: oklch(0.704 0.04 256.788);
+    --cms-accent: oklch(0.279 0.041 260.031);
+    --cms-accent-foreground: oklch(0.984 0.003 247.858);
+    --cms-destructive: oklch(0.704 0.191 22.216);
+    --cms-border: oklch(1 0 0 / 10%);
+    --cms-input: oklch(1 0 0 / 15%);
+    --cms-ring: oklch(0.551 0.027 264.364);
+  }
+}
+
+:root[data-cms-theme="light"] :where(.cms-root, .cms-portal) {
+  color-scheme: light;
+  --cms-background: oklch(1 0 0);
+  --cms-foreground: oklch(0.129 0.042 264.695);
+  --cms-card: oklch(1 0 0);
+  --cms-card-foreground: oklch(0.129 0.042 264.695);
+  --cms-popover: oklch(1 0 0);
+  --cms-popover-foreground: oklch(0.129 0.042 264.695);
+  --cms-primary: oklch(0.208 0.042 265.755);
+  --cms-primary-foreground: oklch(0.984 0.003 247.858);
+  --cms-secondary: oklch(0.968 0.007 247.896);
+  --cms-secondary-foreground: oklch(0.208 0.042 265.755);
+  --cms-muted: oklch(0.968 0.007 247.896);
+  --cms-muted-foreground: oklch(0.554 0.046 257.417);
+  --cms-accent: oklch(0.968 0.007 247.896);
+  --cms-accent-foreground: oklch(0.208 0.042 265.755);
+  --cms-destructive: oklch(0.577 0.245 27.325);
+  --cms-border: oklch(0.929 0.013 255.508);
+  --cms-input: oklch(0.929 0.013 255.508);
+  --cms-ring: oklch(0.704 0.04 256.788);
 }
 
 .cms-root {
-  min-height: 100svh;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
   background: var(--cms-sidebar);
   isolation: isolate;
+}
+
+html:has(.cms-root),
+body:has(.cms-root) {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .cms-root *,
@@ -109,7 +186,9 @@
 .cms-shell {
   display: grid;
   grid-template-columns: 16rem minmax(0, 1fr);
-  min-height: 100svh;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
   background: var(--cms-sidebar);
   transition: grid-template-columns 200ms ease;
 }
@@ -124,7 +203,9 @@
 
 .cms-inset {
   min-width: 0;
-  min-height: 100svh;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
   background: var(--cms-background);
 }
 
@@ -134,7 +215,8 @@
 }
 
 .cms-root[data-sidebar-variant="inset"] .cms-inset {
-  min-height: calc(100svh - 1rem);
+  height: calc(100dvh - 1rem);
+  min-height: calc(100dvh - 1rem);
   overflow: clip;
   border: 1px solid var(--cms-border);
   border-radius: calc(var(--cms-radius) + 0.25rem);
@@ -286,7 +368,7 @@
 
 .cms-main { width: 100%; max-width: 80rem; margin-inline: auto; padding: 1.25rem; }
 .cms-main--fluid { max-width: none; }
-.cms-main--fixed { display: flex; height: calc(100svh - 4rem); flex-direction: column; overflow: hidden; }
+.cms-main--fixed { display: flex; height: calc(100dvh - 4rem); flex-direction: column; overflow: hidden; }
 .cms-skip-link { position: fixed; z-index: 100; top: 0.5rem; left: 0.5rem; transform: translateY(-160%); padding: 0.6rem 0.8rem; border-radius: 0.4rem; background: var(--cms-primary); color: var(--cms-primary-foreground); }
 .cms-skip-link:focus { transform: translateY(0); }
 
@@ -377,7 +459,7 @@
 
 @media (max-width: 767px) {
   .cms-shell, .cms-root[data-sidebar-layout="icon"] .cms-shell, .cms-root[data-sidebar-layout="offcanvas"] .cms-shell { display: block; padding: 0; }
-  .cms-root[data-sidebar-variant="inset"] .cms-inset { min-height: 100svh; border: 0; border-radius: 0; }
+  .cms-root[data-sidebar-variant="inset"] .cms-inset { height: 100dvh; min-height: 100dvh; border: 0; border-radius: 0; }
   .cms-sidebar, .cms-root[data-sidebar-layout="offcanvas"] .cms-sidebar, .cms-root[data-sidebar-variant="floating"] .cms-sidebar {
     position: fixed;
     z-index: 50;
@@ -397,11 +479,11 @@
   .cms-sidebar-rail { display: none; }
   .cms-header-context span { display: none; }
   .cms-main { padding: 1rem; }
-  .cms-main--fixed { height: auto; min-height: calc(100svh - 4rem); overflow: visible; }
-  .cms-settings-body { display: flex; flex-direction: column; overflow: visible; }
+  .cms-main--fixed { height: calc(100dvh - 4rem); min-height: 0; overflow: hidden; }
+  .cms-settings-body { display: flex; min-height: 0; flex-direction: column; overflow: hidden; }
   .cms-settings-nav { display: none; }
   .cms-settings-mobile-select { display: block; }
-  .cms-settings-content { overflow: visible; }
+  .cms-settings-content { min-height: 0; overflow-y: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {

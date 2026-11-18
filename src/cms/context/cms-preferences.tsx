@@ -54,6 +54,10 @@ function isOneOf<T extends string>(value: string | null, allowed: readonly T[]):
   return value !== null && allowed.includes(value as T);
 }
 
+function applyCmsTheme(theme: CmsTheme) {
+  document.documentElement.dataset.cmsTheme = theme;
+}
+
 export function CmsPreferencesProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<CmsTheme>(defaults.theme);
   const [sidebarVariant, setSidebarVariantState] = useState<CmsSidebarVariant>(defaults.variant);
@@ -69,7 +73,12 @@ export function CmsPreferencesProvider({ children }: { children: ReactNode }) {
     const storedLayout = localStorage.getItem(STORAGE_KEYS.layout);
     const storedDirection = localStorage.getItem(STORAGE_KEYS.direction);
 
-    if (isOneOf(storedTheme, ["light", "dark", "system"])) setThemeState(storedTheme);
+    if (isOneOf(storedTheme, ["light", "dark", "system"])) {
+      setThemeState(storedTheme);
+      applyCmsTheme(storedTheme);
+    } else {
+      applyCmsTheme(defaults.theme);
+    }
     if (isOneOf(storedVariant, ["inset", "floating", "sidebar"])) setSidebarVariantState(storedVariant);
     if (isOneOf(storedLayout, ["default", "icon", "offcanvas"])) setSidebarLayoutState(storedLayout);
     if (isOneOf(storedDirection, ["ltr", "rtl"])) setDirectionState(storedDirection);
@@ -79,6 +88,7 @@ export function CmsPreferencesProvider({ children }: { children: ReactNode }) {
   const setTheme = (value: CmsTheme) => {
     setThemeState(value);
     localStorage.setItem(STORAGE_KEYS.theme, value);
+    applyCmsTheme(value);
   };
   const setSidebarVariant = (value: CmsSidebarVariant) => {
     setSidebarVariantState(value);
@@ -120,13 +130,17 @@ export function CmsPreferencesProvider({ children }: { children: ReactNode }) {
         setSidebarLayout(sidebarLayout === "default" ? "icon" : "default");
       }
     },
-    resetTheme: () => resetPreference("theme", defaults.theme, setThemeState),
+    resetTheme: () => {
+      resetPreference("theme", defaults.theme, setThemeState);
+      applyCmsTheme(defaults.theme);
+    },
     resetSidebarVariant: () => resetPreference("variant", defaults.variant, setSidebarVariantState),
     resetSidebarLayout: () => resetPreference("layout", defaults.layout, setSidebarLayoutState),
     resetDirection: () => resetPreference("direction", defaults.direction, setDirectionState),
     resetAll: () => {
       Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
       setThemeState(defaults.theme);
+      applyCmsTheme(defaults.theme);
       setSidebarVariantState(defaults.variant);
       setSidebarLayoutState(defaults.layout);
       setDirectionState(defaults.direction);

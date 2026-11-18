@@ -18,7 +18,7 @@ const notoSerif = Noto_Serif({
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="vi" className={`${beVietnamPro.variable} ${notoSerif.variable}`}>
+    <html suppressHydrationWarning lang="vi" className={`${beVietnamPro.variable} ${notoSerif.variable}`}>
       <body className="bg-surface font-body-md text-body-md text-on-surface antialiased">
         {children}
       </body>
