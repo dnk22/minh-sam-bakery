@@ -6,10 +6,12 @@ import { cmsCookiePolicy } from "../src/cms/features/auth/lib/cookie-policy.ts";
 import { isTrustedSameOriginRequest } from "../src/cms/features/auth/lib/csrf.ts";
 import { sanitizeCmsRedirect } from "../src/cms/features/auth/lib/redirect.ts";
 import {
+  initialLoginFormValues,
   isCmsAuthTokens,
   isCmsAuthUser,
   isCmsLoginResult,
   parseDurationSeconds,
+  validateLoginForm,
   validateLoginInput,
 } from "../src/cms/features/auth/lib/validation.ts";
 import { toCmsProfileUser } from "../src/cms/features/auth/types.ts";
@@ -60,6 +62,21 @@ test("validates login fields without clearing valid input", () => {
     ok: true,
     data: { email: "ADMIN@EXAMPLE.COM", password: "secret" },
   });
+});
+
+test("adapts the existing login validation for Formik", () => {
+  assert.deepEqual(initialLoginFormValues, { email: "", password: "" });
+  assert.deepEqual(validateLoginForm(initialLoginFormValues), {
+    email: "Email không được để trống.",
+    password: "Mật khẩu không được để trống.",
+  });
+  assert.deepEqual(validateLoginForm({ email: "invalid", password: "secret" }), {
+    email: "Email không đúng định dạng.",
+  });
+  assert.deepEqual(validateLoginForm({ email: "admin@example.com", password: "" }), {
+    password: "Mật khẩu không được để trống.",
+  });
+  assert.deepEqual(validateLoginForm({ email: " admin@example.com ", password: " secret " }), {});
 });
 
 test("accepts only safe local CMS redirects", () => {

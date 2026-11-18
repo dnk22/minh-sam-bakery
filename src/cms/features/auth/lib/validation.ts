@@ -1,6 +1,23 @@
+import type { FormikErrors } from "formik";
+
 import type { CmsAuthTokens, CmsAuthUser, CmsLoginResult } from "@/cms/features/auth/types";
 
 type RecordValue = Record<string, unknown>;
+
+export type LoginFormValues = {
+  email: string;
+  password: string;
+};
+
+export const initialLoginFormValues: LoginFormValues = {
+  email: "",
+  password: "",
+};
+
+export function validateLoginForm(values: LoginFormValues): FormikErrors<LoginFormValues> {
+  const result = validateLoginInput(values);
+  return result.ok ? {} : result.fields;
+}
 
 export function isRecord(value: unknown): value is RecordValue {
   return typeof value === "object" && value !== null && !Array.isArray(value);
