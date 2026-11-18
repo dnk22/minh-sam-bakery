@@ -20,7 +20,10 @@ export default async function HomePage() {
     <main className="min-h-[calc(100vh-var(--landing-header-height))] w-full bg-surface pt-[var(--landing-header-height)]">
       <div className="flex flex-col w-full">
         <HeroSection />
-        <ProductCategoriesSection categories={categories} loadFailed={categoryLoadFailed} />
+        <ProductCategoriesSection
+          categories={categories}
+          loadFailed={categoryLoadFailed}
+        />
         <GiftingSection />
         <CraftsmanshipSection />
         <TrainingTransferSection />
