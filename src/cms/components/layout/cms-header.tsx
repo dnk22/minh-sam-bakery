@@ -7,8 +7,9 @@ import { ConfigDrawer } from "@/cms/components/layout/config-drawer";
 import { ProfileDropdown } from "@/cms/components/layout/profile-dropdown";
 import { CmsButton } from "@/cms/components/ui/button";
 import { useCmsPreferences } from "@/cms/context/cms-preferences";
+import type { CmsProfileUser } from "@/cms/features/auth/types";
 
-export function CmsHeader() {
+export function CmsHeader({ user }: { user: CmsProfileUser }) {
   const [scrolled, setScrolled] = useState(false);
   const { toggleSidebar } = useCmsPreferences();
 
@@ -28,11 +29,11 @@ export function CmsHeader() {
         <span className="cms-header-separator" />
         <div className="cms-header-context">
           <strong>CMS</strong>
-          <span>Giao diện xem trước nội bộ</span>
+          <span>Quản trị Minh Sâm Bakery</span>
         </div>
         <div className="cms-header-actions">
           <ConfigDrawer />
-          <ProfileDropdown />
+          <ProfileDropdown user={user} />
         </div>
       </div>
     </header>
