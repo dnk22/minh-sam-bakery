@@ -1,13 +1,16 @@
 import "server-only";
 
+import { connection } from "next/server";
+
 import { backendMe, CmsAuthBackendError } from "@/cms/features/auth/api/backend-auth-client";
 import { isAccessTokenFresh, readCmsSessionCookies } from "@/cms/features/auth/session/cookies";
 import type { CmsSessionResolution } from "@/cms/features/auth/types";
 
 export async function resolveCmsSession(): Promise<CmsSessionResolution> {
+  await connection();
   const session = await readCmsSessionCookies();
   if (!session.accessToken) return session.refreshToken ? { status: "needs_refresh" } : { status: "unauthenticated" };
-  if (!isAccessTokenFresh(session) && session.refreshToken) return { status: "needs_refresh" };
+  if (!isAccessTokenFresh(session, Date.now()) && session.refreshToken) return { status: "needs_refresh" };
 
   try {
     const user = await backendMe(session.accessToken);

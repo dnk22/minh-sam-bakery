@@ -25,7 +25,7 @@ export async function readCmsSessionCookies(): Promise<CmsSessionCookies> {
   };
 }
 
-export function writeCmsSessionCookies(response: NextResponse, tokens: CmsAuthTokens, now = Date.now()) {
+export function writeCmsSessionCookies(response: NextResponse, tokens: CmsAuthTokens, now: number) {
   const maxAge = parseDurationSeconds(tokens.expiresIn);
   if (maxAge === null) throw new Error("Invalid access token duration");
   const common = cmsCookiePolicy(process.env.NODE_ENV === "production");
@@ -41,7 +41,7 @@ export function clearCmsSessionCookies(response: NextResponse) {
   Object.values(CMS_AUTH_COOKIES).forEach((name) => response.cookies.set(name, "", expired));
 }
 
-export function isAccessTokenFresh(session: CmsSessionCookies, now = Date.now()) {
+export function isAccessTokenFresh(session: CmsSessionCookies, now: number) {
   return Boolean(session.accessToken && (!session.accessExpiresAt || session.accessExpiresAt > now + 10_000));
 }
 

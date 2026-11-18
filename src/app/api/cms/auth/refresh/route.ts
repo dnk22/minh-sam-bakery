@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       return response;
     }
     const response = noStoreJson({ ok: true });
-    writeCmsSessionCookies(response, rotatedTokens);
+    writeCmsSessionCookies(response, rotatedTokens, Date.now());
     return response;
   } catch (error) {
     const kind = error instanceof CmsAuthBackendError ? error.kind : "unavailable";
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       clearCmsSessionCookies(response);
     } else if (rotatedTokens) {
       // Rotation already succeeded; preserve the new pair even if /me is temporarily unavailable or forbidden.
-      writeCmsSessionCookies(response, rotatedTokens);
+      writeCmsSessionCookies(response, rotatedTokens, Date.now());
     }
     return response;
   }

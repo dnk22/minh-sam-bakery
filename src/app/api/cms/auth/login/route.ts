@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       return response;
     }
     const response = noStoreJson({ ok: true, user: toCmsProfileUser(result.user) });
-    writeCmsSessionCookies(response, result);
+    writeCmsSessionCookies(response, result, Date.now());
     return response;
   } catch (error) {
     return error instanceof CmsAuthBackendError ? authErrorResponse(error.kind) : authErrorResponse("unavailable");
