@@ -23,13 +23,15 @@ async function request<T>(
 
   let response: Response;
   try {
+    const isMultipart = options.body instanceof FormData;
+    const requestBody = options.body === undefined ? undefined : isMultipart ? options.body as FormData : JSON.stringify(options.body);
     response = await fetch(`/api/cms${path}`, {
       method,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      body: requestBody,
       cache: "no-store",
       credentials: "same-origin",
       signal,
-      headers: options.body === undefined ? undefined : { "Content-Type": "application/json" },
+      headers: options.body === undefined || isMultipart ? undefined : { "Content-Type": "application/json" },
     });
   } catch {
     if (options.signal?.aborted) throw new CmsApiError("NETWORK", "Yêu cầu đã bị hủy.");

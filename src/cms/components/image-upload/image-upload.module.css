@@ -1,0 +1,12 @@
+.root { display: grid; gap: .75rem; }
+.preview { display: grid; width: 100%; min-height: 10rem; place-items: center; overflow: hidden; border: 1px dashed var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-muted); color: var(--cms-muted-foreground); }
+.preview img { width: 100%; max-height: 16rem; object-fit: contain; }
+.preview svg { width: 2rem; height: 2rem; }
+.hiddenInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.note, .error { margin: 0; font-size: .8125rem; }
+.note { color: var(--cms-muted-foreground); }
+.error { color: var(--cms-destructive); }
+.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }

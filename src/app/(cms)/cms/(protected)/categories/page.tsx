@@ -1,6 +1,7 @@
-import { FolderTree } from "lucide-react";
-import { ModulePlaceholder } from "@/cms/components/layout/module-placeholder";
+import { Suspense } from "react";
+
+import { CategoriesPage } from "@/cms/features/categories/components/categories-page";
 
 export default function CmsCategoriesPage() {
-  return <ModulePlaceholder description="Cấu trúc danh mục sẽ được triển khai ở phase nghiệp vụ tiếp theo." icon={FolderTree} title="Danh mục" />;
+  return <Suspense fallback={null}><CategoriesPage /></Suspense>;
 }

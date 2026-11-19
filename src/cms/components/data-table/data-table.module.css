@@ -1,0 +1,15 @@
+.root { overflow: hidden; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
+.scroller { width: 100%; overflow-x: auto; }
+.table { width: 100%; min-width: 42rem; border-collapse: collapse; color: var(--cms-card-foreground); }
+.table th { height: 2.75rem; padding: 0 0.75rem; border-bottom: 1px solid var(--cms-border); background: var(--cms-muted); color: var(--cms-muted-foreground); font-size: 0.75rem; font-weight: 600; text-align: start; white-space: nowrap; }
+.table td { min-height: 3rem; padding: 0.75rem; border-bottom: 1px solid var(--cms-border); vertical-align: middle; }
+.table tbody tr:last-child td { border-bottom: 0; }
+.clickableRow { cursor: pointer; }
+.clickableRow:hover { background: color-mix(in oklch, var(--cms-accent) 72%, transparent); }
+.clickableRow:focus-visible { outline: 2px solid var(--cms-ring); outline-offset: -2px; }
+.expandButton { display: inline-grid; width: 2rem; height: 2rem; place-items: center; border: 0; border-radius: calc(var(--cms-radius) - 2px); background: transparent; color: inherit; }
+.expandButton:hover { background: var(--cms-accent); }
+.expandButton:focus-visible { outline: 2px solid var(--cms-ring); outline-offset: 1px; }
+.expandButton svg { width: 1rem; height: 1rem; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .clickableRow { scroll-behavior: auto; } }

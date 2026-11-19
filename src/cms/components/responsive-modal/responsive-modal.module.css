@@ -1,0 +1,61 @@
+.overlay {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  background: rgb(2 6 23 / 58%);
+  animation: overlay-in 180ms ease-out;
+}
+
+.content {
+  position: fixed;
+  z-index: 71;
+  inset: 0;
+  display: flex;
+  width: 100vw;
+  height: 100dvh;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--cms-background);
+  color: var(--cms-foreground);
+  box-shadow: 0 24px 80px rgb(2 6 23 / 28%);
+  animation: mobile-in 180ms ease-out;
+}
+
+.header,
+.footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 1rem;
+  padding-inline: 1.25rem;
+  background: var(--cms-background);
+}
+
+.header { min-height: 4.25rem; padding-block: max(0.875rem, env(safe-area-inset-top)) 0.875rem; border-bottom: 1px solid var(--cms-border); }
+.footer { justify-content: flex-end; min-height: 4rem; padding-block: 0.75rem max(0.75rem, env(safe-area-inset-bottom)); border-top: 1px solid var(--cms-border); }
+.heading { min-width: 0; flex: 1; }
+.title { margin: 0; font-size: 1.125rem; font-weight: 650; line-height: 1.35; }
+.description { margin: 0.25rem 0 0; color: var(--cms-muted-foreground); font-size: 0.8125rem; }
+.body { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 1.25rem; }
+.close { display: grid; width: 2.75rem; height: 2.75rem; flex: none; place-items: center; border: 0; border-radius: var(--cms-radius); background: transparent; color: inherit; }
+.close:hover { background: var(--cms-accent); }
+.close:focus-visible { outline: 2px solid var(--cms-ring); outline-offset: 2px; }
+.close svg { width: 1.125rem; height: 1.125rem; }
+
+@media (min-width: 768px) {
+  .content {
+    inset: 0 0 0 auto;
+    width: min(32rem, calc(100vw - 2rem));
+    border-inline-start: 1px solid var(--cms-border);
+    animation-name: drawer-in;
+  }
+}
+
+@keyframes overlay-in { from { opacity: 0; } }
+@keyframes mobile-in { from { opacity: 0; transform: scale(0.985); } }
+@keyframes drawer-in { from { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .content { animation: none; }
+}

@@ -1,0 +1,9 @@
+.root { overflow: hidden; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); color: var(--cms-card-foreground); }
+.list { margin: 0; padding: 0; list-style: none; }
+.item { display: flex; min-height: 3.5rem; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--cms-border); }
+.item:last-child { border-bottom: 0; }
+.content { min-width: 0; flex: 1; }
+.accessory { display: flex; flex: none; align-items: center; }
+.clickable { cursor: pointer; }
+.clickable:hover { background: var(--cms-accent); }
+.clickable:focus-visible { outline: 2px solid var(--cms-ring); outline-offset: -2px; }

@@ -9,7 +9,16 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   turbopack: {
     rules: {
+      // Tailwind is authored only in the app-level global stylesheet. Running
+      // its loader over `*.module.css` changes the resource to `.css.css`, so
+      // Turbopack no longer recognizes CSS Modules and exports an empty object.
       "*.css": {
+        condition: {
+          all: [
+            { not: { path: /\.module\.css$/ } },
+            { content: /@import\s+["']tailwindcss["']/ },
+          ],
+        },
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },

@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:auth": "node --no-warnings --test --experimental-strip-types tests/cms-auth.test.ts",
+    "test:cms-foundation": "node --no-warnings --test --experimental-strip-types tests/cms-foundation.test.ts",
+    "test:categories": "node --no-warnings --test --experimental-strip-types tests/cms-categories.test.ts",
     "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs"
   },
   "dependencies": {
@@ -18,6 +20,8 @@
     "@radix-ui/react-radio-group": "^1.5.1",
     "@radix-ui/react-slot": "^1.5.0",
     "@radix-ui/react-tooltip": "^1.4.1",
+    "@tanstack/react-query": "^5.108.0",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.63.0",

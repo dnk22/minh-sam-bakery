@@ -28,15 +28,17 @@ export async function requestApiEnvelope<T>(options: BackendRequestOptions<T>): 
 
   let response: Response;
   try {
+    const isMultipart = typeof FormData !== "undefined" && options.body instanceof FormData;
+    const requestBody = options.body === undefined ? undefined : isMultipart ? options.body as FormData : JSON.stringify(options.body);
     response = await (options.fetchImpl ?? fetch)(url, {
       method: options.method ?? "GET",
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      body: requestBody,
       cache: options.cache,
       next: options.next,
       signal,
       headers: {
         Accept: "application/json",
-        ...(options.body === undefined ? {} : { "Content-Type": "application/json" }),
+        ...(options.body === undefined || isMultipart ? {} : { "Content-Type": "application/json" }),
         ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
         ...options.headers,
       },
@@ -61,6 +63,7 @@ export async function requestApiEnvelope<T>(options: BackendRequestOptions<T>): 
       status: response.status,
       code: payload.code,
       backendMessage: payload.message,
+      data: payload.data,
     });
   }
   if (payload.code < 200 || payload.code >= 300) {
@@ -68,6 +71,7 @@ export async function requestApiEnvelope<T>(options: BackendRequestOptions<T>): 
       status: response.status,
       code: payload.code,
       backendMessage: payload.message,
+      data: payload.data,
     });
   }
   if (!options.validate(payload.data)) {
