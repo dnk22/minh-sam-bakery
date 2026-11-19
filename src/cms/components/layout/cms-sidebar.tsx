@@ -135,12 +135,6 @@ export function CmsSidebar() {
             </div>
           ))}
         </nav>
-
-        <div className="cms-sidebar-footer">
-          <span className="cms-sidebar-footer-mark">MS</span>
-          <span className="cms-sidebar-footer-copy">Giao diện quản trị nền tảng</span>
-        </div>
-
         <button
           aria-label={collapsed ? "Mở rộng sidebar" : "Thu gọn sidebar"}
           className="cms-sidebar-rail"
