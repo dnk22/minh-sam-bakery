@@ -20,6 +20,7 @@ import {
   validateLoginInput,
 } from "../src/cms/features/auth/lib/validation.ts";
 import { toCmsProfileUser } from "../src/cms/features/auth/types.ts";
+import { resolveCmsBreadcrumbs } from "../src/cms/config/navigation.ts";
 
 const user = {
   id: "user-1",
@@ -278,4 +279,17 @@ test("enforces same-origin POST protection", () => {
 test("uses HttpOnly, same-site cookies and HTTPS-only Secure in production", () => {
   assert.deepEqual(cmsCookiePolicy(false), { httpOnly: true, secure: false, sameSite: "lax", path: "/", priority: "high" });
   assert.deepEqual(cmsCookiePolicy(true), { httpOnly: true, secure: true, sameSite: "lax", path: "/", priority: "high" });
+});
+
+test("resolves active CMS route breadcrumbs from navigation", () => {
+  assert.deepEqual(resolveCmsBreadcrumbs("/cms/products"), [
+    { title: "Quản lý cửa hàng", href: "/cms", active: false },
+    { title: "Nội dung cửa hàng", href: "/cms/products", active: false },
+    { title: "Sản phẩm", href: "/cms/products", active: true },
+  ]);
+  assert.deepEqual(resolveCmsBreadcrumbs("/cms/settings/display"), [
+    { title: "Hệ thống", href: "/cms", active: false },
+    { title: "Cài đặt", href: "/cms/settings/appearance", active: false },
+    { title: "Hiển thị", href: "/cms/settings/display", active: true },
+  ]);
 });

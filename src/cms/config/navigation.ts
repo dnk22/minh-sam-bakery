@@ -26,6 +26,12 @@ export type CmsNavGroup = {
   items: CmsNavItem[];
 };
 
+export type CmsBreadcrumbItem = {
+  title: string;
+  href: string;
+  active: boolean;
+};
+
 export const cmsNavigation: CmsNavGroup[] = [
   {
     title: "Tổng quan",
@@ -55,4 +61,43 @@ export const cmsNavigation: CmsNavGroup[] = [
 export function isCmsRouteActive(pathname: string, href: string) {
   if (href === "/cms") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function resolveCmsBreadcrumbs(pathname: string): CmsBreadcrumbItem[] {
+  for (const group of cmsNavigation) {
+    for (const item of group.items) {
+      if (!("items" in item)) {
+        if (isCmsRouteActive(pathname, item.href)) {
+          return [
+            { title: group.title, href: "/cms", active: false },
+            { title: item.title, href: item.href, active: true },
+          ];
+        }
+        continue;
+      }
+
+      for (const child of item.items) {
+        if (isCmsRouteActive(pathname, child.href)) {
+          return [
+            { title: group.title, href: "/cms", active: false },
+            { title: item.title, href: child.href, active: false },
+            { title: child.title, href: child.href, active: true },
+          ];
+        }
+      }
+    }
+  }
+
+  if (pathname.startsWith("/cms/settings/")) {
+    const settingsTitle = pathname.endsWith("/display") ? "Hiển thị" : "Giao diện";
+    return [
+      { title: "Hệ thống", href: "/cms", active: false },
+      { title: "Cài đặt", href: "/cms/settings/appearance", active: false },
+      { title: settingsTitle, href: pathname, active: true },
+    ];
+  }
+
+  const segments = pathname.split("/").filter(Boolean);
+  const title = segments.at(-1) === "cms" ? "Dashboard" : segments.at(-1)?.replaceAll("-", " ") || "Dashboard";
+  return [{ title: title.charAt(0).toLocaleUpperCase("vi-VN") + title.slice(1), href: pathname, active: true }];
 }
