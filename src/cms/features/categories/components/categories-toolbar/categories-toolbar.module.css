@@ -1,0 +1,99 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--cms-border);
+  border-radius: var(--cms-radius);
+  background: var(--cms-card);
+}
+
+.toolbar :global(.cms-button) {
+  min-height: 2.5rem;
+}
+
+.filters {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cms-muted-foreground);
+}
+
+.filter select {
+  width: auto;
+  height: 2.5rem;
+  padding: 0 2rem 0 0.75rem;
+  border: 1px solid var(--cms-input);
+  border-radius: calc(var(--cms-radius) - 2px);
+  background: var(--cms-background);
+  color: var(--cms-foreground);
+  font: inherit;
+}
+
+.viewArea {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+.viewSwitch {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border-radius: var(--cms-radius);
+  background: var(--cms-muted);
+}
+
+.viewSwitch :global(.cms-button) {
+  border: 1px solid transparent;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.viewSwitch :global(.cms-button)[data-active] {
+  border-color: var(--cms-primary);
+  background: var(--cms-primary);
+  color: var(--cms-primary-foreground);
+  box-shadow: 0 1px 4px color-mix(in oklab, var(--cms-primary) 28%, transparent);
+}
+
+@media (max-width: 1023px) {
+  .toolbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .viewArea {
+    margin-inline-start: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .toolbar,
+  .filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter {
+    justify-content: space-between;
+  }
+
+  .viewArea {
+    display: none;
+  }
+}
