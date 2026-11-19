@@ -1,12 +1,12 @@
-import { backendMe, backendRefresh, CmsAuthBackendError } from "@/cms/features/auth/api/backend-auth-client";
 import { authErrorResponse, noStoreJson } from "@/cms/features/auth/api/browser-response";
+import { CmsAuthBackendError } from "@/cms/features/auth/lib/auth-errors";
 import { hasJsonContentType, isTrustedSameOriginRequest } from "@/cms/features/auth/lib/csrf";
 import {
   clearCmsSessionCookies,
   readCmsSessionCookies,
   writeCmsSessionCookies,
 } from "@/cms/features/auth/session/cookies";
-import type { CmsAuthTokens } from "@/cms/features/auth/types";
+import { CmsRotatedSessionError, refreshCmsSession } from "@/cms/features/auth/session/service";
 
 export async function POST(request: Request) {
   if (!isTrustedSameOriginRequest(request)) return authErrorResponse("forbidden");
@@ -19,27 +19,16 @@ export async function POST(request: Request) {
     return response;
   }
 
-  let rotatedTokens: CmsAuthTokens | null = null;
   try {
-    rotatedTokens = await backendRefresh(session.refreshToken);
-    const user = await backendMe(rotatedTokens.accessToken);
-    if (user.status === "LOCKED") {
-      const response = authErrorResponse("locked");
-      clearCmsSessionCookies(response);
-      return response;
-    }
+    const { tokens } = await refreshCmsSession(session.refreshToken);
     const response = noStoreJson({ ok: true });
-    writeCmsSessionCookies(response, rotatedTokens, Date.now());
+    writeCmsSessionCookies(response, tokens, Date.now());
     return response;
   } catch (error) {
     const kind = error instanceof CmsAuthBackendError ? error.kind : "unavailable";
     const response = authErrorResponse(kind);
-    if (kind === "unauthorized" || kind === "locked") {
-      clearCmsSessionCookies(response);
-    } else if (rotatedTokens) {
-      // Rotation already succeeded; preserve the new pair even if /me is temporarily unavailable or forbidden.
-      writeCmsSessionCookies(response, rotatedTokens, Date.now());
-    }
+    if (kind === "unauthorized" || kind === "locked") clearCmsSessionCookies(response);
+    else if (error instanceof CmsRotatedSessionError) writeCmsSessionCookies(response, error.tokens, Date.now());
     return response;
   }
 }

@@ -1,23 +1,7 @@
-import type { FormikErrors } from "formik";
-
 import type { CmsAuthTokens, CmsAuthUser, CmsLoginResult } from "@/cms/features/auth/types";
+import { parseLoginInput } from "../schemas/login.schema.ts";
 
 type RecordValue = Record<string, unknown>;
-
-export type LoginFormValues = {
-  email: string;
-  password: string;
-};
-
-export const initialLoginFormValues: LoginFormValues = {
-  email: "",
-  password: "",
-};
-
-export function validateLoginForm(values: LoginFormValues): FormikErrors<LoginFormValues> {
-  const result = validateLoginInput(values);
-  return result.ok ? {} : result.fields;
-}
 
 export function isRecord(value: unknown): value is RecordValue {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -68,13 +52,5 @@ export function parseDurationSeconds(value: string): number | null {
 export function validateLoginInput(value: unknown):
   | { ok: true; data: { email: string; password: string } }
   | { ok: false; fields: { email?: string; password?: string } } {
-  if (!isRecord(value)) return { ok: false, fields: { email: "Email không được để trống.", password: "Mật khẩu không được để trống." } };
-  const email = typeof value.email === "string" ? value.email.trim() : "";
-  const password = typeof value.password === "string" ? value.password : "";
-  const fields: { email?: string; password?: string } = {};
-  if (!email) fields.email = "Email không được để trống.";
-  else if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fields.email = "Email không đúng định dạng.";
-  if (!password) fields.password = "Mật khẩu không được để trống.";
-  else if (password.length > 512) fields.password = "Mật khẩu không hợp lệ.";
-  return Object.keys(fields).length ? { ok: false, fields } : { ok: true, data: { email, password } };
+  return parseLoginInput(value);
 }

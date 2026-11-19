@@ -1,17 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { mapBackendError, mapBackendNetworkError } from "../src/cms/features/auth/lib/backend-errors.ts";
+import { BackendRequestError } from "../src/lib/api/errors.ts";
+import { buildBackendUrl, requestApiEnvelope } from "../src/lib/api/transport.ts";
+import { cmsApiClient } from "../src/cms/lib/api/client.ts";
+import { CmsApiError } from "../src/cms/lib/api/errors.ts";
+import { mapBackendError, toCmsAuthBackendError } from "../src/cms/features/auth/lib/auth-errors.ts";
 import { cmsCookiePolicy } from "../src/cms/features/auth/lib/cookie-policy.ts";
 import { isTrustedSameOriginRequest } from "../src/cms/features/auth/lib/csrf.ts";
 import { sanitizeCmsRedirect } from "../src/cms/features/auth/lib/redirect.ts";
+import { decideRefreshFailure } from "../src/cms/features/auth/lib/refresh-policy.ts";
+import { defaultLoginValues, loginSchema, parseLoginInput } from "../src/cms/features/auth/schemas/login.schema.ts";
+import { isAccessTokenFresh } from "../src/cms/features/auth/session/policy.ts";
 import {
-  initialLoginFormValues,
   isCmsAuthTokens,
   isCmsAuthUser,
   isCmsLoginResult,
   parseDurationSeconds,
-  validateLoginForm,
   validateLoginInput,
 } from "../src/cms/features/auth/lib/validation.ts";
 import { toCmsProfileUser } from "../src/cms/features/auth/types.ts";
@@ -64,19 +69,17 @@ test("validates login fields without clearing valid input", () => {
   });
 });
 
-test("adapts the existing login validation for Formik", () => {
-  assert.deepEqual(initialLoginFormValues, { email: "", password: "" });
-  assert.deepEqual(validateLoginForm(initialLoginFormValues), {
-    email: "Email không được để trống.",
-    password: "Mật khẩu không được để trống.",
+test("uses one Zod login schema for browser and server validation", () => {
+  assert.deepEqual(defaultLoginValues, { email: "", password: "" });
+  assert.equal(loginSchema.safeParse(defaultLoginValues).success, false);
+  assert.deepEqual(parseLoginInput({ email: " admin@example.com ", password: " secret " }), {
+    ok: true,
+    data: { email: "admin@example.com", password: " secret " },
   });
-  assert.deepEqual(validateLoginForm({ email: "invalid", password: "secret" }), {
-    email: "Email không đúng định dạng.",
+  assert.deepEqual(parseLoginInput({ email: "invalid", password: "" }), {
+    ok: false,
+    fields: { email: "Email không đúng định dạng.", password: "Mật khẩu không được để trống." },
   });
-  assert.deepEqual(validateLoginForm({ email: "admin@example.com", password: "" }), {
-    password: "Mật khẩu không được để trống.",
-  });
-  assert.deepEqual(validateLoginForm({ email: " admin@example.com ", password: " secret " }), {});
 });
 
 test("accepts only safe local CMS redirects", () => {
@@ -93,11 +96,175 @@ test("maps backend statuses without reflecting raw messages", () => {
   assert.equal(mapBackendError(401, "raw", "login"), "unauthorized");
   assert.equal(mapBackendError(403, "Tài khoản đã bị khóa", "login"), "locked");
   assert.equal(mapBackendError(403, "raw", "me"), "forbidden");
+  assert.equal(mapBackendError(423, "raw", "me"), "locked");
   assert.equal(mapBackendError(404, "raw", "login"), "unauthorized");
   assert.equal(mapBackendError(429, "raw", "login"), "rate_limited");
   assert.equal(mapBackendError(500, "raw", "refresh"), "unavailable");
-  assert.equal(mapBackendNetworkError(new DOMException("Timed out", "TimeoutError")), "timeout");
-  assert.equal(mapBackendNetworkError(new TypeError("fetch failed")), "unavailable");
+  assert.equal(mapBackendError(504, "raw", "refresh"), "timeout");
+  assert.equal(toCmsAuthBackendError(new BackendRequestError("timeout"), "login").kind, "timeout");
+  assert.equal(toCmsAuthBackendError(new BackendRequestError("network"), "login").kind, "unavailable");
+  assert.equal(toCmsAuthBackendError(new BackendRequestError("invalid_json"), "login").kind, "invalid_response");
+});
+
+test("builds Backend URLs with repeated query values", () => {
+  assert.equal(
+    buildBackendUrl("https://api.example.com/", "/api/v1/products", { page: 2, status: ["ACTIVE", "DRAFT"], empty: null }).toString(),
+    "https://api.example.com/api/v1/products?page=2&status=ACTIVE&status=DRAFT",
+  );
+});
+
+test("shared transport handles GET envelopes and public cache options", async () => {
+  let captured: RequestInit & { next?: NextFetchRequestConfig } = {};
+  const response = await requestApiEnvelope({
+    baseUrl: "https://api.example.com",
+    path: "/items",
+    next: { revalidate: 300, tags: ["items"] },
+    validate: (value): value is string[] => Array.isArray(value) && value.every((item) => typeof item === "string"),
+    fetchImpl: (async (_input, init) => {
+      captured = init ?? {};
+      return new Response(JSON.stringify({ code: 200, message: "ok", data: ["cake"] }), { status: 200 });
+    }) as typeof fetch,
+  });
+  assert.deepEqual(response.data, ["cake"]);
+  assert.deepEqual(captured.next, { revalidate: 300, tags: ["items"] });
+});
+
+test("shared transport serializes POST, authorization and no-store", async () => {
+  let captured: RequestInit = {};
+  await requestApiEnvelope({
+    baseUrl: "https://api.example.com",
+    path: "/auth/me",
+    method: "POST",
+    body: { value: 1 },
+    accessToken: "access-token",
+    cache: "no-store",
+    validate: (value): value is boolean => value === true,
+    fetchImpl: (async (_input, init) => {
+      captured = init ?? {};
+      return new Response(JSON.stringify({ code: 200, message: "ok", data: true }), { status: 200 });
+    }) as typeof fetch,
+  });
+  assert.equal(captured.method, "POST");
+  assert.equal(captured.body, JSON.stringify({ value: 1 }));
+  assert.equal(new Headers(captured.headers).get("Authorization"), "Bearer access-token");
+  assert.equal(captured.cache, "no-store");
+});
+
+test("shared transport distinguishes malformed and HTTP responses", async () => {
+  const cases = [
+    { response: new Response("not-json", { status: 200 }), kind: "invalid_json" },
+    { response: Response.json({ value: true }), kind: "invalid_envelope" },
+    { response: Response.json({ code: 401, message: "unauthorized", data: null }, { status: 401 }), kind: "http" },
+    { response: Response.json({ code: 429, message: "limited", data: null }, { status: 200 }), kind: "application" },
+    { response: Response.json({ code: 200, message: "ok", data: "wrong" }), kind: "invalid_data" },
+  ] as const;
+  for (const item of cases) {
+    await assert.rejects(
+      requestApiEnvelope({
+        baseUrl: "https://api.example.com",
+        path: "/test",
+        validate: (value): value is boolean => typeof value === "boolean",
+        fetchImpl: (async () => item.response) as typeof fetch,
+      }),
+      (error: unknown) => error instanceof BackendRequestError && error.kind === item.kind,
+    );
+  }
+});
+
+test("shared transport distinguishes network, timeout and caller abort", async () => {
+  await assert.rejects(requestApiEnvelope({
+    baseUrl: "https://api.example.com",
+    path: "/network",
+    validate: (value): value is boolean => typeof value === "boolean",
+    fetchImpl: (async () => { throw new TypeError("network"); }) as typeof fetch,
+  }), (error: unknown) => error instanceof BackendRequestError && error.kind === "network");
+
+  const hangingFetch = ((_input: RequestInfo | URL, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+    init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true });
+  })) as typeof fetch;
+  const keepEventLoopAlive = setInterval(() => undefined, 10);
+  try {
+    await assert.rejects(requestApiEnvelope({
+      baseUrl: "https://api.example.com",
+      path: "/timeout",
+      timeoutMs: 1,
+      validate: (value): value is boolean => typeof value === "boolean",
+      fetchImpl: hangingFetch,
+    }), (error: unknown) => error instanceof BackendRequestError && error.kind === "timeout");
+  } finally {
+    clearInterval(keepEventLoopAlive);
+  }
+
+  const controller = new AbortController();
+  const request = requestApiEnvelope({
+    baseUrl: "https://api.example.com",
+    path: "/abort",
+    signal: controller.signal,
+    validate: (value): value is boolean => typeof value === "boolean",
+    fetchImpl: hangingFetch,
+  });
+  controller.abort();
+  await assert.rejects(request, (error: unknown) => error instanceof BackendRequestError && error.kind === "aborted");
+});
+
+test("CMS browser client uses the same-origin BFF and extracts field errors", async () => {
+  const originalFetch = globalThis.fetch;
+  let capturedUrl = "";
+  let capturedInit: RequestInit = {};
+  globalThis.fetch = (async (input, init) => {
+    capturedUrl = String(input);
+    capturedInit = init ?? {};
+    return Response.json({
+      ok: false,
+      error: { code: "VALIDATION", message: "Dữ liệu không hợp lệ.", fields: { email: "Email lỗi." } },
+    }, { status: 400 });
+  }) as typeof fetch;
+  try {
+    await assert.rejects(
+      cmsApiClient.post("/auth/login", { email: "bad" }),
+      (error: unknown) => error instanceof CmsApiError && error.code === "VALIDATION" && error.fields?.email === "Email lỗi.",
+    );
+    assert.equal(capturedUrl, "/api/cms/auth/login");
+    assert.equal(capturedInit.credentials, "same-origin");
+    assert.equal(capturedInit.cache, "no-store");
+    assert.equal(capturedInit.method, "POST");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("CMS browser client supports empty responses and rejects invalid JSON", async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = (async () => new Response(null, { status: 204 })) as typeof fetch;
+    assert.equal(await cmsApiClient.delete("/resource"), undefined);
+
+    globalThis.fetch = (async () => new Response("not-json", { status: 200 })) as typeof fetch;
+    await assert.rejects(
+      cmsApiClient.get("/resource"),
+      (error: unknown) => error instanceof CmsApiError && error.code === "INVALID_RESPONSE",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("access freshness policy refreshes near-expiry tokens", () => {
+  const now = 1_000_000;
+  assert.equal(isAccessTokenFresh({ accessToken: "token", accessExpiresAt: now + 20_000 }, now), true);
+  assert.equal(isAccessTokenFresh({ accessToken: "token", accessExpiresAt: now + 9_999 }, now), false);
+  assert.equal(isAccessTokenFresh({ accessToken: "token", accessExpiresAt: now - 1 }, now), false);
+  assert.equal(isAccessTokenFresh({ accessToken: null, accessExpiresAt: null }, now), false);
+});
+
+test("refresh failure policy is bounded and does not misclassify temporary failures", () => {
+  assert.deepEqual(decideRefreshFailure("UNAUTHORIZED", false), { action: "login", error: "session-expired" });
+  assert.deepEqual(decideRefreshFailure("LOCKED", false), { action: "login", error: "locked" });
+  assert.deepEqual(decideRefreshFailure("FORBIDDEN", false), { action: "show", state: "forbidden" });
+  assert.deepEqual(decideRefreshFailure("RATE_LIMITED", false), { action: "show", state: "rate_limited" });
+  for (const code of ["VALIDATION", "INVALID_RESPONSE", "UNAVAILABLE", "TIMEOUT", "NETWORK"]) {
+    assert.deepEqual(decideRefreshFailure(code, false), { action: "show", state: "unavailable" });
+  }
 });
 
 test("enforces same-origin POST protection", () => {

@@ -2,7 +2,6 @@
 
 import { LoaderCircle, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 
 import { CmsButton } from "@/cms/components/ui/button";
 import {
@@ -14,33 +13,10 @@ import {
   CmsDropdownTrigger,
 } from "@/cms/components/ui/dropdown-menu";
 import type { CmsProfileUser } from "@/cms/features/auth/types";
+import { useLogout } from "@/cms/features/auth/hooks/use-logout";
 
 export function ProfileDropdown({ user }: { user: CmsProfileUser }) {
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleLogout = async () => {
-    if (pending) return;
-    setPending(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/cms/auth/logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: "{}",
-      });
-      const payload = await response.json().catch(() => null) as { revoked?: boolean; localSessionCleared?: boolean } | null;
-      if (payload?.localSessionCleared) {
-        window.location.replace(payload.revoked ? "/cms/login?notice=logout" : "/cms/login?notice=logout-local");
-        return;
-      }
-      setError("Không thể đăng xuất lúc này. Vui lòng thử lại.");
-    } catch {
-      setError("Không thể kết nối tới máy chủ để đăng xuất.");
-    } finally {
-      setPending(false);
-    }
-  };
+  const { error, logout, pending } = useLogout();
 
   const initials = user.fullName.trim().split(/\s+/).filter(Boolean).slice(-2).map((part) => part[0]?.toUpperCase()).join("") || "MS";
   return (
@@ -61,7 +37,7 @@ export function ProfileDropdown({ user }: { user: CmsProfileUser }) {
           <Link href="/cms/settings/appearance"><Settings aria-hidden="true" size={16} />Cài đặt giao diện</Link>
         </CmsDropdownItem>
         <CmsDropdownSeparator />
-        <CmsDropdownItem disabled={pending} onSelect={(event) => { event.preventDefault(); void handleLogout(); }}>
+        <CmsDropdownItem disabled={pending} onSelect={(event) => { event.preventDefault(); void logout(); }}>
           {pending ? <LoaderCircle aria-hidden="true" className="cms-spin" size={16} /> : <LogOut aria-hidden="true" size={16} />}
           {pending ? "Đang đăng xuất…" : "Đăng xuất"}
         </CmsDropdownItem>

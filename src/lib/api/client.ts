@@ -1,9 +1,7 @@
 import "server-only";
 
-import type { ApiResponse } from "./types";
-
-const DEFAULT_BACKEND_URL = "https://minh-sam-backend.onrender.com";
-const API_TIMEOUT_MS = 12_000;
+import { backendBaseUrl, backendRequest } from "./backend-client";
+import { BackendRequestError } from "./errors";
 
 export class ApiClientError extends Error {
   constructor(
@@ -16,9 +14,7 @@ export class ApiClientError extends Error {
   }
 }
 
-export function backendBaseUrl() {
-  return (process.env.BACKEND_BASE_URL || DEFAULT_BACKEND_URL).replace(/\/$/, "");
-}
+export { backendBaseUrl };
 
 export function backendAssetUrl(path: string | null | undefined) {
   if (!path) return null;
@@ -31,34 +27,24 @@ export async function apiGet<T>(
   validate: (value: unknown) => value is T,
   options: { revalidate?: number; tags?: string[] } = {},
 ) {
-  const response = await fetch(`${backendBaseUrl()}${path}`, {
-    headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(API_TIMEOUT_MS),
-    next: { revalidate: options.revalidate ?? 300, tags: options.tags },
-  });
-
-  let payload: unknown;
   try {
-    payload = await response.json();
-  } catch {
-    throw new ApiClientError("Backend returned an invalid JSON response", response.status);
+    return await backendRequest({
+      method: "GET",
+      path,
+      validate,
+      next: { revalidate: options.revalidate ?? 300, tags: options.tags },
+    });
+  } catch (error) {
+    if (!(error instanceof BackendRequestError)) throw error;
+    const message = error.kind === "invalid_json"
+      ? "Backend returned an invalid JSON response"
+      : error.kind === "invalid_envelope"
+        ? "Backend response does not match ApiResponse"
+        : error.kind === "invalid_data"
+          ? "Backend data does not match the documented schema"
+          : error.backendMessage || "Backend request failed";
+    throw new ApiClientError(message, error.status, error.code);
   }
-
-  if (!isApiEnvelope(payload)) {
-    throw new ApiClientError("Backend response does not match ApiResponse");
-  }
-  if (!response.ok || payload.code < 200 || payload.code >= 300) {
-    throw new ApiClientError(payload.message || "Backend request failed", response.status, payload.code);
-  }
-  if (!validate(payload.data)) {
-    throw new ApiClientError("Backend data does not match the documented schema", response.status, payload.code);
-  }
-  return payload as ApiResponse<T>;
-}
-
-function isApiEnvelope(value: unknown): value is ApiResponse<unknown> {
-  if (!isRecord(value)) return false;
-  return typeof value.code === "number" && typeof value.message === "string" && "data" in value;
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {

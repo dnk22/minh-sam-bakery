@@ -24,8 +24,17 @@ const statuses: Record<CmsAuthErrorKind, number> = {
   invalid_response: 502,
 };
 
-export function authErrorResponse(kind: CmsAuthErrorKind, init?: { fields?: { email?: string; password?: string }; status?: number }) {
-  return noStoreJson({ ok: false, error: { code: kind.toUpperCase(), message: messages[kind], fields: init?.fields } }, { status: init?.status ?? statuses[kind] });
+export function authErrorResponse(kind: CmsAuthErrorKind, init?: {
+  body?: Record<string, unknown>;
+  fields?: { email?: string; password?: string };
+  message?: string;
+  status?: number;
+}) {
+  return noStoreJson({
+    ok: false,
+    ...init?.body,
+    error: { code: kind.toUpperCase(), message: init?.message ?? messages[kind], fields: init?.fields },
+  }, { status: init?.status ?? statuses[kind] });
 }
 
 export function noStoreJson(body: unknown, init?: ResponseInit) {

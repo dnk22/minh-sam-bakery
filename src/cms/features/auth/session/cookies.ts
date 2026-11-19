@@ -7,6 +7,7 @@ import { CMS_AUTH_COOKIES } from "@/cms/features/auth/lib/constants";
 import { cmsCookiePolicy } from "@/cms/features/auth/lib/cookie-policy";
 import type { CmsAuthTokens } from "@/cms/features/auth/types";
 import { parseDurationSeconds } from "@/cms/features/auth/lib/validation";
+export { isAccessTokenFresh } from "@/cms/features/auth/session/policy";
 
 export type CmsSessionCookies = {
   accessToken: string | null;
@@ -39,9 +40,5 @@ export function writeCmsSessionCookies(response: NextResponse, tokens: CmsAuthTo
 export function clearCmsSessionCookies(response: NextResponse) {
   const expired = { ...cmsCookiePolicy(process.env.NODE_ENV === "production"), maxAge: 0 };
   Object.values(CMS_AUTH_COOKIES).forEach((name) => response.cookies.set(name, "", expired));
-}
-
-export function isAccessTokenFresh(session: CmsSessionCookies, now: number) {
-  return Boolean(session.accessToken && (!session.accessExpiresAt || session.accessExpiresAt > now + 10_000));
 }
 

@@ -1,7 +1,8 @@
-import { backendLogin, CmsAuthBackendError } from "@/cms/features/auth/api/backend-auth-client";
+import { backendLogin } from "@/cms/features/auth/api/auth.server";
 import { authErrorResponse, noStoreJson } from "@/cms/features/auth/api/browser-response";
+import { CmsAuthBackendError } from "@/cms/features/auth/lib/auth-errors";
 import { hasJsonContentType, isTrustedSameOriginRequest } from "@/cms/features/auth/lib/csrf";
-import { validateLoginInput } from "@/cms/features/auth/lib/validation";
+import { parseLoginInput } from "@/cms/features/auth/schemas/login.schema";
 import { clearCmsSessionCookies, writeCmsSessionCookies } from "@/cms/features/auth/session/cookies";
 import { toCmsProfileUser } from "@/cms/features/auth/types";
 
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   } catch {
     return authErrorResponse("validation");
   }
-  const input = validateLoginInput(body);
+  const input = parseLoginInput(body);
   if (!input.ok) return authErrorResponse("validation", { fields: input.fields });
 
   try {

@@ -1,5 +1,6 @@
-import { backendMe, CmsAuthBackendError } from "@/cms/features/auth/api/backend-auth-client";
+import { backendMe } from "@/cms/features/auth/api/auth.server";
 import { authErrorResponse, noStoreJson } from "@/cms/features/auth/api/browser-response";
+import { CmsAuthBackendError } from "@/cms/features/auth/lib/auth-errors";
 import { clearCmsSessionCookies, readCmsSessionCookies } from "@/cms/features/auth/session/cookies";
 import { toCmsProfileUser } from "@/cms/features/auth/types";
 
