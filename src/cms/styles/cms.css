@@ -826,19 +826,6 @@ body:has(.cms-root) {
   background: var(--cms-accent);
   color: var(--cms-accent-foreground);
 }
-.cms-login-remember {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--cms-muted-foreground);
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-.cms-login-remember input {
-  width: 1rem;
-  height: 1rem;
-  accent-color: var(--cms-primary);
-}
 .cms-field-error {
   margin: 0;
   color: var(--cms-destructive);

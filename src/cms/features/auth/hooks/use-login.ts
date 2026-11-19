@@ -3,10 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { authApi, AuthClientError } from "@/cms/features/auth/api/auth.client";
+import { migrateAndReadRememberedEmail, rememberEmail } from "@/cms/features/auth/lib/remembered-email";
 import {
   defaultLoginValues,
   loginSchema,
@@ -14,11 +15,8 @@ import {
   type LoginFormValues,
 } from "@/cms/features/auth/schemas/login.schema";
 
-const REMEMBERED_LOGIN_KEY = "minhsam-cms-remembered-login";
-
 export function useLogin(redirectTo: string) {
   const router = useRouter();
-  const [rememberLogin, setRememberLogin] = useState(false);
   const form = useForm<LoginFormValues, unknown, LoginCredentials>({
     resolver: zodResolver(loginSchema),
     defaultValues: defaultLoginValues,
@@ -27,32 +25,20 @@ export function useLogin(redirectTo: string) {
   });
 
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect -- Saved credentials are intentionally restored after the client component mounts. */
-    try {
-      const stored = localStorage.getItem(REMEMBERED_LOGIN_KEY);
-      if (!stored) return;
-      const value = JSON.parse(stored) as Partial<Record<"email" | "password", unknown>>;
-      if (typeof value.email !== "string" || typeof value.password !== "string") return;
-      form.reset({ email: value.email, password: value.password });
-      setRememberLogin(true);
-    } catch {
-      localStorage.removeItem(REMEMBERED_LOGIN_KEY);
-    }
-    /* eslint-enable react-hooks/set-state-in-effect */
+    const rememberedEmail = migrateAndReadRememberedEmail(window.localStorage);
+    if (!rememberedEmail || form.getFieldState("email").isDirty || form.getValues("email")) return;
+    form.setValue("email", rememberedEmail, {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
   }, [form]);
 
   const onValid = async (credentials: LoginCredentials) => {
     form.clearErrors("root.server");
     try {
       await authApi.login(credentials);
-      if (rememberLogin) {
-        localStorage.setItem(REMEMBERED_LOGIN_KEY, JSON.stringify({
-          email: credentials.email,
-          password: credentials.password,
-        }));
-      } else {
-        localStorage.removeItem(REMEMBERED_LOGIN_KEY);
-      }
+      rememberEmail(window.localStorage, credentials.email);
       router.replace(redirectTo);
       router.refresh();
     } catch (error) {
@@ -69,11 +55,6 @@ export function useLogin(redirectTo: string) {
     }
   };
 
-  const setRememberLoginPreference = (value: boolean) => {
-    setRememberLogin(value);
-    if (!value) localStorage.removeItem(REMEMBERED_LOGIN_KEY);
-  };
-
   const submit = (event: FormEvent<HTMLFormElement>) => {
     if (form.formState.isSubmitting) {
       event.preventDefault();
@@ -88,8 +69,6 @@ export function useLogin(redirectTo: string) {
     password: form.register("password", { onChange: clearServerError }),
     errors: form.formState.errors,
     isSubmitting: form.formState.isSubmitting,
-    rememberLogin,
-    setRememberLogin: setRememberLoginPreference,
     submit,
   };
 }

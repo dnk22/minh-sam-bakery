@@ -10,6 +10,12 @@ import { cmsCookiePolicy } from "../src/cms/features/auth/lib/cookie-policy.ts";
 import { isTrustedSameOriginRequest } from "../src/cms/features/auth/lib/csrf.ts";
 import { sanitizeCmsRedirect } from "../src/cms/features/auth/lib/redirect.ts";
 import { decideRefreshFailure } from "../src/cms/features/auth/lib/refresh-policy.ts";
+import {
+  LEGACY_REMEMBERED_LOGIN_KEY,
+  migrateAndReadRememberedEmail,
+  REMEMBERED_EMAIL_KEY,
+  rememberEmail,
+} from "../src/cms/features/auth/lib/remembered-email.ts";
 import { defaultLoginValues, loginSchema, parseLoginInput } from "../src/cms/features/auth/schemas/login.schema.ts";
 import { isAccessTokenFresh } from "../src/cms/features/auth/session/policy.ts";
 import {
@@ -30,6 +36,14 @@ const user = {
   role: { id: "role-1", code: "MANAGER", name: "Quản lý" },
   permissions: ["products.read"],
 };
+
+function memoryStorage(values: Map<string, string>): Pick<Storage, "getItem" | "removeItem" | "setItem"> {
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    removeItem: (key) => { values.delete(key); },
+    setItem: (key, value) => { values.set(key, value); },
+  };
+}
 
 test("parses documented access-token duration strings", () => {
   assert.equal(parseDurationSeconds("15m"), 900);
@@ -81,6 +95,33 @@ test("uses one Zod login schema for browser and server validation", () => {
     ok: false,
     fields: { email: "Email không đúng định dạng.", password: "Mật khẩu không được để trống." },
   });
+});
+
+test("migrates legacy login storage without restoring its password", () => {
+  const values = new Map<string, string>([
+    [LEGACY_REMEMBERED_LOGIN_KEY, JSON.stringify({ email: " user@example.com ", password: "plaintext-password" })],
+  ]);
+  const storage = memoryStorage(values);
+
+  assert.equal(migrateAndReadRememberedEmail(storage), "user@example.com");
+  assert.equal(values.has(LEGACY_REMEMBERED_LOGIN_KEY), false);
+  assert.equal(values.get(REMEMBERED_EMAIL_KEY), "user@example.com");
+  assert.equal([...values.values()].some((value) => value.includes("plaintext-password")), false);
+});
+
+test("discards malformed legacy storage and remembers only valid emails", () => {
+  const values = new Map<string, string>([
+    [LEGACY_REMEMBERED_LOGIN_KEY, "{malformed"],
+    [REMEMBERED_EMAIL_KEY, "saved@example.com"],
+  ]);
+  const storage = memoryStorage(values);
+
+  assert.equal(migrateAndReadRememberedEmail(storage), "saved@example.com");
+  assert.equal(values.has(LEGACY_REMEMBERED_LOGIN_KEY), false);
+  rememberEmail(storage, " invalid ");
+  assert.equal(values.get(REMEMBERED_EMAIL_KEY), "saved@example.com");
+  rememberEmail(storage, " latest@example.com ");
+  assert.equal(values.get(REMEMBERED_EMAIL_KEY), "latest@example.com");
 });
 
 test("accepts only safe local CMS redirects", () => {
