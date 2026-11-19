@@ -8,7 +8,7 @@ import { useLogin } from "@/cms/features/auth/hooks/use-login";
 
 export function CmsLoginForm({ redirectTo }: { redirectTo: string }) {
   const [showPassword, setShowPassword] = useState(false);
-  const { email, errors, isSubmitting, password, submit } = useLogin(redirectTo);
+  const { email, errors, isSubmitting, password, rememberLogin, setRememberLogin, submit } = useLogin(redirectTo);
 
   return (
     <form className="cms-login-form" noValidate onSubmit={submit}>
@@ -52,6 +52,16 @@ export function CmsLoginForm({ redirectTo }: { redirectTo: string }) {
         </div>
         {errors.password?.message ? <p className="cms-field-error" id="cms-password-error">{errors.password.message}</p> : null}
       </div>
+
+      <label className="cms-login-remember">
+        <input
+          checked={rememberLogin}
+          disabled={isSubmitting}
+          onChange={(event) => setRememberLogin(event.target.checked)}
+          type="checkbox"
+        />
+        <span>Ghi nhớ email và mật khẩu</span>
+      </label>
 
       {errors.root?.server?.message ? <p aria-live="assertive" className="cms-login-alert cms-login-alert--error" role="alert">{errors.root.server.message}</p> : null}
       <CmsButton className="cms-login-submit" disabled={isSubmitting} type="submit">
