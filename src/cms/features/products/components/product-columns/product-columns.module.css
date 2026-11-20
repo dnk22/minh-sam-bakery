@@ -1,0 +1,10 @@
+.product { display: flex; min-width: 0; align-items: center; gap: .75rem; }
+.product img, .placeholder { width: 2.75rem; height: 2.75rem; flex: none; border-radius: .5rem; object-fit: cover; background: var(--cms-muted); }
+.placeholder { display: grid; place-items: center; color: var(--cms-muted-foreground); }
+.placeholder svg { width: 1.1rem; }
+.product div { display: grid; min-width: 0; }
+.product strong, .product span, .truncated { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.product span { color: var(--cms-muted-foreground); font-size: .75rem; }
+.price { display: grid; gap: .1rem; white-space: nowrap; }
+.price del { color: var(--cms-muted-foreground); font-size: .75rem; }
+.flags { display: flex; flex-wrap: wrap; gap: .25rem; }

@@ -1,0 +1,10 @@
+.toolbar { display: grid; gap: .5rem; padding: .75rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
+.filters { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.search { width: clamp(18rem, 28vw, 22rem); max-width: 100%; }
+.select { width: 11rem; }
+.category { width: clamp(13rem, 20vw, 17rem); }
+.boolean { width: 10.5rem; }
+.toolbar :global(.cms-button) { min-height: 2.5rem; }
+.error { margin: 0; color: var(--cms-destructive); font-size: .8125rem; }
+.error button { border: 0; padding: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; }
+@media (max-width: 767px) { .filters { align-items: stretch; flex-direction: column; } .search, .select, .category, .boolean { width: 100%; } }

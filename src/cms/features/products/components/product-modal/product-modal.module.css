@@ -1,0 +1,3 @@
+.modal { width: min(60rem, calc(100vw - 2rem)); }
+.state { display: grid; min-height: 10rem; place-content: center; justify-items: center; gap: .75rem; color: var(--cms-muted-foreground); text-align: center; }
+.state p { margin: 0; }

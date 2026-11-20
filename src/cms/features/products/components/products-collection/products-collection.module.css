@@ -1,0 +1,9 @@
+.table { min-width: 0; }
+.item { display: flex; min-width: 0; align-items: center; gap: .75rem; }
+.item img, .placeholder { width: 3rem; height: 3rem; flex: none; border-radius: .5rem; object-fit: cover; background: var(--cms-muted); }
+.placeholder { display: grid; place-items: center; color: var(--cms-muted-foreground); }
+.placeholder svg { width: 1.1rem; }
+.item div { display: grid; min-width: 0; }
+.item strong, .item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item span { color: var(--cms-muted-foreground); font-size: .75rem; }
+.item b { margin-top: .15rem; font-size: .8125rem; }

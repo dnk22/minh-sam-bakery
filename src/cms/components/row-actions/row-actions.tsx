@@ -55,7 +55,7 @@ export function CmsRowActions({
       >
         <Eye aria-hidden="true" />
       </button>
-      <CmsDropdown>
+      {actions.length > 0 ? <CmsDropdown>
         <CmsDropdownTrigger asChild>
           <button
             aria-label={moreLabel}
@@ -82,7 +82,7 @@ export function CmsRowActions({
             </Fragment>
           ))}
         </CmsDropdownContent>
-      </CmsDropdown>
+      </CmsDropdown> : null}
     </div>
   );
 }
