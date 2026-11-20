@@ -1,0 +1,14 @@
+.form, .detail { display: grid; gap: 1rem; }
+.state { display: grid; min-height: 14rem; place-items: center; padding: 2rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); color: var(--cms-muted-foreground); text-align: center; }
+.alert { margin: 0; padding: 0.75rem; border: 1px solid color-mix(in oklch, var(--cms-destructive) 40%, transparent); border-radius: var(--cms-radius); background: color-mix(in oklch, var(--cms-destructive) 8%, transparent); color: var(--cms-destructive); }
+.orphanNote { margin: 0; color: var(--cms-muted-foreground); font-size: 0.75rem; }
+.detailImage { width: 100%; max-height: 16rem; object-fit: contain; border-radius: var(--cms-radius); background: var(--cms-muted); }
+.detail dl { display: grid; gap: 0; margin: 0; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); }
+.detail dl > div { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--cms-border); }
+.detail dl > div:last-child { border-bottom: 0; }
+.detail dt { color: var(--cms-muted-foreground); }
+.detail dd { margin: 0; overflow-wrap: anywhere; }
+.spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 767px) { .detail dl > div { grid-template-columns: 1fr; gap: 0.25rem; } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }

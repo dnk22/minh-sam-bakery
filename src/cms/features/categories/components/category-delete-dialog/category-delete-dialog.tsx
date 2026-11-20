@@ -7,9 +7,9 @@ import { ResponsiveModal } from "@/cms/components/responsive-modal/responsive-mo
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsApiError } from "@/cms/lib/api/errors";
 
-import { useCategoryMutations } from "../hooks/use-category-mutations";
-import type { Category } from "../types";
-import styles from "./categories.module.css";
+import { useCategoryMutations } from "../../hooks/use-category-mutations";
+import type { Category } from "../../types";
+import styles from "./category-delete-dialog.module.css";
 
 export function CategoryDeleteDialog({ category, onClose, onDeleted }: { category: Category | null; onClose: () => void; onDeleted: () => void }) {
   const { remove } = useCategoryMutations();
@@ -24,6 +24,6 @@ export function CategoryDeleteDialog({ category, onClose, onDeleted }: { categor
     title="Xóa danh mục" description="Thao tác này không thể hoàn tác."
     footer={<><CmsButton type="button" variant="outline" disabled={remove.isPending} onClick={onClose}>Hủy</CmsButton><CmsButton type="button" variant="destructive" disabled={remove.isPending} onClick={confirm}>{remove.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Xác nhận xóa</CmsButton></>}
   >
-    <div className={styles.deleteBody}><p>Bạn có chắc muốn xóa <strong>{category?.name}</strong>?</p><p>Backend sẽ từ chối nếu danh mục còn danh mục con hoặc sản phẩm tham chiếu.</p>{error ? <p className={styles.alert} role="alert">{error}</p> : null}</div>
+    <div className={styles.body}><p>Bạn có chắc muốn xóa <strong>{category?.name}</strong>?</p><p>Backend sẽ từ chối nếu danh mục còn danh mục con hoặc sản phẩm tham chiếu.</p>{error ? <p className={styles.alert} role="alert">{error}</p> : null}</div>
   </ResponsiveModal>;
 }

@@ -4,8 +4,8 @@ import type { UseFormReturn } from "react-hook-form";
 
 import { ImageUpload } from "@/cms/components/image-upload/image-upload";
 
-import type { CategoryFormValues } from "../types";
-import styles from "./categories.module.css";
+import type { CategoryFormValues } from "../../types";
+import styles from "./category-fields.module.css";
 
 export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManual, onUploadPending }: {
   form: UseFormReturn<CategoryFormValues>;

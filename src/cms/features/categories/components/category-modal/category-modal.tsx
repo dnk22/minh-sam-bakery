@@ -1,24 +1,21 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo } from "react";
 
 import { ResponsiveModal } from "@/cms/components/responsive-modal/responsive-modal";
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsApiError } from "@/cms/lib/api/errors";
 
-import { descendantIds, flattenTreeOptions } from "../lib/category-tree";
-import { categoryFormSchema, categoryToForm, formToCreate, formToPatch, vietnameseSlug } from "../schemas/category.schema";
-import { useCategoryDetail, useCategoryMutations } from "../hooks/use-category-mutations";
-import { useCategoryTree } from "../hooks/use-categories";
-import type { Category, CategoryFormValues, CategoryModalMode } from "../types";
-import { CategoryFields } from "./category-fields";
-import styles from "./categories.module.css";
-
-export type CategoryModalState = { mode: CategoryModalMode; id?: string; parentId?: string | null } | null;
+import { descendantIds, flattenTreeOptions } from "../../lib/category-tree";
+import { formToCreate, formToPatch } from "../../schemas/category.schema";
+import { useCategoryForm } from "../../hooks/use-category-form";
+import { useCategoryDetail, useCategoryMutations } from "../../hooks/use-category-mutations";
+import { useCategoryTree } from "../../hooks/use-categories";
+import type { Category, CategoryFormValues, CategoryModalState } from "../../types";
+import { CategoryFields } from "../category-fields";
+import styles from "./category-modal.module.css";
 
 export function CategoryModal({ state, onStateChange, onDelete }: {
   state: CategoryModalState;
@@ -29,31 +26,16 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
   const detail = useCategoryDetail(state?.id);
   const treeQuery = useCategoryTree(Boolean(state));
   const mutations = useCategoryMutations();
-  const slugManual = useRef(false);
-  const [uploadPending, setUploadPending] = useState(false);
-  const form = useForm<CategoryFormValues>({ resolver: zodResolver(categoryFormSchema), defaultValues: categoryToForm(undefined, state?.parentId) });
-  // React Hook Form exposes intentionally mutable observation methods.
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const name = form.watch("name");
   const isEditing = mode === "create" || mode === "edit";
   const category = detail.data;
-
-  useEffect(() => {
-    if (!state) return;
-    slugManual.current = mode === "edit";
-    setUploadPending(false);
-    form.reset(categoryToForm(mode === "edit" ? category : undefined, state.parentId));
-  }, [state, mode, category, form]);
-
-  useEffect(() => {
-    if (mode === "create" && !slugManual.current) form.setValue("slug", vietnameseSlug(name), { shouldValidate: false });
-  }, [form, mode, name]);
+  const { form, uploadPending, setUploadPending, markSlugManual } =
+    useCategoryForm({ state, category });
 
   const parentOptions = useMemo(() => {
     const tree = treeQuery.data?.tree;
     if (!tree) return [];
     return flattenTreeOptions(tree.forest, state?.id ? descendantIds(tree, state.id) : new Set());
-  }, [state?.id, treeQuery.data]);
+  }, [state, treeQuery.data]);
 
   const close = () => onStateChange(null);
   const confirmDiscard = () => !isEditing || !form.formState.isDirty || window.confirm("Bỏ các thay đổi chưa lưu?");
@@ -100,7 +82,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
         : detail.error ? <div className={styles.state} role="alert"><p>{detail.error instanceof Error ? detail.error.message : "Không thể tải chi tiết."}</p><CmsButton type="button" variant="outline" onClick={() => detail.refetch()}>Thử lại</CmsButton></div>
         : mode === "detail" && category ? <CategoryDetail category={category} parentName={treeQuery.data?.tree?.byId.get(category.parentId ?? "")?.name} />
         : isEditing ? <form id="category-form" className={styles.form} noValidate onSubmit={submit}>
-          <CategoryFields form={form} parentOptions={parentOptions} parentDisabled={!treeQuery.data?.tree} onSlugManual={() => { slugManual.current = true; }} onUploadPending={setUploadPending} />
+          <CategoryFields key={`${mode}:${state.id ?? ""}:${state.parentId ?? ""}`} form={form} parentOptions={parentOptions} parentDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} onUploadPending={setUploadPending} />
           {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
           <p className={styles.orphanNote}>Ảnh đã upload có thể còn trên máy chủ nếu đóng form hoặc lưu danh mục thất bại; Backend chưa có API xóa media.</p>
         </form> : <p className={styles.state}>Không tìm thấy danh mục.</p>}

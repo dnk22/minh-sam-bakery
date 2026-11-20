@@ -1,0 +1,38 @@
+.item {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.content {
+  display: grid;
+  min-width: 0;
+}
+
+.content strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content span {
+  color: var(--cms-muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  place-items: center;
+  border-radius: 0.5rem;
+  background: var(--cms-muted);
+  color: var(--cms-muted-foreground);
+}
+
+.icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}

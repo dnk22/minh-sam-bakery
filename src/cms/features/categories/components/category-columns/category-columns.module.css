@@ -1,0 +1,22 @@
+.name,
+.truncated {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.context {
+  display: block;
+  color: var(--cms-muted-foreground);
+  font-size: 0.7rem;
+  font-weight: 400;
+}

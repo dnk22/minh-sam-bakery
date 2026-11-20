@@ -1,0 +1,29 @@
+.state,
+.treeError {
+  display: grid;
+  min-height: 14rem;
+  place-items: center;
+  padding: 2rem;
+  border: 1px solid var(--cms-border);
+  border-radius: var(--cms-radius);
+  color: var(--cms-muted-foreground);
+  text-align: center;
+}
+
+.treeError {
+  align-content: center;
+  gap: 0.75rem;
+}
+
+.treeError p {
+  margin: 0;
+}
+
+.table table {
+  table-layout: fixed;
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-inline: 0.4rem;
+}

@@ -1,0 +1,10 @@
+.formGrid { display: grid; gap: 1rem; }
+.field { display: grid; gap: 0.4rem; color: var(--cms-foreground); font-weight: 550; }
+.field input, .field select, .field textarea { width: 100%; border: 1px solid var(--cms-input); border-radius: calc(var(--cms-radius) - 2px); background: var(--cms-background); color: var(--cms-foreground); font: inherit; }
+.field input, .field select { height: 2.625rem; padding: 0 0.75rem; }
+.field textarea { resize: vertical; padding: 0.65rem 0.75rem; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--cms-ring); outline-offset: 1px; }
+.field small { color: var(--cms-muted-foreground); font-weight: 400; }
+.field .fieldError { color: var(--cms-destructive); }
+.twoColumns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 767px) { .twoColumns { grid-template-columns: 1fr; } }

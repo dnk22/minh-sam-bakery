@@ -21,6 +21,11 @@ export type CategoryList = { items: Category[]; pagination: PaginationMetaDto };
 export type CategoryListParams = { page: number; limit: number; search?: string; status?: CategoryStatus };
 export type CategoryTreeNode = Category & { children: CategoryTreeNode[]; contextOnly?: boolean };
 export type CategoryModalMode = "create" | "edit" | "detail";
+export type CategoryModalState = {
+  mode: CategoryModalMode;
+  id?: string;
+  parentId?: string | null;
+} | null;
 
 export type CategoryWriteInput = {
   name: string;
