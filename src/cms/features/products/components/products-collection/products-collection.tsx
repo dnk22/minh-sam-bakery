@@ -15,8 +15,8 @@ import type { Product, ProductList } from "../../types";
 import { createProductColumns } from "../product-columns/product-columns";
 import styles from "./products-collection.module.css";
 
-export function ProductsCollection({ filters, listQuery, onDetail }: { filters: ProductFilters; listQuery: UseQueryResult<ProductList, Error>; onDetail: (product: Product) => void }) {
-  const columns = useMemo(() => createProductColumns(onDetail), [onDetail]);
+export function ProductsCollection({ filters, listQuery, onDetail, onDelete }: { filters: ProductFilters; listQuery: UseQueryResult<ProductList, Error>; onDetail: (product: Product) => void; onDelete: (product: Product) => void }) {
+  const columns = useMemo(() => createProductColumns(onDetail, onDelete), [onDelete, onDetail]);
   const list = listQuery.data;
   return <ResponsiveCollection<Product> className={styles.table} columns={columns} data={list?.items ?? []} emptyState="Chưa có sản phẩm nào." error={listQuery.error instanceof Error ? listQuery.error.message : undefined} filteredEmptyState="Không có sản phẩm phù hợp." getItemKey={(item) => item.id} getItemLabel={(item) => `Xem sản phẩm ${item.name}`} getRowId={(item) => item.id} isFiltered={filters.isFiltered} loading={listQuery.isLoading} onItemClick={onDetail} onRetry={() => listQuery.refetch()} pagination={list ? { meta: list.pagination, onPageChange: filters.setPage } : undefined} renderAccessory={(item) => { const status = getProductStatusPresentation(item.status); return <CmsBadge variant={status.variant}>{status.label}</CmsBadge>; }} renderItem={(item) => <ProductListItem product={item} />} />;
 }

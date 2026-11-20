@@ -5,6 +5,8 @@ import { isProduct, isProductList, parseOptionalBoolean, parseProductListQuery, 
 import { formatVnd, sortProductImages, sortProductVariants } from "../src/cms/features/products/lib/product-format.ts";
 import { productQueryKeys } from "../src/cms/features/products/lib/product-query-keys.ts";
 import type { Product } from "../src/cms/features/products/types.ts";
+import { formToCreate, formToPatch, productFormSchema, productToForm, productWriteSchema, productPatchSchema, vietnameseProductSlug } from "../src/cms/features/products/schemas/product.schema.ts";
+import { CMS_IMAGE_MAX_BYTES, validateImageUploadBatch } from "../src/cms/lib/api/upload-validation.ts";
 
 const product: Product = {
   id: "product-1", categoryId: "category-1", categorySlug: "banh-kem", categoryName: "Bánh kem", sku: "BK-001", name: "Bánh kem dâu", slug: "banh-kem-dau",
@@ -71,4 +73,45 @@ test("uses stable list and detail query keys", () => {
   const params = { page: 2, limit: 20, isFeatured: false };
   assert.deepEqual(productQueryKeys.list(params), ["cms", "products", "list", params]);
   assert.deepEqual(productQueryKeys.detail("product-1"), ["cms", "products", "detail", "product-1"]);
+});
+
+test("validates create form and serializes images and variants without response IDs", () => {
+  const values = productToForm(product);
+  values.images.reverse();
+  values.variants.reverse();
+  const parsed = productFormSchema.safeParse(values);
+  assert.equal(parsed.success, true);
+  const input = formToCreate(values);
+  assert.equal(input.images?.[0]?.sortOrder, 0);
+  assert.equal(input.variants?.[0]?.sortOrder, 0);
+  assert.equal("id" in (input.images?.[0] ?? {}), false);
+  assert.equal("id" in (input.variants?.[0] ?? {}), false);
+  assert.equal(productWriteSchema.safeParse(input).success, true);
+  assert.equal(productWriteSchema.safeParse({ ...input, images: [{ ...input.images?.[0], id: "response-only" }] }).success, false);
+});
+
+test("requires exactly one cover when images exist and allows optional variants", () => {
+  const values = productToForm(product);
+  values.images = values.images.map((image) => ({ ...image, isCover: false }));
+  assert.equal(productFormSchema.safeParse(values).success, false);
+  assert.equal(productFormSchema.safeParse({ ...productToForm(product), variants: [] }).success, true);
+});
+
+test("creates Vietnamese slugs and preserves collection data in scalar PATCH", () => {
+  assert.equal(vietnameseProductSlug("Bánh Đậu Xanh — Đặc Biệt"), "banh-dau-xanh-dac-biet");
+  const values = { ...productToForm(product), name: "Tên mới", salePrice: "" };
+  const patch = formToPatch(values, { ...product, salePrice: "100000" });
+  assert.deepEqual(patch, { name: "Tên mới", salePrice: null });
+  assert.equal("images" in patch, false);
+  assert.equal("variants" in patch, false);
+  assert.equal("description" in formToPatch({ ...values, description: "" }, product), false);
+  assert.equal(productPatchSchema.safeParse(patch).success, true);
+  assert.equal(productPatchSchema.safeParse({ images: [] }).success, false);
+});
+
+test("validates multi-image upload MIME, count and combined 10 MB limit", () => {
+  assert.equal(validateImageUploadBatch([]), "Hãy chọn ít nhất một ảnh.");
+  assert.equal(validateImageUploadBatch([{ size: 5, type: "image/png" }, { size: 5, type: "image/jpeg" }]), null);
+  assert.match(validateImageUploadBatch([{ size: 5, type: "text/plain" }]) ?? "", /ảnh hợp lệ/);
+  assert.match(validateImageUploadBatch([{ size: CMS_IMAGE_MAX_BYTES, type: "image/png" }, { size: 1, type: "image/jpeg" }]) ?? "", /10 MB/);
 });

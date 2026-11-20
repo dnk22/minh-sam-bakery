@@ -1,6 +1,6 @@
 import { cmsApiClient } from "@/cms/lib/api/client";
 
-import type { Product, ProductList, ProductListParams } from "../types";
+import type { Product, ProductList, ProductListParams, ProductWriteInput } from "../types";
 
 export function getProducts(params: ProductListParams, signal?: AbortSignal) {
   const query = new URLSearchParams({ page: String(params.page), limit: String(params.limit) });
@@ -14,3 +14,6 @@ export function getProducts(params: ProductListParams, signal?: AbortSignal) {
 
 export const getProduct = (id: string, signal?: AbortSignal) =>
   cmsApiClient.get<Product>(`/products/${encodeURIComponent(id)}`, { signal });
+export const createProduct = (input: ProductWriteInput) => cmsApiClient.post<Product>("/products", input);
+export const updateProduct = (id: string, input: Partial<ProductWriteInput>) => cmsApiClient.patch<Product>(`/products/${encodeURIComponent(id)}`, input);
+export const deleteProduct = (id: string) => cmsApiClient.delete<{ id: string }>(`/products/${encodeURIComponent(id)}`);

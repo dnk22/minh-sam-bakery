@@ -38,4 +38,16 @@ export type ProductListParams = {
   isFeatured?: boolean;
   isBestSeller?: boolean;
 };
-export type ProductModalState = { mode: "detail"; id: string } | null;
+export type ProductImageInput = { url: string; alt?: string; sortOrder: number; isCover: boolean };
+export type ProductVariantInput = { sku: string; size: string; style: string; price: string; salePrice?: string | null; status: ProductVariantStatus; sortOrder: number };
+export type ProductWriteInput = {
+  categoryId: string; sku: string; name: string; slug?: string; shortDescription?: string; description?: string;
+  price: string; salePrice?: string | null; status?: ProductStatus; isFeatured?: boolean; isBestSeller?: boolean;
+  seoTitle?: string; seoDescription?: string; images?: ProductImageInput[]; variants?: ProductVariantInput[];
+};
+export type ProductFormValues = {
+  categoryId: string; sku: string; name: string; slug: string; shortDescription: string; description: string;
+  price: string; salePrice: string; status: ProductStatus; isFeatured: boolean; isBestSeller: boolean;
+  seoTitle: string; seoDescription: string; images: ProductImageInput[]; variants: Array<Omit<ProductVariantInput, "salePrice"> & { salePrice: string }>;
+};
+export type ProductModalState = { mode: "create" } | { mode: "detail" | "edit"; id: string } | null;

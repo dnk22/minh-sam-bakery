@@ -36,6 +36,17 @@ export function isProductList(value: unknown): value is ProductList {
     .every((item) => typeof item === "number" && Number.isFinite(item));
 }
 
+export function isDeletedProduct(value: unknown): value is { id: string } {
+  return isRecord(value) && typeof value.id === "string" && value.id.length > 0;
+}
+
+export function backendProductFieldErrors(data: unknown) {
+  if (!isRecord(data) || !Array.isArray(data.errors)) return undefined;
+  const fields: Record<string, string> = {};
+  for (const item of data.errors) if (isRecord(item) && typeof item.field === "string" && typeof item.message === "string") fields[item.field] = item.message;
+  return Object.keys(fields).length ? fields : undefined;
+}
+
 export function parseProductStatus(value: string | null): ProductStatus | undefined {
   return value === "DRAFT" || value === "PUBLISHED" || value === "HIDDEN" ? value : undefined;
 }
