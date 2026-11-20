@@ -8,4 +8,5 @@ export const roleQueryKeys = {
   detail: (id: string) => ["cms", "roles", "detail", id] as const,
   permissions: (id: string) => ["cms", "roles", "permissions", id] as const,
   catalog: () => ["cms", "permissions", "catalog"] as const,
+  selector: () => ["cms", "roles", "selector"] as const,
 };

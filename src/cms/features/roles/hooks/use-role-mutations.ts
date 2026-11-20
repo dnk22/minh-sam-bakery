@@ -15,6 +15,7 @@ export function useRoleMutations() {
   const invalidate = async (id?: string) => {
     await Promise.all([
       client.invalidateQueries({ queryKey: roleQueryKeys.lists() }),
+      client.invalidateQueries({ queryKey: roleQueryKeys.selector() }),
       id ? client.invalidateQueries({ queryKey: roleQueryKeys.detail(id) }) : Promise.resolve(),
       id ? client.invalidateQueries({ queryKey: roleQueryKeys.permissions(id) }) : Promise.resolve(),
     ]);

@@ -1,0 +1,11 @@
+.table table { table-layout: fixed; }
+.table th:last-child, .table td:last-child { padding-inline: 0.4rem; }
+.truncated { display: block; width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.date { color: var(--cms-muted-foreground); font-size: 0.8125rem; }
+.item { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
+.icon { display: grid; width: 2.25rem; height: 2.25rem; flex: 0 0 auto; place-items: center; border-radius: var(--cms-radius); background: var(--cms-muted); color: var(--cms-primary); }
+.icon svg { width: 1.125rem; height: 1.125rem; }
+.itemContent { display: grid; min-width: 0; gap: 0.1rem; }
+.itemContent strong, .itemContent span, .itemContent small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.itemContent span, .itemContent small { color: var(--cms-muted-foreground); }
+.itemContent small { font-size: 0.75rem; }

@@ -11,6 +11,7 @@
     "test:cms-foundation": "node --no-warnings --test --experimental-strip-types tests/cms-foundation.test.ts",
     "test:categories": "node --no-warnings --test --experimental-strip-types tests/cms-categories.test.ts",
     "test:roles": "node --no-warnings --test --experimental-strip-types tests/cms-roles.test.ts",
+    "test:users": "node --no-warnings --test --experimental-strip-types tests/cms-users.test.ts",
     "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs"
   },
   "dependencies": {
