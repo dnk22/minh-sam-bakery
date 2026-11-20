@@ -209,11 +209,21 @@ body:has(.cms-root) {
 }
 
 .cms-inset {
+  display: grid;
+  grid-template-rows: 4rem minmax(0, 1fr);
   min-width: 0;
   height: 100dvh;
   min-height: 100dvh;
   overflow: hidden;
   background: var(--cms-background);
+}
+
+.cms-content {
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 .cms-root[data-sidebar-variant="inset"] .cms-shell {
@@ -567,7 +577,7 @@ body:has(.cms-root) {
 }
 .cms-main--fixed {
   display: flex;
-  height: calc(100dvh - 4rem);
+  height: 100%;
   flex-direction: column;
   overflow: hidden;
 }
@@ -1266,17 +1276,55 @@ body:has(.cms-root) {
 }
 
 @media (max-width: 767px) {
+  html:has(.cms-root) {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+  body:has(.cms-root) {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: auto;
+  }
+  .cms-root {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
   .cms-shell,
   .cms-root[data-sidebar-layout="icon"] .cms-shell,
-  .cms-root[data-sidebar-layout="offcanvas"] .cms-shell {
+  .cms-root[data-sidebar-layout="offcanvas"] .cms-shell,
+  .cms-root[data-sidebar-variant="inset"] .cms-shell {
     display: block;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
     padding: 0;
   }
+  .cms-inset,
   .cms-root[data-sidebar-variant="inset"] .cms-inset {
-    height: 100dvh;
+    display: block;
+    height: auto;
     min-height: 100dvh;
+    overflow: visible;
     border: 0;
     border-radius: 0;
+  }
+  .cms-content {
+    min-height: 0;
+    overflow: visible;
+    overscroll-behavior: auto;
+    padding-block-start: 4rem;
+  }
+  .cms-header {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    width: 100%;
   }
   .cms-sidebar,
   .cms-root[data-sidebar-layout="offcanvas"] .cms-sidebar,

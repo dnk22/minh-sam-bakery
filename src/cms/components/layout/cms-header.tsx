@@ -17,10 +17,16 @@ export function CmsHeader({ user }: { user: CmsProfileUser }) {
   const breadcrumbs = useCmsBreadcrumb();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const content = document.querySelector<HTMLElement>(".cms-content");
+    const onScroll = () =>
+      setScrolled(window.scrollY > 10 || (content?.scrollTop ?? 0) > 10);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    content?.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      content?.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (

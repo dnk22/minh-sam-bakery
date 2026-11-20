@@ -13,7 +13,7 @@ export function CmsShell({ children, user }: { children: ReactNode; user: CmsPro
       <CmsSidebar />
       <div className="cms-inset">
         <CmsHeader user={user} />
-        {children}
+        <div className="cms-content">{children}</div>
       </div>
     </div>
   );
