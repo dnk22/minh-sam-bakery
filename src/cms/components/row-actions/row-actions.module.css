@@ -15,11 +15,6 @@
   border-radius: 0.375rem;
 }
 
-.view {
-  background: var(--cms-primary);
-  color: var(--cms-primary-foreground);
-}
-
 .view:hover {
   opacity: 0.88;
 }
