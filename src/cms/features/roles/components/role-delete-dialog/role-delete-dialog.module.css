@@ -1,0 +1,7 @@
+.body { display: grid; gap: 0.75rem; }
+.body p { margin: 0; }
+.warning { color: var(--cms-muted-foreground); }
+.alert { padding: 0.75rem; border: 1px solid color-mix(in oklch, var(--cms-destructive) 40%, transparent); border-radius: var(--cms-radius); background: color-mix(in oklch, var(--cms-destructive) 8%, transparent); color: var(--cms-destructive); }
+.spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }

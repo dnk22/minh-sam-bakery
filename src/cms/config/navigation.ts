@@ -4,6 +4,7 @@ import {
   FolderTree,
   LayoutDashboard,
   PackageSearch,
+  ShieldCheck,
   Settings,
   ShoppingBag,
   type LucideIcon,
@@ -54,7 +55,10 @@ export const cmsNavigation: CmsNavGroup[] = [
   },
   {
     title: "Hệ thống",
-    items: [{ title: "Cài đặt", href: "/cms/settings/appearance", icon: Settings }],
+    items: [
+      { title: "Vai trò & phân quyền", href: "/cms/roles", icon: ShieldCheck },
+      { title: "Cài đặt", href: "/cms/settings/appearance", icon: Settings },
+    ],
   },
 ];
 
