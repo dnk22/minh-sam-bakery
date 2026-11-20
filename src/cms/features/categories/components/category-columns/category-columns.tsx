@@ -1,9 +1,18 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { Plus, Trash2 } from "lucide-react";
 
+import { CmsRowActions } from "@/cms/components/row-actions/row-actions";
+import { CmsBadge } from "@/cms/components/ui/badge/badge";
+
+import { getCategoryStatusPresentation } from "../../constants";
 import type { Category, CategoryTreeNode } from "../../types";
-import { CategoryRowActions, type CategoryActionHandlers } from "../category-row-actions";
-import { CategoryStatusBadge } from "../category-status-badge";
 import styles from "./category-columns.module.css";
+
+export type CategoryActionHandlers = {
+  onDetail: (category: Category) => void;
+  onAddChild: (category: Category) => void;
+  onDelete: (category: Category) => void;
+};
 
 export type CategoryColumnConfig = CategoryActionHandlers & {
   parentNames?: Map<string, CategoryTreeNode>;
@@ -56,7 +65,10 @@ export function createCategoryColumns<T extends Category>({
       accessorKey: "status",
       header: "Trạng thái",
       size: 86,
-      cell: ({ row }) => <CategoryStatusBadge status={row.original.status} />,
+      cell: ({ row }) => {
+        const status = getCategoryStatusPresentation(row.original.status);
+        return <CmsBadge variant={status.variant}>{status.label}</CmsBadge>;
+      },
     },
     { accessorKey: "sortOrder", header: "Thứ tự", size: 60 },
     {
@@ -64,7 +76,27 @@ export function createCategoryColumns<T extends Category>({
       header: "Thao tác",
       size: 82,
       cell: ({ row }) => (
-        <CategoryRowActions category={row.original} {...actions} />
+        <CmsRowActions
+          actions={[
+            {
+              key: "add-child",
+              label: "Thêm danh mục con",
+              icon: <Plus aria-hidden="true" size={15} />,
+              onSelect: () => actions.onAddChild(row.original),
+            },
+            {
+              key: "delete",
+              label: "Xóa danh mục",
+              icon: <Trash2 aria-hidden="true" size={15} />,
+              destructive: true,
+              separatorBefore: true,
+              onSelect: () => actions.onDelete(row.original),
+            },
+          ]}
+          moreLabel={`Mở thao tác cho ${row.original.name}`}
+          onView={() => actions.onDetail(row.original)}
+          viewLabel={`Xem chi tiết ${row.original.name}`}
+        />
       ),
     },
   ];

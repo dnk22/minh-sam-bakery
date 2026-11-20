@@ -1,0 +1,35 @@
+.badge {
+  display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.default {
+  background: var(--cms-primary);
+  color: var(--cms-primary-foreground);
+}
+
+.secondary {
+  background: var(--cms-muted);
+  color: var(--cms-muted-foreground);
+}
+
+.success {
+  background: color-mix(in oklch, oklch(0.62 0.18 145) 16%, transparent);
+  color: color-mix(in oklch, oklch(0.62 0.18 145) 82%, var(--cms-foreground));
+}
+
+.warning {
+  background: color-mix(in oklch, oklch(0.7 0.15 75) 18%, transparent);
+  color: color-mix(in oklch, oklch(0.7 0.15 75) 78%, var(--cms-foreground));
+}
+
+.destructive {
+  background: color-mix(in oklch, var(--cms-destructive) 14%, transparent);
+  color: var(--cms-destructive);
+}

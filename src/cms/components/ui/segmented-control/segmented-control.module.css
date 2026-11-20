@@ -1,0 +1,52 @@
+.control {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border-radius: var(--cms-radius);
+  background: var(--cms-muted);
+}
+
+.option {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--cms-radius) - 0.15rem);
+  outline: none;
+  background: transparent;
+  color: var(--cms-foreground);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.option:hover:not(:disabled) {
+  background: var(--cms-accent);
+  color: var(--cms-accent-foreground);
+}
+
+.option[data-active] {
+  border-color: var(--cms-primary);
+  background: var(--cms-primary);
+  color: var(--cms-primary-foreground);
+  box-shadow: 0 1px 4px color-mix(in oklab, var(--cms-primary) 28%, transparent);
+}
+
+.option:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cms-ring) 35%, transparent);
+}
+
+.option:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+}

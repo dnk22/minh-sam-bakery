@@ -5,16 +5,19 @@ import { useMemo } from "react";
 
 import { DataTable } from "@/cms/components/data-table/data-table";
 import { ResponsiveCollection } from "@/cms/components/responsive-collection/responsive-collection";
+import { CmsBadge } from "@/cms/components/ui/badge/badge";
 import { CmsButton } from "@/cms/components/ui/button";
 import { useCmsIsMobile } from "@/cms/hooks/use-mobile";
 
+import { getCategoryStatusPresentation } from "../../constants";
 import type { CategoryFilters } from "../../hooks/use-category-filters";
 import { filterCategoryForest } from "../../lib/category-tree";
 import type { Category, CategoryList, CategoryTreeNode } from "../../types";
-import { createCategoryColumns } from "../category-columns";
-import { CategoryListItem } from "../category-list-item";
-import type { CategoryActionHandlers } from "../category-row-actions";
-import { CategoryStatusBadge } from "../category-status-badge";
+import {
+  createCategoryColumns,
+  type CategoryActionHandlers,
+} from "../category-columns/category-columns";
+import { CategoryListItem } from "../category-list-item/category-list-item";
 import styles from "./categories-collection.module.css";
 
 type CategoryTreeData = {
@@ -118,9 +121,10 @@ export function CategoriesCollection({
           }
         />
       )}
-      renderAccessory={(item) => (
-        <CategoryStatusBadge status={item.status} />
-      )}
+      renderAccessory={(item) => {
+        const status = getCategoryStatusPresentation(item.status);
+        return <CmsBadge variant={status.variant}>{status.label}</CmsBadge>;
+      }}
       onItemClick={onDetail}
       getItemLabel={(item) => `Xem danh mục ${item.name}`}
       pagination={pagination}

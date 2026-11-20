@@ -1,17 +1,18 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { CmsMain } from "@/cms/components/layout/cms-main";
+import { CmsButton } from "@/cms/components/ui/button";
 
 import { useCategories, useCategoryTree } from "../../hooks/use-categories";
 import { useCategoryFilters } from "../../hooks/use-category-filters";
 import type { Category, CategoryModalState } from "../../types";
-import { CategoriesCollection } from "../categories-collection";
-import { CategoriesHeader } from "../categories-header";
-import { CategoriesToolbar } from "../categories-toolbar";
-import { CategoryDeleteDialog } from "../category-delete-dialog";
-import { CategoryModal } from "../category-modal";
+import { CategoriesCollection } from "../categories-collection/categories-collection";
+import { CategoriesToolbar } from "../categories-toolbar/categories-toolbar";
+import { CategoryDeleteDialog } from "../category-delete-dialog/category-delete-dialog";
+import { CategoryModal } from "../category-modal/category-modal";
 import styles from "./categories-page.module.css";
 
 const PAGE_SIZE = 20;
@@ -49,7 +50,18 @@ export function CategoriesPage() {
 
   return (
     <CmsMain className={styles.main}>
-      <CategoriesHeader onCreate={() => setModal({ mode: "create" })} />
+      <header className={styles.heading}>
+        <div>
+          <h1>Danh mục</h1>
+          <p>
+            Quản lý cấu trúc, trạng thái hiển thị và thông tin SEO của danh mục
+            bánh.
+          </p>
+        </div>
+        <CmsButton type="button" onClick={() => setModal({ mode: "create" })}>
+          <Plus aria-hidden="true" size={17} /> Thêm danh mục
+        </CmsButton>
+      </header>
       <CategoriesToolbar filters={filters} />
       <CategoriesCollection
         filters={filters}

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { getCategoryStatusPresentation } from "../src/cms/features/categories/constants.ts";
 import { categoryErrorMessage } from "../src/cms/features/categories/lib/category-errors.ts";
 import { buildCategoryForest, descendantIds, evaluateTreeLoad, filterCategoryForest } from "../src/cms/features/categories/lib/category-tree.ts";
 import { categoryQueryKeys } from "../src/cms/features/categories/lib/category-query-keys.ts";
@@ -57,6 +58,17 @@ test("uses one-based backend pagination in feature query keys", () => {
 test("maps backend delete conflict without optimistic removal semantics", () => {
   assert.match(categoryErrorMessage(409), /tham chiếu/);
   assert.match(categoryErrorMessage(400, "delete"), /danh mục con\/sản phẩm/);
+});
+
+test("maps category statuses to shared badge presentation", () => {
+  assert.deepEqual(getCategoryStatusPresentation("VISIBLE"), {
+    label: "Hiển thị",
+    variant: "success",
+  });
+  assert.deepEqual(getCategoryStatusPresentation("HIDDEN"), {
+    label: "Ẩn",
+    variant: "secondary",
+  });
 });
 
 test("multipart transport forwards FormData files without hardcoding Content-Type", async () => {

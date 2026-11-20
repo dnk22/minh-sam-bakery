@@ -14,7 +14,7 @@ import { useCategoryForm } from "../../hooks/use-category-form";
 import { useCategoryDetail, useCategoryMutations } from "../../hooks/use-category-mutations";
 import { useCategoryTree } from "../../hooks/use-categories";
 import type { Category, CategoryFormValues, CategoryModalState } from "../../types";
-import { CategoryFields } from "../category-fields";
+import { CategoryFields } from "../category-fields/category-fields";
 import styles from "./category-modal.module.css";
 
 export function CategoryModal({ state, onStateChange, onDelete }: {

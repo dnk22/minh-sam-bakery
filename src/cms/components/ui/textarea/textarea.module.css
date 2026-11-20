@@ -1,0 +1,32 @@
+.textarea {
+  width: 100%;
+  min-height: 5.5rem;
+  resize: vertical;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--cms-input);
+  border-radius: calc(var(--cms-radius) - 2px);
+  outline: 0;
+  background: var(--cms-background);
+  color: var(--cms-foreground);
+  font: inherit;
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--cms-foreground) 4%, transparent);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.textarea::placeholder {
+  color: var(--cms-muted-foreground);
+}
+
+.textarea:focus-visible {
+  border-color: var(--cms-ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cms-ring) 25%, transparent);
+}
+
+.textarea[aria-invalid="true"] {
+  border-color: var(--cms-destructive);
+}
+
+.textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}

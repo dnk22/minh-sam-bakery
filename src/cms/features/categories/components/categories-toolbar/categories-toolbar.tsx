@@ -1,38 +1,59 @@
 "use client";
 
-import { List, TreePine, X } from "lucide-react";
+import { List, Search, TreePine, X } from "lucide-react";
 
 import { CmsButton } from "@/cms/components/ui/button";
+import { CmsInput } from "@/cms/components/ui/input/input";
+import { CmsSegmentedControl } from "@/cms/components/ui/segmented-control/segmented-control";
+import { CmsSelect } from "@/cms/components/ui/select/select";
 
-import type { CategoryFilters } from "../../hooks/use-category-filters";
-import type { CategoryStatus } from "../../types";
-import { CategorySearch } from "../category-search";
+import { CATEGORY_STATUS_FILTER_OPTIONS } from "../../constants";
+import type { CategoryFilters, CategoryView } from "../../hooks/use-category-filters";
+import { useCategorySearch } from "../../hooks/use-category-search";
 import styles from "./categories-toolbar.module.css";
 
+const CATEGORY_VIEW_OPTIONS = [
+  { value: "flat", label: "Dạng phẳng", icon: <List aria-hidden="true" size={16} /> },
+  { value: "tree", label: "Dạng cây", icon: <TreePine aria-hidden="true" size={16} /> },
+] as const;
+
 export function CategoriesToolbar({ filters }: { filters: CategoryFilters }) {
+  const search = useCategorySearch({
+    value: filters.search,
+    onCommit: filters.setSearch,
+  });
+
   return (
     <section className={styles.toolbar} aria-label="Bộ lọc danh mục">
       <div className={styles.filters}>
-        <CategorySearch
-          key={filters.search}
-          value={filters.search}
-          onCommit={filters.setSearch}
+        <CmsInput
+          aria-label="Tìm kiếm danh mục"
+          containerClassName={styles.search}
+          controlSize="sm"
+          leadingIcon={<Search aria-hidden="true" size={17} />}
+          onBlur={search.onBlur}
+          onChange={(event) => search.onChange(event.target.value)}
+          onFocus={search.onFocus}
+          placeholder="Tìm theo tên hoặc slug"
+          type="search"
+          value={search.draft}
         />
-        <label className={styles.filter}>
-          <span>Trạng thái</span>
-          <select
+        <div className={styles.filter}>
+          <label htmlFor="category-status-filter">Trạng thái</label>
+          <CmsSelect
+            containerClassName={styles.statusSelect}
+            controlSize="sm"
+            id="category-status-filter"
+            options={CATEGORY_STATUS_FILTER_OPTIONS}
             value={filters.status ?? ""}
-            onChange={(event) =>
+            onChange={(event) => {
+              const value = event.target.value;
               filters.setStatus(
-                (event.target.value || undefined) as CategoryStatus | undefined,
-              )
-            }
-          >
-            <option value="">Tất cả</option>
-            <option value="VISIBLE">Hiển thị</option>
-            <option value="HIDDEN">Ẩn</option>
-          </select>
-        </label>
+                value === "VISIBLE" || value === "HIDDEN" ? value : undefined,
+              );
+            }}
+          />
+        </div>
         {filters.isFiltered ? (
           <CmsButton
             type="button"
@@ -45,28 +66,12 @@ export function CategoriesToolbar({ filters }: { filters: CategoryFilters }) {
         ) : null}
       </div>
       <div className={styles.viewArea}>
-        <div className={styles.viewSwitch} aria-label="Kiểu hiển thị" role="group">
-          <CmsButton
-            aria-pressed={filters.view === "flat"}
-            data-active={filters.view === "flat" || undefined}
-            type="button"
-            size="sm"
-            variant={filters.view === "flat" ? "secondary" : "ghost"}
-            onClick={() => filters.setView("flat")}
-          >
-            <List aria-hidden="true" size={16} /> Dạng phẳng
-          </CmsButton>
-          <CmsButton
-            aria-pressed={filters.view === "tree"}
-            data-active={filters.view === "tree" || undefined}
-            type="button"
-            size="sm"
-            variant={filters.view === "tree" ? "secondary" : "ghost"}
-            onClick={() => filters.setView("tree")}
-          >
-            <TreePine aria-hidden="true" size={16} /> Dạng cây
-          </CmsButton>
-        </div>
+        <CmsSegmentedControl<CategoryView>
+          ariaLabel="Kiểu hiển thị"
+          onChange={filters.setView}
+          options={CATEGORY_VIEW_OPTIONS}
+          value={filters.view}
+        />
       </div>
     </section>
   );

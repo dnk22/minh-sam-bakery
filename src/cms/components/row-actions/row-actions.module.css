@@ -6,13 +6,18 @@
   white-space: nowrap;
 }
 
-.actions button {
+.actions > button {
   display: grid;
   width: 2rem;
   height: 2rem;
   place-items: center;
   border: 0;
   border-radius: 0.375rem;
+}
+
+.view {
+  background: var(--cms-primary);
+  color: var(--cms-primary-foreground);
 }
 
 .view:hover {
@@ -29,8 +34,9 @@
   color: var(--cms-accent-foreground);
 }
 
-.actions button:focus-visible {
+.actions > button:focus-visible {
   outline: 2px solid var(--cms-ring);
+  outline-offset: 1px;
 }
 
 .actions svg {
@@ -42,15 +48,11 @@
   min-width: 12rem;
 }
 
-.deleteItem,
-.deleteItem[data-highlighted] {
+.destructive,
+.destructive[data-highlighted] {
   color: var(--cms-destructive);
 }
 
-.deleteItem[data-highlighted] {
-  background: color-mix(
-    in oklch,
-    var(--cms-destructive) 10%,
-    var(--cms-popover)
-  );
+.destructive[data-highlighted] {
+  background: color-mix(in oklch, var(--cms-destructive) 10%, var(--cms-popover));
 }

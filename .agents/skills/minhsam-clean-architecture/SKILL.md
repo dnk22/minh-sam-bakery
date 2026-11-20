@@ -41,6 +41,41 @@ Use this workflow for CMS feature work in this repository. Preserve established 
 - Are shared primitives still feature-agnostic?
 - Do focused and project-level checks pass?
 
+## Shared UI Reuse & Component Granularity
+
+Use this decision path before adding UI:
+
+```text
+Need to render a UI element?
+    |
+    +-- Existing shared UI primitive?
+    |       -> Reuse it
+    |
+    +-- Reusable across CMS modules?
+    |       -> Implement under cms/components
+    |
+    +-- Business-specific composition?
+    |       -> Keep inside its feature
+    |
+    +-- Small local JSX without independent behavior?
+            -> Keep it in the parent
+```
+
+Examples:
+
+- Generic input -> `CmsInput`; toolbar search -> `CmsInput type="search"` plus a feature debounce hook.
+- Generic select -> `CmsSelect`; status filter -> `CmsSelect` with feature-owned options.
+- Status badge -> `CmsBadge` with a feature-owned label and variant mapping.
+- Category columns and action definitions -> Category feature; generic row rendering -> `CmsRowActions`.
+
+Folder rules:
+
+- A component with its own CSS Module gets a dedicated directory containing the TSX and CSS.
+- A component without CSS can remain a standalone TSX file.
+- Avoid component-level `index.ts` files and redundant wrapper components.
+
+Before finishing, verify that shared primitives are reused by both toolbars and forms where relevant, and that feature semantics did not leak into shared UI.
+
 ## Anti-patterns
 
 Avoid monolithic page components, god hooks, API calls inside presentation components, duplicated URL or server state, shared components importing features, CSS files containing unrelated component styles, excessive prop drilling, and files or abstractions without a concrete responsibility.
