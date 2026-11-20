@@ -12,6 +12,7 @@
 .state { display: grid; min-height: 14rem; place-items: center; gap: 0.75rem; padding: 2rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); color: var(--cms-muted-foreground); text-align: center; }
 .state p { margin: 0; }
 .alert { margin: 0; padding: 0.75rem; border: 1px solid color-mix(in oklch, var(--cms-destructive) 40%, transparent); border-radius: var(--cms-radius); background: color-mix(in oklch, var(--cms-destructive) 8%, transparent); color: var(--cms-destructive); }
+.alert p { margin: 0 0 0.75rem; }
 .detail dl { display: grid; margin: 0; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); }
 .detail dl > div { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--cms-border); }
 .detail dl > div:last-child { border-bottom: 0; }

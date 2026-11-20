@@ -1,7 +1,7 @@
 import "server-only";
 
 import { backendRequest } from "@/lib/api/backend-client";
-import { isUploadResult } from "@/cms/features/categories/lib/category-data";
+import { isUploadResult } from "@/cms/lib/api/upload-validation";
 
 export async function backendUploadImages(accessToken: string, formData: FormData, folder: string) {
   return (await backendRequest({
@@ -11,7 +11,7 @@ export async function backendUploadImages(accessToken: string, formData: FormDat
     body: formData,
     accessToken,
     cache: "no-store",
-    timeoutMs: 30_000,
+    timeoutMs: 60_000,
     validate: isUploadResult,
   })).data;
 }

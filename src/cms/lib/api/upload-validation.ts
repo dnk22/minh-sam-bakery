@@ -16,3 +16,11 @@ export function validateImageUploadBatch(files: Array<{ size: number; type: stri
   if (files.reduce((total, file) => total + file.size, 0) > CMS_IMAGE_MAX_BYTES) return "Tổng dung lượng ảnh trong một lần tải không được vượt quá 10 MB.";
   return null;
 }
+
+export function isUploadResult(value: unknown): value is Array<{ url: string }> {
+  return Array.isArray(value) && value.length > 0 && value.every((item) => {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) return false;
+    const url = (item as Record<string, unknown>).url;
+    return typeof url === "string" && (/^https?:\/\//i.test(url) || url.startsWith("/uploads/"));
+  });
+}

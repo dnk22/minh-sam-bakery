@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { CmsButton } from "@/cms/components/ui/button";
 import { uploadCmsImage } from "@/cms/lib/api/uploads.client";
+import { cmsAssetUrl } from "@/cms/lib/api/asset-url";
 
 import styles from "./image-upload.module.css";
 
@@ -40,6 +41,8 @@ export function ImageUpload({ value, onChange, onPendingChange, folder, disabled
     try {
       const url = await uploadCmsImage(pendingFile, folder);
       onChange(url);
+      if (localPreview) URL.revokeObjectURL(localPreview);
+      setLocalPreview(null);
       setPendingFile(null);
       onPendingChange?.(false);
     } catch (caught) {
@@ -51,9 +54,9 @@ export function ImageUpload({ value, onChange, onPendingChange, folder, disabled
   return (
     <div className={styles.root}>
       <div className={styles.preview}>
-        {preview ? <Image alt="Ảnh đại diện danh mục" src={preview} width={640} height={320} unoptimized onError={(event) => { event.currentTarget.hidden = true; }} /> : <ImageIcon aria-hidden="true" />}
+        {preview ? <Image alt="Ảnh đại diện danh mục" src={cmsAssetUrl(preview)} width={640} height={320} unoptimized onError={(event) => { event.currentTarget.hidden = true; }} /> : <ImageIcon aria-hidden="true" />}
       </div>
-      <input ref={inputRef} className={styles.hiddenInput} type="file" accept="image/*" disabled={disabled || uploading} onChange={(event) => selectFile(event.target.files?.[0])} />
+      <input ref={inputRef} className={styles.hiddenInput} type="file" accept="image/*" disabled={disabled || uploading} onChange={(event) => { selectFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
       <div className={styles.actions}>
         <CmsButton type="button" variant="outline" size="sm" disabled={disabled || uploading} onClick={() => inputRef.current?.click()}>
           <Upload aria-hidden="true" size={15} /> Chọn ảnh

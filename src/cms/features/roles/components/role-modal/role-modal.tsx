@@ -1,7 +1,7 @@
 "use client";
 
 import { LoaderCircle, Pencil, Trash2 } from "lucide-react";
-import { useMemo, useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 import { ResponsiveModal } from "@/cms/components/responsive-modal/responsive-modal";
@@ -11,15 +11,18 @@ import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
 import { CmsTextarea } from "@/cms/components/ui/textarea/textarea";
 import { CmsApiError } from "@/cms/lib/api/errors";
+import { useUnsavedChangesWarning } from "@/cms/hooks/use-unsaved-changes-warning";
 
 import { useRoleForm } from "../../hooks/use-role-form";
 import { useRoleMutations } from "../../hooks/use-role-mutations";
 import { usePermissionCatalog, useRoleDetail, useRolePermissions } from "../../hooks/use-roles";
-import { samePermissionIds } from "../../lib/role-data";
+import { commitPermissionSelection, editPermissionSelection, newPermissionEditorSession, permissionSelectionDirty, reconcilePermissionEditorSession, reloadPermissionSelection } from "../../lib/permission-editor-session";
 import { formToCreate, formToPatch } from "../../schemas/role.schema";
 import type { Role, RoleDetail as RoleDetailData, RoleFormValues, RoleModalState } from "../../types";
 import { RolePermissionsEditor } from "../role-permissions-editor/role-permissions-editor";
 import styles from "./role-modal.module.css";
+
+type RoleSection = "info" | "permissions";
 
 export function RoleModal({ state, onStateChange, onDelete }: {
   state: RoleModalState;
@@ -34,21 +37,20 @@ export function RoleModal({ state, onStateChange, onDelete }: {
   const mutations = useRoleMutations();
   const form = useRoleForm({ state, role: detail.data });
   const sessionKey = state ? `${mode}:${roleId ?? "new"}` : "closed";
-  const [permissionState, setPermissionState] = useState<{ sessionKey: string; source: string; ids: string[] }>({ sessionKey: "closed", source: "", ids: [] });
-  const [activeSection, setActiveSection] = useState<"info" | "permissions">("info");
-  const originalPermissionIds = useMemo(() => assigned.data?.permissions.map((item) => item.id) ?? [], [assigned.data]);
-  const selectedIds = permissionState.ids;
-  const permissionsDirty = mode === "create" ? selectedIds.length > 0 : !samePermissionIds(selectedIds, originalPermissionIds);
-  const assignedSource = assigned.data ? assigned.data.permissions.map((item) => item.id).toSorted().join(",") : "";
-
-  if (permissionState.sessionKey !== sessionKey) {
-    setPermissionState({ sessionKey, source: mode === "create" ? "create" : assigned.data ? assignedSource : "__pending__", ids: mode === "edit" && assigned.data ? originalPermissionIds : [] });
-  } else if (mode === "edit" && assigned.data && permissionState.source !== assignedSource && (permissionState.source === "__pending__" || !permissionsDirty)) {
-    setPermissionState({ sessionKey, source: assignedSource, ids: originalPermissionIds });
-  }
-  const setSelectedIds = (ids: string[]) => setPermissionState((current) => ({ ...current, ids }));
-  const selectSection = (section: "info" | "permissions", focus = false) => {
-    setActiveSection(section);
+  const remotePermissionIds = mode === "create" ? [] : assigned.data?.permissions.map((item) => item.id);
+  const [permissionState, setPermissionState] = useState(() => newPermissionEditorSession("closed"));
+  const [sectionState, setSectionState] = useState<{ sessionKey: string; value: RoleSection }>({ sessionKey: "closed", value: "info" });
+  const activeSection = sectionState.sessionKey === sessionKey ? sectionState.value : "info";
+  if (sectionState.sessionKey !== sessionKey) setSectionState({ sessionKey, value: "info" });
+  const reconciledPermissionState = reconcilePermissionEditorSession(permissionState, sessionKey, remotePermissionIds);
+  if (reconciledPermissionState !== permissionState) setPermissionState(reconciledPermissionState);
+  const selectedIds = reconciledPermissionState.selectedIds;
+  const originalPermissionIds = reconciledPermissionState.baselineIds;
+  const permissionsDirty = permissionSelectionDirty(reconciledPermissionState);
+  useUnsavedChangesWarning((mode === "create" || mode === "edit") && (form.formState.isDirty || permissionsDirty));
+  const setSelectedIds = (ids: string[]) => setPermissionState((current) => editPermissionSelection(current, ids));
+  const selectSection = (section: RoleSection, focus = false) => {
+    setSectionState({ sessionKey, value: section });
     if (focus) window.requestAnimationFrame(() => document.getElementById(`role-tab-${section}`)?.focus());
   };
   const handleTabKey = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -87,11 +89,11 @@ export function RoleModal({ state, onStateChange, onDelete }: {
   });
 
   const submitPermissions = async () => {
-    if (!roleId || !assigned.isSuccess || !catalog.isSuccess || !permissionsDirty || mutations.permissions.isPending) return;
+    if (!roleId || !assigned.isSuccess || !catalog.isSuccess || !permissionsDirty || reconciledPermissionState.conflict || mutations.permissions.isPending) return;
     if (selectedIds.length === 0 && originalPermissionIds.length > 0 && !window.confirm("Thu hồi toàn bộ quyền của vai trò này?")) return;
     try {
       await mutations.permissions.mutateAsync({ id: roleId, permissionIds: selectedIds });
-      setPermissionState((current) => ({ ...current, source: selectedIds.toSorted().join(",") }));
+      setPermissionState((current) => commitPermissionSelection(current));
     } catch {
       // Mutation state exposes the error while the local selection is retained.
     }
@@ -106,7 +108,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
       description={mode === "detail" ? "Thông tin và quyền hiện tại từ hệ thống." : "Thông tin và phân quyền được lưu theo đúng API Backend."}
       footer={state ? mode === "detail" && role ? <>
         <CmsButton type="button" variant="outline" onClick={() => onDelete(role)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
-        <CmsButton type="button" onClick={() => { setActiveSection("info"); onStateChange({ mode: "edit", id: role.id }); }}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton>
+        <CmsButton type="button" onClick={() => onStateChange({ mode: "edit", id: role.id })}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton>
       </> : <CmsButton type="button" variant="outline" disabled={pending || mutations.permissions.isPending} onClick={() => { if (confirmDiscard()) close(); }}>Đóng</CmsButton> : null}
       onBeforeClose={confirmDiscard}
       onOpenChange={(open) => { if (!open) close(); }}
@@ -144,7 +146,8 @@ export function RoleModal({ state, onStateChange, onDelete }: {
               onRetry={() => { catalog.refetch(); assigned.refetch(); }}
             />
             {mutations.permissions.error ? <p className={styles.alert} role="alert">{mutations.permissions.error instanceof Error ? mutations.permissions.error.message : "Không thể cập nhật phân quyền."}</p> : null}
-            <CmsButton type="button" disabled={!permissionsDirty || !assigned.isSuccess || !catalog.isSuccess || mutations.permissions.isPending} onClick={submitPermissions}>{mutations.permissions.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu phân quyền</CmsButton>
+            {reconciledPermissionState.conflict ? <div className={styles.alert} role="alert"><p>Phân quyền trên máy chủ đã thay đổi trong khi bạn đang chỉnh sửa. Tải lại để tránh ghi đè thay đổi của quản trị viên khác.</p><CmsButton type="button" variant="outline" size="sm" onClick={() => setPermissionState((current) => reloadPermissionSelection(current))}>Tải thay đổi mới</CmsButton></div> : null}
+            <CmsButton type="button" disabled={!permissionsDirty || reconciledPermissionState.conflict || !assigned.isSuccess || !catalog.isSuccess || mutations.permissions.isPending} onClick={submitPermissions}>{mutations.permissions.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu phân quyền</CmsButton>
           </section>}
         </div> : <p className={styles.state}>Không tìm thấy vai trò.</p>}
     </ResponsiveModal>

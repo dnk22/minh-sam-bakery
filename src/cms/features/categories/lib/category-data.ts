@@ -27,10 +27,6 @@ export function isDeletedCategory(value: unknown): value is { id: string } {
   return isRecord(value) && typeof value.id === "string" && value.id.length > 0;
 }
 
-export function isUploadResult(value: unknown): value is Array<{ url: string }> {
-  return Array.isArray(value) && value.length > 0 && value.every((item) => isRecord(item) && typeof item.url === "string" && /^https?:\/\//i.test(item.url));
-}
-
 export function backendFieldErrors(data: unknown) {
   if (!isRecord(data) || !Array.isArray(data.errors)) return undefined;
   const fields: Record<string, string> = {};

@@ -7,6 +7,8 @@ import { useMemo } from "react";
 import { ResponsiveModal } from "@/cms/components/responsive-modal/responsive-modal";
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsApiError } from "@/cms/lib/api/errors";
+import { cmsAssetUrl } from "@/cms/lib/api/asset-url";
+import { useUnsavedChangesWarning } from "@/cms/hooks/use-unsaved-changes-warning";
 
 import { descendantIds, flattenTreeOptions } from "../../lib/category-tree";
 import { formToCreate, formToPatch } from "../../schemas/category.schema";
@@ -30,6 +32,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
   const category = detail.data;
   const { form, uploadPending, setUploadPending, markSlugManual } =
     useCategoryForm({ state, category });
+  useUnsavedChangesWarning(isEditing && (form.formState.isDirty || uploadPending));
 
   const parentOptions = useMemo(() => {
     const tree = treeQuery.data?.tree;
@@ -98,7 +101,7 @@ function CategoryDetail({ category, parentName }: { category: Category; parentNa
     ["Ngày tạo", formatDate(category.createdAt)], ["Cập nhật", formatDate(category.updatedAt)],
   ];
   return <div className={styles.detail}>
-    {category.imageUrl ? <Image className={styles.detailImage} src={category.imageUrl} alt={`Ảnh ${category.name}`} width={640} height={320} unoptimized /> : null}
+    {category.imageUrl ? <Image className={styles.detailImage} src={cmsAssetUrl(category.imageUrl)} alt={`Ảnh ${category.name}`} width={640} height={320} unoptimized /> : null}
     <dl>{entries.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
   </div>;
 }

@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import { ResponsiveCollection } from "@/cms/components/responsive-collection/responsive-collection";
 import { CmsBadge } from "@/cms/components/ui/badge/badge";
+import { cmsAssetUrl } from "@/cms/lib/api/asset-url";
 
 import { getProductStatusPresentation } from "../../constants";
 import type { ProductFilters } from "../../hooks/use-product-filters";
@@ -23,5 +24,5 @@ export function ProductsCollection({ filters, listQuery, onDetail, onDelete }: {
 
 function ProductListItem({ product }: { product: Product }) {
   const image = sortProductImages(product.images)[0];
-  return <div className={styles.item}>{image ? <Image src={image.url} alt={image.alt || ""} width={48} height={48} unoptimized /> : <span className={styles.placeholder}><ImageIcon aria-hidden="true" /></span>}<div><strong>{product.name}</strong><span>{product.sku} · {product.categoryName}</span><b>{formatVnd(product.salePrice ?? product.price)}</b></div></div>;
+  return <div className={styles.item}>{image ? <Image src={cmsAssetUrl(image.url)} alt={image.alt || ""} width={48} height={48} unoptimized /> : <span className={styles.placeholder}><ImageIcon aria-hidden="true" /></span>}<div><strong>{product.name}</strong><span>{product.sku} · {product.categoryName}</span><b>{formatVnd(product.salePrice ?? product.price)}</b></div></div>;
 }

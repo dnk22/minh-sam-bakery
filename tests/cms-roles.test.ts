@@ -5,6 +5,7 @@ import { groupPermissions, isPermissionCatalog, isRoleDetail, isRoleList, normal
 import { roleQueryKeys } from "../src/cms/features/roles/lib/role-query-keys.ts";
 import { formToCreate, formToPatch, roleCreateSchema, rolePatchSchema, roleToForm } from "../src/cms/features/roles/schemas/role.schema.ts";
 import type { Permission, Role } from "../src/cms/features/roles/types.ts";
+import { commitPermissionSelection, editPermissionSelection, newPermissionEditorSession, permissionSelectionDirty, reconcilePermissionEditorSession, reloadPermissionSelection } from "../src/cms/features/roles/lib/permission-editor-session.ts";
 
 const permissions: Permission[] = [
   { id: "2", code: "roles.update", module: "roles", action: "update", description: null },
@@ -64,4 +65,34 @@ test("rejects empty creates, empty patches and unsafe extra fields", () => {
 
 test("keeps one-based pagination in stable role query keys", () => {
   assert.deepEqual(roleQueryKeys.list({ page: 1, limit: 20, search: "admin" }), ["cms", "roles", "list", { page: 1, limit: 20, search: "admin" }]);
+});
+
+test("permission session syncs pristine refetch without becoming dirty", () => {
+  const initial = newPermissionEditorSession("edit:role-1", ["1"]);
+  const refreshed = reconcilePermissionEditorSession(initial, "edit:role-1", ["1", "2"]);
+  assert.deepEqual(refreshed.selectedIds, ["1", "2"]);
+  assert.equal(permissionSelectionDirty(refreshed), false);
+  assert.equal(refreshed.conflict, false);
+});
+
+test("permission session blocks dirty remote conflicts until explicit reload", () => {
+  const initial = newPermissionEditorSession("edit:role-1", ["1"]);
+  const edited = editPermissionSelection(initial, ["1", "3"]);
+  const conflicted = reconcilePermissionEditorSession(edited, "edit:role-1", ["1", "2"]);
+  assert.deepEqual(conflicted.selectedIds, ["1", "3"]);
+  assert.equal(conflicted.conflict, true);
+  assert.equal(permissionSelectionDirty(conflicted), true);
+  const reloaded = reloadPermissionSelection(conflicted);
+  assert.deepEqual(reloaded.selectedIds, ["1", "2"]);
+  assert.equal(reloaded.conflict, false);
+});
+
+test("permission session isolates roles and commits successful selections", () => {
+  const first = editPermissionSelection(newPermissionEditorSession("edit:role-1", ["1"]), ["2"]);
+  const switched = reconcilePermissionEditorSession(first, "edit:role-2", ["3"]);
+  assert.deepEqual(switched.selectedIds, ["3"]);
+  assert.equal(switched.touched, false);
+  const committed = commitPermissionSelection(editPermissionSelection(switched, ["3", "4"]));
+  assert.deepEqual(committed.baselineIds, ["3", "4"]);
+  assert.equal(permissionSelectionDirty(committed), false);
 });

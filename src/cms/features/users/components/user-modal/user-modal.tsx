@@ -10,6 +10,7 @@ import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsSelect } from "@/cms/components/ui/select/select";
 import { useRoleSelector } from "@/cms/features/roles/hooks/use-roles";
 import { CmsApiError } from "@/cms/lib/api/errors";
+import { useUnsavedChangesWarning } from "@/cms/hooks/use-unsaved-changes-warning";
 
 import { getUserStatusPresentation, statusAction } from "../../constants";
 import { useUserForm } from "../../hooks/use-user-form";
@@ -39,6 +40,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   const selectedRole = roles.data?.find((role) => role.id === roleState.value);
   const roleDirty = Boolean(manageRole && user && roleState.value && roleState.value !== user.role.id);
   const isEditing = mode === "create" || mode === "edit";
+  useUnsavedChangesWarning((isEditing && form.formState.isDirty) || roleDirty);
   const pending = mutations.create.isPending || mutations.update.isPending;
 
   const confirmDiscard = () => (!isEditing || !form.formState.isDirty) && !roleDirty || window.confirm("Bỏ các thay đổi chưa lưu?");

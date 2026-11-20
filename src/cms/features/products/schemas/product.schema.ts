@@ -63,16 +63,22 @@ export function formToCreate(values: ProductFormValues): ProductWriteInput {
   };
 }
 
-const scalarKeys = ["categoryId", "sku", "name", "slug", "shortDescription", "description", "price", "salePrice", "status", "isFeatured", "isBestSeller", "seoTitle", "seoDescription"] as const;
 export function formToPatch(values: ProductFormValues, original: Product): Partial<ProductWriteInput> {
-  const next = formToCreate(values);
   const patch: Partial<ProductWriteInput> = {};
-  for (const key of scalarKeys) {
-    const nextValue = next[key] ?? (key === "salePrice" ? null : undefined);
-    const originalValue = original[key] ?? (key === "salePrice" ? null : undefined);
-    if (nextValue === undefined) continue;
-    if (nextValue !== originalValue) Object.assign(patch, { [key]: nextValue });
+  const requiredText = { categoryId: values.categoryId.trim(), sku: values.sku.trim(), name: values.name.trim(), price: values.price.trim() };
+  for (const key of Object.keys(requiredText) as Array<keyof typeof requiredText>) {
+    if (requiredText[key] !== original[key]) Object.assign(patch, { [key]: requiredText[key] });
   }
+  if (values.slug.trim() && values.slug.trim() !== original.slug) patch.slug = values.slug.trim();
+  const optionalText = { shortDescription: values.shortDescription.trim(), description: values.description.trim(), seoTitle: values.seoTitle.trim(), seoDescription: values.seoDescription.trim() };
+  for (const key of Object.keys(optionalText) as Array<keyof typeof optionalText>) {
+    if (optionalText[key] !== (original[key] ?? "")) Object.assign(patch, { [key]: optionalText[key] });
+  }
+  const salePrice = values.salePrice.trim() || null;
+  if (salePrice !== (original.salePrice ?? null)) patch.salePrice = salePrice;
+  if (values.status !== original.status) patch.status = values.status;
+  if (values.isFeatured !== original.isFeatured) patch.isFeatured = values.isFeatured;
+  if (values.isBestSeller !== original.isBestSeller) patch.isBestSeller = values.isBestSeller;
   return patch;
 }
 
