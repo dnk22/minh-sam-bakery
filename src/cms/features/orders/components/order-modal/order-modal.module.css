@@ -1,0 +1,10 @@
+.modal { width: min(52rem, calc(100vw - 2rem)); }
+.state { display: grid; min-height: 12rem; place-items: center; align-content: center; gap: 0.75rem; margin: 0; text-align: center; color: var(--cms-muted-foreground); }
+.state p { margin: 0; }
+.statusSection { display: grid; max-width: 30rem; gap: 1rem; }
+.current { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
+.current > span { color: var(--cms-muted-foreground); font-size: 0.875rem; }
+.note { margin: 0; color: var(--cms-muted-foreground); font-size: 0.8125rem; }
+.alert { margin: 0; padding: 0.75rem; border-radius: var(--cms-radius); background: color-mix(in oklab, var(--cms-destructive) 10%, transparent); color: var(--cms-destructive); font-size: 0.875rem; }
+.spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

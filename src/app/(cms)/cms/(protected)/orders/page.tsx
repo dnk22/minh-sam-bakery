@@ -1,6 +1,5 @@
-import { ShoppingBag } from "lucide-react";
-import { ModulePlaceholder } from "@/cms/components/layout/module-placeholder";
+import { OrdersPage } from "@/cms/features/orders/components/orders-page/orders-page";
 
 export default function CmsOrdersPage() {
-  return <ModulePlaceholder description="Theo dõi và xử lý đơn hàng không nằm trong phạm vi CMS Phase 2." icon={ShoppingBag} title="Đơn hàng" />;
+  return <OrdersPage />;
 }

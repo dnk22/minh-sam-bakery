@@ -1,0 +1,5 @@
+.id, .customer strong, .customer span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.id { display: block; max-width: 8rem; }
+.customer, .stack { display: grid; min-width: 0; gap: 0.15rem; }
+.customer span, .stack small { color: var(--cms-muted-foreground); font-size: 0.75rem; }
+.money { white-space: nowrap; }

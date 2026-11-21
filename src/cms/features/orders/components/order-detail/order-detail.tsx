@@ -1,0 +1,83 @@
+import { ImageIcon } from "lucide-react";
+import Image from "next/image";
+
+import { CmsBadge } from "@/cms/components/ui/badge/badge";
+import { cmsAssetUrl } from "@/cms/lib/api/asset-url";
+
+import { getOrderPaymentLabel, getOrderStatusPresentation } from "../../constants";
+import { formatCalendarDate, formatOrderDateTime, formatVnd } from "../../lib/order-format";
+import type { Order } from "../../types";
+import styles from "./order-detail.module.css";
+
+function safeOrderAsset(value: string | null | undefined) {
+  return value?.startsWith("/uploads/") ? cmsAssetUrl(value) : null;
+}
+
+export function OrderDetail({ order }: { order: Order }) {
+  const status = getOrderStatusPresentation(order.status);
+  const paymentImage = safeOrderAsset(order.paymentImageUrl);
+
+  return <div className={styles.detail}>
+    <section className={styles.section}>
+      <div className={styles.sectionHeading}><h2>Đơn hàng</h2><CmsBadge variant={status.variant}>{status.label}</CmsBadge></div>
+      <dl className={styles.entries}>
+        <DetailEntry label="Mã đơn" value={<code>{order.id}</code>} />
+        <DetailEntry label="Ngày tạo" value={<time dateTime={order.createdAt}>{formatOrderDateTime(order.createdAt)}</time>} />
+        <DetailEntry label="Cập nhật" value={<time dateTime={order.updatedAt}>{formatOrderDateTime(order.updatedAt)}</time>} />
+      </dl>
+    </section>
+
+    <section className={styles.section}>
+      <h2>Khách hàng</h2>
+      <dl className={styles.entries}>
+        <DetailEntry label="Họ tên" value={order.fullName || "Chưa cung cấp"} />
+        <DetailEntry label="Điện thoại" value={order.phone} />
+        <DetailEntry label="Email" value={order.email || "Chưa cung cấp"} />
+        <DetailEntry label="Địa chỉ" value={order.shippingAddress} />
+        <DetailEntry label="Ghi chú" value={order.note || "—"} />
+      </dl>
+    </section>
+
+    <section className={styles.section}>
+      <h2>Giao hàng</h2>
+      <dl className={styles.entries}>
+        <DetailEntry label="Ngày giao" value={formatCalendarDate(order.deliveryDate)} />
+        <DetailEntry label="Khung giờ" value={order.deliveryTime || "—"} />
+      </dl>
+    </section>
+
+    <section className={styles.section}>
+      <h2>Thanh toán</h2>
+      <dl className={styles.entries}>
+        <DetailEntry label="Phương thức" value={getOrderPaymentLabel(order.paymentMethod)} />
+        <DetailEntry label="Tổng tiền Backend" value={<strong>{formatVnd(order.totalAmount)}</strong>} />
+      </dl>
+      {paymentImage ? <div className={styles.paymentProof}><span>Ảnh thanh toán</span><Image alt="Ảnh thanh toán của đơn hàng" height={180} src={paymentImage} unoptimized width={320} /></div>
+        : order.paymentImageUrl ? <p className={styles.assetNotice}>Ảnh thanh toán dùng URL chưa được xác thực nên không được tải tự động.</p> : null}
+    </section>
+
+    <section className={styles.section}>
+      <div className={styles.sectionHeading}><h2>Sản phẩm</h2><span className={styles.count}>{order.products.length} bản ghi sản phẩm</span></div>
+      {order.products.length ? <ul className={styles.products}>
+        {order.products.map((product) => {
+          const image = safeOrderAsset(product.imageUrl);
+          return <li key={product.id}>
+            {image ? <Image alt="" height={56} src={image} unoptimized width={56} /> : <span className={styles.placeholder}><ImageIcon aria-hidden="true" /></span>}
+            <div><strong>{product.name}</strong><code>{product.sku}</code></div>
+            <b>{formatVnd(product.unitPrice)}</b>
+          </li>;
+        })}
+      </ul> : <p className={styles.empty}>Backend không trả về bản ghi sản phẩm.</p>}
+      <p className={styles.disclaimer}>Danh sách không suy diễn số lượng, biến thể hoặc thành tiền vì API chưa cung cấp các trường này.</p>
+    </section>
+
+    <section className={styles.section}>
+      <div className={styles.sectionHeading}><h2>Trạng thái</h2><CmsBadge variant={status.variant}>{status.label}</CmsBadge></div>
+      <p className={styles.help}>Backend quyết định trạng thái nào được phép chuyển. CMS không áp dụng ma trận chuyển trạng thái giả định.</p>
+    </section>
+  </div>;
+}
+
+function DetailEntry({ label, value }: { label: string; value: React.ReactNode }) {
+  return <div><dt>{label}</dt><dd>{value}</dd></div>;
+}
