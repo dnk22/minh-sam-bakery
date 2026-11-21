@@ -15,6 +15,7 @@
     "test:products": "node --no-warnings --test --experimental-strip-types tests/cms-products.test.ts",
     "test:orders": "node --no-warnings --test --experimental-strip-types tests/cms-orders.test.ts",
     "test:posts": "node --no-warnings --test --experimental-strip-types tests/cms-posts.test.ts",
+    "test:article-layouts": "node --no-warnings --test --experimental-strip-types tests/article-layouts.test.ts",
     "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "lucide-react": "^1.63.0",
     "motion": "^14.7.1",
     "next": "16.4.6",
+    "parse5": "^8.1.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.92.0",

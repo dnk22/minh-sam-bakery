@@ -3,5 +3,6 @@
 .back { display: inline-flex; align-items: center; gap: .35rem; color: var(--cms-muted-foreground); text-decoration: none; font-size: .875rem; }
 .error, .success { margin: 1rem 0 0; padding: .75rem; border-radius: var(--cms-radius); } .error { background: color-mix(in oklab, var(--cms-destructive) 10%, var(--cms-card)); color: var(--cms-destructive); } .success { background: color-mix(in oklab, var(--cms-primary) 8%, var(--cms-card)); }
 .actions { position: fixed; z-index: 20; right: 1rem; bottom: 1rem; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; padding: .65rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: color-mix(in oklab, var(--cms-card) 94%, transparent); box-shadow: 0 10px 28px color-mix(in oklab, var(--cms-foreground) 12%, transparent); backdrop-filter: blur(10px); }
+.previewModal { width: min(76rem, calc(100vw - 2rem)); }
 .spin { animation: spin 800ms linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 767px) { .actions { right: .75rem; bottom: .75rem; left: .75rem; } .actions :global(.cms-button) { flex: 1 1 auto; } }
