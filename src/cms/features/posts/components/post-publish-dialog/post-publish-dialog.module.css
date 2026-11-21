@@ -1,0 +1,1 @@
+.spin { animation: spin 800ms linear infinite; } .error { color: var(--cms-destructive); } @keyframes spin { to { transform: rotate(360deg); } }

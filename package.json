@@ -14,6 +14,7 @@
     "test:users": "node --no-warnings --test --experimental-strip-types tests/cms-users.test.ts",
     "test:products": "node --no-warnings --test --experimental-strip-types tests/cms-products.test.ts",
     "test:orders": "node --no-warnings --test --experimental-strip-types tests/cms-orders.test.ts",
+    "test:posts": "node --no-warnings --test --experimental-strip-types tests/cms-posts.test.ts",
     "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs"
   },
   "dependencies": {
@@ -27,6 +28,10 @@
     "@radix-ui/react-tooltip": "^1.4.1",
     "@tanstack/react-query": "^5.108.0",
     "@tanstack/react-table": "^8.21.3",
+    "@tiptap/extension-link": "^3.34.0",
+    "@tiptap/pm": "^3.34.0",
+    "@tiptap/react": "^3.34.0",
+    "@tiptap/starter-kit": "^3.34.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.63.0",
@@ -35,6 +40,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.92.0",
+    "sanitize-html": "^2.18.2",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.7",
     "zustand": "^5.0.16"
@@ -44,6 +50,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.2",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",

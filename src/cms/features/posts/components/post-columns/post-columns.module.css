@@ -1,0 +1,6 @@
+.post { display: flex; min-width: 0; align-items: center; gap: .75rem; }
+.post img, .placeholder { width: 3rem; height: 3rem; flex: none; border-radius: .5rem; object-fit: cover; background: var(--cms-muted); }
+.placeholder { display: grid; place-items: center; color: var(--cms-muted-foreground); }
+.post div { display: grid; min-width: 0; }
+.post strong, .post span, .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.post span { color: var(--cms-muted-foreground); font-size: .75rem; }

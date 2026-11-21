@@ -1,0 +1,6 @@
+.toolbar { display: grid; gap: .5rem; padding: .75rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
+.controls { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.search { width: clamp(18rem, 28vw, 22rem); max-width: 100%; }
+.select { width: 12rem; }
+.toolbar :global(.cms-button) { min-height: 2.5rem; }
+@media (max-width: 767px) { .controls { flex-wrap: nowrap; } .search { width: auto; min-width: 0; flex: 1 1 auto; } .clearAll { display: none; } }

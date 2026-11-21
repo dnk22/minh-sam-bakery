@@ -2,6 +2,7 @@ import {
   Boxes,
   ClipboardList,
   FolderTree,
+  FileText,
   LayoutDashboard,
   PackageSearch,
   ShieldCheck,
@@ -48,6 +49,7 @@ export const cmsNavigation: CmsNavGroup[] = [
         items: [
           { title: "Danh mục", href: "/cms/categories", icon: FolderTree },
           { title: "Sản phẩm", href: "/cms/products", icon: PackageSearch },
+          { title: "Bài viết", href: "/cms/posts", icon: FileText },
         ],
       },
       { title: "Đơn hàng", href: "/cms/orders", icon: ShoppingBag },

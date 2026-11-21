@@ -1,0 +1,7 @@
+.table { min-height: 20rem; }
+.item { display: flex; min-width: 0; align-items: center; gap: .75rem; }
+.item img, .placeholder { width: 3rem; height: 3rem; flex: none; border-radius: .5rem; object-fit: cover; background: var(--cms-muted); }
+.placeholder { display: grid; place-items: center; color: var(--cms-muted-foreground); }
+.item div { display: grid; min-width: 0; gap: .1rem; }
+.item strong, .item span, .item small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item span, .item small { color: var(--cms-muted-foreground); font-size: .75rem; }
