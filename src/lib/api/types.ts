@@ -16,6 +16,28 @@ export type PaginatedResponse<T> = {
   pagination: PaginationMetaDto;
 };
 
+export type PublicPostAuthorDto = {
+  id: string;
+  fullName: string;
+};
+
+export type PublicPostResponseDto = {
+  id: string;
+  title: string;
+  slug: string;
+  thumbnailUrl?: string | null;
+  content: string;
+  excerpt?: string | null;
+  status: "DRAFT" | "PUBLISHED";
+  showOnLanding: boolean;
+  publishedAt?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  author: PublicPostAuthorDto;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type CategoryResponseDto = {
   id: string;
   parentId: string | null;

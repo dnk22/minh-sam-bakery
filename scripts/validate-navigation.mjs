@@ -1,7 +1,6 @@
 import { catalogProducts } from "../src/landing/features/catalog/data.ts";
 import { merchandising } from "../src/landing/features/catalog/merchandising.ts";
 import { productDetails } from "../src/landing/features/product/data.ts";
-import { articles } from "../src/landing/features/journal/data.ts";
 import { routes } from "../src/landing/lib/routes.ts";
 
 const validQuotationProfiles = new Set(["corporate-gift", "custom-event"]);
@@ -55,9 +54,6 @@ for (const detail of productDetails) {
 
 const merchandisingIds = [merchandising.seasonalFeaturedProductId, ...merchandising.supportingProductIds, ...merchandising.relatedFixedProductIds, ...merchandising.alternativeGiftProductIds];
 merchandisingIds.forEach((id) => assert(productById.has(id), `Missing merchandising product ${id}`));
-articles.forEach((article) => {
-  if (article.recommendedProductId) assert(productById.has(article.recommendedProductId), `Article ${article.id} references missing product ${article.recommendedProductId}`);
-});
 for (const promotion of merchandising.promotions) {
   if (promotion.target.type === "product") assert(productById.has(promotion.target.productId), `Promotion ${promotion.id} references missing product`);
 }
@@ -67,4 +63,4 @@ assert(routes.product("sample") === "/san-pham/sample", "Product route helper is
 assert(routes.article("sample") === "/tin-tuc/sample", "Article route helper is inconsistent");
 assert(routes.about === "/ve-minh-sam", "About route helper is inconsistent");
 
-console.log(`Navigation fixture validation passed: ${published.length} editorial products, ${productDetails.length} product details.`);
+console.log(`Navigation fixture validation passed: ${published.length} editorial products, ${productDetails.length} product details, dynamic Journal route.`);

@@ -39,7 +39,7 @@ export type PhotoStoryData = z.infer<typeof photoStoryDataSchema>;
 export type ProductStoryData = z.infer<typeof productStoryDataSchema>;
 export type ArticleLayoutData = EditorialData | PhotoStoryData | ProductStoryData;
 export type ArticleLayoutDocument = { key: ArticleLayoutKey; version: 1; data: ArticleLayoutData };
-export type ArticlePresentation = { title: string; excerpt?: string; coverUrl?: string; coverAlt?: string; author?: string; publishedAt?: string };
+export type ArticlePresentation = { title: string; excerpt?: string; coverUrl?: string; coverAlt?: string; author?: string; publishedAt?: string; publishedLabel?: string };
 
 export type ArticleParseResult =
   | { status: "supported"; raw: string; document: ArticleLayoutDocument }

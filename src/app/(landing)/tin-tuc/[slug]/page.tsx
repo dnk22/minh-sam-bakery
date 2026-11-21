@@ -1,31 +1,48 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-
+import { Suspense } from "react";
 import { ArticleDetailPage } from "@/landing/features/journal/article-detail-page";
-import { articles, findArticle } from "@/landing/features/journal/data";
+import { getPublicPost, getRelatedPublicPosts } from "@/landing/features/journal/api";
+import { journalSeoValues } from "@/landing/features/journal/seo";
+import { isJournalNotFoundStatus } from "@/landing/features/journal/query";
+import { ApiClientError } from "@/lib/api/client";
 
 type ArticleRouteProps = { params: Promise<{ slug: string }> };
 
 export const instant = false;
 
-export function generateStaticParams() {
-  return articles.map(({ slug }) => ({ slug }));
+async function loadPublicArticle(slug: string) {
+  try { return await getPublicPost(slug); }
+  catch (error) { if (error instanceof ApiClientError && isJournalNotFoundStatus(error.status)) return null; throw error; }
 }
 
 export async function generateMetadata({ params }: ArticleRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = findArticle(slug);
-  if (!article) return {};
+  const article = await loadPublicArticle(slug);
+  if (!article || article.status !== "PUBLISHED") notFound();
+  const seo = journalSeoValues(article);
+  const image = article.thumbnailUrl ? [{ url: article.thumbnailUrl, alt: article.title }] : undefined;
   return {
-    title: `${article.detailTitle ?? article.listingTitle} | Minh Sâm Journal`,
-    description: article.excerpt,
-    openGraph: article.coverImage ? { images: [article.coverImage] } : undefined,
+    title: seo.title,
+    description: seo.description,
+    alternates: { canonical: seo.canonical },
+    openGraph: { type: "article", title: seo.title, description: seo.description, url: seo.canonical, images: image, publishedTime: article.publishedAt ?? undefined, authors: [article.author] },
+    twitter: { card: image ? "summary_large_image" : "summary", title: seo.title, description: seo.description, images: image?.map((item) => item.url) },
   };
 }
 
-export default async function ArticleRoute({ params }: ArticleRouteProps) {
+async function ArticleContent({ params }: ArticleRouteProps) {
   const { slug } = await params;
-  const article = findArticle(slug);
-  if (!article) notFound();
-  return <ArticleDetailPage article={article} />;
+  const article = await loadPublicArticle(slug);
+  if (!article || article.status !== "PUBLISHED") notFound();
+  const related = await getRelatedPublicPosts(article.slug, 3).catch(() => []);
+  return <ArticleDetailPage article={article} related={related} />;
+}
+
+function ArticleLoading() {
+  return <main className="min-h-[70vh] animate-pulse bg-surface pt-[var(--landing-header-height)]"><div className="mx-auto max-w-[1100px] px-margin py-16"><div className="mx-auto h-12 w-3/4 rounded bg-surface-container" /><div className="mt-10 h-96 rounded-xl bg-surface-container-low" /></div></main>;
+}
+
+export default function ArticleRoute({ params }: ArticleRouteProps) {
+  return <Suspense fallback={<ArticleLoading />}><ArticleContent params={params} /></Suspense>;
 }

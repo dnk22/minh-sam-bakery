@@ -8,7 +8,7 @@ New CMS posts start with the recommended `editorial@1` layout. Before entering c
 - `photo-story@1`: introduction and ordered photo chapters with `full`, `two-up`, `image-left` or `image-right` presentation.
 - `product-story@1`: introduction, ordered narrative sections, a product/CTA highlight and ordered benefit cards.
 
-The selector and slot forms are CMS-only. Rich-text slots use Tiptap, while structure, image placement, gallery variants and ordering use dedicated controls. Preview serializes the current React Hook Form `content` value, parses it through the shared registry and renders it with the same `ArticleRenderer` intended for Phase 7.3.
+The selector and slot forms are CMS-only. Rich-text slots use Tiptap, while structure, image placement, gallery variants and ordering use dedicated controls. Preview serializes the current React Hook Form `content` value, parses it through the shared registry and renders it with the same `ArticleRenderer` now used by Landing Journal.
 
 ## Registry and versions
 
@@ -51,7 +51,7 @@ Photo chapters use `data-ms-block="photo-chapter"`, stable block/image IDs, a co
 
 Plain Phase 7.1 HTML remains on the virtual legacy path and is never automatically upgraded. Unknown keys/newer versions and malformed documents are read-only. Metadata-only PATCH continues to omit `content`, preserving original bytes. Changing a populated layout requires explicit confirmation and creates a fresh layout; cancel leaves the original form value untouched.
 
-Image URLs persist as Backend canonical URLs, never authenticated `/api/cms/assets` URLs. CMS preview applies `cmsAssetUrl`; Phase 7.3 must provide a public asset resolver.
+Image URLs persist as Backend canonical URLs, never authenticated `/api/cms/assets` URLs. CMS preview applies `cmsAssetUrl`; Phase 7.3 now provides a public Backend asset resolver for Landing Journal.
 
 ## Adding and evolving layouts
 
@@ -69,4 +69,4 @@ To add `editorial@2`, retain all v1 code and fixtures, register version 2 separa
 - Backend stores one HTML `content` value and has no native layout columns or template registry.
 - Backend exposes no ETag/conditional update, so the CMS can warn and avoid refetch resets but cannot guarantee multi-editor conflict prevention.
 - No media deletion endpoint exists; orphan cleanup is not claimed.
-- Phase 7.3 must integrate public Post APIs, adapt public DTOs to `ArticlePresentation`, add dynamic Journal list/detail/SEO, use a public asset resolver and verify parity before removing hardcoded Landing articles.
+- Phase 7.3 integrates public Post APIs, adapts public DTOs to `ArticlePresentation`, adds dynamic Journal list/detail/SEO and uses a public asset resolver. See `docs/landing-journal-integration.md`.

@@ -16,6 +16,7 @@
     "test:orders": "node --no-warnings --test --experimental-strip-types tests/cms-orders.test.ts",
     "test:posts": "node --no-warnings --test --experimental-strip-types tests/cms-posts.test.ts",
     "test:article-layouts": "node --no-warnings --test --experimental-strip-types tests/article-layouts.test.ts",
+    "test:landing-journal": "node --no-warnings --test --experimental-strip-types tests/landing-journal.test.ts",
     "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs"
   },
   "dependencies": {

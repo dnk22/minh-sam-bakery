@@ -3,6 +3,7 @@ import { postError, postJson, requirePostAccess } from "@/cms/features/posts/api
 import { backendCreatePost, backendPostList } from "@/cms/features/posts/api/posts.server";
 import { parsePostListQuery } from "@/cms/features/posts/lib/post-data";
 import { postCreateSchema } from "@/cms/features/posts/schemas/post.schema";
+import { revalidatePublicJournal } from "@/cms/features/posts/api/post-cache";
 
 export async function GET(request: Request) {
   const auth = await requirePostAccess(); if ("response" in auth) return auth.response;
@@ -14,6 +15,6 @@ export async function POST(request: Request) {
   const auth = await requirePostAccess(); if ("response" in auth) return auth.response;
   let body: unknown; try { body = await request.json(); } catch { return postError(400); }
   const parsed = postCreateSchema.safeParse(body); if (!parsed.success) return postError(400);
-  try { const saved = await backendCreatePost(auth.accessToken, parsed.data); return postJson(saved, 201); }
+  try { const saved = await backendCreatePost(auth.accessToken, parsed.data); revalidatePublicJournal(null, saved.slug); return postJson(saved, 201); }
   catch (error) { return postError(502, error); }
 }
