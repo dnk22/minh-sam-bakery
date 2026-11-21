@@ -1,0 +1,2 @@
+.table table { table-layout: fixed; }
+.table th:last-child, .table td:last-child { padding-inline: .4rem; }

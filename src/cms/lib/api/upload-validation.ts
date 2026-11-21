@@ -1,5 +1,5 @@
 export const CMS_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
-const CMS_UPLOAD_FOLDERS = new Set(["categories", "products", "posts"]);
+const CMS_UPLOAD_FOLDERS = new Set(["categories", "products", "posts", "banners"]);
 export function isAllowedCmsUploadFolder(folder: string) { return CMS_UPLOAD_FOLDERS.has(folder); }
 
 export function validateSingleImageUpload(files: Array<{ size: number; type: string }>) {

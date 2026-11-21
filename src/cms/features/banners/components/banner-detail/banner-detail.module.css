@@ -1,0 +1,14 @@
+.detail, .detail section { display: grid; gap: 1rem; }
+.badges { display: flex; gap: .5rem; }
+.detail section { padding: 1rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); }
+.detail h3 { margin: 0; font-size: 1rem; }
+.gallery { display: grid; grid-template-columns: minmax(0, 2fr) minmax(10rem, 1fr); gap: 1rem; }
+.gallery figure { display: grid; gap: .4rem; margin: 0; }
+.gallery img { width: 100%; max-height: 20rem; border-radius: var(--cms-radius); object-fit: cover; background: var(--cms-muted); }
+.gallery figcaption { color: var(--cms-muted-foreground); font-size: .8125rem; }
+.detail dl { display: grid; margin: 0; }
+.detail dl > div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--cms-border); }
+.detail dl > div:last-child { border-bottom: 0; }
+.detail dt { color: var(--cms-muted-foreground); }
+.detail dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 767px) { .gallery { grid-template-columns: 1fr; } .detail dl > div { grid-template-columns: 1fr; gap: .25rem; } }

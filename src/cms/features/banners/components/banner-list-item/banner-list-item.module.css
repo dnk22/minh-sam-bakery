@@ -1,0 +1,5 @@
+.item { display: flex; min-width: 0; align-items: center; gap: .75rem; }
+.item img { width: 5.5rem; height: 3.25rem; flex: 0 0 auto; border-radius: var(--cms-radius); object-fit: cover; }
+.item span { display: grid; min-width: 0; gap: .2rem; }
+.item strong, .item small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item small { color: var(--cms-muted-foreground); }
