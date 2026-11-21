@@ -15,6 +15,7 @@
     "test:products": "node --no-warnings --test --experimental-strip-types tests/cms-products.test.ts",
     "test:orders": "node --no-warnings --test --experimental-strip-types tests/cms-orders.test.ts",
     "test:posts": "node --no-warnings --test --experimental-strip-types tests/cms-posts.test.ts",
+    "test:system-configs": "node --no-warnings --test --experimental-strip-types tests/cms-system-configs.test.ts",
     "test:article-layouts": "node --no-warnings --test --experimental-strip-types tests/article-layouts.test.ts",
     "test:landing-journal": "node --no-warnings --test --experimental-strip-types tests/landing-journal.test.ts",
     "test:cms-ux": "node --no-warnings --test --experimental-strip-types tests/cms-ux.test.ts",

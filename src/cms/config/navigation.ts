@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   UsersRound,
   Settings,
+  SlidersHorizontal,
   ShoppingBag,
   type LucideIcon,
 } from "lucide-react";
@@ -61,6 +62,7 @@ export const cmsNavigation: CmsNavGroup[] = [
     items: [
       { title: "Tài khoản", href: "/cms/users", icon: UsersRound },
       { title: "Vai trò & phân quyền", href: "/cms/roles", icon: ShieldCheck },
+      { title: "Cấu hình hệ thống", href: "/cms/system-configs", icon: SlidersHorizontal },
       { title: "Cài đặt", href: "/cms/settings/appearance", icon: Settings },
     ],
   },

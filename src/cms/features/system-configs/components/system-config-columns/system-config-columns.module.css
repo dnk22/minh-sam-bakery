@@ -1,0 +1,2 @@
+.truncated { display: block; width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.key { font-family: var(--font-geist-mono), monospace; }
