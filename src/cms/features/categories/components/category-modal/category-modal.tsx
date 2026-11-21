@@ -87,7 +87,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
         : isEditing ? <form id="category-form" className={styles.form} noValidate onSubmit={submit}>
           <CategoryFields key={`${mode}:${state.id ?? ""}:${state.parentId ?? ""}`} form={form} parentOptions={parentOptions} parentDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} onUploadPending={setUploadPending} />
           {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
-          <p className={styles.orphanNote}>Ảnh đã upload có thể còn trên máy chủ nếu đóng form hoặc lưu danh mục thất bại; Backend chưa có API xóa media.</p>
+          <p className={styles.orphanNote}>Ảnh đã tải lên có thể vẫn được lưu nếu bạn đóng biểu mẫu hoặc lưu danh mục thất bại.</p>
         </form> : <p className={styles.state}>Không tìm thấy danh mục.</p>}
     </ResponsiveModal>
   );

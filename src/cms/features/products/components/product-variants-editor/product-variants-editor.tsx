@@ -15,7 +15,7 @@ export function ProductVariantsEditor({ form, disabled = false }: { form: UseFor
   const errors = form.formState.errors.variants;
   return (
     <div className={styles.root}>
-      {disabled ? <p className={styles.notice}>Chỉnh sửa biến thể đang khóa an toàn vì Backend chưa xác nhận PATCH mảng là replace hay merge. Các biến thể hiện có được bảo toàn.</p> : <CmsButton type="button" variant="outline" size="sm" onClick={() => append({ sku: "", size: "", style: "", price: "", salePrice: "", status: "ACTIVE", sortOrder: fields.length })}><Plus aria-hidden="true" size={15} /> Thêm biến thể</CmsButton>}
+      {disabled ? <p className={styles.notice}>Chưa thể chỉnh sửa các biến thể hiện có. Thông tin hiện tại vẫn được giữ nguyên.</p> : <CmsButton type="button" variant="outline" size="sm" onClick={() => append({ sku: "", size: "", style: "", price: "", salePrice: "", status: "ACTIVE", sortOrder: fields.length })}><Plus aria-hidden="true" size={15} /> Thêm biến thể</CmsButton>}
       {fields.length ? <div className={styles.list}>{fields.map((field, index) => {
         const prefix = `product-variant-${field.id}`;
         const fieldErrors = errors?.[index];

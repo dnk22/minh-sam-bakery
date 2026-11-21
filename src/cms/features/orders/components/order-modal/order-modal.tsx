@@ -67,7 +67,7 @@ export function OrderModal({ state, onStateChange }: {
 
   return <ResponsiveModal
     className={styles.modal}
-    description={section === "status" ? "Chỉ trạng thái được cập nhật; Backend quyết định chuyển đổi có hợp lệ hay không." : "Thông tin mới nhất được tải từ Backend khi mở đơn hàng."}
+    description={section === "status" ? "Cập nhật trạng thái xử lý của đơn hàng." : "Thông tin mới nhất của đơn hàng."}
     footer={footer}
     onBeforeClose={confirmDiscard}
     onOpenChange={(open) => { if (!open) close(); }}
@@ -82,7 +82,7 @@ export function OrderModal({ state, onStateChange }: {
         <CmsFormField htmlFor="order-next-status" label="Trạng thái mới" required>
           <CmsSelect id="order-next-status" options={ORDER_STATUS_OPTIONS} value={selectedStatus} onChange={(event) => setSelection((current) => ({ ...current, value: event.target.value as OrderStatus }))} />
         </CmsFormField>
-        <p className={styles.note}>Không có ma trận chuyển trạng thái trong OpenAPI. Nếu Backend từ chối, CMS sẽ tải lại trạng thái hiện tại và giữ lựa chọn để bạn kiểm tra.</p>
+        <p className={styles.note}>Nếu trạng thái không hợp lệ, thông tin hiện tại sẽ được tải lại để bạn kiểm tra.</p>
         {mutations.updateStatus.error ? <p className={styles.alert} role="alert">{mutations.updateStatus.error instanceof Error ? mutations.updateStatus.error.message : "Không thể cập nhật trạng thái."}</p> : null}
       </section> : <OrderDetail order={order} />}
   </ResponsiveModal>;

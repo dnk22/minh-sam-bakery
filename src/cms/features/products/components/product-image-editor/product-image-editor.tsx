@@ -61,7 +61,7 @@ export function ProductImageEditor({ form, disabled = false, onPendingChange }: 
 
   return (
     <div className={styles.root}>
-      {disabled ? <p className={styles.notice}>Chỉnh sửa collection ảnh đang khóa an toàn vì Backend chưa xác nhận PATCH mảng là replace hay merge. Các ảnh hiện có được bảo toàn.</p> : <>
+      {disabled ? <p className={styles.notice}>Chưa thể chỉnh sửa bộ ảnh hiện có. Các ảnh hiện tại vẫn được giữ nguyên.</p> : <>
         <input ref={input} id="product-image-files" className={styles.hidden} type="file" accept="image/*" multiple onChange={(event) => { select(Array.from(event.target.files ?? [])); event.currentTarget.value = ""; }} />
         <div className={styles.upload}>
           <CmsButton type="button" variant="outline" onClick={() => input.current?.click()} disabled={uploading} aria-controls="product-image-files"><Upload aria-hidden="true" size={15} /> Chọn nhiều ảnh</CmsButton>
@@ -83,7 +83,7 @@ export function ProductImageEditor({ form, disabled = false, onPendingChange }: 
           </div>
         </article>;
       })}</div> : <div className={styles.empty}><ImageIcon aria-hidden="true" /> Chưa có ảnh sản phẩm.</div>}
-      {!disabled ? <p className={styles.note}>Tổng dung lượng mỗi lần tải tối đa 10 MB. Gỡ ảnh chỉ loại khỏi form; Backend chưa có API xóa file media.</p> : null}
+      {!disabled ? <p className={styles.note}>Tổng dung lượng mỗi lần tải tối đa 10 MB. Gỡ ảnh chỉ loại ảnh khỏi biểu mẫu đang chỉnh sửa.</p> : null}
     </div>
   );
 }

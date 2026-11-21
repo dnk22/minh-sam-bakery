@@ -21,9 +21,9 @@ export function CategoryDeleteDialog({ category, onClose, onDeleted }: { categor
     catch (caught) { setError(caught instanceof CmsApiError ? caught.message : "Không thể xóa danh mục lúc này."); }
   };
   return <ResponsiveModal open={Boolean(category)} onOpenChange={(open) => { if (!open && !remove.isPending) onClose(); }} onBeforeClose={() => !remove.isPending}
-    title="Xóa danh mục" description="Thao tác này không thể hoàn tác."
-    footer={<><CmsButton type="button" variant="outline" disabled={remove.isPending} onClick={onClose}>Hủy</CmsButton><CmsButton type="button" variant="destructive" disabled={remove.isPending} onClick={confirm}>{remove.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Xác nhận xóa</CmsButton></>}
+    title="Xóa danh mục" variant="confirm"
+    footer={<><CmsButton type="button" variant="outline" disabled={remove.isPending} onClick={onClose}>Hủy</CmsButton><CmsButton type="button" variant="destructive" disabled={remove.isPending} onClick={confirm}>{remove.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Xóa</CmsButton></>}
   >
-    <div className={styles.body}><p>Bạn có chắc muốn xóa <strong>{category?.name}</strong>?</p><p>Backend sẽ từ chối nếu danh mục còn danh mục con hoặc sản phẩm tham chiếu.</p>{error ? <p className={styles.alert} role="alert">{error}</p> : null}</div>
+    <div className={styles.body}><p>Bạn có chắc muốn xóa danh mục <strong>“{category?.name}”</strong>?</p><p>Không thể xóa danh mục đang chứa danh mục con hoặc sản phẩm.</p>{error ? <p className={styles.alert} role="alert">{error}</p> : null}</div>
   </ResponsiveModal>;
 }

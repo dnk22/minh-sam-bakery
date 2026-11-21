@@ -8,7 +8,7 @@ const messages: Record<CmsAuthErrorKind, string> = {
   forbidden: "Tài khoản không có quyền truy cập.",
   locked: "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.",
   rate_limited: "Có quá nhiều yêu cầu. Vui lòng thử lại sau.",
-  timeout: "Máy chủ phản hồi quá lâu. Vui lòng thử lại.",
+  timeout: "Hệ thống phản hồi quá lâu. Vui lòng thử lại.",
   unavailable: "Hệ thống xác thực đang tạm thời gián đoạn.",
   invalid_response: "Hệ thống xác thực trả về dữ liệu không hợp lệ.",
 };

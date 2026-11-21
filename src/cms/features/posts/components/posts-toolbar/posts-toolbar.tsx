@@ -16,7 +16,7 @@ export function PostsToolbar({ filters }: { filters: PostFilters }) {
     <CmsInput aria-label="Tìm kiếm bài viết" containerClassName={styles.search} controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo tiêu đề" type="search" value={search.draft} onBlur={search.onBlur} onFocus={search.onFocus} onChange={(event) => search.onChange(event.target.value)} />
     <CmsFilterGroup activeCount={count} label="Bộ lọc bài viết" onClear={filters.clearAdvancedFilters}>
       <CmsSelect aria-label="Lọc theo trạng thái" containerClassName={styles.select} controlSize="sm" options={POST_STATUS_OPTIONS} value={filters.status ?? ""} onChange={(event) => filters.setStatus((event.target.value || undefined) as PostStatus | undefined)} />
-      <CmsSelect aria-label="Lọc hiển thị landing" containerClassName={styles.select} controlSize="sm" options={POST_LANDING_OPTIONS} value={filters.showOnLanding === undefined ? "" : String(filters.showOnLanding)} onChange={(event) => filters.setShowOnLanding(parsePostBoolean(event.target.value))} />
+      <CmsSelect aria-label="Lọc hiển thị trên trang chủ" containerClassName={styles.select} controlSize="sm" options={POST_LANDING_OPTIONS} value={filters.showOnLanding === undefined ? "" : String(filters.showOnLanding)} onChange={(event) => filters.setShowOnLanding(parsePostBoolean(event.target.value))} />
     </CmsFilterGroup>
     {filters.isFiltered ? <CmsButton className={styles.clearAll} type="button" size="sm" variant="ghost" onClick={filters.clearFilters}><X aria-hidden="true" size={15} /> Xóa tất cả</CmsButton> : null}
   </div></section>;

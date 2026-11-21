@@ -10,7 +10,7 @@ export function ModulePlaceholder({ description, icon: Icon, title }: { descript
         <div>
           <span className="cms-placeholder-icon"><Icon aria-hidden="true" size={22} /></span>
           <h2>Module sẽ được phát triển ở phase tiếp theo</h2>
-          <p>Phase 1 chỉ cung cấp application shell và điểm gắn nội dung; chưa có dữ liệu giả, thao tác nghiệp vụ hoặc kết nối backend.</p>
+          <p>Chức năng này đang được hoàn thiện và sẽ sớm sẵn sàng.</p>
         </div>
       </section>
     </CmsMain>

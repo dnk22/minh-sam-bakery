@@ -82,7 +82,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   const title = mode === "create" ? "Thêm tài khoản" : mode === "edit" ? "Chỉnh sửa tài khoản" : manageRole ? "Gán vai trò" : "Chi tiết tài khoản";
   return <ResponsiveModal
     className={styles.modal}
-    description={manageRole ? "Vai trò được cập nhật bằng một thao tác Backend riêng biệt." : mode === "detail" ? "Thông tin tài khoản hiện tại từ hệ thống." : "Mật khẩu không bao giờ được tải lại hoặc lưu cục bộ."}
+    description={manageRole ? "Chọn vai trò và quyền truy cập mới cho tài khoản." : mode === "detail" ? "Thông tin hiện tại của tài khoản." : "Mật khẩu không được hiển thị lại sau khi lưu."}
     footer={state ? mode === "detail" && user && !manageRole ? <DetailActions user={user} currentUserId={currentUserId} onEdit={() => onStateChange({ mode: "edit", id: user.id })} onRole={() => onStateChange({ mode: "detail", id: user.id, section: "role" })} onAction={onAction} />
       : <CmsButton type="button" variant="outline" disabled={pending || mutations.assignRole.isPending} onClick={() => {
         if (!confirmDiscard()) return;
@@ -128,7 +128,7 @@ function DetailActions({ user, currentUserId, onEdit, onRole, onAction }: { user
   const action = statusAction(user.status);
   const self = user.id === currentUserId;
   return <>
-    <CmsButton type="button" variant="outline" disabled={self} title={self ? "Không thể tự xóa tài khoản đang sử dụng." : undefined} onClick={() => onAction(user, "delete")}><Trash2 aria-hidden="true" size={16} /> Xóa mềm</CmsButton>
+    <CmsButton type="button" variant="outline" disabled={self} title={self ? "Không thể tự xóa tài khoản đang sử dụng." : undefined} onClick={() => onAction(user, "delete")}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
     <CmsButton type="button" variant="outline" disabled={self && action === "lock"} title={self && action === "lock" ? "Không thể tự khóa tài khoản đang sử dụng." : undefined} onClick={() => onAction(user, action)}>{action === "lock" ? <Lock aria-hidden="true" size={16} /> : <Unlock aria-hidden="true" size={16} />}{action === "lock" ? "Khóa" : "Mở khóa"}</CmsButton>
     <CmsButton type="button" variant="outline" onClick={onRole}><KeyRound aria-hidden="true" size={16} /> Gán vai trò</CmsButton>
     <CmsButton type="button" onClick={onEdit}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton>

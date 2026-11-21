@@ -8,9 +8,9 @@ export const POST_STATUS_OPTIONS = [
 ] as const;
 
 export const POST_LANDING_OPTIONS = [
-  { value: "", label: "Landing: Tất cả" },
-  { value: "true", label: "Landing: Có" },
-  { value: "false", label: "Landing: Không" },
+  { value: "", label: "Trang chủ: Tất cả" },
+  { value: "true", label: "Trang chủ: Có" },
+  { value: "false", label: "Trang chủ: Không" },
 ] as const;
 
 export function getPostStatusPresentation(status: PostStatus): { label: string; variant: CmsBadgeVariant } {

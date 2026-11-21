@@ -2,6 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { notify } from "@/cms/lib/notifications";
+
 import { updateOrderStatus } from "../api/orders.client";
 import { orderInvalidationKeys, orderQueryKeys } from "../lib/order-query-keys";
 import type { OrderStatus } from "../types";
@@ -18,7 +20,9 @@ export function useOrderMutations() {
           client.invalidateQueries({ queryKey: listsKey }),
           client.invalidateQueries({ queryKey: detailKey }),
         ]);
+        notify.success("Đã cập nhật trạng thái đơn hàng.");
       },
+      onError: () => notify.error("Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại."),
     }),
   };
 }

@@ -24,7 +24,7 @@ export function PostsPage() {
   const deleted = () => { setRemove(null); setDetail(null); if ((query.data?.items.length ?? 0) === 1 && filters.page > 1) filters.setPage(filters.page - 1); };
   return <CmsMain className={styles.main}><header className={styles.heading}><div><h1>Bài viết</h1><p>Quản lý nội dung Journal, SEO và trạng thái xuất bản.</p></div><CmsButton asChild><Link href="/cms/posts/new"><Plus aria-hidden="true" size={17} /> Thêm bài viết</Link></CmsButton></header>
     <PostsToolbar filters={filters} /><PostsCollection filters={filters} query={query} actions={actions} />
-    <ResponsiveModal className={styles.detailModal} open={Boolean(detail)} onOpenChange={(open) => { if (!open) setDetail(null); }} title={detail?.title ?? "Chi tiết bài viết"} description="Nội dung được làm sạch trước khi hiển thị." footer={detail ? <CmsButton asChild><Link href={`/cms/posts/${encodeURIComponent(detail.id)}/edit`}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</Link></CmsButton> : null}>{detail ? <PostDetail post={detail} /> : null}</ResponsiveModal>
+    <ResponsiveModal className={styles.detailModal} open={Boolean(detail)} onOpenChange={(open) => { if (!open) setDetail(null); }} title={detail?.title ?? "Chi tiết bài viết"} description="Xem nội dung và thông tin bài viết." footer={detail ? <CmsButton asChild><Link href={`/cms/posts/${encodeURIComponent(detail.id)}/edit`}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</Link></CmsButton> : null}>{detail ? <PostDetail post={detail} /> : null}</ResponsiveModal>
     <PostPublishDialog post={publish} onClose={() => setPublish(null)} /><PostDeleteDialog post={remove} onClose={() => setRemove(null)} onDeleted={deleted} />
   </CmsMain>;
 }

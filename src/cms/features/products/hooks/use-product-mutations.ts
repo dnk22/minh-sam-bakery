@@ -2,6 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { notify } from "@/cms/lib/notifications";
+
 import { createProduct, deleteProduct, updateProduct } from "../api/products.client";
 import { productQueryKeys } from "../lib/product-query-keys";
 import type { ProductWriteInput } from "../types";
@@ -13,8 +15,8 @@ export function useProductMutations() {
     id ? client.invalidateQueries({ queryKey: productQueryKeys.detail(id) }) : Promise.resolve(),
   ]);
   return {
-    create: useMutation({ mutationFn: createProduct, onSuccess: (product) => invalidate(product.id) }),
-    update: useMutation({ mutationFn: ({ id, input }: { id: string; input: Partial<ProductWriteInput> }) => updateProduct(id, input), onSuccess: (product) => invalidate(product.id) }),
-    remove: useMutation({ mutationFn: deleteProduct, onSuccess: (result) => invalidate(result.id) }),
+    create: useMutation({ mutationFn: createProduct, onSuccess: async (product) => { await invalidate(product.id); notify.success("Đã thêm sản phẩm."); }, onError: () => notify.error("Không thể thêm sản phẩm. Vui lòng thử lại.") }),
+    update: useMutation({ mutationFn: ({ id, input }: { id: string; input: Partial<ProductWriteInput> }) => updateProduct(id, input), onSuccess: async (product) => { await invalidate(product.id); notify.success("Đã cập nhật sản phẩm."); }, onError: () => notify.error("Không thể cập nhật sản phẩm. Vui lòng thử lại.") }),
+    remove: useMutation({ mutationFn: deleteProduct, onSuccess: async (result) => { await invalidate(result.id); notify.success("Đã xóa sản phẩm."); }, onError: () => notify.error("Không thể xóa sản phẩm. Vui lòng thử lại.") }),
   };
 }

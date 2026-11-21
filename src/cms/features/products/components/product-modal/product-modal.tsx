@@ -89,7 +89,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
     <ProductFields form={form} categoryOptions={categoryOptions} categoryDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} collectionEditingDisabled={mode === "edit"} onUploadPendingChange={(nextPending) => setUploadState({ session: uploadSession, pending: nextPending })} />
     {categoryIssue ? <div className={styles.alert} role="alert"><p>{categoryIssue}</p><CmsButton type="button" variant="outline" size="sm" onClick={() => treeQuery.refetch()}>Tải lại danh mục</CmsButton></div> : null}
     {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
-    {mode === "create" ? <p className={styles.orphan}>Ảnh đã upload có thể còn trên máy chủ nếu đóng form hoặc lưu thất bại; Backend chưa có API xóa media.</p> : null}
+    {mode === "create" ? <p className={styles.orphan}>Ảnh đã tải lên có thể vẫn được lưu nếu bạn đóng biểu mẫu hoặc lưu thất bại.</p> : null}
   </form>;
 
   return <ResponsiveModal className={styles.modal} open={Boolean(state)} onOpenChange={(open) => { if (!open) close(); }} onBeforeClose={confirmDiscard} title={title} description={mode === "detail" ? "Thông tin mới nhất được tải từ hệ thống." : "Các trường bắt buộc phải hợp lệ trước khi lưu."} footer={footer}>{content}</ResponsiveModal>;

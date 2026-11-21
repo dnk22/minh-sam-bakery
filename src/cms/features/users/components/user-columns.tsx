@@ -32,7 +32,7 @@ export function createUserColumns(actions: UserActionHandlers): ColumnDef<CmsUse
           actions={[
             { key: "assign-role", label: "Gán vai trò", icon: <KeyRound aria-hidden="true" size={15} />, onSelect: () => actions.onAssignRole(user) },
             { key: lockAction, label: lockAction === "lock" ? "Khóa tài khoản" : "Mở khóa tài khoản", icon: lockAction === "lock" ? <Lock aria-hidden="true" size={15} /> : <Unlock aria-hidden="true" size={15} />, disabled: self && lockAction === "lock", onSelect: () => actions.onAction(user, lockAction) },
-            { key: "delete", label: "Xóa mềm tài khoản", icon: <Trash2 aria-hidden="true" size={15} />, destructive: true, disabled: self, separatorBefore: true, onSelect: () => actions.onAction(user, "delete") },
+            { key: "delete", label: "Xóa tài khoản", icon: <Trash2 aria-hidden="true" size={15} />, destructive: true, disabled: self, separatorBefore: true, onSelect: () => actions.onAction(user, "delete") },
           ]}
           moreLabel={`Mở thao tác cho ${user.fullName}`}
           onView={() => actions.onDetail(user)}

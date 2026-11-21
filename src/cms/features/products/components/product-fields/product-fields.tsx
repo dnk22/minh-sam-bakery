@@ -45,7 +45,7 @@ export function ProductFields({ form, categoryOptions, categoryDisabled, onSlugM
           <label htmlFor="product-featured"><input id="product-featured" type="checkbox" {...form.register("isFeatured")} /> Sản phẩm nổi bật</label>
           <label htmlFor="product-best-seller"><input id="product-best-seller" type="checkbox" {...form.register("isBestSeller")} /> Sản phẩm bán chạy</label>
         </div>
-        <p className={styles.hint}>Giá được gửi dưới dạng decimal string. Backend quyết định các giới hạn nghiệp vụ và quan hệ giữa giá bán/khuyến mại.</p>
+        <p className={styles.hint}>Nhập giá bán và giá khuyến mại hợp lệ cho sản phẩm.</p>
       </Section>
       <Section title="Hình ảnh">
         <ProductImageEditor form={form} disabled={collectionEditingDisabled} onPendingChange={onUploadPendingChange} />

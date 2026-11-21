@@ -13,13 +13,13 @@ export function createPostColumns(actions: { onDetail: (post: Post) => void; onE
   return [
     { id: "post", header: "Bài viết", size: 310, cell: ({ row }) => { const post = row.original; return <div className={styles.post}>{post.thumbnailUrl ? <Image src={cmsAssetUrl(post.thumbnailUrl)} alt="" width={48} height={48} unoptimized /> : <span className={styles.placeholder}><ImageIcon aria-hidden="true" /></span>}<div><strong title={post.title}>{post.title}</strong><span title={post.slug}>{post.slug}</span></div></div>; } },
     { id: "status", header: "Trạng thái", size: 125, cell: ({ row }) => { const status = getPostStatusPresentation(row.original.status); return <CmsBadge variant={status.variant}>{status.label}</CmsBadge>; } },
-    { id: "landing", header: "Landing", size: 100, cell: ({ row }) => <CmsBadge variant={row.original.showOnLanding ? "warning" : "secondary"}>{row.original.showOnLanding ? "Đã chọn" : "Không"}</CmsBadge> },
+    { id: "landing", header: "Trang chủ", size: 100, cell: ({ row }) => <CmsBadge variant={row.original.showOnLanding ? "warning" : "secondary"}>{row.original.showOnLanding ? "Có" : "Không"}</CmsBadge> },
     { id: "author", header: "Tác giả", size: 150, cell: ({ row }) => <span className={styles.truncate} title={row.original.author.fullName}>{row.original.author.fullName}</span> },
     { id: "updated", header: "Cập nhật", size: 110, cell: ({ row }) => <time dateTime={row.original.updatedAt}>{date(row.original.updatedAt)}</time> },
     { id: "actions", header: "Thao tác", size: 82, cell: ({ row }) => { const post = row.original; return <CmsRowActions onView={() => actions.onDetail(post)} viewLabel={`Xem chi tiết ${post.title}`} moreLabel={`Mở thao tác cho ${post.title}`} actions={[
       { key: "edit", label: "Chỉnh sửa", icon: <Pencil aria-hidden="true" size={15} />, onSelect: () => actions.onEdit(post) },
       ...(post.status === "DRAFT" ? [{ key: "publish", label: "Xuất bản", icon: <Send aria-hidden="true" size={15} />, onSelect: () => actions.onPublish(post) }] : []),
-      { key: "delete", label: "Xóa mềm", icon: <Trash2 aria-hidden="true" size={15} />, destructive: true, separatorBefore: true, onSelect: () => actions.onDelete(post) },
+      { key: "delete", label: "Xóa", icon: <Trash2 aria-hidden="true" size={15} />, destructive: true, separatorBefore: true, onSelect: () => actions.onDelete(post) },
     ]} />; } },
   ];
 }

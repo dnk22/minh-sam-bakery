@@ -50,7 +50,7 @@ export function OrderDetail({ order }: { order: Order }) {
       <h2>Thanh toán</h2>
       <dl className={styles.entries}>
         <DetailEntry label="Phương thức" value={getOrderPaymentLabel(order.paymentMethod)} />
-        <DetailEntry label="Tổng tiền Backend" value={<strong>{formatVnd(order.totalAmount)}</strong>} />
+        <DetailEntry label="Tổng tiền" value={<strong>{formatVnd(order.totalAmount)}</strong>} />
       </dl>
       {paymentImage ? <div className={styles.paymentProof}><span>Ảnh thanh toán</span><Image alt="Ảnh thanh toán của đơn hàng" height={180} src={paymentImage} unoptimized width={320} /></div>
         : order.paymentImageUrl ? <p className={styles.assetNotice}>Ảnh thanh toán dùng URL chưa được xác thực nên không được tải tự động.</p> : null}
@@ -67,13 +67,13 @@ export function OrderDetail({ order }: { order: Order }) {
             <b>{formatVnd(product.unitPrice)}</b>
           </li>;
         })}
-      </ul> : <p className={styles.empty}>Backend không trả về bản ghi sản phẩm.</p>}
-      <p className={styles.disclaimer}>Danh sách không suy diễn số lượng, biến thể hoặc thành tiền vì API chưa cung cấp các trường này.</p>
+      </ul> : <p className={styles.empty}>Chưa có thông tin sản phẩm trong đơn hàng.</p>}
+      <p className={styles.disclaimer}>Một số thông tin chi tiết của sản phẩm có thể chưa được hiển thị.</p>
     </section>
 
     <section className={styles.section}>
       <div className={styles.sectionHeading}><h2>Trạng thái</h2><CmsBadge variant={status.variant}>{status.label}</CmsBadge></div>
-      <p className={styles.help}>Backend quyết định trạng thái nào được phép chuyển. CMS không áp dụng ma trận chuyển trạng thái giả định.</p>
+      <p className={styles.help}>Chỉ những trạng thái hợp lệ mới có thể được cập nhật.</p>
     </section>
   </div>;
 }

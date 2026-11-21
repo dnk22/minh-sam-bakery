@@ -8,10 +8,10 @@
   background: var(--cms-card);
 }
 
-.search { width: clamp(18.75rem, 32vw, 22.5rem); max-width: 100%; }
+.search { min-width: min(18rem, 100%); max-width: 22.5rem; flex: 0 1 22.5rem; }
 .toolbar :global(.cms-button) { min-height: 2.5rem; }
 
 @media (max-width: 767px) {
   .toolbar { align-items: stretch; flex-direction: column; }
-  .search { width: 100%; }
+  .search { width: 100%; min-width: 0; max-width: none; flex: none; }
 }

@@ -23,7 +23,7 @@ export function PostFields({ form, post, onUploadPendingChange }: { form: UseFor
   return <div className={styles.layout}><div className={styles.primary}>
     <section className={styles.card}><header><h2>Nội dung chính</h2><p>Tiêu đề, tóm tắt và nội dung HTML của bài viết.</p></header>
       <CmsFormField htmlFor="post-title" label="Tiêu đề" required error={form.formState.errors.title?.message}><CmsInput id="post-title" {...form.register("title")} /></CmsFormField>
-      <CmsFormField htmlFor="post-slug" label="Slug" description="Để trống khi tạo để Backend tự sinh." error={form.formState.errors.slug?.message}><CmsInput id="post-slug" {...form.register("slug")} /></CmsFormField>
+      <CmsFormField htmlFor="post-slug" label="Slug" description="Để trống để tạo đường dẫn tự động." error={form.formState.errors.slug?.message}><CmsInput id="post-slug" {...form.register("slug")} /></CmsFormField>
       <CmsFormField htmlFor="post-excerpt" label="Tóm tắt" error={form.formState.errors.excerpt?.message}><CmsTextarea id="post-excerpt" rows={4} {...form.register("excerpt")} /></CmsFormField>
       <Controller control={form.control} name="content" render={({ field }) => {
         const parsed = parseArticleContent(field.value); const legacy = parsed.status === "legacy" ? inspectEditorCompatibility(field.value) : null;
@@ -32,7 +32,7 @@ export function PostFields({ form, post, onUploadPendingChange }: { form: UseFor
           if (parsed.status === "supported" && articleDocumentHasContent(parsed.document) && !window.confirm("Đổi layout sẽ tạo nội dung trống mới và bỏ các slot hiện tại. Tiếp tục?")) return;
           field.onChange(serializeArticleDocument(createArticleDocument(key)));
         };
-        return <><>{!post && parsed.status === "supported" ? <LayoutSelector value={parsed.document.key} onChange={chooseLayout} /> : null}</><CmsFormField label="Nội dung" required error={form.formState.errors.content?.message} description={parsed.status === "supported" ? "Layout được lưu dưới dạng HTML data-ms-* có phiên bản." : parsed.reason}>
+        return <><>{!post && parsed.status === "supported" ? <LayoutSelector value={parsed.document.key} onChange={chooseLayout} /> : null}</><CmsFormField label="Nội dung" required error={form.formState.errors.content?.message} description={parsed.status === "supported" ? "Soạn nội dung theo bố cục đã chọn." : parsed.reason}>
           {parsed.status === "supported" ? <LayoutContentForm document={parsed.document} onChange={(document) => field.onChange(serializeArticleDocument(document))} onPendingChange={(pending) => setPending("layout", pending)} /> : parsed.status === "legacy" && legacy?.compatible ? <BasicRichTextEditor value={field.value} onChange={field.onChange} /> : <div className={styles.warning} role="alert">{parsed.status === "legacy" ? legacy?.reason : parsed.reason}</div>}
         </CmsFormField></>;
       }} />
@@ -43,9 +43,9 @@ export function PostFields({ form, post, onUploadPendingChange }: { form: UseFor
     </section>
   </div><aside className={styles.aside}>
     <section className={styles.card}><header><h2>Hiển thị</h2></header><div className={styles.status}><span>Trạng thái</span><CmsBadge variant={status.variant}>{status.label}</CmsBadge></div>
-      <label className={styles.check}><input type="checkbox" {...form.register("showOnLanding")} /><span><strong>Chọn cho landing</strong><small>Không đồng nghĩa với đã xuất bản.</small></span></label>
+      <label className={styles.check}><input type="checkbox" {...form.register("showOnLanding")} /><span><strong>Hiển thị trên trang chủ</strong><small>Bài viết vẫn cần được xuất bản để người đọc có thể xem.</small></span></label>
       {post ? <dl><div><dt>Tác giả</dt><dd>{post.author.fullName}</dd></div><div><dt>Cập nhật</dt><dd>{new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date(post.updatedAt))}</dd></div></dl> : null}
     </section>
-    <section className={styles.card}><header><h2>Ảnh đại diện</h2><p>Ảnh được upload vào thư mục posts.</p></header><Controller control={form.control} name="thumbnailUrl" render={({ field }) => <ImageUpload folder="posts" value={field.value || null} onChange={(url) => field.onChange(url ?? "")} onPendingChange={(pending) => setPending("thumbnail", pending)} altText="Ảnh đại diện bài viết" pendingMessage="Ảnh chưa được tải lên. Hãy tải ảnh trước khi lưu bài viết." allowRemove={!post?.thumbnailUrl} />} />{post?.thumbnailUrl ? <p className={styles.note}>API chưa xác nhận cách xóa ảnh hiện có; Phase 7.1 chỉ cho phép thay thế để tránh gửi giá trị xóa sai contract.</p> : null}</section>
+    <section className={styles.card}><header><h2>Ảnh đại diện</h2><p>Ảnh đại diện của bài viết.</p></header><Controller control={form.control} name="thumbnailUrl" render={({ field }) => <ImageUpload folder="posts" value={field.value || null} onChange={(url) => field.onChange(url ?? "")} onPendingChange={(pending) => setPending("thumbnail", pending)} altText="Ảnh đại diện bài viết" pendingMessage="Ảnh chưa được tải lên. Hãy tải ảnh trước khi lưu bài viết." allowRemove={!post?.thumbnailUrl} />} />{post?.thumbnailUrl ? <p className={styles.note}>Bạn có thể thay ảnh đại diện hiện tại bằng một ảnh mới.</p> : null}</section>
   </aside></div>;
 }

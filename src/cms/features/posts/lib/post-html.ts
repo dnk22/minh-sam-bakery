@@ -17,7 +17,7 @@ export function isSafeLinkHref(value: string) {
 }
 
 export function inspectEditorCompatibility(html: string): { compatible: boolean; reason?: string } {
-  if (COMPLEX_MARKERS.test(html)) return { compatible: false, reason: "Bài viết chứa cấu trúc HTML chưa được editor hiện tại hỗ trợ; chỉnh sửa nội dung cần Phase 7.2 hoặc công cụ tương thích." };
+  if (COMPLEX_MARKERS.test(html)) return { compatible: false, reason: "Nội dung này dùng bố cục đặc biệt và chưa thể chỉnh sửa trực tiếp." };
   const tags = [...html.matchAll(/<\/?([a-z][\w-]*)\b/gi)].map((match) => match[1].toLowerCase());
   if (tags.some((tag) => !EDITOR_TAGS.has(tag))) return { compatible: false, reason: "Bài viết chứa thẻ HTML chưa được editor hiện tại hỗ trợ; nội dung được khóa để tránh mất dữ liệu." };
   if (/\son[a-z]+\s*=|(?:href|src)\s*=\s*["']\s*(?:javascript|data):/i.test(html)) return { compatible: false, reason: "Nội dung chứa thuộc tính hoặc URL không an toàn và không thể chỉnh sửa bằng editor cơ bản." };

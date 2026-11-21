@@ -21,6 +21,7 @@ export type ResponsiveModalProps = {
   footer?: ReactNode;
   closeLabel?: string;
   className?: string;
+  variant?: "default" | "confirm";
 };
 
 export function ResponsiveModal({
@@ -35,6 +36,7 @@ export function ResponsiveModal({
   footer,
   closeLabel = "Đóng",
   className,
+  variant = "default",
 }: ResponsiveModalProps) {
   const { direction, theme } = useCmsPreferences();
   const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
@@ -55,6 +57,7 @@ export function ResponsiveModal({
         <Dialog.Content
           className={cn("cms-portal", styles.content, className)}
           data-cms-theme={theme}
+          data-variant={variant}
           dir={direction}
           aria-describedby={description ? descriptionId : undefined}
         >

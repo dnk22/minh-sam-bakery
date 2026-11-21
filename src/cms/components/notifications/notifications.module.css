@@ -1,0 +1,4 @@
+.root:global([data-sonner-toaster]) {
+  z-index: 100;
+  font-family: var(--font-body), sans-serif;
+}

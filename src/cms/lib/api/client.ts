@@ -12,7 +12,7 @@ async function request<T>(
   options: CmsRequestOptions = {},
 ): Promise<T> {
   if (!path.startsWith("/") || path.startsWith("//")) {
-    throw new CmsApiError("INVALID_RESPONSE", "Đường dẫn CMS API không hợp lệ.");
+    throw new CmsApiError("INVALID_RESPONSE", "Không thể kết nối đến dịch vụ quản trị.");
   }
 
   const timeoutController = new AbortController();
@@ -35,7 +35,7 @@ async function request<T>(
     });
   } catch {
     if (options.signal?.aborted) throw new CmsApiError("NETWORK", "Yêu cầu đã bị hủy.");
-    if (timeoutController.signal.aborted) throw new CmsApiError("TIMEOUT", "Máy chủ phản hồi quá lâu. Vui lòng thử lại.");
+    if (timeoutController.signal.aborted) throw new CmsApiError("TIMEOUT", "Hệ thống phản hồi quá lâu. Vui lòng thử lại.");
     throw new CmsApiError("NETWORK", "Không thể kết nối tới hệ thống. Vui lòng thử lại.");
   } finally {
     clearTimeout(timeoutId);

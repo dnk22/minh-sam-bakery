@@ -33,16 +33,15 @@ export function UserActionDialog({ target, currentUserId, onClose, onCompleted }
   };
   const copy = getActionCopy(target?.action);
   return <ResponsiveModal
-    description={copy.description}
     footer={<><CmsButton type="button" variant="outline" disabled={mutation.isPending} onClick={onClose}>Hủy</CmsButton><CmsButton type="button" variant={target?.action === "delete" || target?.action === "lock" ? "destructive" : "default"} disabled={mutation.isPending || selfBlocked} onClick={confirm}>{mutation.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}{copy.confirm}</CmsButton></>}
     onBeforeClose={() => !mutation.isPending}
     onOpenChange={(open) => { if (!open && !mutation.isPending) onClose(); }}
     open={Boolean(target)}
     title={copy.title}
+    variant="confirm"
   >
     <div className={styles.body}>
-      <p>{copy.question} <strong>{target?.user.fullName}</strong> ({target?.user.email})?</p>
-      {target?.action === "delete" ? <p>Tài khoản sẽ bị xóa mềm. OpenAPI không cung cấp thao tác khôi phục.</p> : null}
+      <p>{copy.question} <strong>“{target?.user.fullName}”</strong> ({target?.user.email})?</p>
       {selfBlocked ? <p className={styles.alert} role="alert">Không thể tự khóa hoặc tự xóa tài khoản đang sử dụng từ giao diện CMS.</p> : null}
       {error ? <p className={styles.alert} role="alert">{error}</p> : null}
     </div>
@@ -50,7 +49,7 @@ export function UserActionDialog({ target, currentUserId, onClose, onCompleted }
 }
 
 function getActionCopy(action?: UserAction) {
-  if (action === "lock") return { title: "Khóa tài khoản", description: "Tài khoản sẽ không thể tiếp tục truy cập cho đến khi được mở khóa.", question: "Khóa tài khoản", confirm: "Xác nhận khóa" };
-  if (action === "unlock") return { title: "Mở khóa tài khoản", description: "Tài khoản sẽ được phép đăng nhập và truy cập trở lại theo quyền hiện có.", question: "Mở khóa tài khoản", confirm: "Xác nhận mở khóa" };
-  return { title: "Xóa mềm tài khoản", description: "Đây là thao tác xóa mềm theo Backend, không phải xóa vĩnh viễn.", question: "Xóa mềm tài khoản", confirm: "Xác nhận xóa mềm" };
+  if (action === "lock") return { title: "Khóa tài khoản", question: "Bạn có chắc muốn khóa tài khoản", confirm: "Khóa" };
+  if (action === "unlock") return { title: "Mở khóa tài khoản", question: "Bạn có chắc muốn mở khóa tài khoản", confirm: "Mở khóa" };
+  return { title: "Xóa tài khoản", question: "Bạn có chắc muốn xóa tài khoản", confirm: "Xóa" };
 }

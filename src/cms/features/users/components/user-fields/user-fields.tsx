@@ -26,7 +26,7 @@ export function UserFields({ form, mode }: { form: UseFormReturn<UserFormValues>
       <CmsInput autoComplete="name" id="user-full-name" required {...register("fullName")} />
     </CmsFormField>
     <CmsFormField
-      description={mode === "edit" ? "Để trống nếu không thay đổi mật khẩu." : "Chính sách độ mạnh do Backend xác thực."}
+      description={mode === "edit" ? "Để trống nếu không thay đổi mật khẩu." : "Sử dụng mật khẩu đủ mạnh và khó đoán."}
       error={errors.password?.message}
       htmlFor="user-password"
       label={mode === "create" ? "Mật khẩu" : "Mật khẩu mới"}

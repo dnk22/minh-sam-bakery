@@ -42,7 +42,7 @@ export function OrdersPage() {
 
   return <CmsMain className={styles.main}>
     <header className={styles.heading}>
-      <div><h1>Đơn hàng</h1><p>Rà soát thông tin và xử lý trạng thái đơn hàng từ Backend.</p></div>
+      <div><h1>Đơn hàng</h1><p>Rà soát thông tin và cập nhật trạng thái đơn hàng.</p></div>
       <CmsButton type="button" variant="outline" disabled={listQuery.isFetching} onClick={() => listQuery.refetch()}>
         <RefreshCw aria-hidden="true" size={17} /> {listQuery.isFetching ? "Đang tải…" : "Làm mới"}
       </CmsButton>

@@ -105,7 +105,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
   return (
     <ResponsiveModal
       className={styles.modal}
-      description={mode === "detail" ? "Thông tin và quyền hiện tại từ hệ thống." : "Thông tin và phân quyền được lưu theo đúng API Backend."}
+      description={mode === "detail" ? "Thông tin và quyền hiện tại của vai trò." : "Cập nhật thông tin và quyền truy cập của vai trò."}
       footer={state ? mode === "detail" && role ? <>
         <CmsButton type="button" variant="outline" onClick={() => onDelete(role)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
         <CmsButton type="button" onClick={() => onStateChange({ mode: "edit", id: role.id })}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton>
