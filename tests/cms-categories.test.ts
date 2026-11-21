@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getCategoryStatusPresentation } from "../src/cms/features/categories/constants.ts";
+import { clearCategoryAdvancedFilterQuery, countCategoryAdvancedFilters } from "../src/cms/features/categories/lib/category-data.ts";
 import { categoryErrorMessage } from "../src/cms/features/categories/lib/category-errors.ts";
 import { buildCategoryForest, descendantIds, evaluateTreeLoad, filterCategoryForest } from "../src/cms/features/categories/lib/category-tree.ts";
 import { categoryQueryKeys } from "../src/cms/features/categories/lib/category-query-keys.ts";
@@ -28,6 +29,13 @@ test("transforms create and patch values with explicit null clearing", () => {
   assert.equal(formToCreate(values).description, null);
   assert.deepEqual(formToPatch(values, original), { description: null, imageUrl: null });
   assert.equal(categoryPatchSchema.safeParse({}).success, false);
+});
+
+test("clears only the category status filter while preserving search and view", () => {
+  assert.equal(countCategoryAdvancedFilters("HIDDEN"), 1);
+  assert.equal(countCategoryAdvancedFilters(undefined), 0);
+  const query = new URLSearchParams("search=banh&status=HIDDEN&view=tree&page=2");
+  assert.equal(clearCategoryAdvancedFilterQuery(query).toString(), "search=banh&view=tree");
 });
 
 test("builds stable forests and reports duplicate, orphan and cycle integrity errors", () => {

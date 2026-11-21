@@ -80,3 +80,13 @@ export function parseProductListQuery(query: URLSearchParams): { ok: true; data:
     (search && search.length > 200) || (categoryId && categoryId.length > 200)) return { ok: false };
   return { ok: true, data: { page, limit, search, status, categoryId, isFeatured, isBestSeller } };
 }
+
+export function countProductAdvancedFilters(filters: Pick<ProductListParams, "status" | "categoryId" | "isFeatured" | "isBestSeller">) {
+  return Number(filters.status !== undefined) + Number(Boolean(filters.categoryId)) +
+    Number(filters.isFeatured !== undefined) + Number(filters.isBestSeller !== undefined);
+}
+
+export function clearProductAdvancedFilterQuery(query: URLSearchParams) {
+  ["status", "categoryId", "isFeatured", "isBestSeller", "page"].forEach((key) => query.delete(key));
+  return query;
+}

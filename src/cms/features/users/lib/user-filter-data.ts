@@ -8,3 +8,12 @@ export function parseUserPage(value: string | null) {
 export function parseUserStatus(value: string | null): UserStatus | undefined {
   return value === "ACTIVE" || value === "LOCKED" ? value : undefined;
 }
+
+export function countUserAdvancedFilters(status?: UserStatus, roleId?: string) {
+  return Number(status !== undefined) + Number(Boolean(roleId));
+}
+
+export function clearUserAdvancedFilterQuery(query: URLSearchParams) {
+  ["status", "roleId", "page"].forEach((key) => query.delete(key));
+  return query;
+}

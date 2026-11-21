@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { hasJsonContentType, isTrustedSameOriginRequest } from "../src/cms/features/auth/lib/csrf.ts";
-import { canUpdateOrderStatus, clearOrderFilterQuery, isOrder, isOrderList, parseOrderListQuery, serializeOrderListParams, validOrderId } from "../src/cms/features/orders/lib/order-data.ts";
+import { canUpdateOrderStatus, clearOrderAdvancedFilterQuery, clearOrderFilterQuery, countOrderAdvancedFilters, isOrder, isOrderList, parseOrderListQuery, serializeOrderListParams, validOrderId } from "../src/cms/features/orders/lib/order-data.ts";
 import { formatCalendarDate, formatVnd, isCalendarDate } from "../src/cms/features/orders/lib/order-format.ts";
 import { orderInvalidationKeys, orderQueryKeys } from "../src/cms/features/orders/lib/order-query-keys.ts";
 import { updateOrderStatusSchema } from "../src/cms/features/orders/schemas/order.schema.ts";
@@ -77,6 +77,12 @@ test("parses defaults and rejects malformed list filters", () => {
 test("clears every order filter and resets pagination", () => {
   const query = new URLSearchParams("search=090&status=CONFIRMED&status=COMPLETED&deliveryDate=2026-11-20&deliveryTime=morning&sortCreated=asc&page=4&unrelated=kept");
   assert.equal(clearOrderFilterQuery(query).toString(), "unrelated=kept");
+});
+
+test("counts order dimensions once and clears advanced filters without search", () => {
+  assert.equal(countOrderAdvancedFilters({ statuses: ["CONFIRMED", "COMPLETED", "REJECTED"], deliveryDate: "2026-11-20", deliveryTime: undefined, sortCreated: "asc" }), 3);
+  const query = new URLSearchParams("search=090&status=CONFIRMED&status=COMPLETED&deliveryDate=2026-11-20&deliveryTime=morning&sortCreated=asc&page=4");
+  assert.equal(clearOrderAdvancedFilterQuery(query).toString(), "search=090");
 });
 
 test("uses stable list/detail keys and declares both status invalidations", () => {

@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 import type { CategoryStatus } from "../types";
+import { clearCategoryAdvancedFilterQuery } from "../lib/category-data";
 
 export type CategoryView = "flat" | "tree";
 
@@ -25,6 +26,7 @@ export type CategoryFilters = {
   setView: (value: CategoryView) => void;
   setPage: (value: number) => void;
   clearFilters: () => void;
+  clearAdvancedFilters: () => void;
 };
 
 function normalizePage(value: string | null) {
@@ -45,6 +47,10 @@ export function useCategoryFilters(): CategoryFilters {
   const status = normalizeStatus(searchParams.get("status"));
   const view = searchParams.get("view") === "tree" ? "tree" : "flat";
   const page = normalizePage(searchParams.get("page"));
+  const replace = useCallback((query: URLSearchParams) => {
+    const next = query.toString();
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [pathname, router]);
 
   const updateUrl = useCallback(
     (values: FilterUpdate, resetPage = false) => {
@@ -57,10 +63,9 @@ export function useCategoryFilters(): CategoryFilters {
         }
       });
       if (resetPage) query.delete("page");
-      const next = query.toString();
-      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+      replace(query);
     },
-    [pathname, router, serializedParams],
+    [replace, serializedParams],
   );
 
   return {
@@ -89,6 +94,10 @@ export function useCategoryFilters(): CategoryFilters {
     clearFilters: useCallback(
       () => updateUrl({ search: null, status: null }, true),
       [updateUrl],
+    ),
+    clearAdvancedFilters: useCallback(
+      () => replace(clearCategoryAdvancedFilterQuery(new URLSearchParams(serializedParams))),
+      [replace, serializedParams],
     ),
   };
 }

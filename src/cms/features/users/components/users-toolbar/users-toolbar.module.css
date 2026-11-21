@@ -1,9 +1,13 @@
 .toolbar { display: grid; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
-.filters { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
+.controls { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
 .search { width: clamp(18rem, 28vw, 22rem); max-width: 100%; }
 .select { width: 11rem; }
 .roleSelect { width: clamp(13rem, 22vw, 18rem); }
 .toolbar :global(.cms-button) { min-height: 2.5rem; }
 .error { margin: 0; color: var(--cms-destructive); font-size: 0.8125rem; }
 .error button { border: 0; padding: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; }
-@media (max-width: 767px) { .filters { align-items: stretch; flex-direction: column; } .search, .select, .roleSelect { width: 100%; } }
+@media (max-width: 767px) {
+  .controls { align-items: center; flex-wrap: nowrap; }
+  .search { width: auto; min-width: 0; flex: 1 1 auto; }
+  .clearAll { display: none; }
+}

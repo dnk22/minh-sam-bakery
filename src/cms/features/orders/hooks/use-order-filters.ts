@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 import { isCalendarDate } from "../lib/order-format";
-import { clearOrderFilterQuery, parseOrderPage, parseOrderStatuses } from "../lib/order-data";
+import { clearOrderAdvancedFilterQuery, clearOrderFilterQuery, parseOrderPage, parseOrderStatuses } from "../lib/order-data";
 import type { OrderStatus } from "../types";
 
 export type OrderFilters = {
@@ -22,6 +22,7 @@ export type OrderFilters = {
   setSortCreated: (value: "asc" | "desc") => void;
   setPage: (value: number) => void;
   clearFilters: () => void;
+  clearAdvancedFilters: () => void;
 };
 
 export function useOrderFilters(): OrderFilters {
@@ -62,6 +63,7 @@ export function useOrderFilters(): OrderFilters {
     setDeliveryTime: useCallback((value: string) => commit((query) => value ? query.set("deliveryTime", value) : query.delete("deliveryTime"), true), [commit]),
     setSortCreated: useCallback((value: "asc" | "desc") => commit((query) => value === "asc" ? query.set("sortCreated", value) : query.delete("sortCreated"), true), [commit]),
     setPage: useCallback((value: number) => commit((query) => value > 1 ? query.set("page", String(value)) : query.delete("page")), [commit]),
+    clearAdvancedFilters: useCallback(() => commit(clearOrderAdvancedFilterQuery), [commit]),
     clearFilters: useCallback(() => commit(clearOrderFilterQuery), [commit]),
   };
 }

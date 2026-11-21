@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { isProduct, isProductList, parseOptionalBoolean, parseProductListQuery, parseProductPage, parseProductStatus } from "../src/cms/features/products/lib/product-data.ts";
+import { clearProductAdvancedFilterQuery, countProductAdvancedFilters, isProduct, isProductList, parseOptionalBoolean, parseProductListQuery, parseProductPage, parseProductStatus } from "../src/cms/features/products/lib/product-data.ts";
 import { formatVnd, sortProductImages, sortProductVariants } from "../src/cms/features/products/lib/product-format.ts";
 import { productQueryKeys } from "../src/cms/features/products/lib/product-query-keys.ts";
 import type { Product } from "../src/cms/features/products/types.ts";
@@ -42,6 +42,12 @@ test("parses statuses, pages and optional booleans explicitly", () => {
   assert.equal(parseOptionalBoolean("true"), true);
   assert.equal(parseOptionalBoolean("false"), false);
   assert.equal(parseOptionalBoolean("all"), undefined);
+});
+
+test("counts product filter dimensions and clears advanced filters without search", () => {
+  assert.equal(countProductAdvancedFilters({ status: "DRAFT", categoryId: undefined, isFeatured: false, isBestSeller: undefined }), 2);
+  const query = new URLSearchParams("search=kem&status=DRAFT&categoryId=cat-1&isFeatured=false&isBestSeller=true&page=4&view=kept");
+  assert.equal(clearProductAdvancedFilterQuery(query).toString(), "search=kem&view=kept");
 });
 
 test("normalizes safe product list query and rejects malformed values", () => {

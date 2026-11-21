@@ -1,4 +1,4 @@
-import type { Category, CategoryList } from "../types";
+import type { Category, CategoryList, CategoryStatus } from "../types";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -34,4 +34,13 @@ export function backendFieldErrors(data: unknown) {
     if (isRecord(item) && typeof item.field === "string" && typeof item.message === "string") fields[item.field] = item.message;
   }
   return Object.keys(fields).length ? fields : undefined;
+}
+
+export function countCategoryAdvancedFilters(status?: CategoryStatus) {
+  return Number(status !== undefined);
+}
+
+export function clearCategoryAdvancedFilterQuery(query: URLSearchParams) {
+  ["status", "page"].forEach((key) => query.delete(key));
+  return query;
 }

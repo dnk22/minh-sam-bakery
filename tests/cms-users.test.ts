@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getUserStatusPresentation, statusAction } from "../src/cms/features/users/constants.ts";
-import { parseUserPage, parseUserStatus } from "../src/cms/features/users/lib/user-filter-data.ts";
+import { clearUserAdvancedFilterQuery, countUserAdvancedFilters, parseUserPage, parseUserStatus } from "../src/cms/features/users/lib/user-filter-data.ts";
 import { isCmsUser, isDeletedUser, isUserList } from "../src/cms/features/users/lib/user-data.ts";
 import { userQueryKeys } from "../src/cms/features/users/lib/user-query-keys.ts";
 import { assignUserRoleSchema, createUserSchema, formToCreate, formToPatch, updateUserSchema, userToForm } from "../src/cms/features/users/schemas/user.schema.ts";
@@ -33,6 +33,13 @@ test("normalizes safe URL query values", () => {
   assert.equal(parseUserStatus("ACTIVE"), "ACTIVE");
   assert.equal(parseUserStatus("LOCKED"), "LOCKED");
   assert.equal(parseUserStatus("DELETED"), undefined);
+});
+
+test("counts and clears user advanced filters without clearing search", () => {
+  assert.equal(countUserAdvancedFilters("LOCKED", "role-1"), 2);
+  assert.equal(countUserAdvancedFilters(undefined, undefined), 0);
+  const query = new URLSearchParams("search=an&status=LOCKED&roleId=role-1&page=3&extra=kept");
+  assert.equal(clearUserAdvancedFilterQuery(query).toString(), "search=an&extra=kept");
 });
 
 test("creates the exact documented user payload", () => {

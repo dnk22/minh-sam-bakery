@@ -99,6 +99,17 @@ export function validOrderId(id: string) {
 }
 
 export function clearOrderFilterQuery(query: URLSearchParams) {
-  ["search", "status", "deliveryDate", "deliveryTime", "sortCreated", "page"].forEach((key) => query.delete(key));
+  clearOrderAdvancedFilterQuery(query);
+  query.delete("search");
   return query;
+}
+
+export function clearOrderAdvancedFilterQuery(query: URLSearchParams) {
+  ["status", "deliveryDate", "deliveryTime", "sortCreated", "page"].forEach((key) => query.delete(key));
+  return query;
+}
+
+export function countOrderAdvancedFilters(filters: Pick<OrderListParams, "statuses" | "deliveryDate" | "deliveryTime" | "sortCreated">) {
+  return Number(filters.statuses.length > 0) + Number(Boolean(filters.deliveryDate)) +
+    Number(Boolean(filters.deliveryTime)) + Number(filters.sortCreated !== "desc");
 }

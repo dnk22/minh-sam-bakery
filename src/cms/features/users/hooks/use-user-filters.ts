@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 import type { UserStatus } from "../types";
-import { parseUserPage, parseUserStatus } from "../lib/user-filter-data";
+import { clearUserAdvancedFilterQuery, parseUserPage, parseUserStatus } from "../lib/user-filter-data";
 
 export type UserFilters = {
   search: string;
@@ -17,6 +17,7 @@ export type UserFilters = {
   setRoleId: (value?: string) => void;
   setPage: (value: number) => void;
   clearFilters: () => void;
+  clearAdvancedFilters: () => void;
 };
 
 export function useUserFilters(): UserFilters {
@@ -28,6 +29,10 @@ export function useUserFilters(): UserFilters {
   const status = parseUserStatus(searchParams.get("status"));
   const roleId = searchParams.get("roleId")?.trim() || undefined;
   const page = parseUserPage(searchParams.get("page"));
+  const replace = useCallback((query: URLSearchParams) => {
+    const next = query.toString();
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [pathname, router]);
 
   const updateUrl = useCallback((values: Partial<{ search: string | null; status: UserStatus | null; roleId: string | null; page: number | null }>, resetPage = false) => {
     const query = new URLSearchParams(serializedParams);
@@ -36,9 +41,8 @@ export function useUserFilters(): UserFilters {
       else if (value !== undefined) query.set(key, String(value));
     });
     if (resetPage) query.delete("page");
-    const next = query.toString();
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [pathname, router, serializedParams]);
+    replace(query);
+  }, [replace, serializedParams]);
 
   return {
     search, status, roleId, page,
@@ -47,6 +51,7 @@ export function useUserFilters(): UserFilters {
     setStatus: useCallback((value?: UserStatus) => updateUrl({ status: value ?? null }, true), [updateUrl]),
     setRoleId: useCallback((value?: string) => updateUrl({ roleId: value ?? null }, true), [updateUrl]),
     setPage: useCallback((value: number) => updateUrl({ page: value }), [updateUrl]),
+    clearAdvancedFilters: useCallback(() => replace(clearUserAdvancedFilterQuery(new URLSearchParams(serializedParams))), [replace, serializedParams]),
     clearFilters: useCallback(() => updateUrl({ search: null, status: null, roleId: null }, true), [updateUrl]),
   };
 }
