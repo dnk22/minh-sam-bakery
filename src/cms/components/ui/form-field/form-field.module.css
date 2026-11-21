@@ -26,3 +26,15 @@
 .description {
   color: var(--cms-muted-foreground);
 }
+
+.field[data-composite][data-invalid] {
+  padding: 0.75rem;
+  border: 1px solid var(--cms-destructive);
+  border-radius: var(--cms-radius);
+  background: color-mix(in oklab, var(--cms-destructive) 5%, transparent);
+}
+
+.field[data-composite][data-invalid]:focus-visible {
+  outline: 2px solid var(--cms-destructive);
+  outline-offset: 2px;
+}

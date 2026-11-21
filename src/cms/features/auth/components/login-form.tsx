@@ -11,7 +11,7 @@ export function CmsLoginForm({ redirectTo }: { redirectTo: string }) {
   const { email, errors, isSubmitting, password, submit } = useLogin(redirectTo);
 
   return (
-    <form className="cms-login-form" noValidate onSubmit={submit}>
+    <form className="cms-login-form" id="cms-login-form" noValidate onSubmit={submit}>
       <div className="cms-form-field">
         <label htmlFor="cms-email">Email</label>
         <input

@@ -39,7 +39,7 @@ export function ProductFields({ form, categoryOptions, categoryDisabled, onSlugM
         <div className={styles.grid}>
           <CmsFormField htmlFor="product-price" label="Giá" required error={errors.price?.message}><CmsInput id="product-price" inputMode="decimal" placeholder="250000" {...form.register("price")} /></CmsFormField>
           <CmsFormField htmlFor="product-sale-price" label="Giá khuyến mại" error={errors.salePrice?.message}><CmsInput id="product-sale-price" inputMode="decimal" placeholder="Để trống nếu không có" {...form.register("salePrice")} /></CmsFormField>
-          <CmsFormField htmlFor="product-status" label="Trạng thái"><CmsSelect id="product-status" options={[{ value: "DRAFT", label: "Bản nháp" }, { value: "PUBLISHED", label: "Đã xuất bản" }, { value: "HIDDEN", label: "Đã ẩn" }]} {...form.register("status")} /></CmsFormField>
+          <CmsFormField htmlFor="product-status" label="Trạng thái" error={errors.status?.message}><CmsSelect id="product-status" options={[{ value: "DRAFT", label: "Bản nháp" }, { value: "PUBLISHED", label: "Đã xuất bản" }, { value: "HIDDEN", label: "Đã ẩn" }]} {...form.register("status")} /></CmsFormField>
         </div>
         <div className={styles.checks} role="group" aria-label="Nhãn sản phẩm">
           <label htmlFor="product-featured"><input id="product-featured" type="checkbox" {...form.register("isFeatured")} /> Sản phẩm nổi bật</label>
@@ -48,8 +48,9 @@ export function ProductFields({ form, categoryOptions, categoryDisabled, onSlugM
         <p className={styles.hint}>Nhập giá bán và giá khuyến mại hợp lệ cho sản phẩm.</p>
       </Section>
       <Section title="Hình ảnh">
-        <ProductImageEditor form={form} disabled={collectionEditingDisabled} onPendingChange={onUploadPendingChange} />
-        {errors.images?.message ? <p className={styles.error} role="alert">{errors.images.message}</p> : null}
+        <CmsFormField fieldName="images" label="Bộ ảnh sản phẩm" error={errors.images?.message}>
+          <ProductImageEditor form={form} disabled={collectionEditingDisabled} onPendingChange={onUploadPendingChange} />
+        </CmsFormField>
       </Section>
       <Section title="Biến thể"><ProductVariantsEditor form={form} disabled={collectionEditingDisabled} /></Section>
       <Section title="SEO">

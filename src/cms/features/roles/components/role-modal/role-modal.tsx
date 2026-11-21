@@ -12,6 +12,8 @@ import { CmsInput } from "@/cms/components/ui/input/input";
 import { CmsTextarea } from "@/cms/components/ui/textarea/textarea";
 import { CmsApiError } from "@/cms/lib/api/errors";
 import { useUnsavedChangesWarning } from "@/cms/hooks/use-unsaved-changes-warning";
+import { focusCmsFormIssue, useFormValidationFeedback } from "@/cms/hooks/use-form-validation-feedback";
+import { notify } from "@/cms/lib/notifications";
 
 import { useRoleForm } from "../../hooks/use-role-form";
 import { useRoleMutations } from "../../hooks/use-role-mutations";
@@ -36,6 +38,8 @@ export function RoleModal({ state, onStateChange, onDelete }: {
   const catalog = usePermissionCatalog(Boolean(state) && mode !== "detail");
   const mutations = useRoleMutations();
   const form = useRoleForm({ state, role: detail.data });
+  const roleFormId = mode === "edit" ? "role-panel-info" : "role-form";
+  const onInvalid = useFormValidationFeedback<RoleFormValues>({ formId: roleFormId });
   const sessionKey = state ? `${mode}:${roleId ?? "new"}` : "closed";
   const remotePermissionIds = mode === "create" ? [] : assigned.data?.permissions.map((item) => item.id);
   const [permissionState, setPermissionState] = useState(() => newPermissionEditorSession("closed"));
@@ -64,10 +68,12 @@ export function RoleModal({ state, onStateChange, onDelete }: {
   const confirmDiscard = () => !isEditing || (!form.formState.isDirty && !permissionsDirty) || window.confirm("Bỏ các thay đổi chưa lưu?");
   const setFormError = (error: unknown, fallback: string) => {
     if (error instanceof CmsApiError) {
-      Object.entries(error.fields ?? {}).forEach(([field, message]) => {
-        if (field in form.getValues()) form.setError(field as keyof RoleFormValues, { message });
+      const fields = Object.entries(error.fields ?? {}).filter(([field]) => field in form.getValues());
+      fields.forEach(([field, message], index) => {
+        form.setError(field as keyof RoleFormValues, { message }, { shouldFocus: index === 0 });
       });
       form.setError("root.server", { message: error.message });
+      if (fields[0]) focusCmsFormIssue(roleFormId, fields[0][0]);
     } else form.setError("root.server", { message: fallback });
   };
 
@@ -76,17 +82,20 @@ export function RoleModal({ state, onStateChange, onDelete }: {
       const saved = await mutations.create.mutateAsync(formToCreate(values, selectedIds));
       onStateChange({ mode: "detail", id: saved.id });
     } catch (error) { setFormError(error, "Không thể tạo vai trò lúc này."); }
-  });
+  }, onInvalid);
 
   const submitInfo = form.handleSubmit(async (values) => {
     if (!detail.data) return;
     const patch = formToPatch(values, detail.data);
-    if (!Object.keys(patch).length) return;
+    if (!Object.keys(patch).length) {
+      notify.info("Không có thay đổi để lưu.", "role-no-changes");
+      return;
+    }
     try {
       await mutations.update.mutateAsync({ id: detail.data.id, input: patch });
       form.reset(values);
     } catch (error) { setFormError(error, "Không thể cập nhật thông tin vai trò."); }
-  });
+  }, onInvalid);
 
   const submitPermissions = async () => {
     if (!roleId || !assigned.isSuccess || !catalog.isSuccess || !permissionsDirty || reconciledPermissionState.conflict || mutations.permissions.isPending) return;
@@ -118,7 +127,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
       {!state ? null : (mode === "edit" || mode === "detail") && detail.isLoading ? <p className={styles.state}>Đang tải chi tiết vai trò…</p>
         : detail.error ? <ErrorState message={detail.error instanceof Error ? detail.error.message : "Không thể tải vai trò."} onRetry={() => detail.refetch()} />
         : mode === "detail" && role ? <RoleDetail role={role} />
-        : mode === "create" ? <form className={styles.form} noValidate onSubmit={submitCreate}>
+        : mode === "create" ? <form className={styles.form} id="role-form" noValidate onChange={() => form.clearErrors("root.server")} onSubmit={submitCreate}>
           <RoleFields form={form} />
           <section className={styles.section}><div className={styles.sectionHeading}><h2>Phân quyền ban đầu</h2><p>Có thể bỏ qua và gán quyền sau.</p></div>
             <RolePermissionsEditor catalog={catalog.data} selectedIds={selectedIds} onChange={setSelectedIds} loading={catalog.isLoading} error={catalog.error instanceof Error ? catalog.error.message : undefined} onRetry={() => catalog.refetch()} />
@@ -131,7 +140,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
             <button aria-controls="role-panel-info" aria-selected={activeSection === "info"} id="role-tab-info" onClick={() => selectSection("info")} onKeyDown={handleTabKey} role="tab" tabIndex={activeSection === "info" ? 0 : -1} type="button">Thông tin</button>
             <button aria-controls="role-panel-permissions" aria-selected={activeSection === "permissions"} id="role-tab-permissions" onClick={() => selectSection("permissions")} onKeyDown={handleTabKey} role="tab" tabIndex={activeSection === "permissions" ? 0 : -1} type="button">Phân quyền</button>
           </div>
-          {activeSection === "info" ? <form aria-labelledby="role-tab-info" className={styles.form} id="role-panel-info" noValidate onSubmit={submitInfo} role="tabpanel">
+          {activeSection === "info" ? <form aria-labelledby="role-tab-info" className={styles.form} id="role-panel-info" noValidate onChange={() => form.clearErrors("root.server")} onSubmit={submitInfo} role="tabpanel">
             <RoleFields form={form} />
             {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
             <CmsButton type="submit" disabled={!form.formState.isDirty || mutations.update.isPending}>{mutations.update.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu thông tin</CmsButton>

@@ -5,9 +5,10 @@ import { toast } from "sonner";
 export type NotificationDriver = {
   success: (message: string, options: { id: string }) => unknown;
   error: (message: string, options: { id: string }) => unknown;
+  info: (message: string, options: { id: string }) => unknown;
 };
 
-function notificationId(type: "success" | "error", message: string, key?: string) {
+function notificationId(type: "success" | "error" | "info", message: string, key?: string) {
   return `cms:${key ?? `${type}:${message}`}`;
 }
 
@@ -18,6 +19,9 @@ export function createNotifier(driver: NotificationDriver) {
     },
     error(message: string, key?: string) {
       return driver.error(message, { id: notificationId("error", message, key) });
+    },
+    info(message: string, key?: string) {
+      return driver.info(message, { id: notificationId("info", message, key) });
     },
   };
 }

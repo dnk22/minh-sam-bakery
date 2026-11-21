@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
+import { useFormValidationFeedback } from "@/cms/hooks/use-form-validation-feedback";
 import { authApi, AuthClientError } from "@/cms/features/auth/api/auth.client";
 import { migrateAndReadRememberedEmail, rememberEmail } from "@/cms/features/auth/lib/remembered-email";
 import {
@@ -23,6 +24,7 @@ export function useLogin(redirectTo: string) {
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
+  const onInvalid = useFormValidationFeedback<LoginFormValues>({ formId: "cms-login-form" });
 
   useEffect(() => {
     const rememberedEmail = migrateAndReadRememberedEmail(window.localStorage);
@@ -43,8 +45,8 @@ export function useLogin(redirectTo: string) {
       router.refresh();
     } catch (error) {
       if (error instanceof AuthClientError) {
-        if (error.fields?.email) form.setError("email", { type: "server", message: error.fields.email });
-        if (error.fields?.password) form.setError("password", { type: "server", message: error.fields.password });
+        if (error.fields?.email) form.setError("email", { type: "server", message: error.fields.email }, { shouldFocus: true });
+        if (error.fields?.password) form.setError("password", { type: "server", message: error.fields.password }, { shouldFocus: !error.fields.email });
         form.setError("root.server", { type: error.code, message: error.message });
       } else {
         form.setError("root.server", {
@@ -60,7 +62,7 @@ export function useLogin(redirectTo: string) {
       event.preventDefault();
       return;
     }
-    void form.handleSubmit(onValid)(event);
+    void form.handleSubmit(onValid, onInvalid)(event);
   };
 
   const clearServerError = () => form.clearErrors("root.server");

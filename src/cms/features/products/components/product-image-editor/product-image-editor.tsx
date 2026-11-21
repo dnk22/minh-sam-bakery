@@ -60,7 +60,7 @@ export function ProductImageEditor({ form, disabled = false, onPendingChange }: 
   };
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-upload-pending={pending.length ? true : undefined} tabIndex={pending.length ? -1 : undefined}>
       {disabled ? <p className={styles.notice}>Chưa thể chỉnh sửa bộ ảnh hiện có. Các ảnh hiện tại vẫn được giữ nguyên.</p> : <>
         <input ref={input} id="product-image-files" className={styles.hidden} type="file" accept="image/*" multiple onChange={(event) => { select(Array.from(event.target.files ?? [])); event.currentTarget.value = ""; }} />
         <div className={styles.upload}>
@@ -72,10 +72,11 @@ export function ProductImageEditor({ form, disabled = false, onPendingChange }: 
       {images.length ? <div className={styles.gallery}>{images.map((image, index) => {
         const coverId = `product-image-cover-${index}`;
         const altId = `product-image-alt-${index}`;
+        const fieldErrors = form.formState.errors.images?.[index];
         return <article key={`${image.url}:${index}`} className={styles.card}>
           <Image src={cmsAssetUrl(image.url)} alt={image.alt || "Ảnh sản phẩm"} width={240} height={180} unoptimized />
           <div><input id={coverId} type="radio" name="product-cover" checked={image.isCover} disabled={disabled} onChange={() => form.setValue("images", images.map((item, itemIndex) => ({ ...item, isCover: itemIndex === index })), { shouldDirty: true, shouldValidate: true })} /> <label htmlFor={coverId}>Ảnh bìa</label></div>
-          <CmsFormField htmlFor={altId} label={`Mô tả ảnh ${index + 1}`}><CmsInput id={altId} value={image.alt ?? ""} disabled={disabled} onChange={(event) => update(index, { alt: event.target.value })} /></CmsFormField>
+          <CmsFormField htmlFor={altId} label={`Mô tả ảnh ${index + 1}`} error={fieldErrors?.alt?.message}><CmsInput id={altId} name={`images.${index}.alt`} value={image.alt ?? ""} disabled={disabled} onChange={(event) => update(index, { alt: event.target.value })} /></CmsFormField>
           <div className={styles.actions}>
             <CmsButton type="button" size="sm" variant="ghost" disabled={disabled || index === 0} aria-label={`Đưa ảnh ${index + 1} lên`} onClick={() => move(index, -1)}><ArrowUp aria-hidden="true" /></CmsButton>
             <CmsButton type="button" size="sm" variant="ghost" disabled={disabled || index === images.length - 1} aria-label={`Đưa ảnh ${index + 1} xuống`} onClick={() => move(index, 1)}><ArrowDown aria-hidden="true" /></CmsButton>

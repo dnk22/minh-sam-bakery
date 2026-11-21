@@ -2,12 +2,12 @@ import { z } from "zod";
 import { isMeaningfulPostHtml } from "../lib/post-html.ts";
 import type { Post, PostCreateInput, PostFormValues, PostPatchInput } from "../types";
 
-const optionalText = z.string().trim().max(10_000);
+const optionalText = z.string().trim().max(10_000, "Nội dung không được vượt quá 10.000 ký tự.");
 const postBase = z.object({
-  title: z.string().trim().min(1, "Tiêu đề không được để trống.").max(500),
-  slug: z.string().trim().max(500).optional(),
-  thumbnailUrl: z.string().trim().max(2_000).optional(),
-  content: z.string().max(1_000_000).refine(isMeaningfulPostHtml, "Nội dung bài viết không được để trống."),
+  title: z.string().trim().min(1, "Tiêu đề không được để trống.").max(500, "Tiêu đề không được vượt quá 500 ký tự."),
+  slug: z.string().trim().max(500, "Slug không được vượt quá 500 ký tự.").optional(),
+  thumbnailUrl: z.string().trim().max(2_000, "Đường dẫn ảnh không được vượt quá 2.000 ký tự.").optional(),
+  content: z.string().max(1_000_000, "Nội dung bài viết vượt quá dung lượng cho phép.").refine(isMeaningfulPostHtml, "Nội dung bài viết không được để trống."),
   excerpt: optionalText.optional(),
   status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
   showOnLanding: z.boolean().optional(),
@@ -18,9 +18,9 @@ const postBase = z.object({
 export const postCreateSchema = postBase;
 export const postPatchSchema = postBase.partial().refine((value) => Object.keys(value).length > 0, "Không có thay đổi để lưu.");
 export const postFormSchema = z.object({
-  title: z.string().trim().min(1, "Tiêu đề không được để trống.").max(500),
-  slug: z.string().trim().max(500), thumbnailUrl: z.string().trim().max(2_000), excerpt: optionalText,
-  content: z.string().max(1_000_000).refine(isMeaningfulPostHtml, "Nội dung bài viết không được để trống."),
+  title: z.string().trim().min(1, "Tiêu đề không được để trống.").max(500, "Tiêu đề không được vượt quá 500 ký tự."),
+  slug: z.string().trim().max(500, "Slug không được vượt quá 500 ký tự."), thumbnailUrl: z.string().trim().max(2_000, "Đường dẫn ảnh không được vượt quá 2.000 ký tự."), excerpt: optionalText,
+  content: z.string().max(1_000_000, "Nội dung bài viết vượt quá dung lượng cho phép.").refine(isMeaningfulPostHtml, "Nội dung bài viết không được để trống."),
   showOnLanding: z.boolean(), seoTitle: optionalText, seoDescription: optionalText,
 });
 

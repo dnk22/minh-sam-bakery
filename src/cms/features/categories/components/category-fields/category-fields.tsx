@@ -99,7 +99,7 @@ export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManu
           {...register("description")}
         />
       </CmsFormField>
-      <CmsFormField label="Ảnh đại diện" error={errors.imageUrl?.message}>
+      <CmsFormField fieldName="imageUrl" label="Ảnh đại diện" error={errors.imageUrl?.message}>
         <ImageUpload folder="categories" value={watch("imageUrl")} onPendingChange={onUploadPending} onChange={(url) => setValue("imageUrl", url, { shouldDirty: true })} />
       </CmsFormField>
       <CmsFormField

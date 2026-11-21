@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { CmsButton } from "@/cms/components/ui/button";
+import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
 import { uploadCmsImage } from "@/cms/lib/api/uploads.client";
 import { cmsAssetUrl } from "@/cms/lib/api/asset-url";
 
@@ -20,6 +21,7 @@ export function ImageUpload({ value, onChange, onPendingChange, folder, disabled
   pendingMessage?: string;
   allowRemove?: boolean;
 }) {
+  const field = useCmsFormFieldControl({});
   const inputRef = useRef<HTMLInputElement>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -55,11 +57,11 @@ export function ImageUpload({ value, onChange, onPendingChange, folder, disabled
 
   const preview = localPreview ?? value;
   return (
-    <div className={styles.root}>
+    <div aria-describedby={field.describedBy} aria-invalid={field.invalid || undefined} className={styles.root} data-invalid={field.invalid || undefined} data-upload-pending={pendingFile ? true : undefined} tabIndex={pendingFile ? -1 : undefined}>
       <div className={styles.preview}>
         {preview ? <Image alt={altText} src={cmsAssetUrl(preview)} width={640} height={320} unoptimized onError={(event) => { event.currentTarget.hidden = true; }} /> : <ImageIcon aria-hidden="true" />}
       </div>
-      <input ref={inputRef} className={styles.hiddenInput} type="file" accept="image/*" disabled={disabled || uploading} onChange={(event) => { selectFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
+      <input ref={inputRef} aria-describedby={field.describedBy} aria-invalid={field.invalid || undefined} className={styles.hiddenInput} type="file" accept="image/*" disabled={disabled || uploading} onChange={(event) => { selectFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
       <div className={styles.actions}>
         <CmsButton type="button" variant="outline" size="sm" disabled={disabled || uploading} onClick={() => inputRef.current?.click()}>
           <Upload aria-hidden="true" size={15} /> Chọn ảnh

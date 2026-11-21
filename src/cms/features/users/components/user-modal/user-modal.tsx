@@ -11,6 +11,8 @@ import { CmsSelect } from "@/cms/components/ui/select/select";
 import { useRoleSelector } from "@/cms/features/roles/hooks/use-roles";
 import { CmsApiError } from "@/cms/lib/api/errors";
 import { useUnsavedChangesWarning } from "@/cms/hooks/use-unsaved-changes-warning";
+import { focusCmsFormIssue, useFormValidationFeedback } from "@/cms/hooks/use-form-validation-feedback";
+import { notify } from "@/cms/lib/notifications";
 
 import { getUserStatusPresentation, statusAction } from "../../constants";
 import { useUserForm } from "../../hooks/use-user-form";
@@ -31,6 +33,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   const detail = useUserDetail(state?.id);
   const user = detail.data;
   const form = useUserForm({ state, user });
+  const onInvalid = useFormValidationFeedback<UserFormValues>({ formId: "user-form" });
   const mutations = useUserMutations(currentUserId);
   const manageRole = mode === "detail" && state?.section === "role";
   const roles = useRoleSelector(Boolean(state) && (mode === "create" || manageRole));
@@ -47,10 +50,12 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   const close = () => onStateChange(null);
   const setFormError = (error: unknown, fallback: string) => {
     if (error instanceof CmsApiError) {
-      Object.entries(error.fields ?? {}).forEach(([field, message]) => {
-        if (field in form.getValues()) form.setError(field as keyof UserFormValues, { message });
+      const fields = Object.entries(error.fields ?? {}).filter(([field]) => field in form.getValues());
+      fields.forEach(([field, message], index) => {
+        form.setError(field as keyof UserFormValues, { message }, { shouldFocus: index === 0 });
       });
       form.setError("root.server", { message: error.message });
+      if (fields[0]) focusCmsFormIssue("user-form", fields[0][0]);
     } else form.setError("root.server", { message: fallback });
   };
   const submit = form.handleSubmit(async (values) => {
@@ -60,13 +65,16 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
         onStateChange({ mode: "detail", id: saved.id });
       } else if (mode === "edit" && user) {
         const patch = formToPatch(values, user);
-        if (!Object.keys(patch).length) return;
+        if (!Object.keys(patch).length) {
+          notify.info("Không có thay đổi để lưu.", "user-no-changes");
+          return;
+        }
         const saved = await mutations.update.mutateAsync({ id: user.id, input: patch });
         form.reset({ ...values, password: "" });
         onStateChange({ mode: "detail", id: saved.id });
       }
     } catch (error) { setFormError(error, "Không thể lưu tài khoản lúc này."); }
-  });
+  }, onInvalid);
   const submitRole = async () => {
     if (!user || !selectedRole || !roleDirty || mutations.assignRole.isPending) return;
     const selfWarning = user.id === currentUserId ? " Đây là tài khoản bạn đang sử dụng; quyền truy cập hiện tại có thể thay đổi ngay." : "";
@@ -116,7 +124,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
         <CmsButton type="button" disabled={!roleDirty || !selectedRole || roles.isLoading || Boolean(roles.error) || mutations.assignRole.isPending} onClick={submitRole}>{mutations.assignRole.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Xác nhận gán vai trò</CmsButton>
       </section>
       : mode === "detail" && user ? <UserDetail user={user} currentUserId={currentUserId} />
-      : isEditing ? <form className={styles.form} noValidate onSubmit={submit}>
+      : isEditing ? <form className={styles.form} id="user-form" noValidate onChange={() => form.clearErrors("root.server")} onSubmit={submit}>
         <UserFields form={form} mode={mode} />
         {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
         <CmsButton type="submit" disabled={pending || (mode === "edit" && !form.formState.isDirty) || (mode === "create" && (!roles.isSuccess || roles.data.length === 0))}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}{mode === "create" ? "Tạo tài khoản" : "Lưu thông tin"}</CmsButton>

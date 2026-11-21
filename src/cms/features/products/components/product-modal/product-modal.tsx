@@ -10,6 +10,8 @@ import { useCategoryTree } from "@/cms/features/categories/hooks/use-categories"
 import { flattenTreeOptions } from "@/cms/features/categories/lib/category-tree";
 import { CmsApiError } from "@/cms/lib/api/errors";
 import { useUnsavedChangesWarning } from "@/cms/hooks/use-unsaved-changes-warning";
+import { focusCmsFormIssue, useFormValidationFeedback } from "@/cms/hooks/use-form-validation-feedback";
+import { notify } from "@/cms/lib/notifications";
 
 import { useProductForm } from "../../hooks/use-product-form";
 import { useProductMutations } from "../../hooks/use-product-mutations";
@@ -33,6 +35,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   if (uploadState.session !== uploadSession) setUploadState({ session: uploadSession, pending: false });
   const uploadPending = uploadState.pending;
   const { form, markSlugManual } = useProductForm({ state, product });
+  const onInvalid = useFormValidationFeedback<ProductFormValues>({ formId: "product-form" });
   const isEditing = mode === "create" || mode === "edit";
   const pending = mutations.create.isPending || mutations.update.isPending;
   const selectedCategoryId = form.watch("categoryId");
@@ -54,27 +57,44 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   const confirmDiscard = () => !isEditing || (!form.formState.isDirty && !uploadPending) || window.confirm("Bỏ các thay đổi hoặc ảnh đang chờ upload?");
   const setBackendError = (error: unknown) => {
     if (error instanceof CmsApiError) {
-      Object.entries(error.fields ?? {}).forEach(([field, message]) => form.setError(field as Path<ProductFormValues>, { message }));
+      const fields = Object.entries(error.fields ?? {});
+      fields.forEach(([field, message], index) => form.setError(field as Path<ProductFormValues>, { message }, { shouldFocus: index === 0 }));
       form.setError("root.server", { message: error.message });
+      if (fields[0]) focusCmsFormIssue("product-form", fields[0][0]);
     } else form.setError("root.server", { message: "Không thể lưu sản phẩm lúc này." });
   };
   const submit = form.handleSubmit(async (values) => {
-    if (uploadPending) { form.setError("root.server", { message: "Hãy tải xong các ảnh đã chọn trước khi lưu." }); return; }
-    if (!categoryGuard.allowed) { form.setError("categoryId", { message: categoryGuard.reason ?? undefined }); return; }
+    if (uploadPending) {
+      const message = "Hãy tải xong các ảnh đã chọn trước khi lưu.";
+      form.setError("root.server", { message });
+      notify.error(message, "validation:product-form");
+      focusCmsFormIssue("product-form", "__upload__");
+      return;
+    }
+    if (!categoryGuard.allowed) {
+      form.setError("categoryId", { message: categoryGuard.reason ?? undefined });
+      notify.error("Vui lòng kiểm tra lại danh mục sản phẩm.", "validation:product-form");
+      focusCmsFormIssue("product-form", "categoryId");
+      return;
+    }
     try {
       let saved: Product | null = null;
       if (mode === "create") saved = await mutations.create.mutateAsync(formToCreate(values));
       else if (mode === "edit" && product) {
         const patch = formToPatch(values, product);
-        saved = Object.keys(patch).length ? await mutations.update.mutateAsync({ id: product.id, input: patch }) : product;
+        if (!Object.keys(patch).length) {
+          notify.info("Không có thay đổi để lưu.", "product-no-changes");
+          return;
+        }
+        saved = await mutations.update.mutateAsync({ id: product.id, input: patch });
       }
       if (saved) onStateChange({ mode: "detail", id: saved.id });
     } catch (error) { setBackendError(error); }
-  });
+  }, onInvalid);
   const title = mode === "create" ? "Thêm sản phẩm" : mode === "edit" ? "Chỉnh sửa sản phẩm" : "Chi tiết sản phẩm";
   const footer = !state ? null : isEditing ? <>
     <CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) close(); }}>Hủy</CmsButton>
-    <CmsButton type="submit" form="product-form" disabled={pending || uploadPending || !categoryGuard.allowed}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu sản phẩm</CmsButton>
+    <CmsButton type="submit" form="product-form" disabled={pending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu sản phẩm</CmsButton>
   </> : product ? <>
     <CmsButton type="button" variant="outline" onClick={() => onDelete(product)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
     <CmsButton type="button" onClick={() => onStateChange({ mode: "edit", id: product.id })}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton>
@@ -85,8 +105,8 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   else if ((mode === "edit" || mode === "detail") && detail.isLoading) content = <p className={styles.state}>Đang tải sản phẩm…</p>;
   else if (detail.error) content = <div className={styles.state} role="alert"><p>{detail.error instanceof Error ? detail.error.message : "Không thể tải sản phẩm."}</p><CmsButton type="button" variant="outline" onClick={() => detail.refetch()}>Thử lại</CmsButton></div>;
   else if (mode === "detail" && product) content = <ProductDetail product={product} />;
-  else if (isEditing) content = <form id="product-form" className={styles.form} noValidate onSubmit={submit}>
-    <ProductFields form={form} categoryOptions={categoryOptions} categoryDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} collectionEditingDisabled={mode === "edit"} onUploadPendingChange={(nextPending) => setUploadState({ session: uploadSession, pending: nextPending })} />
+  else if (isEditing) content = <form id="product-form" className={styles.form} noValidate onChange={() => form.clearErrors("root.server")} onSubmit={submit}>
+    <ProductFields form={form} categoryOptions={categoryOptions} categoryDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} collectionEditingDisabled={mode === "edit"} onUploadPendingChange={(nextPending) => { setUploadState({ session: uploadSession, pending: nextPending }); if (!nextPending) form.clearErrors("root.server"); }} />
     {categoryIssue ? <div className={styles.alert} role="alert"><p>{categoryIssue}</p><CmsButton type="button" variant="outline" size="sm" onClick={() => treeQuery.refetch()}>Tải lại danh mục</CmsButton></div> : null}
     {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
     {mode === "create" ? <p className={styles.orphan}>Ảnh đã tải lên có thể vẫn được lưu nếu bạn đóng biểu mẫu hoặc lưu thất bại.</p> : null}

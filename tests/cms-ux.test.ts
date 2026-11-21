@@ -3,22 +3,33 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { createNotifier, type NotificationDriver } from "../src/cms/lib/notifications.ts";
+import { findFirstFormErrorPath } from "../src/cms/lib/form-validation.ts";
 
 test("dispatches typed notifications and reuses explicit IDs to prevent duplicates", () => {
   const calls: Array<{ type: string; message: string; id: string }> = [];
   const driver: NotificationDriver = {
     success: (message, options) => calls.push({ type: "success", message, id: options.id }),
     error: (message, options) => calls.push({ type: "error", message, id: options.id }),
+    info: (message, options) => calls.push({ type: "info", message, id: options.id }),
   };
   const notifier = createNotifier(driver);
 
   notifier.success("Đã cập nhật tài khoản.", "user-save");
   notifier.error("Không thể cập nhật vai trò tài khoản.", "user-save");
+  notifier.info("Không có thay đổi để lưu.", "user-save");
 
   assert.deepEqual(calls, [
     { type: "success", message: "Đã cập nhật tài khoản.", id: "cms:user-save" },
     { type: "error", message: "Không thể cập nhật vai trò tài khoản.", id: "cms:user-save" },
+    { type: "info", message: "Không có thay đổi để lưu.", id: "cms:user-save" },
   ]);
+});
+
+test("finds the first focusable form error, including nested editor fields", () => {
+  assert.equal(findFirstFormErrorPath({ root: { server: { message: "Lỗi" } }, title: { type: "required", message: "Thiếu tiêu đề" } }), "title");
+  assert.equal(findFirstFormErrorPath({ variants: [{ sku: { type: "custom", message: "Thiếu SKU" } }] }), "variants.0.sku");
+  assert.equal(findFirstFormErrorPath({ content: { type: "custom", message: "Thiếu nội dung" } }), "content");
+  assert.equal(findFirstFormErrorPath({ root: { server: { message: "Lỗi hệ thống" } } }), undefined);
 });
 
 test("confirmation modal remains compact at every breakpoint", () => {

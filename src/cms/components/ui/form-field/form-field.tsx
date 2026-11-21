@@ -26,6 +26,7 @@ export type CmsFormFieldProps = {
   description?: ReactNode;
   error?: ReactNode;
   htmlFor?: string;
+  fieldName?: string;
   label: ReactNode;
   required?: boolean;
 };
@@ -36,6 +37,7 @@ export function CmsFormField({
   description,
   error,
   htmlFor,
+  fieldName,
   label,
   required = false,
 }: CmsFormFieldProps) {
@@ -55,7 +57,15 @@ export function CmsFormField({
     <FormFieldContext
       value={{ controlId: htmlFor, describedBy, invalid: Boolean(error) }}
     >
-      <div className={cn(styles.field, className)}>
+      <div
+        aria-describedby={!htmlFor ? describedBy : undefined}
+        aria-invalid={!htmlFor && error ? true : undefined}
+        className={cn(styles.field, className)}
+        data-cms-field={fieldName}
+        data-composite={!htmlFor || undefined}
+        data-invalid={error ? true : undefined}
+        tabIndex={!htmlFor && error ? -1 : undefined}
+      >
         {htmlFor ? (
           <label className={styles.label} htmlFor={htmlFor}>{labelContent}</label>
         ) : (

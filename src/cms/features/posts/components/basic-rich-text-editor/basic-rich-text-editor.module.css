@@ -1,5 +1,6 @@
 .editor { overflow: hidden; border: 1px solid var(--cms-input); border-radius: var(--cms-radius); background: var(--cms-background); }
 .editor:focus-within { border-color: var(--cms-ring); box-shadow: 0 0 0 3px color-mix(in oklab, var(--cms-ring) 25%, transparent); }
+.editor[data-invalid] { border-color: var(--cms-destructive); }
 .editor[data-disabled] { opacity: .72; }
 .toolbar { display: flex; flex-wrap: wrap; gap: .2rem; padding: .45rem; border-bottom: 1px solid var(--cms-border); background: var(--cms-muted); }
 .toolbar :global(.cms-button) { min-width: 2.25rem; min-height: 2.25rem; }

@@ -3,18 +3,25 @@ import Link from "@tiptap/extension-link";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic, List, ListOrdered, Quote, Redo2, RemoveFormatting, Undo2, Unlink } from "lucide-react";
+import { useEffect } from "react";
 import { CmsButton } from "@/cms/components/ui/button";
+import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
 import { isSafeLinkHref } from "../../lib/post-html";
 import styles from "./basic-rich-text-editor.module.css";
 
 export function BasicRichTextEditor({ value, onChange, disabled = false, labelledBy }: { value: string; onChange: (html: string) => void; disabled?: boolean; labelledBy?: string }) {
+  const field = useCmsFormFieldControl({});
   const editor = useEditor({ immediatelyRender: false, editable: !disabled, content: value,
     extensions: [StarterKit.configure({ link: false, heading: { levels: [2, 3] } }), Link.configure({ openOnClick: false, autolink: true, defaultProtocol: "https" })],
-    editorProps: { attributes: { class: styles.content, "aria-labelledby": labelledBy ?? "" } }, onUpdate: ({ editor: current }) => onChange(current.getHTML()) });
+    editorProps: { attributes: { class: styles.content, "aria-describedby": field.describedBy ?? "", "aria-invalid": field.invalid ? "true" : "false", "aria-labelledby": labelledBy ?? "" } }, onUpdate: ({ editor: current }) => onChange(current.getHTML()) });
+  useEffect(() => {
+    if (!editor) return;
+    editor.setOptions({ editorProps: { attributes: { class: styles.content, "aria-describedby": field.describedBy ?? "", "aria-invalid": field.invalid ? "true" : "false", "aria-labelledby": labelledBy ?? "" } } });
+  }, [editor, field.describedBy, field.invalid, labelledBy]);
   if (!editor) return <div className={styles.loading}>Đang khởi tạo trình soạn thảo…</div>;
   const setLink = () => { const previous = editor.getAttributes("link").href as string | undefined; const href = window.prompt("Nhập liên kết an toàn (https://, mailto:, tel:, / hoặc #)", previous ?? "https://"); if (href === null) return; if (!href.trim()) { editor.chain().focus().unsetLink().run(); return; } if (!isSafeLinkHref(href)) { window.alert("Liên kết không hợp lệ hoặc không an toàn."); return; } editor.chain().focus().extendMarkRange("link").setLink({ href: href.trim() }).run(); };
   const button = (label: string, active: boolean, onClick: () => void, icon: React.ReactNode, disabledState = false) => <CmsButton aria-label={label} title={label} type="button" size="icon" variant={active ? "secondary" : "ghost"} disabled={disabled || disabledState} onClick={onClick}>{icon}</CmsButton>;
-  return <div className={styles.editor} data-disabled={disabled || undefined}>
+  return <div className={styles.editor} data-disabled={disabled || undefined} data-invalid={field.invalid || undefined}>
     <div className={styles.toolbar} role="toolbar" aria-label="Định dạng nội dung">
       <CmsButton type="button" size="sm" variant={editor.isActive("paragraph") ? "secondary" : "ghost"} disabled={disabled} onClick={() => editor.chain().focus().setParagraph().run()}>Đoạn</CmsButton>
       <CmsButton type="button" size="sm" variant={editor.isActive("heading", { level: 2 }) ? "secondary" : "ghost"} disabled={disabled} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>H2</CmsButton>
