@@ -20,6 +20,8 @@ const hasUnsafeUrlCharacters = (value: string) => /[\\\u0000-\u001f\u007f]/.test
 
 export function resolvePublicBannerImageUrl(value: unknown, backendBaseUrl: string) {
   if (!nonEmptyString(value)) return null;
+  // Check the raw input before trimming control characters.
+  if (hasUnsafeUrlCharacters(value)) return null;
   const candidate = value.trim();
   if (hasUnsafeUrlCharacters(candidate) || candidate.startsWith("//")) return null;
   if (candidate.startsWith("/")) {
@@ -45,6 +47,8 @@ export function resolvePublicBannerImageUrl(value: unknown, backendBaseUrl: stri
 
 export function resolveSafeBannerLink(value: unknown) {
   if (!nonEmptyString(value)) return null;
+  // Check the raw input before trimming control characters.
+  if (hasUnsafeUrlCharacters(value)) return null;
   const candidate = value.trim();
   // Backslashes can be interpreted as slashes by browsers, turning an apparently
   // internal path ("/\\evil.example") into a cross-origin navigation.

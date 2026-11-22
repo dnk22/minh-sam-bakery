@@ -67,6 +67,8 @@ test("accepts only safe public image and navigation URLs", () => {
   assert.equal(resolvePublicBannerImageUrl("https://cdn.example.com/a.jpg", "https://api.example.com"), "https://cdn.example.com/a.jpg");
   for (const unsafe of ["//evil.test/a.jpg", "/api/cms/uploads/a.jpg", "/uploads/../api/cms/private.jpg", "/uploads/\\\\evil.example/x.jpg", "data:image/png;base64,x", "blob:https://site.test/x", "javascript:alert(1)"]) assert.equal(resolvePublicBannerImageUrl(unsafe, "https://api.example.com"), null);
   assert.equal(resolveSafeBannerLink("/san-pham"), "/san-pham");
+  assert.equal(resolveSafeBannerLink("\n/san-pham"), null);
+  assert.equal(resolvePublicBannerImageUrl("\t/uploads/a.jpg", "https://api.example.com"), null);
   assert.equal(resolveSafeBannerLink("https://example.com/sale"), "https://example.com/sale");
   for (const unsafe of ["//evil.test", "/\\\\evil.test", "/a\\\\b", "/a\nLocation: https://evil.test", "javascript:alert(1)", "data:text/html,x", "san-pham"]) assert.equal(resolveSafeBannerLink(unsafe), null);
   assert.equal(resolveSafeBannerLink("/san-pham/../tin-tuc?sort=new#featured"), "/tin-tuc?sort=new#featured");
