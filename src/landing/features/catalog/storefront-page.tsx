@@ -20,6 +20,8 @@ import { productCountForCategory } from "./query";
 import type { CatalogCategory, CatalogProduct } from "./types";
 import { routes } from "@/landing/lib/routes";
 import { SafeImage } from "@/landing/components/ui/safe-image";
+import { BannerMedia } from "@/landing/features/banners/components/banner-media/banner-media";
+import type { LandingBanner } from "@/landing/features/banners/types";
 
 const promotions = [
   {
@@ -96,7 +98,7 @@ const occasions = [
   },
 ];
 
-export function StorefrontPage({ catalogCategories, catalogProducts }: { catalogCategories: CatalogCategory[]; catalogProducts: CatalogProduct[] }) {
+export function StorefrontPage({ catalogCategories, catalogProducts, heroBanners = [] }: { catalogCategories: CatalogCategory[]; catalogProducts: CatalogProduct[]; heroBanners?: LandingBanner[] }) {
   const router = useRouter();
   function searchCatalog(value: string) {
     const q = value.trim();
@@ -146,12 +148,8 @@ export function StorefrontPage({ catalogCategories, catalogProducts }: { catalog
       <section className="mx-auto w-full max-w-[1360px] px-gutter pt-space-lg pb-space-xl lg:px-gutter-desktop">
         <div className="relative flex min-h-[360px] w-full items-center overflow-hidden rounded bg-primary shadow-xl lg:min-h-[390px]">
           <div className="absolute inset-0">
-            <img
-              alt="Chiến dịch Tết Nguyên Đán Minh Sâm Bakery"
-              className="h-full w-full scale-105 object-cover object-center opacity-40 mix-blend-luminosity"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAplQ2BD82uHi8-c52Mula5kD7IRr5s34iAf18F7xgoBWzU_dD_FM7AGMMA3DW4jR58-ATMCxnH5JwAyEnYn1-4j_njhh4G9TeRHEjobs8bxX2oZw9IVKMi9lP9cSHpRIW0lGLZIX4j4EMA8wkgvvVytkzaOPByf9i7-tEo7dLLOWW_85_-7mSAOvg2XtAZ5rX2PHI5VG72Lbxg6m15ck8oZeoa15hERT5iWMdIfLv9ppwolPMZ8rnp"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary-container/80" />
+            <BannerMedia banners={heroBanners} fallback={{ desktopImageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAplQ2BD82uHi8-c52Mula5kD7IRr5s34iAf18F7xgoBWzU_dD_FM7AGMMA3DW4jR58-ATMCxnH5JwAyEnYn1-4j_njhh4G9TeRHEjobs8bxX2oZw9IVKMi9lP9cSHpRIW0lGLZIX4j4EMA8wkgvvVytkzaOPByf9i7-tEo7dLLOWW_85_-7mSAOvg2XtAZ5rX2PHI5VG72Lbxg6m15ck8oZeoa15hERT5iWMdIfLv9ppwolPMZ8rnp", alt: "Chiến dịch Tết Nguyên Đán Minh Sâm Bakery" }} imageClassName="h-full w-full scale-105 object-cover object-center opacity-40 mix-blend-luminosity" linkMedia={false} priority />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary-container/80" />
           </div>
           <div className="relative z-10 flex min-w-0 w-full flex-col items-start justify-between gap-space-lg px-gutter py-space-xl lg:flex-row lg:items-center lg:px-space-xl">
             <div className="flex min-w-0 max-w-2xl flex-col gap-space-sm">

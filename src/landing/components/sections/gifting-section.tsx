@@ -1,19 +1,24 @@
-/* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
-
 import { BriefcaseBusiness, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/landing/components/motion/reveal";
 import { StaggerReveal } from "@/landing/components/motion/stagger-reveal";
+import { BannerMedia } from "@/landing/features/banners/components/banner-media/banner-media";
+import type { LandingBanner } from "@/landing/features/banners/types";
 import { routes } from "@/landing/lib/routes";
 
-export function GiftingSection() {
+const giftingFallback = {
+  desktopImageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuC7u8QZ6Uom86vQ1tTLd-m_UAwwSPHo670Z04ZDmhQG5twk3JOAPnWwHZMvcBymQ53ENQoU9SAL5uPCc-e1L20dFgg8vG2oMRfHvuf8XgV8QXCxN8Z42RTMt5ui_ghpoPKRiBedAZtPrGu6SgX8k2fK0Mz7ucSn2RDJtjTFKaoRvB2uLbACvcxrOAwQV-LYx2adyNTnDzk6puYjcqihF9YvNqHY2pIh1ggRcUE2NrRG4uOs4oyyUyr_",
+  alt: "Hộp quà Trung thu sơn mài cùng bánh và trà",
+};
+
+export function GiftingSection({ banners = [] }: { banners?: LandingBanner[] }) {
   return (
     <section className="relative w-full flex flex-col justify-between overflow-hidden bg-primary-container px-6 py-16 text-on-primary md:px-12 lg:min-h-[calc(100vh-var(--landing-header-height))] lg:px-20">
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl opacity-50 pointer-events-none" />
       <div className="w-full max-w-7xl mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         <Reveal className="reveal-split-left lg:col-span-6 relative order-2 lg:order-1" scale={1.015} x="var(--reveal-x)" y="var(--reveal-y)">
           <div className="relative rounded overflow-hidden shadow-2xl bg-primary">
-            <img className="w-full h-[380px] lg:h-[480px] object-cover" data-alt="Exquisite Vietnamese Mid-Autumn wooden lacquer gift box lined with red silk, holding four gourmet mooncakes and loose leaf tea canisters." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7u8QZ6Uom86vQ1tTLd-m_UAwwSPHo670Z04ZDmhQG5twk3JOAPnWwHZMvcBymQ53ENQoU9SAL5uPCc-e1L20dFgg8vG2oMRfHvuf8XgV8QXCxN8Z42RTMt5ui_ghpoPKRiBedAZtPrGu6SgX8k2fK0Mz7ucSn2RDJtjTFKaoRvB2uLbACvcxrOAwQV-LYx2adyNTnDzk6puYjcqihF9YvNqHY2pIh1ggRcUE2NrRG4uOs4oyyUyr_" />
+            <BannerMedia banners={banners} className="h-[380px] lg:h-[480px]" fallback={giftingFallback} imageClassName="h-full w-full object-cover" />
             <div className="absolute bottom-0 inset-x-0 p-5 bg-gradient-to-t from-primary/95 to-transparent text-secondary-fixed md:p-6">
               <span className="font-label-eyebrow font-semibold text-[10px] leading-4 tracking-[0.14em] uppercase block md:text-label-eyebrow md:tracking-[0.18em] lg:tracking-[0.2em]">Ấn Phẩm Tri Ân</span>
               <p className="font-headline-sm font-semibold text-[18px] leading-[1.35] md:text-[19px] md:leading-7 lg:text-headline-sm">Hộp Quà Di Sản Đoan Viên</p>

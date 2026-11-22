@@ -1,25 +1,30 @@
 import { Reveal } from "@/landing/components/motion/reveal";
 import { ScrollParallax } from "@/landing/components/motion/scroll-parallax";
+import { BannerMedia } from "@/landing/features/banners/components/banner-media/banner-media";
+import type { LandingBanner } from "@/landing/features/banners/types";
 import Link from "next/link";
 import { routes } from "@/landing/lib/routes";
 
-export function HeroSection() {
+const heroFallback = {
+  desktopImageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuC8HNQOYqCo5LQ-SKBP8PYiIROr_7u7x9DEPGhjM1HKSkgjqM6YQN4TX1DMma1PcwTmvb3I3SxcUiam3NG6XfJXm3dtZLaMlGYjhjDFskmXeig6vm9O5M3aWD9pdYh27ErXSIyuMHBDxcUQAZJUTGuto-YR8pUEoeXe8jHHGkCvr-Z0bdEwVPjCMIkkEd_nK-Gx9ihH1tTbJ3wHxBwpI6p84XYr2JjA1L3cllyTl48rTm3Zkgc1B-Zv",
+  alt: "Bánh Trung thu thủ công trong hộp gỗ sơn mài cùng ấm trà cổ",
+};
+
+export function HeroSection({ banners = [] }: { banners?: LandingBanner[] }) {
   return (
     <section className="relative -mt-[var(--landing-header-height)] flex min-h-[100svh] w-full flex-col justify-between overflow-hidden bg-primary px-5 pt-[calc(var(--landing-header-height)+1rem)] pb-6 text-on-primary sm:px-6 sm:pb-8 md:px-12 lg:min-h-screen lg:px-20 lg:pt-24 lg:pb-10" id="trang-chu">
       <div className="absolute inset-0 z-0">
         <ScrollParallax
-          className="h-full w-full scale-105 bg-cover bg-[position:58%_center] opacity-40 sm:bg-center"
+          className="h-full w-full scale-105"
           dataAlt="Cinematic still life of artisanal mooncakes resting inside an ornate dark lacquered wooden gift box with red silk trim, accompanied by a steaming antique cast iron teapot and porcelain tea bowls on dark weathered teak wood."
           fromScale={1.05}
-          style={{
-            backgroundImage:
-              "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC8HNQOYqCo5LQ-SKBP8PYiIROr_7u7x9DEPGhjM1HKSkgjqM6YQN4TX1DMma1PcwTmvb3I3SxcUiam3NG6XfJXm3dtZLaMlGYjhjDFskmXeig6vm9O5M3aWD9pdYh27ErXSIyuMHBDxcUQAZJUTGuto-YR8pUEoeXe8jHHGkCvr-Z0bdEwVPjCMIkkEd_nK-Gx9ihH1tTbJ3wHxBwpI6p84XYr2JjA1L3cllyTl48rTm3Zkgc1B-Zv')",
-          }}
           toScale={1.095}
           toY={38}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-primary/60" />
+        >
+          <BannerMedia banners={banners} fallback={heroFallback} imageClassName="h-full w-full object-cover object-[58%_center] opacity-40 sm:object-center" linkMedia={false} priority />
+        </ScrollParallax>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary via-transparent to-primary/60" />
       </div>
       <Reveal
         className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between pt-0 lg:pt-6"
