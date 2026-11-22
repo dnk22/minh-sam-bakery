@@ -23,6 +23,11 @@
   pointer-events: auto;
 }
 
+.controlsBelowHeader .controls {
+  /* The home hero extends behind the fixed Landing header. */
+  top: calc(var(--landing-header-height) + 0.75rem);
+}
+
 .controls {
   position: absolute;
   z-index: 20;

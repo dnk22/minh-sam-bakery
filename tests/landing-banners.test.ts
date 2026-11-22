@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
+  activeBannerIndex,
+  adjacentBannerId,
   bannerRenderMode,
   isBannerResponseArray,
   isLandingBannerEligible,
@@ -63,16 +65,52 @@ test("deduplicates and sorts deterministically by order, creation time, then id"
 test("accepts only safe public image and navigation URLs", () => {
   assert.equal(resolvePublicBannerImageUrl("/uploads/a.jpg", "https://api.example.com"), "https://api.example.com/uploads/a.jpg");
   assert.equal(resolvePublicBannerImageUrl("https://cdn.example.com/a.jpg", "https://api.example.com"), "https://cdn.example.com/a.jpg");
-  for (const unsafe of ["//evil.test/a.jpg", "/api/cms/uploads/a.jpg", "data:image/png;base64,x", "blob:https://site.test/x", "javascript:alert(1)"]) assert.equal(resolvePublicBannerImageUrl(unsafe, "https://api.example.com"), null);
+  for (const unsafe of ["//evil.test/a.jpg", "/api/cms/uploads/a.jpg", "/uploads/../api/cms/private.jpg", "/uploads/\\\\evil.example/x.jpg", "data:image/png;base64,x", "blob:https://site.test/x", "javascript:alert(1)"]) assert.equal(resolvePublicBannerImageUrl(unsafe, "https://api.example.com"), null);
   assert.equal(resolveSafeBannerLink("/san-pham"), "/san-pham");
+  assert.equal(resolveSafeBannerLink("\n/san-pham"), null);
+  assert.equal(resolvePublicBannerImageUrl("\t/uploads/a.jpg", "https://api.example.com"), null);
   assert.equal(resolveSafeBannerLink("https://example.com/sale"), "https://example.com/sale");
-  for (const unsafe of ["//evil.test", "javascript:alert(1)", "data:text/html,x", "san-pham"]) assert.equal(resolveSafeBannerLink(unsafe), null);
+  for (const unsafe of ["//evil.test", "/\\\\evil.test", "/a\\\\b", "/a\nLocation: https://evil.test", "javascript:alert(1)", "data:text/html,x", "san-pham"]) assert.equal(resolveSafeBannerLink(unsafe), null);
+  assert.equal(resolveSafeBannerLink("/san-pham/../tin-tuc?sort=new#featured"), "/tin-tuc?sort=new#featured");
 });
 
 test("selects fallback, single and carousel rendering modes", () => {
   assert.equal(bannerRenderMode(0), "fallback");
   assert.equal(bannerRenderMode(1), "single");
   assert.equal(bannerRenderMode(2), "carousel");
+});
+
+test("keeps the active slide valid when banners change in place", () => {
+  const initial = [banner({ id: "a" }), banner({ id: "b" }), banner({ id: "c" })];
+  assert.equal(activeBannerIndex(initial, null), 0);
+  assert.equal(activeBannerIndex(initial, "c"), 2);
+  assert.equal(adjacentBannerId(initial, "c", 1), "a");
+  assert.equal(adjacentBannerId(initial, "a", -1), "c");
+  const shortened = initial.slice(0, 2);
+  assert.equal(activeBannerIndex(shortened, "c"), 0);
+  assert.equal(adjacentBannerId(shortened, "c", 1), "b");
+  assert.equal(activeBannerIndex([initial[2], initial[0], initial[1]], "c"), 0);
+  assert.equal(adjacentBannerId([], "c", 1), null);
+});
+
+test("keeps inactive carousel slides out of keyboard navigation and protects hero controls", () => {
+  const media = readFileSync("src/landing/features/banners/components/banner-media/banner-media.tsx", "utf8");
+  const styles = readFileSync("src/landing/features/banners/components/banner-media/banner-media.module.css", "utf8");
+  const hero = readFileSync("src/landing/components/sections/hero-section.tsx", "utf8");
+  assert.match(media, /inert=\{!isActive\}/);
+  assert.match(media, /aria-hidden=\{!isActive\}/);
+  assert.match(hero, /controlsPlacement="below-header"/);
+  assert.match(styles, /\.controlsBelowHeader \.controls/);
+  assert.match(styles, /var\(--landing-header-height\)/);
+});
+
+test("managed banner images use generic captions without changing fallback editorial copy", () => {
+  const gifting = readFileSync("src/landing/components/sections/gifting-section.tsx", "utf8");
+  const about = readFileSync("src/landing/features/about/components/about-hero-section.tsx", "utf8");
+  assert.match(gifting, /hasManagedMedia/);
+  assert.match(gifting, /Hộp Quà Di Sản Đoan Viên/);
+  assert.match(about, /hasManagedMedia/);
+  assert.match(about, /FIG\. 01 \/ BỘ SƯU TẬP TRĂNG RẰM/);
 });
 
 test("maps every registry position and configures bounded cache freshness", () => {
