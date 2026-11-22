@@ -8,6 +8,7 @@ import { CMS_REQUEST_PATH_HEADER } from "@/cms/features/auth/lib/constants";
 import { cmsLoginUrl, sanitizeCmsRedirect } from "@/cms/features/auth/lib/redirect";
 import { resolveCmsSession } from "@/cms/features/auth/session/current-session";
 import { toCmsProfileUser } from "@/cms/features/auth/types";
+import { NotificationBell } from "@/cms/features/notification-center/components/notification-bell/notification-bell";
 import { CmsQueryProvider } from "@/cms/providers/query-provider";
 
 export const instant = false;
@@ -25,7 +26,7 @@ export default async function ProtectedCmsLayout({ children }: { children: React
 
   return (
     <CmsQueryProvider>
-      <CmsShell user={toCmsProfileUser(session.user)}>{children}</CmsShell>
+      <CmsShell user={toCmsProfileUser(session.user)} notificationSlot={<NotificationBell />}>{children}</CmsShell>
     </CmsQueryProvider>
   );
 }

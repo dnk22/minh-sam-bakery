@@ -8,14 +8,14 @@ import { CmsNotifications } from "@/cms/components/notifications/notifications";
 import type { CmsProfileUser } from "@/cms/features/auth/types";
 import { CmsSessionUserProvider } from "@/cms/context/cms-session-user";
 
-export function CmsShell({ children, user }: { children: ReactNode; user: CmsProfileUser }) {
+export function CmsShell({ children, user, notificationSlot }: { children: ReactNode; user: CmsProfileUser; notificationSlot?: ReactNode }) {
   return (
     <CmsSessionUserProvider user={user}>
       <div className="cms-shell">
         <a className="cms-skip-link" href="#cms-main-content">Bỏ qua đến nội dung chính</a>
         <CmsSidebar />
         <div className="cms-inset">
-          <CmsHeader user={user} />
+          <CmsHeader user={user} notificationSlot={notificationSlot} />
           <div className="cms-content">{children}</div>
         </div>
       </div>

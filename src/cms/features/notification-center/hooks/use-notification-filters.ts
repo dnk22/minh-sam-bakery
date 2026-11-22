@@ -1,0 +1,6 @@
+"use client";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
+import { parseNotificationFilter, parseNotificationPage } from "../lib/notification-data";
+import type { NotificationFilter } from "../types";
+export function useNotificationFilters() { const router = useRouter(), pathname = usePathname(), params = useSearchParams(), serialized = params.toString(); const filter = parseNotificationFilter(params.get("status")), page = parseNotificationPage(params.get("page")); const update = useCallback((values: { status?: NotificationFilter; page?: number }, resetPage = false) => { const query = new URLSearchParams(serialized); if (!values.status || values.status === "all") query.delete("status"); else query.set("status", values.status); if (values.page === 1) query.delete("page"); else if (values.page) query.set("page", String(values.page)); if (resetPage) query.delete("page"); const next = query.toString(); router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false }); }, [pathname, router, serialized]); return { filter, page, setFilter: useCallback((value: NotificationFilter) => update({ status: value }, true), [update]), setPage: useCallback((value: number) => update({ page: value }), [update]) }; }

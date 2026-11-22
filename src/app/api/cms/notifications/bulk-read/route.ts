@@ -1,0 +1,5 @@
+import { hasJsonContentType, isTrustedSameOriginRequest } from "@/cms/features/auth/lib/csrf";
+import { notificationError, notificationJson, requireNotificationAccess } from "@/cms/features/notification-center/api/notification-bff";
+import { backendBulkRead } from "@/cms/features/notification-center/api/notifications.server";
+import { bulkReadSchema } from "@/cms/features/notification-center/schemas/notification.schema";
+export async function POST(request: Request) { if (!isTrustedSameOriginRequest(request)) return notificationError(403); if (!hasJsonContentType(request)) return notificationError(400); const auth = await requireNotificationAccess(); if ("response" in auth) return auth.response; let body: unknown; try { body = await request.json(); } catch { return notificationError(400); } const parsed = bulkReadSchema.safeParse(body); if (!parsed.success) return notificationError(400, undefined, parsed.error.issues[0]?.message); try { return notificationJson(await backendBulkRead(auth.accessToken, parsed.data)); } catch (error) { return notificationError(502, error); } }

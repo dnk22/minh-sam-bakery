@@ -1,7 +1,7 @@
 "use client";
 
 import { PanelLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 
 import { ConfigDrawer } from "@/cms/components/layout/config-drawer";
@@ -11,7 +11,7 @@ import { useCmsPreferences } from "@/cms/context/cms-preferences";
 import type { CmsProfileUser } from "@/cms/features/auth/types";
 import { useCmsBreadcrumb } from "@/cms/hooks/use-cms-breadcrumb";
 
-export function CmsHeader({ user }: { user: CmsProfileUser }) {
+export function CmsHeader({ user, notificationSlot }: { user: CmsProfileUser; notificationSlot?: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const { toggleSidebar } = useCmsPreferences();
   const breadcrumbs = useCmsBreadcrumb();
@@ -50,6 +50,7 @@ export function CmsHeader({ user }: { user: CmsProfileUser }) {
         </nav>
         <div className="cms-header-actions">
           <ConfigDrawer />
+          {notificationSlot}
           <ProfileDropdown user={user} />
         </div>
       </div>

@@ -1,0 +1,10 @@
+import "server-only";
+import { backendRequest } from "@/lib/api/backend-client";
+import { isBulkReadResult, isCmsNotification, isNotificationList, isUnreadCount } from "../lib/notification-data";
+import type { BulkReadInput, BulkReadResult, CmsNotification, NotificationList, NotificationListParams, UnreadCount } from "../types";
+export async function backendNotificationList(accessToken: string, params: NotificationListParams, signal?: AbortSignal): Promise<NotificationList> { return (await backendRequest({ path: "/api/v1/notifications", query: params, accessToken, cache: "no-store", signal, validate: isNotificationList })).data; }
+export async function backendUnreadCount(accessToken: string, signal?: AbortSignal): Promise<UnreadCount> { return (await backendRequest({ path: "/api/v1/notifications/unread-count", accessToken, cache: "no-store", signal, validate: isUnreadCount })).data; }
+export async function backendNotificationDetail(accessToken: string, id: string, signal?: AbortSignal): Promise<CmsNotification> { return (await backendRequest({ path: `/api/v1/notifications/${encodeURIComponent(id)}`, accessToken, cache: "no-store", signal, validate: isCmsNotification })).data; }
+export async function backendMarkNotificationRead(accessToken: string, id: string): Promise<CmsNotification> { return (await backendRequest({ path: `/api/v1/notifications/${encodeURIComponent(id)}/read`, method: "PATCH", accessToken, cache: "no-store", validate: isCmsNotification })).data; }
+export async function backendMarkNotificationUnread(accessToken: string, id: string): Promise<CmsNotification> { return (await backendRequest({ path: `/api/v1/notifications/${encodeURIComponent(id)}/unread`, method: "PATCH", accessToken, cache: "no-store", validate: isCmsNotification })).data; }
+export async function backendBulkRead(accessToken: string, input: BulkReadInput): Promise<BulkReadResult> { return (await backendRequest({ path: "/api/v1/notifications/bulk-read", method: "POST", body: input, accessToken, cache: "no-store", validate: isBulkReadResult })).data; }

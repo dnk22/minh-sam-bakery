@@ -1,0 +1,18 @@
+.modal { width: min(42rem, calc(100vw - 2rem)); }
+.state { display: grid; min-height: 12rem; place-items: center; gap: .75rem; color: var(--cms-muted-foreground); text-align: center; }
+.state p { margin: 0; }
+.detail { display: grid; gap: 1rem; padding-inline-start: 1rem; border-inline-start: .25rem solid transparent; }
+.detail[data-unread] { border-inline-start-color: var(--cms-primary); }
+.badges { display: flex; flex-wrap: wrap; gap: .5rem; }
+.detail h3, .message { margin: 0; }
+.detail h3 { font-size: 1.15rem; }
+.message { line-height: 1.65; white-space: pre-wrap; }
+.detail dl { display: grid; margin: 0; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); }
+.detail dl > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: .75rem; padding: .7rem; border-bottom: 1px solid var(--cms-border); }
+.detail dl > div:last-child { border-bottom: 0; }
+.detail dt { color: var(--cms-muted-foreground); }
+.detail dd { margin: 0; overflow-wrap: anywhere; }
+.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 767px) { .modal { width: 100%; } .detail dl > div { grid-template-columns: 1fr; gap: .2rem; } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }

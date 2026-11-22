@@ -11,6 +11,7 @@ import {
   Images,
   SlidersHorizontal,
   ShoppingBag,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,7 +41,10 @@ export type CmsBreadcrumbItem = {
 export const cmsNavigation: CmsNavGroup[] = [
   {
     title: "Tổng quan",
-    items: [{ title: "Dashboard", href: "/cms", icon: LayoutDashboard }],
+    items: [
+      { title: "Dashboard", href: "/cms", icon: LayoutDashboard },
+      { title: "Thông báo", href: "/cms/notifications", icon: Bell },
+    ],
   },
   {
     title: "Quản lý cửa hàng",

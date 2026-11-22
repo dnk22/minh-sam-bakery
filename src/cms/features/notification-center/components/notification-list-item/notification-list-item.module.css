@@ -1,0 +1,7 @@
+.item { display: flex; min-width: 0; align-items: center; gap: .75rem; padding-inline-start: .5rem; border-inline-start: .2rem solid transparent; }
+.item[data-unread] { border-inline-start-color: var(--cms-primary); }
+.icon { display: grid; width: 2.25rem; height: 2.25rem; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--cms-muted); color: var(--cms-primary); }
+.icon svg { width: 1rem; }
+.copy { display: grid; min-width: 0; gap: .15rem; }
+.copy strong, .copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.copy span, .copy time { color: var(--cms-muted-foreground); font-size: .78rem; }
