@@ -1,18 +1,17 @@
-import type { CatalogCategory, CatalogProduct } from "./types";
+import type { PublicFilterRequest } from "./types.ts";
 
 export const CATALOG_PAGE_SIZE = 9;
+export const MAX_CATALOG_PAGE = 10_000;
+export const MAX_CATALOG_SEARCH_LENGTH = 100;
 
 export type CatalogTypeOption = { value: string; label: string };
-
 export type CatalogSort = "default" | "price-asc" | "price-desc";
 export type CatalogPrice = "all" | "under-200" | "200-500" | "over-500";
-export type CatalogMode = "all" | "fixed" | "quote";
 
 export type CatalogQuery = {
   q: string;
-  types: string[];
+  category: string | null;
   price: CatalogPrice;
-  mode: CatalogMode;
   sort: CatalogSort;
   page: number;
 };
@@ -20,75 +19,111 @@ export type CatalogQuery = {
 export type RawSearchParams = Record<string, string | string[] | undefined>;
 
 const validPrices = new Set<CatalogPrice>(["all", "under-200", "200-500", "over-500"]);
-const validModes = new Set<CatalogMode>(["all", "fixed", "quote"]);
 const validSorts = new Set<CatalogSort>(["default", "price-asc", "price-desc"]);
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export function parseCatalogQuery(params: RawSearchParams, allowedTypes: Iterable<string> = []): CatalogQuery {
-  const validTypes = new Set(allowedTypes);
-  const rawTypes = Array.isArray(params.type) ? params.type : params.type ? [params.type] : [];
-  const price = first(params.price) as CatalogPrice | undefined;
-  const mode = first(params.mode) as CatalogMode | undefined;
-  const sort = first(params.sort) as CatalogSort | undefined;
-  const parsedPage = Number.parseInt(first(params.page) ?? "1", 10);
+function firstAllowed(values: string | string[] | undefined, allowed: Set<string>) {
+  const candidates = Array.isArray(values) ? values : values ? [values] : [];
+  return candidates.find((value) => allowed.has(value)) ?? null;
+}
+
+export function parseCatalogQuery(
+  params: RawSearchParams,
+  options: { allowedCategories?: Iterable<string>; routeCategory?: string } = {},
+): CatalogQuery {
+  const allowedCategories = new Set(options.allowedCategories ?? []);
+  const explicitCategory = firstAllowed(params.category, allowedCategories);
+  const legacyCategory = firstAllowed(params.type, allowedCategories);
+  const rawPrice = first(params.price) as CatalogPrice | undefined;
+  const rawSort = first(params.sort) as CatalogSort | undefined;
+  const rawPage = first(params.page);
+  const parsedPage = rawPage && /^\d+$/.test(rawPage) ? Number(rawPage) : 1;
+  const rawSearch = (first(params.q) ?? "").trim().replace(/\s+/g, " ");
 
   return {
-    q: (first(params.q) ?? "").trim().slice(0, 100),
-    types: [...new Set(rawTypes.filter((value) => validTypes.has(value)))],
-    price: price && validPrices.has(price) ? price : "all",
-    mode: mode && validModes.has(mode) ? mode : "all",
-    sort: sort && validSorts.has(sort) ? sort : "default",
-    page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1,
+    q: rawSearch.slice(0, MAX_CATALOG_SEARCH_LENGTH),
+    category: options.routeCategory ?? explicitCategory ?? legacyCategory,
+    price: rawPrice && validPrices.has(rawPrice) ? rawPrice : "all",
+    sort: rawSort && validSorts.has(rawSort) ? rawSort : "default",
+    page: Number.isSafeInteger(parsedPage) && parsedPage > 0
+      ? Math.min(parsedPage, MAX_CATALOG_PAGE)
+      : 1,
   };
 }
 
-export function filterCatalogProducts(categorySlug: string, query: CatalogQuery, products: CatalogProduct[], categories: CatalogCategory[]) {
-  const normalizedSearch = query.q.toLocaleLowerCase("vi");
-  const categoryBySlug = new Map(categories.map((category) => [category.slug, category]));
-
-  const filtered = products.filter((product) => {
-    if (product.status !== "published" || !product.categorySlugs.includes(categorySlug)) return false;
-    if (query.types.length > 0 && !query.types.some((type) => product.categorySlugs.includes(type))) return false;
-    if (query.mode !== "all" && product.pricing.mode !== query.mode) return false;
-    if (query.price !== "all") {
-      if (product.pricing.mode !== "fixed") return false;
-      if (query.price === "under-200" && product.pricing.amount >= 200000) return false;
-      if (query.price === "200-500" && (product.pricing.amount < 200000 || product.pricing.amount > 500000)) return false;
-      if (query.price === "over-500" && product.pricing.amount <= 500000) return false;
-    }
-    if (normalizedSearch) {
-      const categoryName = categoryBySlug.get(product.categorySlug)?.name ?? "";
-      const haystack = `${product.name} ${product.description} ${categoryName}`.toLocaleLowerCase("vi");
-      if (!haystack.includes(normalizedSearch)) return false;
-    }
-    return true;
-  });
-
-  if (query.sort === "default") return filtered;
-  return [...filtered].sort((a, b) => compareByPrice(a, b, query.sort));
-}
-
-function compareByPrice(a: CatalogProduct, b: CatalogProduct, sort: CatalogSort) {
-  if (a.pricing.mode === "quote" && b.pricing.mode === "quote") return 0;
-  if (a.pricing.mode === "quote") return 1;
-  if (b.pricing.mode === "quote") return -1;
-  return sort === "price-asc" ? a.pricing.amount - b.pricing.amount : b.pricing.amount - a.pricing.amount;
-}
-
-export function catalogQueryToSearchParams(query: CatalogQuery) {
+export function catalogQueryToSearchParams(
+  query: CatalogQuery,
+  options: { includeCategory?: boolean } = {},
+) {
   const params = new URLSearchParams();
   if (query.q) params.set("q", query.q);
-  query.types.forEach((type) => params.append("type", type));
+  if (options.includeCategory !== false && query.category) params.set("category", query.category);
   if (query.price !== "all") params.set("price", query.price);
-  if (query.mode !== "all") params.set("mode", query.mode);
   if (query.sort !== "default") params.set("sort", query.sort);
   if (query.page > 1) params.set("page", String(query.page));
   return params;
 }
 
-export function productCountForCategory(slug: string, products: CatalogProduct[]) {
-  return products.filter((product) => product.status === "published" && product.categorySlugs.includes(slug)).length;
+export function isCatalogQueryCanonical(
+  raw: RawSearchParams,
+  query: CatalogQuery,
+  options: { includeCategory?: boolean } = {},
+) {
+  const current = new URLSearchParams();
+  for (const key of Object.keys(raw).sort()) {
+    const values = Array.isArray(raw[key]) ? raw[key] : raw[key] === undefined ? [] : [raw[key]];
+    for (const value of values) if (value !== undefined) current.append(key, value);
+  }
+  current.sort();
+  const canonical = catalogQueryToSearchParams(query, options);
+  canonical.sort();
+  return current.toString() === canonical.toString();
+}
+
+/** Backend filters the regular `products.price` column with inclusive bounds. */
+export function catalogPriceBounds(price: CatalogPrice): Pick<PublicFilterRequest, "minPrice" | "maxPrice"> {
+  if (price === "under-200") return { maxPrice: 199_999.99 };
+  if (price === "200-500") return { minPrice: 200_000, maxPrice: 500_000 };
+  if (price === "over-500") return { minPrice: 500_000.01 };
+  return {};
+}
+
+export function catalogSortFields(sort: CatalogSort): Pick<PublicFilterRequest, "sortBy" | "sort"> {
+  if (sort === "price-asc") return { sortBy: "price", sort: "asc" };
+  if (sort === "price-desc") return { sortBy: "price", sort: "desc" };
+  return { sortBy: "createdAt", sort: "desc" };
+}
+
+export function catalogQueryToFilterRequest(query: CatalogQuery, categoryId?: string): PublicFilterRequest {
+  return {
+    ...(query.q ? { search: query.q } : {}),
+    page: query.page,
+    limit: CATALOG_PAGE_SIZE,
+    ...(categoryId ? { categoryId } : {}),
+    ...catalogPriceBounds(query.price),
+    ...catalogSortFields(query.sort),
+  };
+}
+
+export function updateCatalogQuery(query: CatalogQuery, patch: Partial<CatalogQuery>): CatalogQuery {
+  return { ...query, ...patch, page: patch.page ?? 1 };
+}
+
+export type PaginationItem = number | "ellipsis-start" | "ellipsis-end";
+
+export function boundedPagination(currentPage: number, totalPages: number): PaginationItem[] {
+  if (totalPages <= 1) return totalPages === 1 ? [1] : [];
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+  const pages = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+  const sorted = [...pages].filter((page) => page >= 1 && page <= totalPages).sort((a, b) => a - b);
+  const items: PaginationItem[] = [];
+  sorted.forEach((page, index) => {
+    const previous = sorted[index - 1];
+    if (previous !== undefined && page - previous > 1) items.push(previous === 1 ? "ellipsis-start" : "ellipsis-end");
+    items.push(page);
+  });
+  return items;
 }

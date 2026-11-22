@@ -41,3 +41,54 @@ export type CatalogProduct = {
         quotationProfile: "corporate-gift" | "custom-event";
       };
 };
+import type {
+  CategoryResponseDto,
+  PaginationMetaDto,
+  ProductResponseDto,
+  PublicPostResponseDto,
+} from "@/lib/api/types";
+
+
+export type PublicFilterSortBy =
+  | "name"
+  | "sku"
+  | "slug"
+  | "price"
+  | "salePrice"
+  | "createdAt"
+  | "updatedAt"
+  | "isFeatured"
+  | "isBestSeller";
+
+export type PublicFilterRequest = {
+  search?: string;
+  page?: number;
+  limit?: number;
+  categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: PublicFilterSortBy;
+  sort?: "asc" | "desc";
+};
+
+export type PublicFilterSuggestionDto = {
+  type: string;
+  id: string;
+  label: string;
+  slug?: string | null;
+};
+
+export type PublicFilterResponseDto = {
+  search?: string | null;
+  products: ProductResponseDto[];
+  pagination: PaginationMetaDto;
+  categories: CategoryResponseDto[];
+  posts: PublicPostResponseDto[];
+  suggestions: PublicFilterSuggestionDto[];
+};
+
+export type CatalogPage = {
+  search: string | null;
+  products: CatalogProduct[];
+  pagination: PaginationMetaDto;
+};

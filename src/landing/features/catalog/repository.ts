@@ -7,35 +7,12 @@ import {
   fetchCategories,
   fetchCategoryById,
   fetchProduct,
-  fetchProducts,
+  fetchProductPage,
+  fetchPublicFilter,
   fetchRelatedProducts,
 } from "./api";
+import { catalogQueryToFilterRequest, type CatalogQuery } from "./query";
 import type { CatalogCategory, CatalogProduct } from "./types";
-
-export async function getCatalogSnapshot(
-  filters: { search?: string; categorySlug?: string } = {},
-) {
-  const [categoryDtos, productDtos] = await Promise.all([
-    fetchCategories(),
-    fetchProducts(filters),
-  ]);
-  const categoryById = new Map(
-    categoryDtos.map((category) => [category.id, category]),
-  );
-  for (const product of productDtos) {
-    const category = categoryById.get(product.categoryId);
-    if (!category || category.slug !== product.categorySlug)
-      throw new Error(
-        `Product ${product.slug} has an invalid category relationship`,
-      );
-  }
-  return {
-    categories: categoryDtos
-      .sort((a, b) => a.sortOrder - b.sortOrder)
-      .map(adaptCategory),
-    products: productDtos.map(adaptProduct),
-  };
-}
 
 export async function getCatalogCategories() {
   return (await fetchCategories())
@@ -50,11 +27,23 @@ export async function getCatalogCategory(slug: string) {
   return adaptCategory(await fetchCategoryById(summary.id));
 }
 
+export async function getCatalogPage(query: CatalogQuery, categoryId?: string) {
+  const response = await fetchPublicFilter(catalogQueryToFilterRequest(query, categoryId));
+  return {
+    search: response.search ?? null,
+    products: response.products.map(adaptProduct),
+    pagination: response.pagination,
+  };
+}
+
+export async function getFeaturedCatalogProducts() {
+  const response = await fetchProductPage({ page: 1, limit: 4, isFeatured: true });
+  return response.items.map(adaptProduct);
+}
+
 export async function resolveProductBySlug(slug: string) {
-  const index = await fetchProducts({ search: slug });
-  let match = index.find((item) => item.slug === slug);
-  if (!match)
-    match = (await fetchProducts()).find((item) => item.slug === slug);
+  const index = await fetchProductPage({ search: slug, page: 1, limit: 100 });
+  const match = index.items.find((item) => item.slug === slug);
   if (!match) return {};
   const dto = await fetchProduct(match.categorySlug, match.slug);
   return { product: adaptProduct(dto), dto };

@@ -16,8 +16,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { CatalogSearchForm } from "./catalog-controls";
-import { productCountForCategory } from "./query";
-import type { CatalogCategory, CatalogProduct } from "./types";
+import { CatalogBrowser } from "./catalog-browser";
+import { catalogQueryToSearchParams, type CatalogQuery } from "./query";
+import type { CatalogCategory, CatalogPage, CatalogProduct } from "./types";
 import { routes } from "@/landing/lib/routes";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { BannerMedia } from "@/landing/features/banners/components/banner-media/banner-media";
@@ -98,31 +99,19 @@ const occasions = [
   },
 ];
 
-export function StorefrontPage({ catalogCategories, catalogProducts, heroBanners = [] }: { catalogCategories: CatalogCategory[]; catalogProducts: CatalogProduct[]; heroBanners?: LandingBanner[] }) {
+export function StorefrontPage({ catalogCategories, catalogPage, featuredProducts, query, heroBanners = [] }: { catalogCategories: CatalogCategory[]; catalogPage: CatalogPage | null; featuredProducts: CatalogProduct[]; query: CatalogQuery; heroBanners?: LandingBanner[] }) {
   const router = useRouter();
   function searchCatalog(value: string) {
-    const q = value.trim();
-    if (!q) return;
-    const normalized = q.toLocaleLowerCase("vi");
-    const match = catalogProducts.find((product) => {
-      const category = catalogCategories.find(
-        (item) => item.slug === product.categorySlug,
-      );
-      return `${product.name} ${product.description} ${category?.name ?? ""}`
-        .toLocaleLowerCase("vi")
-        .includes(normalized);
-    });
-    if (match)
-      router.push(
-        `${routes.category(match.categorySlug)}?q=${encodeURIComponent(q)}`,
-      );
+    const next = { ...query, q: value.trim(), page: 1 };
+    const params = catalogQueryToSearchParams(next);
+    router.push(`${routes.products}${params.size ? `?${params}` : ""}`, { scroll: false });
   }
   return (
     <main className="min-h-[calc(100vh-500px)] w-full bg-surface pt-[var(--landing-header-height)]">
       <section className="w-full bg-surface-container-low px-gutter py-space-sm shadow-sm lg:px-gutter-desktop">
         <div className="mx-auto flex max-w-[1360px] flex-col items-center justify-between gap-space-sm md:flex-row">
           <div className="w-full md:w-7/12">
-            <CatalogSearchForm compact onSearch={searchCatalog} />
+            <CatalogSearchForm compact key={query.q} onSearch={searchCatalog} value={query.q} />
           </div>
           <div className="flex w-full flex-wrap items-center justify-start gap-space-xs md:w-5/12 md:justify-end">
             <span className="flex items-center gap-1 font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-on-surface-variant">
@@ -319,26 +308,10 @@ export function StorefrontPage({ catalogCategories, catalogProducts, heroBanners
           title="Sản phẩm đang phục vụ"
           description="Danh mục, giá và quy cách bên dưới được đồng bộ từ hệ thống Minh Sâm Bakery."
         />
-        <div className="mb-space-lg flex flex-wrap gap-space-xs">
-          {catalogCategories.map((category) => (
-            <Link className="rounded-full bg-surface-container-lowest px-4 py-2 font-label-ui text-label-ui text-primary shadow-sm transition-colors hover:bg-primary hover:text-on-primary" href={routes.category(category.slug)} key={category.slug}>
-              {category.name} <span className="text-on-surface-variant">({productCountForCategory(category.slug, catalogProducts)})</span>
-            </Link>
-          ))}
-        </div>
-        {catalogProducts.length ? <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2 lg:grid-cols-3">
-          {catalogProducts.map((product) => (
-            <article className="group overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md" key={product.id}>
-              <Link href={routes.product(product.slug)}>
-                <div className="aspect-[4/3] overflow-hidden bg-surface-container"><SafeImage alt={product.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={product.image} /></div>
-                <div className="p-space-md"><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-secondary">{catalogCategories.find((category) => category.slug === product.categorySlug)?.name ?? product.categorySlug}</span><h3 className="mt-1 font-headline-sm text-headline-sm text-primary">{product.name}</h3><p className="mt-1 line-clamp-2 font-body-sm text-body-sm text-on-surface-variant">{product.description}</p><div className="mt-space-sm flex items-center justify-between"><span className="font-price-serif text-price-serif font-semibold text-primary">{product.pricing.mode === "fixed" ? product.pricing.price : "Liên hệ tư vấn"}</span><span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold text-primary">Chi tiết <ArrowRight className="size-4" /></span></div></div>
-              </Link>
-            </article>
-          ))}
-        </div> : <div className="rounded-xl bg-surface-container-lowest p-space-lg text-center font-body-md text-on-surface-variant shadow-sm">Chưa có sản phẩm được công khai.</div>}
+        <CatalogBrowser basePath={routes.products} categories={catalogCategories} page={catalogPage} query={query} />
       </section>
 
-      <FeaturedSeason products={catalogProducts} />
+      <FeaturedSeason products={featuredProducts} />
 
       <section className="mx-auto w-full max-w-[1360px] px-gutter py-space-xl lg:px-gutter-desktop">
         <SectionHeading
@@ -368,7 +341,7 @@ export function StorefrontPage({ catalogCategories, catalogProducts, heroBanners
                 </p>
               </div>
               <div className="mt-space-md pt-space-xs font-label-eyebrow text-label-eyebrow font-semibold uppercase tracking-wider text-secondary">
-                Xem {productCountForCategory(slug, catalogProducts)} sản phẩm →
+                Khám phá sản phẩm →
               </div>
             </Link>
           ))}

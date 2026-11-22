@@ -1,12 +1,14 @@
 import "server-only";
 
-import { apiGet, isRecord } from "@/lib/api/client";
+import { apiGet } from "@/lib/api/client";
+import { backendRequest } from "@/lib/api/backend-client";
 import type {
   CategoryResponseDto,
   PaginatedResponse,
-  PaginationMetaDto,
   ProductResponseDto,
 } from "@/lib/api/types";
+import type { PublicFilterRequest } from "./types";
+import { isCategory, isPaginated, isProduct, isPublicFilterResponse, normalizePublicFilterRequest } from "./public-filter-data";
 
 const PAGE_LIMIT = 100;
 const MAX_PAGES = 20;
@@ -31,8 +33,10 @@ export async function fetchCategoryById(id: string) {
   return response.data;
 }
 
-export async function fetchProducts(
+export async function fetchProductPage(
   filters: {
+    page?: number;
+    limit?: number;
     search?: string;
     categorySlug?: string;
     isFeatured?: boolean;
@@ -46,11 +50,25 @@ export async function fetchProducts(
     query.set("isFeatured", String(filters.isFeatured));
   if (filters.isBestSeller !== undefined)
     query.set("isBestSeller", String(filters.isBestSeller));
-  return fetchAllPages<ProductResponseDto>(
-    `/api/v1/public/products${query.size ? `?${query}` : ""}`,
-    isProduct,
-    "catalog-products",
+  query.set("page", String(filters.page ?? 1));
+  query.set("limit", String(filters.limit ?? 9));
+  const response = await apiGet(
+    `/api/v1/public/products?${query}`,
+    (value): value is PaginatedResponse<ProductResponseDto> => isPaginated(value, isProduct),
+    { tags: ["catalog-products"] },
   );
+  return response.data;
+}
+
+export async function fetchPublicFilter(input: PublicFilterRequest) {
+  const response = await backendRequest({
+    method: "POST",
+    path: "/api/v1/public/filter",
+    body: normalizePublicFilterRequest(input),
+    cache: "no-store",
+    validate: isPublicFilterResponse,
+  });
+  return response.data;
 }
 
 export async function fetchProduct(categorySlug: string, productSlug: string) {
@@ -127,100 +145,4 @@ async function fetchAllPages<T>(
     );
   }
   return items;
-}
-
-function isPaginated<T>(
-  value: unknown,
-  itemGuard: (item: unknown) => item is T,
-): value is PaginatedResponse<T> {
-  return (
-    isRecord(value) &&
-    Array.isArray(value.items) &&
-    value.items.every(itemGuard) &&
-    isPagination(value.pagination)
-  );
-}
-
-function isPagination(value: unknown): value is PaginationMetaDto {
-  return (
-    isRecord(value) &&
-    ["page", "limit", "total", "totalPages"].every(
-      (key) => typeof value[key] === "number",
-    )
-  );
-}
-
-function isCategory(value: unknown): value is CategoryResponseDto {
-  return (
-    isRecord(value) &&
-    typeof value.id === "string" &&
-    nullableString(value.parentId) &&
-    typeof value.name === "string" &&
-    typeof value.slug === "string" &&
-    nullableString(value.description) &&
-    nullableString(value.imageUrl) &&
-    (value.status === "VISIBLE" || value.status === "HIDDEN") &&
-    typeof value.sortOrder === "number" &&
-    nullableString(value.seoTitle) &&
-    nullableString(value.seoDescription) &&
-    typeof value.createdAt === "string" &&
-    typeof value.updatedAt === "string"
-  );
-}
-
-function isProduct(value: unknown): value is ProductResponseDto {
-  return (
-    isRecord(value) &&
-    [
-      "id",
-      "categoryId",
-      "categorySlug",
-      "categoryName",
-      "sku",
-      "name",
-      "slug",
-      "price",
-      "createdAt",
-      "updatedAt",
-    ].every((key) => typeof value[key] === "string") &&
-    nullableString(value.shortDescription) &&
-    nullableString(value.description) &&
-    nullableString(value.salePrice) &&
-    value.status === "PUBLISHED" &&
-    typeof value.isFeatured === "boolean" &&
-    typeof value.isBestSeller === "boolean" &&
-    nullableString(value.seoTitle) &&
-    nullableString(value.seoDescription) &&
-    Array.isArray(value.images) &&
-    value.images.every(isProductImage) &&
-    Array.isArray(value.variants) &&
-    value.variants.every(isProductVariant)
-  );
-}
-
-function isProductImage(value: unknown) {
-  return (
-    isRecord(value) &&
-    typeof value.id === "string" &&
-    typeof value.url === "string" &&
-    nullableString(value.alt) &&
-    typeof value.sortOrder === "number" &&
-    typeof value.isCover === "boolean"
-  );
-}
-
-function isProductVariant(value: unknown) {
-  return (
-    isRecord(value) &&
-    ["id", "sku", "size", "style", "price"].every(
-      (key) => typeof value[key] === "string",
-    ) &&
-    nullableString(value.salePrice) &&
-    (value.status === "ACTIVE" || value.status === "INACTIVE") &&
-    typeof value.sortOrder === "number"
-  );
-}
-
-function nullableString(value: unknown) {
-  return value === null || typeof value === "string";
 }
