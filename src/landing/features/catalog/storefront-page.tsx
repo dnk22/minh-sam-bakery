@@ -6,19 +6,23 @@ import {
   Award,
   BadgeCheck,
   Building2,
+  ChevronLeft,
+  ChevronRight,
   Coffee,
   HandHeart,
   PartyPopper,
-  TrendingUp,
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { CatalogSearchForm } from "./catalog-controls";
-import { CatalogBrowser } from "./catalog-browser";
-import { catalogQueryToSearchParams, type CatalogQuery } from "./query";
-import type { CatalogCategory, CatalogPage, CatalogProduct } from "./types";
+import {
+  boundedPagination,
+  storefrontCategoryQueryToSearchParams,
+  type StorefrontCategoryQuery,
+} from "./query";
+import type { CatalogProduct, StorefrontCategoryPage } from "./types";
 import { routes } from "@/landing/lib/routes";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { BannerMedia } from "@/landing/features/banners/components/banner-media/banner-media";
@@ -99,45 +103,48 @@ const occasions = [
   },
 ];
 
-export function StorefrontPage({ catalogCategories, catalogPage, featuredProducts, query, heroBanners = [] }: { catalogCategories: CatalogCategory[]; catalogPage: CatalogPage | null; featuredProducts: CatalogProduct[]; query: CatalogQuery; heroBanners?: LandingBanner[] }) {
+export function StorefrontPage({
+  categoryPage,
+  featuredProducts,
+  query,
+  heroBanners = [],
+}: {
+  categoryPage: StorefrontCategoryPage | null;
+  featuredProducts: CatalogProduct[];
+  query: StorefrontCategoryQuery;
+  heroBanners?: LandingBanner[];
+}) {
   const router = useRouter();
   function searchCatalog(value: string) {
-    const next = { ...query, q: value.trim(), page: 1 };
-    const params = catalogQueryToSearchParams(next);
-    router.push(`${routes.products}${params.size ? `?${params}` : ""}`, { scroll: false });
+    const params = storefrontCategoryQueryToSearchParams({
+      q: value.trim(),
+      page: 1,
+    });
+    router.push(
+      `${routes.products}${params.size ? `?${params}` : ""}#danh-muc`,
+    );
   }
+  function changeCategoryPage(page: number) {
+    const params = storefrontCategoryQueryToSearchParams({ ...query, page });
+    router.push(`${routes.products}?${params}#danh-muc`, { scroll: false });
+  }
+  const catalogCategories = categoryPage?.categories ?? [];
   return (
     <main className="min-h-[calc(100vh-500px)] w-full bg-surface pt-[var(--landing-header-height)]">
-      <section className="w-full bg-surface-container-low px-gutter py-space-sm shadow-sm lg:px-gutter-desktop">
-        <div className="mx-auto flex max-w-[1360px] flex-col items-center justify-between gap-space-sm md:flex-row">
-          <div className="w-full md:w-7/12">
-            <CatalogSearchForm compact key={query.q} onSearch={searchCatalog} value={query.q} />
-          </div>
-          <div className="flex w-full flex-wrap items-center justify-start gap-space-xs md:w-5/12 md:justify-end">
-            <span className="flex items-center gap-1 font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-on-surface-variant">
-              <TrendingUp className="size-3.5 text-secondary" /> Tìm nhiều:
-            </span>
-            {[
-              ["Hộp quà Tết Đoan Viên", "qua-tang"],
-              ["Bánh Thập Cẩm Cổ Truyền", "banh-trung-thu"],
-              ["Cookie Bơ Pháp", "banh-cookie"],
-            ].map(([tag, slug], index) => (
-              <Link
-                className={`rounded bg-surface-container px-2.5 py-1 font-body-sm text-body-sm text-on-surface transition-colors hover:bg-secondary-container hover:text-on-secondary-container ${index === 2 ? "hidden lg:inline-block" : ""}`}
-                href={routes.category(slug)}
-                key={tag}
-              >
-                {tag}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="mx-auto w-full max-w-[1360px] px-gutter pt-space-lg pb-space-xl lg:px-gutter-desktop">
         <div className="relative flex min-h-[360px] w-full items-center overflow-hidden rounded bg-primary shadow-xl lg:min-h-[390px]">
           <div className="absolute inset-0">
-            <BannerMedia banners={heroBanners} fallback={{ desktopImageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAplQ2BD82uHi8-c52Mula5kD7IRr5s34iAf18F7xgoBWzU_dD_FM7AGMMA3DW4jR58-ATMCxnH5JwAyEnYn1-4j_njhh4G9TeRHEjobs8bxX2oZw9IVKMi9lP9cSHpRIW0lGLZIX4j4EMA8wkgvvVytkzaOPByf9i7-tEo7dLLOWW_85_-7mSAOvg2XtAZ5rX2PHI5VG72Lbxg6m15ck8oZeoa15hERT5iWMdIfLv9ppwolPMZ8rnp", alt: "Chiến dịch Tết Nguyên Đán Minh Sâm Bakery" }} imageClassName="h-full w-full scale-105 object-cover object-center opacity-40 mix-blend-luminosity" linkMedia={false} priority />
+            <BannerMedia
+              banners={heroBanners}
+              fallback={{
+                desktopImageUrl:
+                  "https://lh3.googleusercontent.com/aida-public/AB6AXuAplQ2BD82uHi8-c52Mula5kD7IRr5s34iAf18F7xgoBWzU_dD_FM7AGMMA3DW4jR58-ATMCxnH5JwAyEnYn1-4j_njhh4G9TeRHEjobs8bxX2oZw9IVKMi9lP9cSHpRIW0lGLZIX4j4EMA8wkgvvVytkzaOPByf9i7-tEo7dLLOWW_85_-7mSAOvg2XtAZ5rX2PHI5VG72Lbxg6m15ck8oZeoa15hERT5iWMdIfLv9ppwolPMZ8rnp",
+                alt: "Chiến dịch Tết Nguyên Đán Minh Sâm Bakery",
+              }}
+              imageClassName="h-full w-full scale-105 object-cover object-center opacity-40 mix-blend-luminosity"
+              linkMedia={false}
+              priority
+            />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary-container/80" />
           </div>
           <div className="relative z-10 flex min-w-0 w-full flex-col items-start justify-between gap-space-lg px-gutter py-space-xl lg:flex-row lg:items-center lg:px-space-xl">
@@ -259,56 +266,79 @@ export function StorefrontPage({ catalogCategories, catalogPage, featuredProduct
           title="Khám phá các dòng bánh"
           description="Từ những dòng bánh quen thuộc đến các bộ sưu tập theo mùa và hương vị phục vụ mỗi ngày."
         />
-        <div className="grid grid-cols-1 gap-space-lg md:grid-cols-2 lg:grid-cols-3">
-          {catalogCategories.map((category) => {
-            const content = <>
-              <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
-                <SafeImage
-                  alt={category.imageAlt}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  src={category.image}
-                />
-                <span
-                  className={`absolute top-2.5 rounded px-2 py-0.5 font-label-eyebrow text-[10px] font-semibold uppercase tracking-wider ${category.badgeClassName}`}
-                >
-                  {category.badge}
-                </span>
-                <span className="absolute bottom-2 left-3 font-display-hero text-headline-sm text-primary/30">
-                  {category.number}
-                </span>
-              </div>
-              <div className="flex flex-1 flex-col justify-between p-space-md">
-                <div>
-                  <h3 className="font-headline-sm text-headline-sm text-primary transition-colors group-hover:text-secondary">
-                    {category.name}
-                  </h3>
-                  <p className="mt-1.5 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">
-                    {category.description}
-                  </p>
-                </div>
-                <div className="mt-space-xs flex items-center justify-between pt-space-sm">
-                  <span className="font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-outline">
-                    {category.label}
-                  </span>
-                  <span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold text-primary transition-colors group-hover:text-secondary">
-                    Xem tất cả <ArrowRight className="size-4" />
-                  </span>
-                </div>
-              </div>
-            </>;
-            const className = "group relative flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-sm transition-all hover:shadow-md";
-            return <Link className={className} href={routes.category(category.slug)} key={category.id ?? category.slug}>{content}</Link>;
-          })}
+        <div className="mb-space-lg max-w-3xl">
+          <CatalogSearchForm
+            ariaLabel="Tìm dòng bánh"
+            onSearch={searchCatalog}
+            placeholder="Tìm dòng bánh theo tên hoặc mô tả..."
+            value={query.q}
+          />
         </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-[1360px] px-gutter py-space-xl lg:px-gutter-desktop" id="san-pham-truc-tuyen">
-        <SectionHeading
-          eyebrow="DỮ LIỆU SẢN PHẨM TRỰC TUYẾN"
-          title="Sản phẩm đang phục vụ"
-          description="Danh mục, giá và quy cách bên dưới được đồng bộ từ hệ thống Minh Sâm Bakery."
-        />
-        <CatalogBrowser basePath={routes.products} categories={catalogCategories} page={catalogPage} query={query} />
+        {categoryPage === null ? (
+          <CategoryDiscoveryError onRetry={() => router.refresh()} />
+        ) : catalogCategories.length === 0 ? (
+          <CategoryDiscoveryEmpty onReset={() => searchCatalog("")} />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-space-lg md:grid-cols-2 lg:grid-cols-3">
+              {catalogCategories.map((category) => {
+                const content = (
+                  <>
+                    <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
+                      <SafeImage
+                        alt={category.imageAlt}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        src={category.image}
+                      />
+                      <span
+                        className={`absolute top-2.5 rounded px-2 py-0.5 font-label-eyebrow text-[10px] font-semibold uppercase tracking-wider ${category.badgeClassName}`}
+                      >
+                        {category.badge}
+                      </span>
+                      <span className="absolute bottom-2 left-3 font-display-hero text-headline-sm text-primary/30">
+                        {category.number}
+                      </span>
+                    </div>
+                    <div className="flex flex-1 flex-col justify-between p-space-md">
+                      <div>
+                        <h3 className="font-headline-sm text-headline-sm text-primary transition-colors group-hover:text-secondary">
+                          {category.name}
+                        </h3>
+                        <p className="mt-1.5 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">
+                          {category.description}
+                        </p>
+                      </div>
+                      <div className="mt-space-xs flex items-center justify-between pt-space-sm">
+                        <span className="font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-outline">
+                          {category.label}
+                        </span>
+                        <span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold text-primary transition-colors group-hover:text-secondary">
+                          Xem tất cả <ArrowRight className="size-4" />
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                );
+                const className =
+                  "group relative flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-sm transition-all hover:shadow-md";
+                return (
+                  <Link
+                    className={className}
+                    href={routes.category(category.slug)}
+                    key={category.id ?? category.slug}
+                  >
+                    {content}
+                  </Link>
+                );
+              })}
+            </div>
+            <CategoryDiscoveryPagination
+              onPage={changeCategoryPage}
+              page={categoryPage.pagination.page}
+              totalPages={categoryPage.pagination.totalPages}
+            />
+          </>
+        )}
       </section>
 
       <FeaturedSeason products={featuredProducts} />
@@ -361,6 +391,103 @@ export function StorefrontPage({ catalogCategories, catalogPage, featuredProduct
   );
 }
 
+function CategoryDiscoveryEmpty({ onReset }: { onReset: () => void }) {
+  return (
+    <div className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm">
+      <h3 className="font-headline-sm text-headline-sm text-primary">
+        Không tìm thấy dòng bánh phù hợp
+      </h3>
+      <p className="mt-space-xs font-body-md text-body-md text-on-surface-variant">
+        Vui lòng thử một từ khóa danh mục khác.
+      </p>
+      <button
+        className="mt-space-md rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-on-primary"
+        onClick={onReset}
+        type="button"
+      >
+        Xóa tìm kiếm
+      </button>
+    </div>
+  );
+}
+
+function CategoryDiscoveryError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div
+      className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm"
+      role="alert"
+    >
+      <h3 className="font-headline-sm text-headline-sm text-primary">
+        Chưa thể tải các dòng bánh
+      </h3>
+      <p className="mt-space-xs font-body-md text-body-md text-on-surface-variant">
+        Hệ thống đang tạm thời gián đoạn. Vui lòng thử lại sau ít phút.
+      </p>
+      <button
+        className="mt-space-md rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-on-primary"
+        onClick={onRetry}
+        type="button"
+      >
+        Thử lại
+      </button>
+    </div>
+  );
+}
+
+function CategoryDiscoveryPagination({
+  page,
+  totalPages,
+  onPage,
+}: {
+  page: number;
+  totalPages: number;
+  onPage: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+  return (
+    <nav
+      aria-label="Phân trang dòng bánh"
+      className="mt-space-lg flex flex-wrap items-center justify-center gap-space-sm"
+    >
+      <button
+        aria-label="Trang danh mục trước"
+        className="flex size-10 items-center justify-center rounded bg-surface-container-lowest text-on-surface disabled:cursor-not-allowed disabled:text-outline"
+        disabled={page === 1}
+        onClick={() => onPage(page - 1)}
+        type="button"
+      >
+        <ChevronLeft className="size-[18px]" />
+      </button>
+      {boundedPagination(page, totalPages).map((item) =>
+        typeof item === "number" ? (
+          <button
+            aria-current={item === page ? "page" : undefined}
+            className={`flex size-10 items-center justify-center rounded font-medium ${item === page ? "bg-primary text-secondary-fixed" : "bg-surface-container-lowest text-on-surface hover:bg-surface-container"}`}
+            key={item}
+            onClick={() => onPage(item)}
+            type="button"
+          >
+            {item}
+          </button>
+        ) : (
+          <span aria-hidden="true" className="px-1 text-outline" key={item}>
+            …
+          </span>
+        ),
+      )}
+      <button
+        aria-label="Trang danh mục sau"
+        className="flex size-10 items-center justify-center rounded bg-surface-container-lowest text-on-surface disabled:cursor-not-allowed disabled:text-outline"
+        disabled={page === totalPages}
+        onClick={() => onPage(page + 1)}
+        type="button"
+      >
+        <ChevronRight className="size-[18px]" />
+      </button>
+    </nav>
+  );
+}
+
 function SectionHeading({
   eyebrow,
   title,
@@ -397,13 +524,16 @@ function SectionHeading({
 }
 
 function FeaturedSeason({ products }: { products: CatalogProduct[] }) {
-  const featuredProduct = products.find((product) => product.isFeatured) ?? products[0];
+  const featuredProduct =
+    products.find((product) => product.isFeatured) ?? products[0];
   if (!featuredProduct) return null;
-  const supportingProducts = products.filter((product) => product.id !== featuredProduct.id).slice(0, 3);
+  const supportingProducts = products
+    .filter((product) => product.id !== featuredProduct.id)
+    .slice(0, 3);
 
   return (
     <section className="w-full bg-surface-container-low px-gutter py-space-xl lg:px-gutter-desktop">
-      <div className="mx-auto max-w-[1360px]">
+      <div className="mx-auto max-w-[1360px] px-gutter lg:px-gutter-desktop">
         <SectionHeading title="Nổi bật mùa này" />
         <div className="grid grid-cols-1 items-stretch gap-space-lg lg:grid-cols-12">
           <article className="group flex flex-col justify-between overflow-hidden rounded bg-surface-container-lowest shadow-md lg:col-span-6">
@@ -416,14 +546,22 @@ function FeaturedSeason({ products }: { products: CatalogProduct[] }) {
               <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent" />
               <div className="absolute top-4 left-4">
                 <span className="rounded bg-secondary px-3 py-1 font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-on-secondary shadow">
-                  {featuredProduct.isBestSeller ? "SẢN PHẨM BÁN CHẠY" : "SẢN PHẨM NỔI BẬT"}
+                  {featuredProduct.isBestSeller
+                    ? "SẢN PHẨM BÁN CHẠY"
+                    : "SẢN PHẨM NỔI BẬT"}
                 </span>
               </div>
               <div className="absolute right-4 bottom-4 left-4 text-surface-bright">
                 <span className="font-label-eyebrow text-[10px] uppercase tracking-widest text-secondary-fixed">
-                  {featuredProduct.sku ? `MÃ SP: ${featuredProduct.sku}` : "MINH SÂM BAKERY"}
+                  {featuredProduct.sku
+                    ? `MÃ SP: ${featuredProduct.sku}`
+                    : "MINH SÂM BAKERY"}
                 </span>
-                {featuredProduct.description ? <p className="mt-0.5 font-body-sm text-body-sm text-primary-fixed-dim">{featuredProduct.description}</p> : null}
+                {featuredProduct.description ? (
+                  <p className="mt-0.5 font-body-sm text-body-sm text-primary-fixed-dim">
+                    {featuredProduct.description}
+                  </p>
+                ) : null}
               </div>
             </div>
             <div className="flex flex-1 flex-col justify-between gap-space-md p-space-lg">
@@ -431,16 +569,27 @@ function FeaturedSeason({ products }: { products: CatalogProduct[] }) {
                 <h3 className="mt-1 font-headline-lg text-headline-sm text-primary lg:text-headline-md">
                   {featuredProduct.name}
                 </h3>
-                {featuredProduct.description ? <p className="mt-2 font-body-md text-body-md leading-relaxed text-on-surface-variant">{featuredProduct.description}</p> : null}
+                {featuredProduct.description ? (
+                  <p className="mt-2 font-body-md text-body-md leading-relaxed text-on-surface-variant">
+                    {featuredProduct.description}
+                  </p>
+                ) : null}
               </div>
               <div className="flex flex-col justify-between gap-space-sm pt-space-md sm:flex-row sm:items-center">
                 <div>
-                  <span className="block font-label-eyebrow text-[11px] uppercase text-outline">GIÁ HIỆN TẠI</span>
+                  <span className="block font-label-eyebrow text-[11px] uppercase text-outline">
+                    GIÁ HIỆN TẠI
+                  </span>
                   <span className="font-headline-sm text-subheading font-semibold text-secondary">
                     {catalogPrice(featuredProduct)}
                   </span>
                 </div>
-                <Link className="rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-secondary-fixed shadow-sm hover:bg-primary-container" href={routes.product(featuredProduct.slug)}>Xem chi tiết</Link>
+                <Link
+                  className="rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-secondary-fixed shadow-sm hover:bg-primary-container"
+                  href={routes.product(featuredProduct.slug)}
+                >
+                  Xem chi tiết
+                </Link>
               </div>
             </div>
           </article>
@@ -461,17 +610,29 @@ function FeaturedSeason({ products }: { products: CatalogProduct[] }) {
                   <div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-label-eyebrow text-label-eyebrow font-semibold uppercase text-secondary">
-                        {item.isBestSeller ? "BÁN CHẠY" : item.isFeatured ? "NỔI BẬT" : "SẢN PHẨM MINH SÂM"}
+                        {item.isBestSeller
+                          ? "BÁN CHẠY"
+                          : item.isFeatured
+                            ? "NỔI BẬT"
+                            : "SẢN PHẨM MINH SÂM"}
                       </span>
-                      <span className="font-price-serif text-price-serif font-bold text-primary">{catalogPrice(item)}</span>
+                      <span className="font-price-serif text-price-serif font-bold text-primary">
+                        {catalogPrice(item)}
+                      </span>
                     </div>
                     <h4 className="mt-0.5 font-headline-sm text-subheading text-primary group-hover:text-secondary">
                       {item.name}
                     </h4>
-                    {item.description ? <p className="mt-1 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">{item.description}</p> : null}
+                    {item.description ? (
+                      <p className="mt-1 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">
+                        {item.description}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="mt-space-xs flex items-center justify-between pt-space-sm">
-                    <span className="font-body-sm text-body-sm text-outline">{item.sku ? `Mã SP: ${item.sku}` : "Minh Sâm Bakery"}</span>
+                    <span className="font-body-sm text-body-sm text-outline">
+                      {item.sku ? `Mã SP: ${item.sku}` : "Minh Sâm Bakery"}
+                    </span>
                     <Link
                       className="flex items-center gap-1 rounded bg-primary px-space-md py-1.5 font-label-ui text-label-ui text-secondary-fixed"
                       href={routes.product(item.slug)}
@@ -490,5 +651,7 @@ function FeaturedSeason({ products }: { products: CatalogProduct[] }) {
 }
 
 function catalogPrice(product: CatalogProduct) {
-  return product.pricing.mode === "fixed" ? product.pricing.price : "Liên hệ tư vấn";
+  return product.pricing.mode === "fixed"
+    ? product.pricing.price
+    : "Liên hệ tư vấn";
 }

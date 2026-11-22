@@ -46,8 +46,15 @@ export function CatalogBrowser({ basePath, categories, categoryRouteSlug, page, 
   };
   const changeCategory = (category: string | null) => {
     const next = { ...query, category, page: 1 };
-    if (categoryRouteSlug !== undefined) navigate(category ? routes.category(category) : routes.products, next);
-    else updateQuery({ category });
+    if (categoryRouteSlug !== undefined) {
+      if (category === null) {
+        router.push(`${routes.products}#danh-muc`);
+        return;
+      }
+      navigate(routes.category(category), next);
+      return;
+    }
+    updateQuery({ category });
   };
   const resetQuery = () => {
     const next = { q: "", category: categoryRouteSlug ?? null, price: "all" as const, sort: "default" as const, page: 1 };

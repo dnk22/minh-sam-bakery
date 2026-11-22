@@ -1,10 +1,12 @@
 import "server-only";
 
+import { cache } from "react";
 import type { ProductResponseDto } from "@/lib/api/types";
 
 import { adaptCategory, adaptProduct } from "./adapters";
 import {
   fetchCategories,
+  fetchCategoryPage,
   fetchCategoryById,
   fetchProduct,
   fetchProductPage,
@@ -12,7 +14,9 @@ import {
   fetchRelatedProducts,
 } from "./api";
 import { catalogQueryToFilterRequest, type CatalogQuery } from "./query";
-import type { CatalogCategory, CatalogProduct } from "./types";
+import { STOREFRONT_CATEGORY_PAGE_SIZE } from "./query";
+import { findExactSlugAcrossSearchPages } from "./product-lookup";
+import type { CatalogCategory, CatalogProduct, StorefrontCategoryPage } from "./types";
 
 export async function getCatalogCategories() {
   return (await fetchCategories())
@@ -20,11 +24,19 @@ export async function getCatalogCategories() {
     .map(adaptCategory);
 }
 
-export async function getCatalogCategory(slug: string) {
-  const categories = await getCatalogCategories();
+export async function getCatalogCategory(slug: string, knownCategories?: CatalogCategory[]) {
+  const categories = knownCategories ?? await getCatalogCategories();
   const summary = findCategory(categories, slug);
   if (!summary || !summary.id) return summary;
   return adaptCategory(await fetchCategoryById(summary.id));
+}
+
+export async function getStorefrontCategories({ search, page = 1, limit = STOREFRONT_CATEGORY_PAGE_SIZE }: { search?: string; page?: number; limit?: number } = {}): Promise<StorefrontCategoryPage> {
+  const response = await fetchCategoryPage({ search, page, limit });
+  return {
+    categories: response.items.filter((item) => item.status === "VISIBLE").map(adaptCategory),
+    pagination: response.pagination,
+  };
 }
 
 export async function getCatalogPage(query: CatalogQuery, categoryId?: string) {
@@ -41,13 +53,15 @@ export async function getFeaturedCatalogProducts() {
   return response.items.map(adaptProduct);
 }
 
-export async function resolveProductBySlug(slug: string) {
-  const index = await fetchProductPage({ search: slug, page: 1, limit: 100 });
-  const match = index.items.find((item) => item.slug === slug);
+export const resolveProductBySlug = cache(async (slug: string) => {
+  const match = await findExactSlugAcrossSearchPages(slug, async (page) => {
+    const response = await fetchPublicFilter({ search: slug, page, limit: 100 });
+    return { items: response.products, pagination: response.pagination };
+  });
   if (!match) return {};
   const dto = await fetchProduct(match.categorySlug, match.slug);
   return { product: adaptProduct(dto), dto };
-}
+});
 
 export async function getRelatedCatalogProducts(dto: ProductResponseDto) {
   return (await fetchRelatedProducts(dto.categorySlug, dto.slug)).map(

@@ -60,9 +60,9 @@ export function adaptProduct(dto: ProductResponseDto): CatalogProduct {
   };
 }
 
-export function effectivePrice(price: string, salePrice: string | null, field: string) {
+export function effectivePrice(price: string, salePrice: string | null | undefined, field: string) {
   const regular = parseBackendPrice(price, field);
-  if (salePrice === null) return regular;
+  if (salePrice == null) return regular;
   return parseBackendPrice(salePrice, `${field} salePrice`);
 }
 

@@ -40,15 +40,15 @@ export type PublicPostResponseDto = {
 
 export type CategoryResponseDto = {
   id: string;
-  parentId: string | null;
+  parentId?: string | null;
   name: string;
   slug: string;
-  description: string | null;
-  imageUrl: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
   status: "VISIBLE" | "HIDDEN";
   sortOrder: number;
-  seoTitle: string | null;
-  seoDescription: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -56,7 +56,7 @@ export type CategoryResponseDto = {
 export type ProductImageResponseDto = {
   id: string;
   url: string;
-  alt: string | null;
+  alt?: string | null;
   sortOrder: number;
   isCover: boolean;
 };
@@ -67,7 +67,7 @@ export type ProductVariantResponseDto = {
   size: string;
   style: string;
   price: string;
-  salePrice: string | null;
+  salePrice?: string | null;
   status: "ACTIVE" | "INACTIVE";
   sortOrder: number;
 };
@@ -80,15 +80,15 @@ export type ProductResponseDto = {
   sku: string;
   name: string;
   slug: string;
-  shortDescription: string | null;
-  description: string | null;
+  shortDescription?: string | null;
+  description?: string | null;
   price: string;
-  salePrice: string | null;
+  salePrice?: string | null;
   status: "DRAFT" | "PUBLISHED" | "HIDDEN";
   isFeatured: boolean;
   isBestSeller: boolean;
-  seoTitle: string | null;
-  seoDescription: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   images: ProductImageResponseDto[];
   variants: ProductVariantResponseDto[];
   createdAt: string;

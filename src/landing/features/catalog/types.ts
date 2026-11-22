@@ -92,3 +92,8 @@ export type CatalogPage = {
   products: CatalogProduct[];
   pagination: PaginationMetaDto;
 };
+
+export type StorefrontCategoryPage = {
+  categories: CatalogCategory[];
+  pagination: PaginationMetaDto;
+};

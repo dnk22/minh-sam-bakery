@@ -4,6 +4,8 @@ import test from "node:test";
 
 import { isApiEnvelope } from "../src/lib/api/transport.ts";
 import {
+  isCategory,
+  isProduct,
   isPublicFilterResponse,
   normalizePublicFilterRequest,
 } from "../src/landing/features/catalog/public-filter-data.ts";
@@ -14,9 +16,14 @@ import {
   catalogQueryToSearchParams,
   catalogSortFields,
   isCatalogQueryCanonical,
+  isStorefrontCategoryQueryCanonical,
   parseCatalogQuery,
+  parseStorefrontCategoryQuery,
+  storefrontCategoryQueryToSearchParams,
+  storefrontCategoryRequestSearchParams,
   updateCatalogQuery,
 } from "../src/landing/features/catalog/query.ts";
+import { findExactSlugAcrossSearchPages } from "../src/landing/features/catalog/product-lookup.ts";
 
 const category = {
   id: "category-1", parentId: null, name: "Bánh ngọt", slug: "banh-ngot", description: null,
@@ -55,6 +62,27 @@ test("validates the documented filter data and rejects invalid envelopes or reco
   assert.equal(isPublicFilterResponse({ ...filterResponse, categories: [{}] }), false);
 });
 
+test("accepts omitted optional DTO fields while enforcing required fields", () => {
+  const minimalCategory = {
+    id: "category-min", name: "Cookie", slug: "cookie", status: "VISIBLE", sortOrder: 1,
+    createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z",
+  };
+  const minimalProduct = {
+    id: "product-min", categoryId: minimalCategory.id, categorySlug: minimalCategory.slug,
+    categoryName: minimalCategory.name, sku: "COOKIE-1", name: "Cookie bơ", slug: "cookie-bo",
+    price: "120000.00", status: "PUBLISHED", isFeatured: false, isBestSeller: false,
+    images: [{ id: "image-1", url: "/uploads/cookie.jpg", sortOrder: 0, isCover: true }],
+    variants: [{ id: "variant-1", sku: "COOKIE-1-BOX", size: "Hộp", style: "Bơ", price: "120000.00", status: "ACTIVE", sortOrder: 0 }],
+    createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z",
+  };
+  assert.equal(isCategory(minimalCategory), true);
+  assert.equal(isProduct(minimalProduct), true);
+  assert.equal(isProduct({ ...minimalProduct, images: [{ ...minimalProduct.images[0], alt: null }], salePrice: null }), true);
+  assert.equal(isProduct({ ...minimalProduct, slug: undefined }), false);
+  assert.equal(isCategory({ ...minimalCategory, status: undefined }), false);
+  assert.equal(isPublicFilterResponse({ ...filterResponse, products: [minimalProduct], categories: [minimalCategory] }), true);
+});
+
 test("normalizes public filter requests without inventing unsupported fields", () => {
   assert.deepEqual(normalizePublicFilterRequest({ search: "bánh", page: 2, limit: 9, categoryId: undefined, sortBy: "price", sort: "asc" }), {
     search: "bánh", page: 2, limit: 9, sortBy: "price", sort: "asc",
@@ -77,6 +105,17 @@ test("category route takes precedence and serialization is deterministic", () =>
   assert.equal(query.category, "banh-ngot");
   assert.equal(catalogQueryToSearchParams(query, { includeCategory: false }).toString(), "q=b%C6%A1");
   assert.equal(catalogQueryToSearchParams({ ...query, category: "banh-mi", price: "under-200", sort: "price-desc", page: 3 }).toString(), "q=b%C6%A1&category=banh-mi&price=under-200&sort=price-desc&page=3");
+});
+
+test("storefront category query keeps only canonical search state", () => {
+  const parsed = parseStorefrontCategoryQuery({ q: ["  trung   thu ", "ignored"], page: "2", price: "under-200", mode: "quote", category: "banh-cookie" });
+  assert.deepEqual(parsed, { q: "trung thu", page: 2 });
+  assert.equal(storefrontCategoryQueryToSearchParams(parsed).toString(), "q=trung+thu&page=2");
+  assert.equal(isStorefrontCategoryQueryCanonical({ q: "trung thu", page: "2" }, parsed), true);
+  assert.equal(isStorefrontCategoryQueryCanonical({ q: "trung thu", page: "2", price: "under-200" }, parsed), false);
+  assert.deepEqual(parseStorefrontCategoryQuery({ q: "   ", page: "-1" }), { q: "", page: 1 });
+  assert.equal(storefrontCategoryRequestSearchParams({ search: "cookie", page: 3, limit: 12 }).toString(), "page=3&limit=12&search=cookie");
+  assert.equal(storefrontCategoryRequestSearchParams().toString(), "page=1&limit=12");
 });
 
 test("maps exact non-overlapping inclusive price boundaries and Backend sorting", () => {
@@ -105,11 +144,27 @@ test("resets page for filter changes, preserves it for pagination and bounds pag
   assert.deepEqual(boundedPagination(1, 0), []);
 });
 
-test("active listing routes use one server page without client slicing, fake modes or facet counts", () => {
+test("finds an exact product slug beyond the first search page without a fixed cutoff", async () => {
+  const calls: number[] = [];
+  const match = await findExactSlugAcrossSearchPages("target", async (page) => {
+    calls.push(page);
+    return {
+      items: page === 2 ? [{ slug: "target", categorySlug: "cookie" }] : [{ slug: `other-${page}`, categorySlug: "other" }],
+      pagination: { page, limit: 1, total: 3, totalPages: 3 },
+    };
+  });
+  assert.equal(match?.slug, "target");
+  assert.deepEqual(calls, [1, 2]);
+  const missing = await findExactSlugAcrossSearchPages("missing", async (page) => ({ items: [{ slug: `other-${page}` }], pagination: { page, limit: 1, total: 2, totalPages: 2 } }));
+  assert.equal(missing, undefined);
+});
+
+test("keeps storefront category discovery separate from category product listing", () => {
   const api = readFileSync("src/landing/features/catalog/api.ts", "utf8");
   const repository = readFileSync("src/landing/features/catalog/repository.ts", "utf8");
   const browser = readFileSync("src/landing/features/catalog/catalog-browser.tsx", "utf8");
   const controls = readFileSync("src/landing/features/catalog/catalog-controls.tsx", "utf8");
+  const storefront = readFileSync("src/landing/features/catalog/storefront-page.tsx", "utf8");
   const productsRoute = readFileSync("src/app/(landing)/san-pham/page.tsx", "utf8");
   const categoryRoute = readFileSync("src/app/(landing)/danh-muc/[slug]/page.tsx", "utf8");
   assert.match(api, /method: "POST"/);
@@ -118,6 +173,20 @@ test("active listing routes use one server page without client slicing, fake mod
   assert.doesNotMatch(repository, /getCatalogSnapshot|fetchProducts/);
   assert.doesNotMatch(browser, /\.slice\(/);
   assert.doesNotMatch(controls, /Hình Thức Mua|facet|count=/);
-  assert.match(productsRoute, /getCatalogPage/);
-  assert.match(categoryRoute, /getCatalogPage\(query, category\.id\)/);
+  assert.match(controls, /Mới đăng/);
+  assert.doesNotMatch(storefront, /CatalogBrowser|Sản phẩm đang phục vụ|san-pham-truc-tuyen/);
+  assert.match(storefront, /<CatalogSearchForm[^>]*onSearch=\{searchCatalog\}/);
+  assert.ok(storefront.indexOf("Khám phá các dòng bánh") < storefront.indexOf("<CatalogSearchForm"));
+  assert.match(storefront, /routes\.category\(category\.slug\)/);
+  assert.match(storefront, /<FeaturedSeason products=\{featuredProducts\}/);
+  assert.match(storefront, /BannerMedia/);
+  assert.match(storefront, /Không tìm thấy dòng bánh phù hợp/);
+  assert.match(storefront, /Chưa thể tải các dòng bánh/);
+  assert.match(productsRoute, /getStorefrontCategories/);
+  assert.doesNotMatch(productsRoute, /getCatalogPage|fetchPublicFilter/);
+  assert.match(api, /\/api\/v1\/public\/categories\?\$\{query\}/);
+  assert.match(categoryRoute, /getCatalogPage/);
+  assert.match(repository, /findExactSlugAcrossSearchPages/);
+  assert.match(repository, /fetchProduct\(match\.categorySlug, match\.slug\)/);
+  assert.match(browser, /routes\.products\}#danh-muc/);
 });
