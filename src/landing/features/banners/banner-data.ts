@@ -16,14 +16,21 @@ export function isBannerResponseArray(value: unknown): value is unknown[] {
   return Array.isArray(value);
 }
 
+const hasUnsafeUrlCharacters = (value: string) => /[\\\u0000-\u001f\u007f]/.test(value);
+
 export function resolvePublicBannerImageUrl(value: unknown, backendBaseUrl: string) {
   if (!nonEmptyString(value)) return null;
   const candidate = value.trim();
-  if (candidate.startsWith("//")) return null;
+  if (hasUnsafeUrlCharacters(candidate) || candidate.startsWith("//")) return null;
   if (candidate.startsWith("/")) {
     if (!candidate.startsWith("/uploads/")) return null;
     try {
-      return new URL(candidate, `${backendBaseUrl.replace(/\/$/, "")}/`).toString();
+      const backend = new URL(backendBaseUrl);
+      const url = new URL(candidate, backend);
+      // Reject URL-parser normalization that escapes the public uploads directory.
+      return url.origin === backend.origin && url.pathname.startsWith("/uploads/")
+        ? url.toString()
+        : null;
     } catch {
       return null;
     }
@@ -39,8 +46,16 @@ export function resolvePublicBannerImageUrl(value: unknown, backendBaseUrl: stri
 export function resolveSafeBannerLink(value: unknown) {
   if (!nonEmptyString(value)) return null;
   const candidate = value.trim();
-  if (candidate.startsWith("/") && !candidate.startsWith("//")) return candidate;
+  // Backslashes can be interpreted as slashes by browsers, turning an apparently
+  // internal path ("/\\evil.example") into a cross-origin navigation.
+  if (hasUnsafeUrlCharacters(candidate) || candidate.startsWith("//")) return null;
   try {
+    if (candidate.startsWith("/")) {
+      const siteOrigin = "https://minh-sam.invalid";
+      const url = new URL(candidate, siteOrigin);
+      if (url.origin !== siteOrigin) return null;
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
     const url = new URL(candidate);
     return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
   } catch {
@@ -118,6 +133,25 @@ export function selectLandingBanners(banners: LandingBanner[], now: Date | numbe
   const unique = new Map<string, LandingBanner>();
   for (const banner of eligible) if (!unique.has(banner.id)) unique.set(banner.id, banner);
   return [...unique.values()];
+}
+
+/** Keep a selected banner stable by ID even when the list is reordered or shortened. */
+export function activeBannerIndex(
+  banners: ReadonlyArray<Pick<LandingBanner, "id">>,
+  selectedId: string | null,
+) {
+  const index = selectedId === null ? -1 : banners.findIndex((banner) => banner.id === selectedId);
+  return index < 0 ? 0 : index;
+}
+
+export function adjacentBannerId(
+  banners: ReadonlyArray<Pick<LandingBanner, "id">>,
+  selectedId: string | null,
+  direction: number,
+): string | null {
+  if (!banners.length) return null;
+  const index = activeBannerIndex(banners, selectedId);
+  return banners[((index + direction) % banners.length + banners.length) % banners.length].id;
 }
 
 export function bannerRenderMode(count: number): BannerRenderMode {

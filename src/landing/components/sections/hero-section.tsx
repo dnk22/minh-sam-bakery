@@ -21,7 +21,7 @@ export function HeroSection({ banners = [] }: { banners?: LandingBanner[] }) {
           toScale={1.095}
           toY={38}
         >
-          <BannerMedia banners={banners} fallback={heroFallback} imageClassName="h-full w-full object-cover object-[58%_center] opacity-40 sm:object-center" linkMedia={false} priority />
+          <BannerMedia banners={banners} controlsPlacement="below-header" fallback={heroFallback} imageClassName="h-full w-full object-cover object-[58%_center] opacity-40 sm:object-center" linkMedia={false} priority />
         </ScrollParallax>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-transparent" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary via-transparent to-primary/60" />

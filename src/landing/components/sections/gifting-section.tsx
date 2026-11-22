@@ -12,6 +12,7 @@ const giftingFallback = {
 };
 
 export function GiftingSection({ banners = [] }: { banners?: LandingBanner[] }) {
+  const hasManagedMedia = banners.length > 0;
   return (
     <section className="relative w-full flex flex-col justify-between overflow-hidden bg-primary-container px-6 py-16 text-on-primary md:px-12 lg:min-h-[calc(100vh-var(--landing-header-height))] lg:px-20">
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl opacity-50 pointer-events-none" />
@@ -20,9 +21,9 @@ export function GiftingSection({ banners = [] }: { banners?: LandingBanner[] }) 
           <div className="relative rounded overflow-hidden shadow-2xl bg-primary">
             <BannerMedia banners={banners} className="h-[380px] lg:h-[480px]" fallback={giftingFallback} imageClassName="h-full w-full object-cover" />
             <div className="absolute bottom-0 inset-x-0 p-5 bg-gradient-to-t from-primary/95 to-transparent text-secondary-fixed md:p-6">
-              <span className="font-label-eyebrow font-semibold text-[10px] leading-4 tracking-[0.14em] uppercase block md:text-label-eyebrow md:tracking-[0.18em] lg:tracking-[0.2em]">Ấn Phẩm Tri Ân</span>
-              <p className="font-headline-sm font-semibold text-[18px] leading-[1.35] md:text-[19px] md:leading-7 lg:text-headline-sm">Hộp Quà Di Sản Đoan Viên</p>
-              <p className="font-body-sm text-[13px] leading-5 text-secondary-fixed-dim/80 md:text-[14px] md:leading-[22px] lg:text-body-sm">Sơn mài truyền thống, thêu tay chỉ vàng &amp; vị bánh hoàng gia.</p>
+              <span className="font-label-eyebrow font-semibold text-[10px] leading-4 tracking-[0.14em] uppercase block md:text-label-eyebrow md:tracking-[0.18em] lg:tracking-[0.2em]">{hasManagedMedia ? "NGHỆ THUẬT TRAO TẶNG" : "Ấn Phẩm Tri Ân"}</span>
+              <p className="font-headline-sm font-semibold text-[18px] leading-[1.35] md:text-[19px] md:leading-7 lg:text-headline-sm">{hasManagedMedia ? "Quà tặng mang dấu ấn Minh Sâm" : "Hộp Quà Di Sản Đoan Viên"}</p>
+              <p className="font-body-sm text-[13px] leading-5 text-secondary-fixed-dim/80 md:text-[14px] md:leading-[22px] lg:text-body-sm">{hasManagedMedia ? "Hương vị tinh tế cho những dịp sum vầy và tri ân." : "Sơn mài truyền thống, thêu tay chỉ vàng & vị bánh hoàng gia."}</p>
             </div>
           </div>
         </Reveal>
