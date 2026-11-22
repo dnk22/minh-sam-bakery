@@ -7,12 +7,13 @@ import { CheckoutFlowProvider } from "@/landing/features/checkout/components/che
 import { FixedPricePurchaseExperience } from "./fixed-price-purchase-experience";
 import { ProductBreadcrumb } from "./product-breadcrumb";
 import { SafeImage } from "@/landing/components/ui/safe-image";
+import { routes } from "@/landing/lib/routes";
 
 export function FixedPriceProductPage({ product }: { product: FixedPriceProductDetail }) {
   return (
     <CheckoutFlowProvider>
     <main className="min-h-[calc(100vh-20rem)] w-full bg-surface pt-[var(--landing-header-height)]">
-      <ProductBreadcrumb categoryHref={`/danh-muc/${product.catalog.categorySlug}`} categoryLabel={product.categoryLabel} productName={product.catalog.name} />
+      <ProductBreadcrumb categoryHref={routes.category(product.catalog.categorySlug)} categoryLabel={product.categoryLabel} productName={product.catalog.name} />
       <FixedPricePurchaseExperience product={product} />
 
       {product.complementaryProducts.length > 0 ? <section className="mx-auto w-full max-w-[1360px] px-margin py-space-xl md:px-margin-tablet lg:px-margin-desktop">
@@ -21,7 +22,7 @@ export function FixedPriceProductPage({ product }: { product: FixedPriceProductD
       </section> : null}
 
       {product.relatedProducts.length > 0 ? <section className="mx-auto w-full max-w-[1360px] px-margin pb-space-xl md:px-margin-tablet lg:px-margin-desktop">
-        <div className="mb-space-md flex items-center justify-between"><div><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">BỘ SƯU TẬP TƯƠNG ĐỒNG</span><h2 className="mt-1 font-headline-md text-headline-md text-primary">Có Thể Bạn Cũng Thích</h2></div><Link className="flex items-center gap-1 font-label-ui text-body-sm font-semibold text-primary hover:text-on-primary-container" href="/san-pham">Xem tất cả sản phẩm <ChevronRight className="size-[18px]" /></Link></div>
+        <div className="mb-space-md flex items-center justify-between"><div><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">BỘ SƯU TẬP TƯƠNG ĐỒNG</span><h2 className="mt-1 font-headline-md text-headline-md text-primary">Có Thể Bạn Cũng Thích</h2></div><Link className="flex items-center gap-1 font-label-ui text-body-sm font-semibold text-primary hover:text-on-primary-container" href={routes.category(product.catalog.categorySlug)}>Xem tất cả sản phẩm <ChevronRight className="size-[18px]" /></Link></div>
         <div className="grid grid-cols-2 gap-gutter-desktop md:grid-cols-4">{product.relatedProducts.map((card) => <RelatedProductCard card={card} key={card.title} />)}</div>
       </section> : null}
     </main>

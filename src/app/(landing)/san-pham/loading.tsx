@@ -1,3 +1,0 @@
-export default function StorefrontLoading() {
-  return <main aria-busy="true" aria-label="Đang tải các dòng bánh" className="min-h-screen bg-surface pt-[var(--landing-header-height)]"><div className="mx-auto max-w-[1360px] px-gutter py-space-lg lg:px-gutter-desktop"><div className="h-[390px] animate-pulse rounded bg-primary/80" /><div className="mt-space-xl h-20 animate-pulse rounded bg-surface-container-lowest" /><div className="mt-space-lg grid grid-cols-1 gap-space-lg md:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <div className="h-96 animate-pulse rounded bg-surface-container-lowest" key={index} />)}</div></div></main>;
-}

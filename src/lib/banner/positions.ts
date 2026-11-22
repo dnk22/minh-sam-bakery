@@ -1,7 +1,7 @@
 export const BANNER_POSITIONS = [
   { value: "home_hero", label: "Hero trang chủ", page: "/", description: "Banner chính ở đầu trang chủ." },
   { value: "home_gifting", label: "Quà tặng trang chủ", page: "/", description: "Banner cho khu vực quà tặng trên trang chủ." },
-  { value: "products_hero", label: "Hero trang sản phẩm", page: "/san-pham", description: "Banner chính ở đầu trang sản phẩm." },
+  { value: "products_hero", label: "Hero sản phẩm (không còn hiển thị)", page: "/danh-muc", description: "Vị trí cũ của trang sản phẩm; hiện không được Landing render." },
   { value: "about_hero", label: "Hero giới thiệu", page: "/ve-minh-sam", description: "Banner chính ở đầu trang giới thiệu Minh Sâm." },
 ] as const;
 

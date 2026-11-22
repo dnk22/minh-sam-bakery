@@ -3,6 +3,8 @@ export type CatalogCategory = {
   slug: string;
   name: string;
   description: string;
+  seoTitle?: string;
+  seoDescription?: string;
   image: string;
   imageAlt: string;
   badge: string;
@@ -90,10 +92,5 @@ export type PublicFilterResponseDto = {
 export type CatalogPage = {
   search: string | null;
   products: CatalogProduct[];
-  pagination: PaginationMetaDto;
-};
-
-export type StorefrontCategoryPage = {
-  categories: CatalogCategory[];
   pagination: PaginationMetaDto;
 };

@@ -9,7 +9,6 @@ import type {
 } from "@/lib/api/types";
 import type { PublicFilterRequest } from "./types";
 import { isCategory, isPaginated, isProduct, isPublicFilterResponse, normalizePublicFilterRequest } from "./public-filter-data";
-import { storefrontCategoryRequestSearchParams } from "./query";
 
 const PAGE_LIMIT = 100;
 const MAX_PAGES = 20;
@@ -21,16 +20,6 @@ export async function fetchCategories() {
     "catalog-categories",
   );
   return categories.filter((category) => category.status === "VISIBLE");
-}
-
-export async function fetchCategoryPage(filters: { search?: string; page?: number; limit?: number } = {}) {
-  const query = storefrontCategoryRequestSearchParams(filters);
-  const response = await apiGet(
-    `/api/v1/public/categories?${query}`,
-    (value): value is PaginatedResponse<CategoryResponseDto> => isPaginated(value, isCategory),
-    { tags: ["catalog-categories"] },
-  );
-  return response.data;
 }
 
 export async function fetchCategoryById(id: string) {

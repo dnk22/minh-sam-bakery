@@ -13,15 +13,7 @@ import type {
   CatalogPrice,
   CatalogQuery,
   CatalogSort,
-  CatalogTypeOption,
 } from "./query";
-
-const tabs = [
-  { label: "Tất cả", note: "Sản phẩm" },
-  { label: "Tết Nguyên Đán", note: "Theo mùa" },
-  { label: "Trung Thu Đoàn Viên", note: "Theo mùa" },
-  { label: "Mỗi ngày & Trà chiều", note: "Thường nhật" },
-];
 
 export function CatalogSearchForm({
   compact = false,
@@ -119,30 +111,6 @@ export function CatalogSearchForm({
   );
 }
 
-export function OccasionTabs() {
-  return (
-    <div
-      aria-label="Dịp thưởng bánh"
-      className="mt-space-lg flex flex-wrap items-center gap-space-sm"
-    >
-      {tabs.map((tab, index) => (
-        <span
-          aria-disabled={index > 0}
-          className={`flex items-center gap-space-xs rounded px-space-lg py-2.5 font-label-ui text-label-ui uppercase tracking-wider ${index === 0 ? "bg-primary text-secondary-fixed" : "bg-surface-container text-on-surface shadow-sm"}`}
-          key={tab.label}
-        >
-          <span>{tab.label}</span>
-          <span
-            className={`${index === 0 ? "rounded-full bg-primary-container px-1.5 py-0.5 text-secondary-fixed" : "text-secondary"} text-[11px] font-semibold`}
-          >
-            {tab.note}
-          </span>
-        </span>
-      ))}
-    </div>
-  );
-}
-
 export const catalogPriceOptions: { value: CatalogPrice; label: string }[] = [
   { value: "all", label: "Tất cả mức giá" },
   { value: "under-200", label: "Dưới 200.000đ" },
@@ -152,14 +120,10 @@ export const catalogPriceOptions: { value: CatalogPrice; label: string }[] = [
 
 export function CatalogFilterForm({
   query,
-  typeOptions,
-  onCategoryChange,
   onChange,
   onReset,
 }: {
   query: CatalogQuery;
-  typeOptions: CatalogTypeOption[];
-  onCategoryChange: (category: string | null) => void;
   onChange: (patch: Partial<CatalogQuery>) => void;
   onReset: () => void;
 }) {
@@ -183,26 +147,6 @@ export function CatalogFilterForm({
           Đặt lại
         </button>
       </div>
-      <fieldset className="flex min-w-0 flex-col gap-space-sm py-space-md">
-        <legend className="mb-space-sm font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-primary">
-          Danh mục
-        </legend>
-        <FilterRadio
-          checked={query.category === null}
-          label="Tất cả loại bánh"
-          name="category"
-          onChange={() => onCategoryChange(null)}
-        />
-        {typeOptions.map((item) => (
-          <FilterRadio
-            checked={query.category === item.value}
-            key={item.value}
-            label={item.label}
-            name="category"
-            onChange={() => onCategoryChange(item.value)}
-          />
-        ))}
-      </fieldset>
       <fieldset className="flex min-w-0 flex-col gap-space-sm py-space-md">
         <legend className="mb-space-sm font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-primary">
           Khoảng giá niêm yết
@@ -259,31 +203,18 @@ export function CatalogToolbar({
   query,
   currentCount,
   totalCount,
-  typeOptions,
-  showCategoryChip = true,
   onChange,
   onReset,
 }: {
   query: CatalogQuery;
   currentCount: number;
   totalCount: number;
-  typeOptions: CatalogTypeOption[];
-  showCategoryChip?: boolean;
   onChange: (patch: Partial<CatalogQuery>) => void;
   onReset: () => void;
 }) {
   const chips = [
     query.q
       ? { key: "q", label: `“${query.q}”`, clear: () => onChange({ q: "" }) }
-      : null,
-    showCategoryChip && query.category
-      ? {
-          key: "category",
-          label:
-            typeOptions.find((item) => item.value === query.category)?.label ??
-            query.category,
-          clear: () => onChange({ category: null }),
-        }
       : null,
     query.price !== "all"
       ? {

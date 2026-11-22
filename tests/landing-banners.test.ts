@@ -115,14 +115,17 @@ test("managed banner images use generic captions without changing fallback edito
 
 test("maps every registry position and configures bounded cache freshness", () => {
   const home = readFileSync("src/app/(landing)/page.tsx", "utf8");
-  const products = readFileSync("src/app/(landing)/san-pham/page.tsx", "utf8");
+  const categoryStorefront = readFileSync("src/landing/features/catalog/storefront-page.tsx", "utf8");
+  const positions = readFileSync("src/lib/banner/positions.ts", "utf8");
   const about = readFileSync("src/app/(landing)/ve-minh-sam/page.tsx", "utf8");
   const api = readFileSync("src/landing/features/banners/public-banners.server.ts", "utf8");
   const cache = readFileSync("src/lib/banner/cache.ts", "utf8");
   const collectionRoute = readFileSync("src/app/api/cms/banners/route.ts", "utf8");
   const itemRoute = readFileSync("src/app/api/cms/banners/[id]/route.ts", "utf8");
   assert.match(home, /home_hero/); assert.match(home, /home_gifting/);
-  assert.match(products, /products_hero/); assert.match(about, /about_hero/);
+  assert.doesNotMatch(categoryStorefront, /products_hero|BannerMedia/);
+  assert.match(positions, /products_hero/); assert.match(positions, /không còn hiển thị/);
+  assert.match(about, /about_hero/);
   assert.match(api, /\/api\/v1\/public\/banners/); assert.match(api, /landingBannerCacheTags/);
   assert.match(cache, /LANDING_BANNERS_REVALIDATE_SECONDS = 60/);
   assert.match(collectionRoute, /revalidateLandingBanners\(\)/);

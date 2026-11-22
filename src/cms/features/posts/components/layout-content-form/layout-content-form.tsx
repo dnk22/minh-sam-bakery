@@ -52,7 +52,7 @@ function SafeLinkInput({ value, onChange }: { value: string; onChange: (value: s
     <CmsInput
       id="cta-href"
       inputMode="url"
-      placeholder="/san-pham/..."
+      placeholder="/danh-muc/banh-kem/..."
       value={draft}
       onBlur={() => { if (error) { setDraft(value); setError(""); } }}
       onChange={(event) => commit(event.target.value)}

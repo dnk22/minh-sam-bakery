@@ -1,11 +1,9 @@
 import type { PublicFilterRequest } from "./types.ts";
 
 export const CATALOG_PAGE_SIZE = 9;
-export const STOREFRONT_CATEGORY_PAGE_SIZE = 12;
 export const MAX_CATALOG_PAGE = 10_000;
 export const MAX_CATALOG_SEARCH_LENGTH = 100;
 
-export type CatalogTypeOption = { value: string; label: string };
 export type CatalogSort = "default" | "price-asc" | "price-desc";
 export type CatalogPrice = "all" | "under-200" | "200-500" | "over-500";
 
@@ -19,53 +17,11 @@ export type CatalogQuery = {
 
 export type RawSearchParams = Record<string, string | string[] | undefined>;
 
-export type StorefrontCategoryQuery = {
-  q: string;
-  page: number;
-};
-
 const validPrices = new Set<CatalogPrice>(["all", "under-200", "200-500", "over-500"]);
 const validSorts = new Set<CatalogSort>(["default", "price-asc", "price-desc"]);
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
-}
-
-export function parseStorefrontCategoryQuery(params: RawSearchParams): StorefrontCategoryQuery {
-  const rawSearch = (first(params.q) ?? "").trim().replace(/\s+/g, " ");
-  const rawPage = first(params.page);
-  const parsedPage = rawPage && /^\d+$/.test(rawPage) ? Number(rawPage) : 1;
-  return {
-    q: rawSearch.slice(0, MAX_CATALOG_SEARCH_LENGTH),
-    page: Number.isSafeInteger(parsedPage) && parsedPage > 0
-      ? Math.min(parsedPage, MAX_CATALOG_PAGE)
-      : 1,
-  };
-}
-
-export function storefrontCategoryQueryToSearchParams(query: StorefrontCategoryQuery) {
-  const params = new URLSearchParams();
-  if (query.q) params.set("q", query.q);
-  if (query.page > 1) params.set("page", String(query.page));
-  return params;
-}
-
-export function isStorefrontCategoryQueryCanonical(raw: RawSearchParams, query: StorefrontCategoryQuery) {
-  const current = new URLSearchParams();
-  for (const key of Object.keys(raw).sort()) {
-    const values = Array.isArray(raw[key]) ? raw[key] : raw[key] === undefined ? [] : [raw[key]];
-    for (const value of values) if (value !== undefined) current.append(key, value);
-  }
-  current.sort();
-  const canonical = storefrontCategoryQueryToSearchParams(query);
-  canonical.sort();
-  return current.toString() === canonical.toString();
-}
-
-export function storefrontCategoryRequestSearchParams({ search, page = 1, limit = STOREFRONT_CATEGORY_PAGE_SIZE }: { search?: string; page?: number; limit?: number } = {}) {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (search) params.set("search", search);
-  return params;
 }
 
 function firstAllowed(values: string | string[] | undefined, allowed: Set<string>) {

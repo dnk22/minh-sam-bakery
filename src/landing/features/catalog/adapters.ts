@@ -20,6 +20,8 @@ export function adaptCategory(dto: CategoryResponseDto): CatalogCategory {
     slug: dto.slug,
     name: dto.name,
     description: dto.description ?? "",
+    seoTitle: dto.seoTitle ?? undefined,
+    seoDescription: dto.seoDescription ?? undefined,
     image: backendAssetUrl(dto.imageUrl) ?? FALLBACK_IMAGE,
     imageAlt: dto.name,
     badge: "Minh Sâm Bakery",

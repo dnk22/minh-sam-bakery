@@ -1,10 +1,11 @@
 export const routes = {
   home: "/",
   homeHero: "/#trang-chu",
-  products: "/san-pham",
+  categories: "/danh-muc",
   journal: "/tin-tuc",
   about: "/ve-minh-sam",
   category: (slug: string) => `/danh-muc/${slug}`,
-  product: (slug: string) => `/san-pham/${slug}`,
+  product: (categorySlug: string, productSlug: string) =>
+    `/danh-muc/${categorySlug}/${productSlug}`,
   article: (slug: string) => `/tin-tuc/${slug}`,
 } as const;

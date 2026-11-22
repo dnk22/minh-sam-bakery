@@ -47,7 +47,7 @@ export function adaptApiProductDetail(dto: ProductResponseDto, related: CatalogP
 function toPresentationCard(product: CatalogProduct): PresentationCard {
   return {
     productId: product.id,
-    href: routes.product(product.slug),
+    href: routes.product(product.categorySlug, product.slug),
     eyebrow: "",
     title: product.name,
     description: product.description,

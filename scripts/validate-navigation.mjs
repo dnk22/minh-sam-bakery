@@ -59,7 +59,8 @@ for (const promotion of merchandising.promotions) {
 }
 
 assert(routes.category("qua-tang") === "/danh-muc/qua-tang", "Category route helper is inconsistent");
-assert(routes.product("sample") === "/san-pham/sample", "Product route helper is inconsistent");
+assert(routes.categories === "/danh-muc", "Categories route helper is inconsistent");
+assert(routes.product("banh-ngot", "sample") === "/danh-muc/banh-ngot/sample", "Product route helper is inconsistent");
 assert(routes.article("sample") === "/tin-tuc/sample", "Article route helper is inconsistent");
 assert(routes.about === "/ve-minh-sam", "About route helper is inconsistent");
 

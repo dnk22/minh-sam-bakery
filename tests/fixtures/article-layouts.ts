@@ -13,7 +13,7 @@ export const articleLayoutFixtures: ArticleLayoutDocument[] = [
   ] } },
   { key: "product-story", version: 1, data: { kind: "product-story", introduction: "<p>Món quà dành cho sum vầy.</p>", sections: [
     { id: "story-gift", type: "section", title: "Gói trọn tâm tình", body: "<p>Chọn nguyên liệu theo mùa.</p>", imageUrl: "/uploads/posts/hop-qua.jpg", imageAlt: "Hộp quà", caption: "Bộ quà Minh Sâm", imageSide: "right" },
-  ], highlight: { title: "Hộp quà đoàn viên", description: "Thiết kế dành cho dịp sum họp.", imageUrl: "/uploads/posts/doan-vien.jpg", imageAlt: "Hộp quà đoàn viên", ctaLabel: "Khám phá sản phẩm", ctaHref: "/san-pham/hop-qua-doan-vien" }, benefits: [
+  ], highlight: { title: "Hộp quà đoàn viên", description: "Thiết kế dành cho dịp sum họp.", imageUrl: "/uploads/posts/doan-vien.jpg", imageAlt: "Hộp quà đoàn viên", ctaLabel: "Khám phá sản phẩm", ctaHref: "/danh-muc/qua-tang/hop-qua-doan-vien" }, benefits: [
     { id: "benefit-craft", title: "Thủ công", description: "Hoàn thiện từng chiếc bánh." }, { id: "benefit-gift", title: "Tinh tế", description: "Bao bì phù hợp làm quà." },
   ] } },
 ];

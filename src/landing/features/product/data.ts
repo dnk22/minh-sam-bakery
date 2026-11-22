@@ -129,7 +129,7 @@ function productCard(productId: string) {
   if (!product) throw new Error(`Missing merchandising product: ${productId}`);
   return {
     productId: product.id,
-    href: routes.product(product.slug),
+    href: routes.product(product.categorySlug, product.slug),
     eyebrow: "",
     title: product.name,
     description: product.description,
@@ -207,7 +207,7 @@ export function createDetail(product: DetailCatalogProduct): ProductDetail {
 const productByName = new Map(catalogProducts.map((product) => [product.name, product]));
 const linkCards = (cards: typeof fixedPriceProduct.relatedProducts) => cards.map((card) => {
   const product = productByName.get(card.title);
-  return product ? { ...card, productId: product.id, href: routes.product(product.slug) } : card;
+  return product ? { ...card, productId: product.id, href: routes.product(product.categorySlug, product.slug) } : card;
 });
 
 fixedPriceProduct.relatedProducts = linkCards(fixedPriceProduct.relatedProducts);

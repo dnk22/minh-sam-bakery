@@ -19,54 +19,38 @@ import { routes } from "@/landing/lib/routes";
 
 import { CatalogFilterForm, CatalogToolbar } from "./catalog-controls";
 import { boundedPagination, catalogQueryToSearchParams, updateCatalogQuery, type CatalogQuery } from "./query";
-import type { CatalogCategory, CatalogPage, CatalogProduct } from "./types";
+import type { CatalogPage, CatalogProduct } from "./types";
 
 const quoteIcons = { calendar: CalendarDays, palette: Palette, cake: CakeSlice };
 
 type CatalogBrowserProps = {
   basePath: string;
-  categories: CatalogCategory[];
-  categoryRouteSlug?: string;
   page: CatalogPage | null;
   query: CatalogQuery;
 };
 
-export function CatalogBrowser({ basePath, categories, categoryRouteSlug, page, query }: CatalogBrowserProps) {
+export function CatalogBrowser({ basePath, page, query }: CatalogBrowserProps) {
   const router = useRouter();
-  const typeOptions = categories.map(({ slug, name }) => ({ value: slug, label: name }));
-  const includeCategory = categoryRouteSlug === undefined;
 
   const navigate = (path: string, next: CatalogQuery) => {
-    const params = catalogQueryToSearchParams(next, { includeCategory: path === routes.products });
+    const params = catalogQueryToSearchParams(next, { includeCategory: false });
     router.push(`${path}${params.size ? `?${params}` : ""}`, { scroll: false });
   };
   const updateQuery = (patch: Partial<CatalogQuery>) => {
     const next = updateCatalogQuery(query, patch);
     navigate(basePath, next);
   };
-  const changeCategory = (category: string | null) => {
-    const next = { ...query, category, page: 1 };
-    if (categoryRouteSlug !== undefined) {
-      if (category === null) {
-        router.push(`${routes.products}#danh-muc`);
-        return;
-      }
-      navigate(routes.category(category), next);
-      return;
-    }
-    updateQuery({ category });
-  };
   const resetQuery = () => {
-    const next = { q: "", category: categoryRouteSlug ?? null, price: "all" as const, sort: "default" as const, page: 1 };
+    const next = { q: "", category: query.category, price: "all" as const, sort: "default" as const, page: 1 };
     navigate(basePath, next);
   };
 
   return <div className="flex flex-col items-start gap-gutter-desktop lg:flex-row">
-    <aside className="w-full rounded-xl bg-surface-container-lowest p-space-lg shadow-sm lg:sticky lg:top-28 lg:w-72 lg:shrink-0"><CatalogFilterForm onCategoryChange={changeCategory} onChange={updateQuery} onReset={resetQuery} query={query} typeOptions={typeOptions} /></aside>
+    <aside className="w-full rounded-xl bg-surface-container-lowest p-space-lg shadow-sm lg:sticky lg:top-28 lg:w-72 lg:shrink-0"><CatalogFilterForm onChange={updateQuery} onReset={resetQuery} query={query} /></aside>
     <div className="w-full min-w-0 flex-1">
       {page ? <>
-        <CatalogToolbar currentCount={page.products.length} onChange={updateQuery} onReset={resetQuery} query={query} showCategoryChip={includeCategory} totalCount={page.pagination.total} typeOptions={typeOptions} />
-        {page.products.length > 0 ? <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">{page.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <CatalogEmptyState hasFilters={Boolean(query.q || query.category || query.price !== "all")} onReset={resetQuery} />}
+        <CatalogToolbar currentCount={page.products.length} onChange={updateQuery} onReset={resetQuery} query={query} totalCount={page.pagination.total} />
+        {page.products.length > 0 ? <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">{page.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <CatalogEmptyState hasFilters={Boolean(query.q || query.price !== "all")} onReset={resetQuery} />}
         <CatalogPagination onPage={(nextPage) => updateQuery({ page: nextPage })} pagination={page.pagination} />
       </> : <CatalogErrorState onRetry={() => router.refresh()} />}
     </div>
@@ -93,7 +77,7 @@ function PageButton({ children, disabled, label, onClick }: { children: ReactNod
 
 export function ProductCard({ product }: { product: CatalogProduct }) {
   const pricing = product.pricing;
-  const detailHref = routes.product(product.slug);
+  const detailHref = routes.product(product.categorySlug, product.slug);
   const QuoteIcon = pricing.mode === "quote" ? quoteIcons[pricing.icon] : MessageSquare;
   return <article className="group flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
     <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container"><SafeImage alt={product.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={product.image} />{product.badge && <span className={`absolute top-3 left-3 rounded px-2 py-0.5 font-label-eyebrow text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>{product.badge}</span>}</div>

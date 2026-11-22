@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FeaturedStoryCarousel } from "./journal-interactions";
 import { buildJournalPageHref, selectFeaturedArticles } from "./query";
 import type { JournalPageData } from "./types";
+import { routes } from "@/landing/lib/routes";
 
 export function JournalListingPage({ data, search, failed = false }: { data: JournalPageData | null; search?: string; failed?: boolean }) {
   const items = data?.items ?? [];
@@ -38,5 +39,5 @@ function JournalErrorState({ search }: { search?: string }) {
 }
 
 function EditorialBridge() {
-  return <section className="bg-primary py-16 text-surface-bright"><div className="mx-auto flex max-w-[1120px] flex-col items-start justify-between gap-8 px-margin md:flex-row md:items-center md:px-margin-tablet"><div><span className="font-label-eyebrow uppercase tracking-widest text-secondary-fixed">TỪ CÂU CHUYỆN ĐẾN HƯƠNG VỊ</span><h2 className="mt-2 font-headline-lg text-headline-lg">Khám phá bánh và quà tặng Minh Sâm</h2><p className="mt-3 max-w-2xl text-surface-container-highest">Mỗi bài viết là một lát cắt từ nghề bánh, nguyên liệu và văn hóa trao tặng của người Việt.</p></div><Link className="shrink-0 rounded-lg bg-secondary px-7 py-3 font-label-ui text-on-secondary" href="/san-pham">Xem sản phẩm</Link></div></section>;
+  return <section className="bg-primary py-16 text-surface-bright"><div className="mx-auto flex max-w-[1120px] flex-col items-start justify-between gap-8 px-margin md:flex-row md:items-center md:px-margin-tablet"><div><span className="font-label-eyebrow uppercase tracking-widest text-secondary-fixed">TỪ CÂU CHUYỆN ĐẾN HƯƠNG VỊ</span><h2 className="mt-2 font-headline-lg text-headline-lg">Khám phá bánh và quà tặng Minh Sâm</h2><p className="mt-3 max-w-2xl text-surface-container-highest">Mỗi bài viết là một lát cắt từ nghề bánh, nguyên liệu và văn hóa trao tặng của người Việt.</p></div><Link className="shrink-0 rounded-lg bg-secondary px-7 py-3 font-label-ui text-on-secondary" href={routes.categories}>Xem sản phẩm</Link></div></section>;
 }
