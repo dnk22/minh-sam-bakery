@@ -12,7 +12,7 @@ export function safeCmsNotificationLink(value?: string | null) {
     const url = new URL(value, "https://cms.invalid");
     if (url.origin !== "https://cms.invalid" || (url.pathname !== "/cms" && !url.pathname.startsWith("/cms/"))) return null;
     // The order detail screen is a modal on /cms/orders, not a dynamic route.
-    const orderMatch = /^\\/cms\\/orders\\/([^/]+)\\/?$/.exec(url.pathname);
+    const orderMatch = new RegExp("^/cms/orders/([^/]+)/?$").exec(url.pathname);
     if (orderMatch) {
       const orderId = decodeURIComponent(orderMatch[1]);
       if (!validOrderId(orderId)) return null;
