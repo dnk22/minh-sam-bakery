@@ -3,6 +3,7 @@
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronDown } from "lucide-react";
 import { useState, type ComponentPropsWithRef, type ReactNode } from "react";
+import { useController, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 
 import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
 import { CmsDropdown, CmsDropdownContent, CmsDropdownTrigger } from "@/cms/components/ui/dropdown-menu";
@@ -99,5 +100,27 @@ export function CmsSelect({
         </CmsDropdownContent>
       </span>
     </CmsDropdown>
+  );
+}
+
+/** Controlled React Hook Form adapter for custom dropdowns. */
+export function CmsFormSelect<T extends FieldValues>({
+  control,
+  name,
+  ...props
+}: Omit<CmsSelectProps, "name" | "value" | "defaultValue" | "onValueChange" | "onChange"> & {
+  control: Control<T>;
+  name: FieldPath<T>;
+}) {
+  const { field } = useController({ control, name });
+  return (
+    <CmsSelect
+      {...props}
+      name={field.name}
+      onBlur={field.onBlur}
+      onValueChange={field.onChange}
+      ref={field.ref}
+      value={field.value == null ? "" : String(field.value)}
+    />
   );
 }

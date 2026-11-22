@@ -5,7 +5,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { ImageUpload } from "@/cms/components/image-upload/image-upload";
 import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
-import { CmsSelect } from "@/cms/components/ui/select/select";
+import { CmsFormSelect } from "@/cms/components/ui/select/select";
 import { CmsTextarea } from "@/cms/components/ui/textarea/textarea";
 
 import { CATEGORY_STATUS_OPTIONS } from "../../constants";
@@ -55,11 +55,11 @@ export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManu
         htmlFor="category-parent"
         label="Danh mục cha"
       >
-        <CmsSelect
+        <CmsFormSelect
           disabled={parentDisabled}
           id="category-parent"
           options={parentSelectOptions}
-          {...register("parentId")}
+          control={form.control} name="parentId"
         />
       </CmsFormField>
       <div className={styles.twoColumns}>
@@ -68,10 +68,10 @@ export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManu
           htmlFor="category-status"
           label="Hiển thị"
         >
-          <CmsSelect
+          <CmsFormSelect
             id="category-status"
             options={CATEGORY_STATUS_OPTIONS}
-            {...register("status")}
+            control={form.control} name="status"
           />
         </CmsFormField>
         <CmsFormField
