@@ -62,23 +62,30 @@ test("toolbar search sizing uses flex basis instead of competing width rules", (
 });
 
 
-test("settings are consolidated and notifications are available from the header, not the sidebar", () => {
+test("settings retain sub-routes and sidebar while appearance and display are consolidated", () => {
   const navigation = source("src/cms/config/navigation.ts");
   const header = source("src/cms/components/layout/cms-header.tsx");
   const profile = source("src/cms/components/layout/profile-dropdown.tsx");
-  const settings = source("src/app/(cms)/cms/(protected)/settings/page.tsx");
+  const index = source("src/app/(cms)/cms/(protected)/settings/page.tsx");
+  const display = source("src/app/(cms)/cms/(protected)/settings/display/page.tsx");
+  const legacy = source("src/app/(cms)/cms/(protected)/settings/appearance/page.tsx");
   const settingsShell = source("src/cms/features/settings/settings-shell.tsx");
+  const css = source("src/cms/styles/cms.css");
 
   assert.doesNotMatch(navigation, /title: "Thông báo", href: "\/cms\/notifications"/);
   assert.match(navigation, /title: "Cài đặt", href: "\/cms\/settings"/);
+  assert.match(navigation, /Giao diện & hiển thị/);
   assert.doesNotMatch(header, /<ConfigDrawer/);
   assert.match(profile, /href="\/cms\/settings"/);
   assert.match(profile, /onSelect=\{toggleTheme\}/);
-  assert.match(settings, /<CmsAppearanceControls \/>/);
-  assert.doesNotMatch(settingsShell, /cms-settings-nav/);
-  for (const legacy of ["appearance", "display"]) {
-    assert.match(source(`src/app/(cms)/cms/(protected)/settings/${legacy}/page.tsx`), /redirect\("\/cms\/settings"\)/);
-  }
+  assert.match(index, /redirect\("\/cms\/settings\/display"\)/);
+  assert.match(legacy, /redirect\("\/cms\/settings\/display"\)/);
+  assert.match(display, /<CmsAppearanceControls \/>/);
+  assert.match(settingsShell, /cms-settings-nav/);
+  assert.match(settingsShell, /cms-settings-mobile-select/);
+  assert.match(settingsShell, /href: "\/cms\/settings\/display"/);
+  assert.match(css, /\.cms-settings-body/);
+  assert.match(css, /\.cms-settings-mobile-select/);
 });
 
 test("notification bulk actions remain side-by-side on mobile", () => {

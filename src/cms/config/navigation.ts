@@ -102,6 +102,14 @@ export function resolveCmsBreadcrumbs(pathname: string): CmsBreadcrumbItem[] {
     }
   }
 
+  if (pathname.startsWith("/cms/settings/")) {
+    return [
+      { title: "Hệ thống", href: "/cms", active: false },
+      { title: "Cài đặt", href: "/cms/settings", active: false },
+      { title: "Giao diện & hiển thị", href: "/cms/settings/display", active: true },
+    ];
+  }
+
   if (pathname === "/cms/notifications") {
     return [
       { title: "Tổng quan", href: "/cms", active: false },
