@@ -2,6 +2,7 @@ export const routes = {
   home: "/",
   homeHero: "/#trang-chu",
   categories: "/danh-muc",
+  search: "/tim-kiem",
   journal: "/tin-tuc",
   about: "/ve-minh-sam",
   category: (slug: string) => `/danh-muc/${slug}`,
