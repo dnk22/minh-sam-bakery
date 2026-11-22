@@ -3,13 +3,7 @@ import type {
   PaginatedResponse,
   PaginationMetaDto,
   ProductResponseDto,
-  PublicPostResponseDto,
 } from "../../../lib/api/types.ts";
-import type {
-  PublicFilterRequest,
-  PublicFilterResponseDto,
-  PublicFilterSuggestionDto,
-} from "./types.ts";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -60,36 +54,4 @@ function isProductVariant(value: unknown) {
   return isRecord(value) && ["id", "sku", "size", "style", "price"].every((key) => typeof value[key] === "string") &&
     optionalNullableString(value.salePrice) && (value.status === "ACTIVE" || value.status === "INACTIVE") &&
     typeof value.sortOrder === "number";
-}
-
-function isPostAuthor(value: unknown) {
-  return isRecord(value) && typeof value.id === "string" && typeof value.fullName === "string";
-}
-
-function isPublicPost(value: unknown): value is PublicPostResponseDto {
-  return isRecord(value) && typeof value.id === "string" && typeof value.title === "string" &&
-    typeof value.slug === "string" && typeof value.content === "string" &&
-    optionalNullableString(value.thumbnailUrl) && optionalNullableString(value.excerpt) &&
-    (value.status === "DRAFT" || value.status === "PUBLISHED") &&
-    typeof value.showOnLanding === "boolean" && optionalNullableString(value.publishedAt) &&
-    optionalNullableString(value.seoTitle) && optionalNullableString(value.seoDescription) &&
-    isPostAuthor(value.author) && typeof value.createdAt === "string" && typeof value.updatedAt === "string";
-}
-
-function isSuggestion(value: unknown): value is PublicFilterSuggestionDto {
-  return isRecord(value) && typeof value.type === "string" && typeof value.id === "string" &&
-    typeof value.label === "string" && optionalNullableString(value.slug);
-}
-
-export function isPublicFilterResponse(value: unknown): value is PublicFilterResponseDto {
-  return isRecord(value) && optionalNullableString(value.search) &&
-    Array.isArray(value.products) && value.products.every(isProduct) &&
-    isPagination(value.pagination) && value.products.length <= value.pagination.limit &&
-    Array.isArray(value.categories) && value.categories.every(isCategory) &&
-    Array.isArray(value.posts) && value.posts.every(isPublicPost) &&
-    Array.isArray(value.suggestions) && value.suggestions.every(isSuggestion);
-}
-
-export function normalizePublicFilterRequest(input: PublicFilterRequest): PublicFilterRequest {
-  return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined)) as PublicFilterRequest;
 }

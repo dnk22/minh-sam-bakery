@@ -27,7 +27,7 @@ export function CategoryStorefrontPage({
   const basePath = routes.category(category.slug);
   const updateSearch = (q: string) => {
     const next = { ...query, q, page: 1 };
-    const params = catalogQueryToSearchParams(next, { includeCategory: false });
+    const params = catalogQueryToSearchParams(next);
     router.push(`${basePath}${params.size ? `?${params}` : ""}#san-pham`, { scroll: false });
   };
 

@@ -1,24 +1,13 @@
-import type { CatalogCategory, CatalogProduct } from "./types.ts";
+import type { CatalogProduct } from "./types.ts";
 
-export function selectCrossCategorySlugs(
-  categories: CatalogCategory[],
+export function normalizeCrossCategoryProducts(
+  candidates: CatalogProduct[],
   excludedCategorySlug: string,
-  maximumCategories = 2,
-) {
-  return categories
-    .filter((category) => category.slug !== excludedCategorySlug)
-    .slice(0, Math.max(0, maximumCategories))
-    .map((category) => category.slug);
-}
-
-export function collectCrossCategoryProducts(
-  productGroups: CatalogProduct[][],
-  excludedCategorySlug: string,
-  limit: number,
+  limit = 4,
 ) {
   const seen = new Set<string>();
   const products: CatalogProduct[] = [];
-  for (const product of productGroups.flat()) {
+  for (const product of candidates) {
     if (product.categorySlug === excludedCategorySlug || seen.has(product.id)) continue;
     seen.add(product.id);
     products.push(product);

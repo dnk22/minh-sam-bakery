@@ -1,10 +1,14 @@
 import { redirect } from "next/navigation";
 
 import { getCatalogCategories } from "@/landing/features/catalog/repository";
+import { reportCatalogError } from "@/landing/features/catalog/diagnostics";
 import { routes } from "@/landing/lib/routes";
 
 export default async function CategoriesIndexRoute() {
-  const categories = await getCatalogCategories();
+  const categories = await getCatalogCategories().catch((error) => {
+    reportCatalogError("categories", "/api/v1/public/categories", error);
+    throw error;
+  });
   const firstCategory = categories[0];
   if (firstCategory) redirect(routes.category(firstCategory.slug));
 

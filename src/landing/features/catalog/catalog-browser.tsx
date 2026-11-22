@@ -17,7 +17,7 @@ import type { ReactNode } from "react";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { routes } from "@/landing/lib/routes";
 
-import { CatalogFilterForm, CatalogToolbar } from "./catalog-controls";
+import { CatalogToolbar } from "./catalog-controls";
 import { boundedPagination, catalogQueryToSearchParams, updateCatalogQuery, type CatalogQuery } from "./query";
 import type { CatalogPage, CatalogProduct } from "./types";
 
@@ -33,7 +33,7 @@ export function CatalogBrowser({ basePath, page, query }: CatalogBrowserProps) {
   const router = useRouter();
 
   const navigate = (path: string, next: CatalogQuery) => {
-    const params = catalogQueryToSearchParams(next, { includeCategory: false });
+    const params = catalogQueryToSearchParams(next);
     router.push(`${path}${params.size ? `?${params}` : ""}`, { scroll: false });
   };
   const updateQuery = (patch: Partial<CatalogQuery>) => {
@@ -41,19 +41,16 @@ export function CatalogBrowser({ basePath, page, query }: CatalogBrowserProps) {
     navigate(basePath, next);
   };
   const resetQuery = () => {
-    const next = { q: "", category: query.category, price: "all" as const, sort: "default" as const, page: 1 };
+    const next = { q: "", page: 1 };
     navigate(basePath, next);
   };
 
-  return <div className="flex flex-col items-start gap-gutter-desktop lg:flex-row">
-    <aside className="w-full rounded-xl bg-surface-container-lowest p-space-lg shadow-sm lg:sticky lg:top-28 lg:w-72 lg:shrink-0"><CatalogFilterForm onChange={updateQuery} onReset={resetQuery} query={query} /></aside>
-    <div className="w-full min-w-0 flex-1">
+  return <div className="w-full min-w-0">
       {page ? <>
         <CatalogToolbar currentCount={page.products.length} onChange={updateQuery} onReset={resetQuery} query={query} totalCount={page.pagination.total} />
-        {page.products.length > 0 ? <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">{page.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <CatalogEmptyState hasFilters={Boolean(query.q || query.price !== "all")} onReset={resetQuery} />}
+        {page.products.length > 0 ? <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">{page.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <CatalogEmptyState hasFilters={Boolean(query.q)} onReset={resetQuery} />}
         <CatalogPagination onPage={(nextPage) => updateQuery({ page: nextPage })} pagination={page.pagination} />
       </> : <CatalogErrorState onRetry={() => router.refresh()} />}
-    </div>
   </div>;
 }
 

@@ -1,13 +1,14 @@
 import "server-only";
 
 import { backendBaseUrl, backendRequest } from "./backend-client";
-import { BackendRequestError } from "./errors";
+import { BackendRequestError, type BackendErrorKind } from "./errors";
 
 export class ApiClientError extends Error {
   constructor(
     message: string,
     readonly status?: number,
     readonly code?: number,
+    readonly kind?: BackendErrorKind,
   ) {
     super(message);
     this.name = "ApiClientError";
@@ -43,7 +44,7 @@ export async function apiGet<T>(
         : error.kind === "invalid_data"
           ? "Backend data does not match the documented schema"
           : error.backendMessage || "Backend request failed";
-    throw new ApiClientError(message, error.status, error.code);
+    throw new ApiClientError(message, error.status, error.code, error.kind);
   }
 }
 

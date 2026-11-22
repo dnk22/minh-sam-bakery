@@ -1,14 +1,12 @@
 import "server-only";
 
 import { apiGet } from "@/lib/api/client";
-import { backendRequest } from "@/lib/api/backend-client";
 import type {
   CategoryResponseDto,
   PaginatedResponse,
   ProductResponseDto,
 } from "@/lib/api/types";
-import type { PublicFilterRequest } from "./types";
-import { isCategory, isPaginated, isProduct, isPublicFilterResponse, normalizePublicFilterRequest } from "./public-filter-data";
+import { isCategory, isPaginated, isProduct } from "./response-data";
 
 const PAGE_LIMIT = 100;
 const MAX_PAGES = 20;
@@ -22,52 +20,28 @@ export async function fetchCategories() {
   return categories.filter((category) => category.status === "VISIBLE");
 }
 
-export async function fetchCategoryById(id: string) {
-  const response = await apiGet(
-    `/api/v1/public/categories/${encodeURIComponent(id)}`,
-    isCategory,
-    {
-      tags: ["catalog-categories", `catalog-category-${id}`],
-    },
-  );
-  return response.data;
-}
-
-export async function fetchProductPage(
-  filters: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    categorySlug?: string;
-    isFeatured?: boolean;
-    isBestSeller?: boolean;
-  } = {},
+export async function fetchCategoryProducts(
+  categorySlug: string,
+  filters: { page?: number; limit?: number; search?: string } = {},
 ) {
   const query = new URLSearchParams();
   if (filters.search) query.set("search", filters.search);
-  if (filters.categorySlug) query.set("categorySlug", filters.categorySlug);
-  if (filters.isFeatured !== undefined)
-    query.set("isFeatured", String(filters.isFeatured));
-  if (filters.isBestSeller !== undefined)
-    query.set("isBestSeller", String(filters.isBestSeller));
   query.set("page", String(filters.page ?? 1));
   query.set("limit", String(filters.limit ?? 9));
   const response = await apiGet(
-    `/api/v1/public/products?${query}`,
+    `/api/v1/public/categories/${encodeURIComponent(categorySlug)}/products?${query}`,
     (value): value is PaginatedResponse<ProductResponseDto> => isPaginated(value, isProduct),
-    { tags: ["catalog-products"] },
+    { tags: ["catalog-products", `catalog-category-products-${categorySlug}`] },
   );
   return response.data;
 }
 
-export async function fetchPublicFilter(input: PublicFilterRequest) {
-  const response = await backendRequest({
-    method: "POST",
-    path: "/api/v1/public/filter",
-    body: normalizePublicFilterRequest(input),
-    cache: "no-store",
-    validate: isPublicFilterResponse,
-  });
+export async function fetchRelatedOtherCategoryProducts(categorySlug: string) {
+  const response = await apiGet(
+    `/api/v1/public/products/${encodeURIComponent(categorySlug)}/related-other`,
+    (value): value is PaginatedResponse<ProductResponseDto> => isPaginated(value, isProduct),
+    { tags: ["catalog-products", `catalog-related-other-${categorySlug}`] },
+  );
   return response.data;
 }
 

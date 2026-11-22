@@ -6,34 +6,31 @@ import type { ProductResponseDto } from "@/lib/api/types";
 import { adaptCategory, adaptProduct } from "./adapters";
 import {
   fetchCategories,
-  fetchCategoryById,
+  fetchCategoryProducts,
   fetchProduct,
-  fetchProductPage,
-  fetchPublicFilter,
   fetchRelatedProducts,
+  fetchRelatedOtherCategoryProducts,
 } from "./api";
-import { catalogQueryToFilterRequest, type CatalogQuery } from "./query";
-import { collectCrossCategoryProducts, selectCrossCategorySlugs } from "./cross-category";
+import { categoryProductsRequest, type CatalogQuery } from "./query";
+import { normalizeCrossCategoryProducts } from "./cross-category";
 import type { CatalogCategory, CatalogProduct } from "./types";
 
-export async function getCatalogCategories() {
+export const getCatalogCategories = cache(async () => {
   return (await fetchCategories())
     .sort((a, b) => a.sortOrder - b.sortOrder || a.slug.localeCompare(b.slug, "vi"))
     .map(adaptCategory);
-}
+});
 
 export async function getCatalogCategory(slug: string, knownCategories?: CatalogCategory[]) {
   const categories = knownCategories ?? await getCatalogCategories();
-  const summary = findCategory(categories, slug);
-  if (!summary || !summary.id) return summary;
-  return adaptCategory(await fetchCategoryById(summary.id));
+  return findCategory(categories, slug);
 }
 
-export async function getCatalogPage(query: CatalogQuery, categoryId?: string) {
-  const response = await fetchPublicFilter(catalogQueryToFilterRequest(query, categoryId));
+export async function getCatalogPage(categorySlug: string, query: CatalogQuery) {
+  const response = await fetchCategoryProducts(categorySlug, categoryProductsRequest(query));
   return {
-    search: response.search ?? null,
-    products: response.products.map(adaptProduct),
+    search: query.q || null,
+    products: response.items.map(adaptProduct),
     pagination: response.pagination,
   };
 }
@@ -42,26 +39,14 @@ export const getCatalogProduct = cache(async (categorySlug: string, productSlug:
   fetchProduct(categorySlug, productSlug),
 );
 
-export async function getCrossCategoryProducts({
-  excludedCategorySlug,
-  limit = 4,
-  categories,
-}: {
-  excludedCategorySlug: string;
-  limit?: number;
-  categories?: CatalogCategory[];
-}) {
-  const availableCategories = categories ?? await getCatalogCategories();
-  const categorySlugs = selectCrossCategorySlugs(availableCategories, excludedCategorySlug);
-  if (categorySlugs.length === 0 || limit <= 0) return [];
-  const perCategoryLimit = Math.ceil(limit / categorySlugs.length);
-  const groups = await Promise.all(
-    categorySlugs.map(async (categorySlug) => {
-      const response = await fetchProductPage({ categorySlug, page: 1, limit: perCategoryLimit }).catch(() => null);
-      return response ? response.items.map(adaptProduct) : [];
-    }),
+export async function getCrossCategoryProducts(categorySlug: string, limit = 4) {
+  if (limit <= 0) return [];
+  const response = await fetchRelatedOtherCategoryProducts(categorySlug);
+  return normalizeCrossCategoryProducts(
+    response.items.map(adaptProduct),
+    categorySlug,
+    Math.min(limit, 4),
   );
-  return collectCrossCategoryProducts(groups, excludedCategorySlug, limit);
 }
 
 export async function getRelatedCatalogProducts(dto: ProductResponseDto) {

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { isCatalogQueryCanonical, catalogQueryToSearchParams, parseCatalogQuery, type RawSearchParams } from "@/landing/features/catalog/query";
 import { getCatalogCategories, getCatalogCategory, getCatalogPage, getCrossCategoryProducts } from "@/landing/features/catalog/repository";
+import { reportCatalogError } from "@/landing/features/catalog/diagnostics";
 import { CategoryStorefrontPage } from "@/landing/features/catalog/storefront-page";
 import { routes } from "@/landing/lib/routes";
 
@@ -15,7 +16,10 @@ export const instant = false;
 
 export async function generateMetadata({ params }: CategoryRouteProps): Promise<Metadata> {
   const { categorySlug } = await params;
-  const category = await getCatalogCategory(categorySlug);
+  const category = await getCatalogCategory(categorySlug).catch((error) => {
+    reportCatalogError("categories", "/api/v1/public/categories", error);
+    throw error;
+  });
   if (!category) return {};
   const title = category.seoTitle || `${category.name} | Minh Sâm Bakery`;
   const description = category.seoDescription || category.description || `Khám phá ${category.name} tại Minh Sâm Bakery.`;
@@ -29,19 +33,26 @@ export async function generateMetadata({ params }: CategoryRouteProps): Promise<
 
 export default async function CategoryRoute({ params, searchParams }: CategoryRouteProps) {
   const [{ categorySlug }, rawSearchParams] = await Promise.all([params, searchParams]);
-  const categories = await getCatalogCategories();
-  const category = await getCatalogCategory(categorySlug, categories);
-  if (!category?.id) notFound();
-
-  const query = parseCatalogQuery(rawSearchParams, {
-    allowedCategories: categories.map((item) => item.slug),
-    routeCategory: categorySlug,
+  const categories = await getCatalogCategories().catch((error) => {
+    reportCatalogError("categories", "/api/v1/public/categories", error);
+    throw error;
   });
-  if (!isCatalogQueryCanonical(rawSearchParams, query, { includeCategory: false })) redirectToCategory(categorySlug, query);
+  const category = await getCatalogCategory(categorySlug, categories);
+  if (!category) notFound();
+
+  const query = parseCatalogQuery(rawSearchParams);
+  if (!isCatalogQueryCanonical(rawSearchParams, query)) redirectToCategory(categorySlug, query);
 
   const [catalogResult, crossCategoryProducts] = await Promise.all([
-    loadCatalogPage(query, category.id),
-    getCrossCategoryProducts({ excludedCategorySlug: categorySlug, categories, limit: 4 }).catch(() => []),
+    loadCatalogPage(categorySlug, query),
+    getCrossCategoryProducts(categorySlug).catch((error) => {
+      reportCatalogError(
+        "related-other",
+        `/api/v1/public/products/${encodeURIComponent(categorySlug)}/related-other`,
+        error,
+      );
+      return [];
+    }),
   ]);
   const catalogPage = catalogResult.page;
   if (catalogPage && catalogResult.recovered) {
@@ -54,17 +65,22 @@ export default async function CategoryRoute({ params, searchParams }: CategoryRo
   return <CategoryStorefrontPage category={category} crossCategoryProducts={crossCategoryProducts} page={catalogPage} query={query} />;
 }
 
-async function loadCatalogPage(query: ReturnType<typeof parseCatalogQuery>, categoryId: string) {
+async function loadCatalogPage(categorySlug: string, query: ReturnType<typeof parseCatalogQuery>) {
+  const endpoint = `/api/v1/public/categories/${encodeURIComponent(categorySlug)}/products`;
   try {
-    return { page: await getCatalogPage(query, categoryId), recovered: false };
-  } catch {
+    return { page: await getCatalogPage(categorySlug, query), recovered: false };
+  } catch (error) {
+    reportCatalogError("category-products", endpoint, error);
     if (query.page === 1) return { page: null, recovered: false };
-    const page = await getCatalogPage({ ...query, page: 1 }, categoryId).catch(() => null);
+    const page = await getCatalogPage(categorySlug, { ...query, page: 1 }).catch((recoveryError) => {
+      reportCatalogError("category-products", endpoint, recoveryError);
+      return null;
+    });
     return { page, recovered: page !== null };
   }
 }
 
 function redirectToCategory(categorySlug: string, query: ReturnType<typeof parseCatalogQuery>): never {
-  const params = catalogQueryToSearchParams(query, { includeCategory: false });
+  const params = catalogQueryToSearchParams(query);
   redirect(`${routes.category(categorySlug)}${params.size ? `?${params}` : ""}`);
 }
