@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronDown } from "lucide-react";
-import { type ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 import { CmsPopover, CmsPopoverContent, CmsPopoverTrigger } from "@/cms/components/ui/popover";
 import { cn } from "@/cms/lib/cn";
