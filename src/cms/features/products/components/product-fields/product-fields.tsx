@@ -6,6 +6,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
 import { CmsFormSelect } from "@/cms/components/ui/select/select";
+import { CmsFormCombobox } from "@/cms/components/ui/combobox/combobox";
 import { CmsTextarea } from "@/cms/components/ui/textarea/textarea";
 import type { ProductFormValues } from "../../types";
 import { ProductImageEditor } from "../product-image-editor/product-image-editor";
@@ -27,7 +28,7 @@ export function ProductFields({ form, categoryOptions, categoryDisabled, onSlugM
     <div className={styles.sections}>
       <Section title="Thông tin cơ bản">
         <div className={styles.grid}>
-          <CmsFormField htmlFor="product-category" label="Danh mục" required error={errors.categoryId?.message}><CmsFormSelect id="product-category" disabled={categoryDisabled} options={categoryOptions} control={form.control} name="categoryId" /></CmsFormField>
+          <CmsFormField htmlFor="product-category" label="Danh mục" required error={errors.categoryId?.message}><CmsFormCombobox id="product-category" disabled={categoryDisabled} options={categoryOptions} control={form.control} name="categoryId" /></CmsFormField>
           <CmsFormField htmlFor="product-name" label="Tên sản phẩm" required error={errors.name?.message}><CmsInput id="product-name" {...form.register("name")} /></CmsFormField>
           <CmsFormField htmlFor="product-sku" label="SKU" required error={errors.sku?.message}><CmsInput id="product-sku" {...form.register("sku")} /></CmsFormField>
           <CmsFormField htmlFor="product-slug" label="Slug" error={errors.slug?.message}><CmsInput id="product-slug" {...form.register("slug", { onChange: onSlugManual })} /></CmsFormField>

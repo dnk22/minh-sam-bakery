@@ -1,7 +1,8 @@
 "use client";
 
 import { Check, ChevronDown, Search } from "lucide-react";
-import { useState, type ComponentPropsWithRef } from "react";
+import { useId, useRef, useState, type ComponentPropsWithRef } from "react";
+import { useController, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 
 import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
 import { CmsPopover, CmsPopoverContent, CmsPopoverTrigger } from "@/cms/components/ui/popover";
@@ -44,6 +45,9 @@ export function CmsCombobox({
   ...triggerProps
 }: CmsComboboxProps) {
   const field = useCmsFormFieldControl({ id, describedBy, invalid, ariaInvalid });
+  const generatedId = useId();
+  const listId = `${field.controlId ?? generatedId}-options`;
+  const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -55,7 +59,7 @@ export function CmsCombobox({
   };
   const onOpenChange = (next: boolean) => {
     setOpen(next);
-    if (next) { setSearch(""); setActiveIndex(0); }
+    if (next) { setSearch(""); setActiveIndex(Math.max(0, options.findIndex((option) => !option.disabled))); }
   };
   const move = (step: number) => {
     if (!matches.length) return;
@@ -73,6 +77,7 @@ export function CmsCombobox({
         <CmsPopoverTrigger asChild>
           <button
             {...triggerProps}
+            aria-controls={listId}
             aria-describedby={field.describedBy}
             aria-expanded={open}
             aria-invalid={field.invalid || undefined}
@@ -88,18 +93,14 @@ export function CmsCombobox({
             <ChevronDown aria-hidden="true" className={styles.chevron} size={16} />
           </button>
         </CmsPopoverTrigger>
-        <CmsPopoverContent align="start" className={styles.menu} collisionPadding={12} onOpenAutoFocus={(event) => {
-          // Radix focuses the search input automatically as the first tabbable child.
-          if (!options.length) event.preventDefault();
-        }}>
+        <CmsPopoverContent align="start" className={styles.menu} collisionPadding={12} onOpenAutoFocus={(event) => { event.preventDefault(); inputRef.current?.focus(); }}>
           <div className={styles.searchBox}>
             <Search aria-hidden="true" size={16} />
             <input
               aria-label={searchPlaceholder}
-              aria-activedescendant={matches[activeIndex] && !matches[activeIndex].disabled ? `${field.controlId}-option-${activeIndex}` : undefined}
-              autoFocus
+              aria-activedescendant={matches[activeIndex] && !matches[activeIndex].disabled ? `${listId}-option-${activeIndex}` : undefined}
               className={styles.input}
-              onChange={(event) => { setSearch(event.target.value); setActiveIndex(0); }}
+              onChange={(event) => { const next = filterSelectOptions(options, event.target.value); setSearch(event.target.value); setActiveIndex(Math.max(0, next.findIndex((option) => !option.disabled))); }}
               onKeyDown={(event) => {
                 if (event.key === "ArrowDown") { event.preventDefault(); move(1); }
                 if (event.key === "ArrowUp") { event.preventDefault(); move(-1); }
@@ -108,20 +109,21 @@ export function CmsCombobox({
                 }
               }}
               placeholder={searchPlaceholder}
+              ref={inputRef}
               role="combobox"
-              aria-controls={field.controlId ? `${field.controlId}-options` : undefined}
+              aria-controls={listId}
               aria-expanded={open}
               value={search}
             />
           </div>
-          <div className={styles.options} id={field.controlId ? `${field.controlId}-options` : undefined} role="listbox">
+          <div className={styles.options} id={listId} role="listbox">
             {matches.length ? matches.map((option, index) => (
               <button
                 aria-selected={value === option.value}
                 className={styles.option}
                 data-active={index === activeIndex || undefined}
                 disabled={option.disabled}
-                id={field.controlId ? `${field.controlId}-option-${index}` : undefined}
+                id={`${listId}-option-${index}`}
                 key={option.value}
                 onClick={() => pick(option.value)}
                 onMouseEnter={() => setActiveIndex(index)}
@@ -137,5 +139,27 @@ export function CmsCombobox({
         </CmsPopoverContent>
       </span>
     </CmsPopover>
+  );
+}
+
+/** React Hook Form bridge for searchable CMS select fields. */
+export function CmsFormCombobox<T extends FieldValues>({
+  control,
+  name,
+  ...props
+}: Omit<CmsComboboxProps, "name" | "value" | "onValueChange"> & {
+  control: Control<T>;
+  name: FieldPath<T>;
+}) {
+  const { field } = useController({ control, name });
+  return (
+    <CmsCombobox
+      {...props}
+      name={field.name}
+      onBlur={field.onBlur}
+      onValueChange={field.onChange}
+      ref={field.ref}
+      value={field.value == null ? "" : String(field.value)}
+    />
   );
 }

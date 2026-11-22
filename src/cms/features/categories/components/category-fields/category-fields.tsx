@@ -6,6 +6,7 @@ import { ImageUpload } from "@/cms/components/image-upload/image-upload";
 import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
 import { CmsFormSelect } from "@/cms/components/ui/select/select";
+import { CmsFormCombobox } from "@/cms/components/ui/combobox/combobox";
 import { CmsTextarea } from "@/cms/components/ui/textarea/textarea";
 
 import { CATEGORY_STATUS_OPTIONS } from "../../constants";
@@ -55,7 +56,7 @@ export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManu
         htmlFor="category-parent"
         label="Danh mục cha"
       >
-        <CmsFormSelect
+        <CmsFormCombobox
           disabled={parentDisabled}
           id="category-parent"
           options={parentSelectOptions}
