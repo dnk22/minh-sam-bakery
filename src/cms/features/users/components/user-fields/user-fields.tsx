@@ -5,7 +5,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
-import { CmsSelect } from "@/cms/components/ui/select/select";
+import { CmsFormCombobox } from "@/cms/components/ui/combobox/combobox";
 import { useRoleSelector } from "@/cms/features/roles/hooks/use-roles";
 
 import type { UserFormValues } from "../../types";
@@ -41,7 +41,7 @@ export function UserFields({ form, mode }: { form: UseFormReturn<UserFormValues>
       label="Vai trò"
       required
     >
-      <CmsSelect disabled={roles.isLoading || Boolean(roles.error) || roles.data?.length === 0} id="user-role" options={roleOptions} required {...register("roleId")} />
+      <CmsFormCombobox disabled={roles.isLoading || Boolean(roles.error) || roles.data?.length === 0} id="user-role" options={roleOptions} required control={form.control} name="roleId" />
     </CmsFormField> : null}
   </div>;
 }

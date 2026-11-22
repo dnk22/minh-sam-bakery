@@ -7,6 +7,7 @@ import { CmsButton } from "@/cms/components/ui/button";
 import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
 import { CmsSelect } from "@/cms/components/ui/select/select";
+import { CmsMultiSelect } from "@/cms/components/ui/multi-select/multi-select";
 import { useCmsIsMobile } from "@/cms/hooks/use-mobile";
 
 import { ORDER_STATUS_OPTIONS } from "../../constants";
@@ -60,9 +61,17 @@ function OrderStatusFilter({ selected, onToggle }: { selected: OrderStatus[]; on
   if (isMobile) return <fieldset className={styles.statusChecklist}><legend>Trạng thái</legend>{choices}</fieldset>;
   return <fieldset className={styles.statusField}>
     <legend>Trạng thái</legend>
-    <details className={styles.statusMenu}>
-      <summary>{selected.length ? `${selected.length} trạng thái` : "Tất cả trạng thái"}</summary>
-      {choices}
-    </details>
+    <CmsMultiSelect
+      aria-label="Lọc theo trạng thái đơn hàng"
+      controlSize="sm"
+      options={ORDER_STATUS_OPTIONS}
+      placeholder="Tất cả trạng thái"
+      value={selected}
+      onValueChange={(next) => {
+        const nextSet = new Set(next);
+        const changed = ORDER_STATUS_OPTIONS.find((option) => selected.includes(option.value) !== nextSet.has(option.value));
+        if (changed) onToggle(changed.value, nextSet.has(changed.value));
+      }}
+    />
   </fieldset>;
 }

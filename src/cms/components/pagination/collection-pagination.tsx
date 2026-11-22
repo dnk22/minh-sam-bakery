@@ -1,6 +1,7 @@
 "use client";
 
 import { CmsButton } from "@/cms/components/ui/button";
+import { CmsSelect } from "@/cms/components/ui/select/select";
 import { cn } from "@/cms/lib/cn";
 
 import styles from "./collection-pagination.module.css";
@@ -37,21 +38,20 @@ export function CollectionPagination({
 
       <div className={styles.controls}>
         {pagination.onPageSizeChange ? (
-          <label className={styles.pageSize}>
+          <div className={styles.pageSize}>
             <span className={styles.pageSizeLabel}>Số mục</span>
-            <select
+            <CmsSelect
               aria-label="Số mục mỗi trang"
+              containerClassName={styles.pageSizeSelect}
+              controlSize="sm"
+              options={pageSizeOptions.map((size) => ({ label: String(size), value: size }))}
               value={meta.limit}
-              onChange={(event) => {
-                const nextLimit = Number(event.target.value);
-                if (nextLimit !== meta.limit) pagination.onPageSizeChange?.(nextLimit);
+              onValueChange={(next) => {
+                const limit = Number(next);
+                if (limit !== meta.limit) pagination.onPageSizeChange?.(limit);
               }}
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
-          </label>
+            />
+          </div>
         ) : null}
         <CmsButton type="button" variant="outline" size="sm" disabled={!canGoBack} onClick={() => changePage(meta.page - 1)}>
           Trước

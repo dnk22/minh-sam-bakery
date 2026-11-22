@@ -23,7 +23,8 @@
     "test:landing-banners": "node --no-warnings --test --experimental-strip-types tests/landing-banners.test.ts",
     "test:landing-catalog": "node --no-warnings --test --experimental-strip-types tests/landing-catalog.test.ts",
     "test:cms-ux": "node --no-warnings --test --experimental-strip-types tests/cms-ux.test.ts",
-    "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs"
+    "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs",
+    "test:cms-select": "node --no-warnings --test --experimental-strip-types tests/cms-select.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.7",

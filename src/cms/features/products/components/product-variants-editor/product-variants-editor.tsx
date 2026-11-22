@@ -6,7 +6,7 @@ import { useFieldArray, type UseFormReturn } from "react-hook-form";
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
-import { CmsSelect } from "@/cms/components/ui/select/select";
+import { CmsFormSelect } from "@/cms/components/ui/select/select";
 import type { ProductFormValues } from "../../types";
 import styles from "./product-variants-editor.module.css";
 
@@ -31,7 +31,7 @@ export function ProductVariantsEditor({ form, disabled = false }: { form: UseFor
             <CmsFormField htmlFor={`${prefix}-style`} label="Kiểu" required error={fieldErrors?.style?.message}><CmsInput id={`${prefix}-style`} disabled={disabled} {...form.register(`variants.${index}.style`)} /></CmsFormField>
             <CmsFormField htmlFor={`${prefix}-price`} label="Giá" required error={fieldErrors?.price?.message}><CmsInput id={`${prefix}-price`} disabled={disabled} inputMode="decimal" {...form.register(`variants.${index}.price`)} /></CmsFormField>
             <CmsFormField htmlFor={`${prefix}-sale-price`} label="Giá khuyến mại" error={fieldErrors?.salePrice?.message}><CmsInput id={`${prefix}-sale-price`} disabled={disabled} inputMode="decimal" {...form.register(`variants.${index}.salePrice`)} /></CmsFormField>
-            <CmsFormField htmlFor={`${prefix}-status`} label="Trạng thái" error={fieldErrors?.status?.message}><CmsSelect id={`${prefix}-status`} disabled={disabled} options={[{ value: "ACTIVE", label: "Hoạt động" }, { value: "INACTIVE", label: "Ngừng hoạt động" }]} {...form.register(`variants.${index}.status`)} /></CmsFormField>
+            <CmsFormField htmlFor={`${prefix}-status`} label="Trạng thái" error={fieldErrors?.status?.message}><CmsFormSelect id={`${prefix}-status`} disabled={disabled} options={[{ value: "ACTIVE", label: "Hoạt động" }, { value: "INACTIVE", label: "Ngừng hoạt động" }]} control={form.control} name={`variants.${index}.status`} /></CmsFormField>
           </div>
         </article>;
       })}</div> : <p className={styles.empty}>Sản phẩm chưa có biến thể.</p>}

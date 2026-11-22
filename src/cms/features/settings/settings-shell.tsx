@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { CmsMain } from "@/cms/components/layout/cms-main";
+import { CmsSelect } from "@/cms/components/ui/select/select";
 
 const settingsNavigation = [
   { title: "Giao diện & hiển thị", href: "/cms/settings/display", icon: Palette },
@@ -19,9 +20,13 @@ export function SettingsShell({ children }: { children: ReactNode }) {
       <div className="cms-page-heading"><h1>Cài đặt</h1><p>Quản lý giao diện và bố cục hiển thị riêng cho khu vực CMS.</p></div>
       <div className="cms-settings-divider" />
       <div className="cms-settings-shell">
-        <select aria-label="Chọn nhóm cài đặt" className="cms-settings-mobile-select" onChange={(event) => router.push(event.target.value)} value={pathname}>
-          {settingsNavigation.map((item) => <option key={item.href} value={item.href}>{item.title}</option>)}
-        </select>
+        <CmsSelect
+          aria-label="Chọn nhóm cài đặt"
+          containerClassName="cms-settings-mobile-select"
+          options={settingsNavigation.map((item) => ({ label: item.title, value: item.href }))}
+          value={pathname}
+          onValueChange={(next) => router.push(next)}
+        />
         <div className="cms-settings-body">
           <aside>
             <nav aria-label="Điều hướng cài đặt" className="cms-settings-nav">
