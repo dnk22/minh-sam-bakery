@@ -28,14 +28,13 @@ export function resolveCmsNotificationDestination(
   notification: Pick<CmsNotification, "type" | "link" | "metadata">,
 ): string | null {
   const link = safeCmsNotificationLink(notification.link);
-  if (link) return link;
-
   const orderId = notification.metadata?.orderId;
-  if (notification.type === "ORDER_CREATED" && typeof orderId === "string" && validOrderId(orderId)) {
-    const params = new URLSearchParams({ orderId });
-    return `/cms/orders?${params.toString()}`;
+  const hasOrder = notification.type === "ORDER_CREATED" && typeof orderId === "string" && validOrderId(orderId);
+
+  if (hasOrder && (!link || link === "/cms/orders")) {
+    return `/cms/orders?orderId=${encodeURIComponent(orderId)}`;
   }
-  return null;
+  return link;
 }
 
 export function formatNotificationTime(value: string, now = Date.now()) {

@@ -66,6 +66,7 @@ test("routes order notifications to the existing order modal", () => {
   assert.equal(safeCmsNotificationLink("/cms/orders/order%2Fbad"), null);
   assert.equal(resolveCmsNotificationDestination(notification), "/cms/orders?orderId=order-1");
   assert.equal(resolveCmsNotificationDestination({ type: "ORDER_CREATED", metadata: { orderId: "order-2" } }), "/cms/orders?orderId=order-2");
+  assert.equal(resolveCmsNotificationDestination({ type: "ORDER_CREATED", link: "/cms/orders", metadata: { orderId: "order-2" } }), "/cms/orders?orderId=order-2");
   assert.equal(resolveCmsNotificationDestination({ type: "ORDER_CREATED", link: "javascript:alert(1)", metadata: { orderId: "order-3" } }), "/cms/orders?orderId=order-3");
   assert.equal(resolveCmsNotificationDestination({ type: "ORDER_CREATED", metadata: { orderId: "invalid/id" } }), null);
   assert.equal(resolveCmsNotificationDestination({ type: "OTHER", metadata: { orderId: "order-1" } }), null);
