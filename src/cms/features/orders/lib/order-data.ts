@@ -113,3 +113,15 @@ export function countOrderAdvancedFilters(filters: Pick<OrderListParams, "status
   return Number(filters.statuses.length > 0) + Number(Boolean(filters.deliveryDate)) +
     Number(Boolean(filters.deliveryTime)) + Number(filters.sortCreated !== "desc");
 }
+
+/** Returns the order requested by a CMS deep link, if the query is valid. */
+export function getLinkedOrderId(query: URLSearchParams): string | null {
+  const ids = query.getAll("orderId");
+  return ids.length === 1 && validOrderId(ids[0]) ? ids[0] : null;
+}
+
+/** Clears the deep-link target without discarding the user's order filters. */
+export function clearLinkedOrderId(query: URLSearchParams) {
+  query.delete("orderId");
+  return query;
+}

@@ -19,7 +19,7 @@ export function ConfigDrawer() {
     <CmsSheet>
       <CmsSheetTrigger asChild>
         <CmsButton aria-label="Mở cài đặt giao diện" className="cms-round-button" size="icon" variant="ghost">
-          <Palette aria-hidden="true" size={18} />
+          <Palette aria-hidden="true" size={20} />
         </CmsButton>
       </CmsSheetTrigger>
       <CmsSheetContent className="cms-config-drawer">

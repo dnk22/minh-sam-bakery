@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { hasJsonContentType, isTrustedSameOriginRequest } from "../src/cms/features/auth/lib/csrf.ts";
-import { canUpdateOrderStatus, clearOrderAdvancedFilterQuery, clearOrderFilterQuery, countOrderAdvancedFilters, isOrder, isOrderList, parseOrderListQuery, serializeOrderListParams, validOrderId } from "../src/cms/features/orders/lib/order-data.ts";
+import { canUpdateOrderStatus, clearLinkedOrderId, clearOrderAdvancedFilterQuery, clearOrderFilterQuery, countOrderAdvancedFilters, getLinkedOrderId, isOrder, isOrderList, parseOrderListQuery, serializeOrderListParams, validOrderId } from "../src/cms/features/orders/lib/order-data.ts";
 import { formatCalendarDate, formatVnd, isCalendarDate } from "../src/cms/features/orders/lib/order-format.ts";
 import { orderInvalidationKeys, orderQueryKeys } from "../src/cms/features/orders/lib/order-query-keys.ts";
 import { updateOrderStatusSchema } from "../src/cms/features/orders/schemas/order.schema.ts";
@@ -117,4 +117,13 @@ test("requires same-origin JSON requests for the status PUT boundary", () => {
   assert.equal(validOrderId("order-1"), true);
   assert.equal(validOrderId(" order-1"), false);
   assert.equal(validOrderId("order/1"), false);
+});
+
+test("opens linked orders and clears their target without discarding existing filters", () => {
+  const params = new URLSearchParams("page=3&status=CONFIRMED&orderId=order-123");
+  assert.equal(getLinkedOrderId(params), "order-123");
+  assert.equal(getLinkedOrderId(new URLSearchParams("orderId=one&orderId=two")), null);
+  assert.equal(getLinkedOrderId(new URLSearchParams("orderId=bad%2Fid")), null);
+  assert.equal(getLinkedOrderId(new URLSearchParams("orderId=")), null);
+  assert.equal(clearLinkedOrderId(params).toString(), "page=3&status=CONFIRMED");
 });

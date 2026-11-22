@@ -1,6 +1,6 @@
 "use client";
 
-import { Monitor, Palette } from "lucide-react";
+import { Palette } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -8,8 +8,7 @@ import type { ReactNode } from "react";
 import { CmsMain } from "@/cms/components/layout/cms-main";
 
 const settingsNavigation = [
-  { title: "Giao diện", href: "/cms/settings/appearance", icon: Palette },
-  { title: "Hiển thị", href: "/cms/settings/display", icon: Monitor },
+  { title: "Giao diện & hiển thị", href: "/cms/settings/display", icon: Palette },
 ];
 
 export function SettingsShell({ children }: { children: ReactNode }) {

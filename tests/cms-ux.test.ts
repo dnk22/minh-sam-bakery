@@ -61,6 +61,40 @@ test("toolbar search sizing uses flex basis instead of competing width rules", (
   }
 });
 
+
+test("settings retain sub-routes and sidebar while appearance and display are consolidated", () => {
+  const navigation = source("src/cms/config/navigation.ts");
+  const header = source("src/cms/components/layout/cms-header.tsx");
+  const profile = source("src/cms/components/layout/profile-dropdown.tsx");
+  const index = source("src/app/(cms)/cms/(protected)/settings/page.tsx");
+  const display = source("src/app/(cms)/cms/(protected)/settings/display/page.tsx");
+  const legacy = source("src/app/(cms)/cms/(protected)/settings/appearance/page.tsx");
+  const settingsShell = source("src/cms/features/settings/settings-shell.tsx");
+  const css = source("src/cms/styles/cms.css");
+
+  assert.doesNotMatch(navigation, /title: "Thông báo", href: "\/cms\/notifications"/);
+  assert.match(navigation, /title: "Cài đặt", href: "\/cms\/settings"/);
+  assert.match(navigation, /Giao diện & hiển thị/);
+  assert.doesNotMatch(header, /<ConfigDrawer/);
+  assert.match(profile, /href="\/cms\/settings"/);
+  assert.match(profile, /onSelect=\{toggleTheme\}/);
+  assert.match(index, /redirect\("\/cms\/settings\/display"\)/);
+  assert.match(legacy, /redirect\("\/cms\/settings\/display"\)/);
+  assert.match(display, /<CmsAppearanceControls \/>/);
+  assert.match(settingsShell, /cms-settings-nav/);
+  assert.match(settingsShell, /cms-settings-mobile-select/);
+  assert.match(settingsShell, /href: "\/cms\/settings\/display"/);
+  assert.match(css, /\.cms-settings-body/);
+  assert.match(css, /\.cms-settings-mobile-select/);
+});
+
+test("notification bulk actions remain side-by-side on mobile", () => {
+  const css = source("src/cms/features/notification-center/components/notification-toolbar/notification-toolbar.module.css");
+  assert.match(css, /@media \(max-width: 767px\)/);
+  assert.match(css, /\.actions \{[^}]*flex-direction: row;/);
+  assert.match(css, /\.actions :global\(\.cms-button\) \{[^}]*flex: 1 1 0;/);
+});
+
 function source(path: string) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }

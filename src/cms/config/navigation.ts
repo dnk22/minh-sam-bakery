@@ -11,7 +11,6 @@ import {
   Images,
   SlidersHorizontal,
   ShoppingBag,
-  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -43,7 +42,6 @@ export const cmsNavigation: CmsNavGroup[] = [
     title: "Tổng quan",
     items: [
       { title: "Dashboard", href: "/cms", icon: LayoutDashboard },
-      { title: "Thông báo", href: "/cms/notifications", icon: Bell },
     ],
   },
   {
@@ -69,7 +67,7 @@ export const cmsNavigation: CmsNavGroup[] = [
       { title: "Tài khoản", href: "/cms/users", icon: UsersRound },
       { title: "Vai trò & phân quyền", href: "/cms/roles", icon: ShieldCheck },
       { title: "Cấu hình hệ thống", href: "/cms/system-configs", icon: SlidersHorizontal },
-      { title: "Cài đặt", href: "/cms/settings/appearance", icon: Settings },
+      { title: "Cài đặt", href: "/cms/settings", icon: Settings },
     ],
   },
 ];
@@ -105,11 +103,17 @@ export function resolveCmsBreadcrumbs(pathname: string): CmsBreadcrumbItem[] {
   }
 
   if (pathname.startsWith("/cms/settings/")) {
-    const settingsTitle = pathname.endsWith("/display") ? "Hiển thị" : "Giao diện";
     return [
       { title: "Hệ thống", href: "/cms", active: false },
-      { title: "Cài đặt", href: "/cms/settings/appearance", active: false },
-      { title: settingsTitle, href: pathname, active: true },
+      { title: "Cài đặt", href: "/cms/settings", active: false },
+      { title: "Giao diện & hiển thị", href: "/cms/settings/display", active: true },
+    ];
+  }
+
+  if (pathname === "/cms/notifications") {
+    return [
+      { title: "Tổng quan", href: "/cms", active: false },
+      { title: "Thông báo", href: pathname, active: true },
     ];
   }
 

@@ -4,7 +4,6 @@ import { PanelLeft } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 
-import { ConfigDrawer } from "@/cms/components/layout/config-drawer";
 import { ProfileDropdown } from "@/cms/components/layout/profile-dropdown";
 import { CmsButton } from "@/cms/components/ui/button";
 import { useCmsPreferences } from "@/cms/context/cms-preferences";
@@ -49,7 +48,6 @@ export function CmsHeader({ user, notificationSlot }: { user: CmsProfileUser; no
           ))}
         </nav>
         <div className="cms-header-actions">
-          <ConfigDrawer />
           {notificationSlot}
           <ProfileDropdown user={user} />
         </div>
