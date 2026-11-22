@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, CheckCheck, LoaderCircle } from "lucide-react";
+import { ArrowRight, Bell, CheckCheck, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -37,7 +37,7 @@ export function NotificationBell() {
 
   return <CmsPopover open={open} onOpenChange={changeOpen}>
     <CmsPopoverTrigger asChild><CmsButton className={styles.trigger} type="button" size="icon" variant="ghost" aria-label={count.isError ? (countUnavailable ? "Thông báo, chưa thể tải số chưa đọc" : `Thông báo, ${unread} chưa đọc; dữ liệu có thể chưa cập nhật`) : unread ? `Thông báo, ${unread} chưa đọc` : "Thông báo"}>
-      <Bell aria-hidden="true" size={18} />{countUnavailable ? <span className={`${styles.badge} ${styles.badgeError}`} aria-hidden="true">!</span> : unread ? <span className={styles.badge} aria-hidden="true">{unread > 99 ? "99+" : unread}</span> : null}
+      <Bell aria-hidden="true" size={20} />{countUnavailable ? <span className={`${styles.badge} ${styles.badgeError}`} aria-hidden="true">!</span> : unread ? <span className={styles.badge} aria-hidden="true">{unread > 99 ? "99+" : unread}</span> : null}
     </CmsButton></CmsPopoverTrigger>
     <CmsPopoverContent align="end" className={styles.panel} aria-label="Thông báo gần đây">
       <header className={styles.header}><div><h2>Thông báo</h2>{count.isError ? <p role="status">Chưa thể cập nhật số chưa đọc. <button className={styles.retry} type="button" onClick={() => void count.refetch()}>Thử lại</button></p> : unread ? <p>{unread} thông báo chưa đọc</p> : <p>Không có thông báo mới</p>}</div>
@@ -49,7 +49,7 @@ export function NotificationBell() {
         : recent.data.items.map((item) => <button type="button" key={item.id} className={styles.item} data-unread={!item.isRead || undefined} disabled={pending} onClick={() => activate(item)}>
           <span className={styles.dot} aria-hidden="true" /><span className={styles.copy}><strong>{item.title}</strong><span>{item.message}</span><time dateTime={item.createdAt}>{formatNotificationTime(item.createdAt)}</time></span>
         </button>)}</div>
-      <footer className={styles.footer}><button type="button" onClick={() => { setOpen(false); router.push("/cms/notifications"); }}>Xem tất cả thông báo</button></footer>
+      <footer className={styles.footer}><button type="button" onClick={() => { setOpen(false); router.push("/cms/notifications"); }}>Xem tất cả thông báo <ArrowRight aria-hidden="true" size={16} /></button></footer>
     </CmsPopoverContent>
   </CmsPopover>;
 }

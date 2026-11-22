@@ -18,8 +18,11 @@
 .copy span { color: var(--cms-muted-foreground); font-size: .8125rem; }
 .copy time { color: var(--cms-muted-foreground); font-size: .72rem; }
 .state { display: flex; min-height: 8rem; align-items: center; justify-content: center; gap: .5rem; margin: 0; padding: 1rem; color: var(--cms-muted-foreground); text-align: center; }
-.state button, .footer button { border: 0; padding: 0; background: transparent; color: var(--cms-primary); cursor: pointer; font: inherit; font-weight: 600; }
-.footer { padding: .75rem; text-align: center; }
+.state button { border: 0; padding: 0; background: transparent; color: var(--cms-primary); cursor: pointer; font: inherit; font-weight: 600; }
+.footer { padding: .75rem; border-top: 1px solid var(--cms-border); background: var(--cms-muted); }
+.footer button { display: flex; width: 100%; min-height: 2.5rem; align-items: center; justify-content: center; gap: .5rem; padding: .65rem 1rem; border: 0; border-radius: calc(var(--cms-radius) - .15rem); background: var(--cms-primary); color: var(--cms-primary-foreground); cursor: pointer; font: inherit; font-size: .875rem; font-weight: 650; transition: filter 150ms ease; }
+.footer button:hover { filter: brightness(.92); }
+.footer button:focus-visible { outline: 2px solid var(--cms-ring); outline-offset: 2px; }
 .spin { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 480px) { .panel { width: calc(100vw - 1rem); } .header { align-items: flex-start; } .header :global(.cms-button) { font-size: .75rem; } }
