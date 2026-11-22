@@ -1,6 +1,7 @@
 "use client";
 
 import { RefreshCw } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { CmsMain } from "@/cms/components/layout/cms-main";
@@ -8,6 +9,7 @@ import { CmsButton } from "@/cms/components/ui/button";
 
 import { useOrderFilters } from "../../hooks/use-order-filters";
 import { useOrders } from "../../hooks/use-orders";
+import { clearLinkedOrderId, getLinkedOrderId } from "../../lib/order-data";
 import type { Order, OrderModalState } from "../../types";
 import { OrderModal } from "../order-modal/order-modal";
 import { OrdersCollection } from "../orders-collection/orders-collection";
@@ -16,9 +18,32 @@ import styles from "./orders-page.module.css";
 
 const PAGE_SIZE = 20;
 
+type ModalSession = { key: string; value: OrderModalState };
+
 export function OrdersPage() {
   const filters = useOrderFilters();
-  const [modal, setModal] = useState<OrderModalState>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const serializedParams = useSearchParams().toString();
+  const linkedOrderId = getLinkedOrderId(new URLSearchParams(serializedParams));
+  const sessionKey = linkedOrderId ? `link:${linkedOrderId}` : "default";
+  const [modalSession, setModalSession] = useState<ModalSession>({ key: "default", value: null });
+
+  // The URL can open an order directly, even when it is not on the current list page.
+  const modal: OrderModalState = modalSession.key === sessionKey
+    ? modalSession.value
+    : linkedOrderId ? { id: linkedOrderId, section: "detail" } : null;
+
+  const changeModal = useCallback((next: OrderModalState) => {
+    const leavingDeepLink = Boolean(linkedOrderId && (!next || next.id !== linkedOrderId));
+    setModalSession({ key: leavingDeepLink ? "default" : sessionKey, value: next });
+
+    if (leavingDeepLink) {
+      const nextQuery = clearLinkedOrderId(new URLSearchParams(serializedParams)).toString();
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    }
+  }, [linkedOrderId, pathname, router, serializedParams, sessionKey]);
+
   const listQuery = useOrders({
     page: filters.page,
     limit: PAGE_SIZE,
@@ -28,8 +53,8 @@ export function OrdersPage() {
     deliveryTime: filters.deliveryTime || undefined,
     sortCreated: filters.sortCreated,
   });
-  const openDetail = useCallback((order: Order) => setModal({ id: order.id, section: "detail" }), []);
-  const openStatus = useCallback((order: Order) => setModal({ id: order.id, section: "status" }), []);
+  const openDetail = useCallback((order: Order) => changeModal({ id: order.id, section: "detail" }), [changeModal]);
+  const openStatus = useCallback((order: Order) => changeModal({ id: order.id, section: "status" }), [changeModal]);
   const currentPage = filters.page;
   const setPage = filters.setPage;
 
@@ -49,6 +74,6 @@ export function OrdersPage() {
     </header>
     <OrdersToolbar filters={filters} />
     <OrdersCollection filters={filters} listQuery={listQuery} onDetail={openDetail} onStatus={openStatus} />
-    <OrderModal key={modal?.id ?? "closed"} state={modal} onStateChange={setModal} />
+    <OrderModal key={modal?.id ?? "closed"} state={modal} onStateChange={changeModal} />
   </CmsMain>;
 }

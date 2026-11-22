@@ -1,4 +1,6 @@
 .trigger { position: relative; }
+.badgeError { background: var(--cms-muted-foreground); }
+.retry { border: 0; background: transparent; color: var(--cms-primary); font: inherit; font-weight: 600; cursor: pointer; text-decoration: underline; }
 .badge { position: absolute; top: -.3rem; inset-inline-end: -.4rem; display: grid; min-width: 1.15rem; height: 1.15rem; place-items: center; padding: 0 .22rem; border: 2px solid var(--cms-background); border-radius: 999px; background: var(--cms-destructive); color: white; font-size: .625rem; font-weight: 700; line-height: 1; }
 .panel { z-index: 100; width: min(25rem, calc(100vw - 1rem)); overflow: hidden; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-popover); color: var(--cms-popover-foreground); box-shadow: 0 16px 42px color-mix(in oklab, var(--cms-foreground) 18%, transparent); }
 .header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .85rem; border-bottom: 1px solid var(--cms-border); }

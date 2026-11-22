@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { buildNotificationListQuery, isBulkReadResult, isCmsNotification, isNotificationList, isUnreadCount, notificationFilterValue, notificationStatePath, parseNotificationFilter, parseNotificationPage } from "../src/cms/features/notification-center/lib/notification-data.ts";
-import { formatNotificationTime, getNotificationTypePresentation, safeCmsNotificationLink } from "../src/cms/features/notification-center/lib/notification-presentation.ts";
+import { formatNotificationTime, getNotificationTypePresentation, resolveCmsNotificationDestination, safeCmsNotificationLink } from "../src/cms/features/notification-center/lib/notification-presentation.ts";
 import { notificationInvalidationKeys, notificationMutationKey, notificationQueryKeys } from "../src/cms/features/notification-center/lib/notification-query-keys.ts";
 import { bulkReadSchema } from "../src/cms/features/notification-center/schemas/notification.schema.ts";
 import type { CmsNotification } from "../src/cms/features/notification-center/types.ts";
@@ -25,7 +25,7 @@ test("presents documented and future notification types gracefully", () => {
 });
 
 test("accepts only safe internal CMS notification links", () => {
-  assert.equal(safeCmsNotificationLink("/cms/orders/abc?tab=detail#top"), "/cms/orders/abc?tab=detail#top");
+  assert.equal(safeCmsNotificationLink("/cms/orders/abc?tab=detail#top"), "/cms/orders?tab=detail&orderId=abc#top");
   assert.equal(safeCmsNotificationLink("/cms"), "/cms");
   assert.equal(safeCmsNotificationLink("/san-pham"), null);
   assert.equal(safeCmsNotificationLink("https://example.com/cms"), null);
@@ -59,4 +59,14 @@ test("formats recent timestamps deterministically", () => {
   assert.equal(formatNotificationTime("2026-11-22T01:59:30.000Z", now), "Vừa xong");
   assert.equal(formatNotificationTime("2026-11-22T01:30:00.000Z", now), "30 phút trước");
   assert.equal(formatNotificationTime("2026-11-21T02:00:00.000Z", now), "1 ngày trước");
+});
+
+test("routes order notifications to the existing order modal", () => {
+  assert.equal(safeCmsNotificationLink("/cms/orders/order-1"), "/cms/orders?orderId=order-1");
+  assert.equal(safeCmsNotificationLink("/cms/orders/order%2Fbad"), null);
+  assert.equal(resolveCmsNotificationDestination(notification), "/cms/orders?orderId=order-1");
+  assert.equal(resolveCmsNotificationDestination({ type: "ORDER_CREATED", metadata: { orderId: "order-2" } }), "/cms/orders?orderId=order-2");
+  assert.equal(resolveCmsNotificationDestination({ type: "ORDER_CREATED", link: "javascript:alert(1)", metadata: { orderId: "order-3" } }), "/cms/orders?orderId=order-3");
+  assert.equal(resolveCmsNotificationDestination({ type: "ORDER_CREATED", metadata: { orderId: "invalid/id" } }), null);
+  assert.equal(resolveCmsNotificationDestination({ type: "OTHER", metadata: { orderId: "order-1" } }), null);
 });
