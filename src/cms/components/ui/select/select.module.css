@@ -2,55 +2,69 @@
   position: relative;
   display: inline-flex;
   width: 100%;
-  height: 2.625rem;
   min-width: 0;
-  align-items: center;
-  border: 1px solid var(--cms-input);
-  border-radius: calc(var(--cms-radius) - 2px);
-  background: var(--cms-background);
+  height: 2.625rem;
   color: var(--cms-foreground);
-  box-shadow: 0 1px 2px color-mix(in oklab, var(--cms-foreground) 4%, transparent);
-  transition: border-color 140ms ease, box-shadow 140ms ease;
 }
-
-.root[data-size="sm"] {
-  height: 2.5rem;
-}
-
-.root:focus-within {
-  border-color: var(--cms-ring);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cms-ring) 25%, transparent);
-}
-
-.root[data-invalid] {
-  border-color: var(--cms-destructive);
-}
-
-.root[data-disabled] {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.select {
+.root[data-size="sm"] { height: 2.5rem; }
+.trigger {
+  display: flex;
   width: 100%;
   height: 100%;
   min-width: 0;
-  appearance: none;
-  padding: 0 2.25rem 0 0.75rem;
-  border: 0;
-  outline: 0;
-  background: transparent;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--cms-input);
+  border-radius: calc(var(--cms-radius) - 2px);
+  background: var(--cms-background);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--cms-foreground) 4%, transparent);
   color: inherit;
+  cursor: pointer;
   font: inherit;
+  text-align: left;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
 }
-
-.select:disabled {
-  cursor: not-allowed;
+.trigger:hover:not(:disabled) { border-color: var(--cms-muted-foreground); }
+.trigger:focus-visible, .trigger[data-state="open"] {
+  border-color: var(--cms-ring);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cms-ring) 25%, transparent);
 }
-
-.chevron {
-  position: absolute;
-  inset-inline-end: 0.7rem;
-  pointer-events: none;
-  color: var(--cms-muted-foreground);
+.root[data-invalid] .trigger { border-color: var(--cms-destructive); }
+.trigger:disabled { cursor: not-allowed; opacity: 0.55; }
+.value { overflow: hidden; min-width: 0; flex: 1; white-space: nowrap; text-overflow: ellipsis; }
+.value[data-placeholder] { color: var(--cms-muted-foreground); }
+.chevron { flex: none; color: var(--cms-muted-foreground); transition: transform 140ms ease; }
+.trigger[data-state="open"] .chevron { transform: rotate(180deg); }
+.menu {
+  z-index: 180;
+  min-width: var(--radix-dropdown-menu-trigger-width);
+  max-width: min(24rem, calc(100vw - 1.5rem));
+  max-height: min(19rem, var(--radix-dropdown-menu-content-available-height, 19rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.35rem;
 }
+.option {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: calc(var(--cms-radius) - 0.2rem);
+  color: var(--cms-popover-foreground);
+  cursor: pointer;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  outline: none;
+  user-select: none;
+}
+.option[data-highlighted] { background: var(--cms-accent); color: var(--cms-accent-foreground); }
+.option[data-state="checked"] { font-weight: 550; }
+.option[data-disabled] { cursor: not-allowed; opacity: 0.45; }
+.optionLabel { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.indicator { display: flex; flex: none; align-items: center; color: var(--cms-foreground); }
+.empty { padding: 0.75rem; color: var(--cms-muted-foreground); font-size: 0.875rem; }
+@media (prefers-reduced-motion: reduce) { .chevron, .trigger { transition: none; } }

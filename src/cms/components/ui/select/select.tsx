@@ -1,9 +1,11 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
+import * as Dropdown from "@radix-ui/react-dropdown-menu";
+import { Check, ChevronDown } from "lucide-react";
+import { useState, type ComponentPropsWithRef, type ReactNode } from "react";
 
 import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
+import { CmsDropdown, CmsDropdownContent, CmsDropdownTrigger } from "@/cms/components/ui/dropdown-menu";
 import { cn } from "@/cms/lib/cn";
 
 import styles from "./select.module.css";
@@ -14,55 +16,88 @@ export type CmsSelectOption = {
   value: string | number;
 };
 
-export type CmsSelectProps = ComponentProps<"select"> & {
+export type CmsSelectProps = Omit<ComponentPropsWithRef<"button">, "onChange" | "value" | "defaultValue" | "children" | "size"> & {
   containerClassName?: string;
   controlSize?: "default" | "sm";
+  defaultValue?: string | number;
   invalid?: boolean;
-  options?: readonly CmsSelectOption[];
+  options: readonly CmsSelectOption[];
+  placeholder?: string;
+  value?: string | number;
+  onValueChange?: (value: string) => void;
+  /** Compatibility with existing controlled CMS toolbars. New callers should use onValueChange. */
+  onChange?: (event: { target: { value: string } }) => void;
 };
 
+/**
+ * CMS single-choice menu. Form consumers use React Hook Form's Controller;
+ * the trigger receives field.ref/onBlur and the selected value is supplied by field.value.
+ * Built on the already-installed Radix menu primitives (keyboard, focus and escape support).
+ */
 export function CmsSelect({
-  "aria-describedby": ariaDescribedBy,
+  "aria-describedby": describedBy,
   "aria-invalid": ariaInvalid,
-  children,
+  "aria-label": ariaLabel,
   className,
   containerClassName,
   controlSize = "default",
+  defaultValue = "",
   disabled,
   id,
   invalid,
+  name,
+  onChange,
+  onValueChange,
   options,
-  ...props
+  placeholder = "Chọn một mục",
+  required,
+  value,
+  ...triggerProps
 }: CmsSelectProps) {
-  const field = useCmsFormFieldControl({
-    id,
-    describedBy: ariaDescribedBy,
-    invalid,
-    ariaInvalid,
-  });
+  const field = useCmsFormFieldControl({ id, describedBy, invalid, ariaInvalid });
+  const [internalValue, setInternalValue] = useState(String(defaultValue));
+  const selected = value === undefined ? internalValue : String(value);
+  const selectedOption = options.find((option) => String(option.value) === selected);
+  const changeValue = (next: string) => {
+    if (next === selected) return;
+    if (value === undefined) setInternalValue(next);
+    onValueChange?.(next);
+    onChange?.({ target: { value: next } });
+  };
 
   return (
-    <span
-      className={cn(styles.root, containerClassName)}
-      data-disabled={disabled || undefined}
-      data-invalid={field.invalid || undefined}
-      data-size={controlSize}
-    >
-      <select
-        {...props}
-        aria-describedby={field.describedBy}
-        aria-invalid={field.invalid || undefined}
-        className={cn(styles.select, className)}
-        disabled={disabled}
-        id={field.controlId}
-      >
-        {children ?? options?.map((option) => (
-          <option disabled={option.disabled} key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className={styles.chevron} aria-hidden="true" size={16} />
-    </span>
+    <CmsDropdown modal={false}>
+      <span className={cn(styles.root, containerClassName)} data-size={controlSize} data-disabled={disabled || undefined} data-invalid={field.invalid || undefined}>
+        {name ? <input name={name} type="hidden" value={selected} disabled={disabled} /> : null}
+        <CmsDropdownTrigger asChild>
+          <button
+            {...triggerProps}
+            aria-describedby={field.describedBy}
+            aria-invalid={field.invalid || undefined}
+            aria-label={ariaLabel}
+            aria-required={required || undefined}
+            className={cn(styles.trigger, className)}
+            disabled={disabled}
+            id={field.controlId}
+            type="button"
+          >
+            <span className={styles.value} data-placeholder={!selectedOption || undefined}>
+              {selectedOption?.label ?? placeholder}
+            </span>
+            <ChevronDown aria-hidden="true" className={styles.chevron} size={16} />
+          </button>
+        </CmsDropdownTrigger>
+        <CmsDropdownContent align="start" collisionPadding={12} className={styles.menu} sideOffset={5}>
+          <Dropdown.RadioGroup onValueChange={changeValue} value={selected}>
+            {options.length ? options.map((option) => (
+              <Dropdown.RadioItem className={styles.option} disabled={option.disabled} key={String(option.value)} value={String(option.value)}>
+                <span className={styles.optionLabel}>{option.label}</span>
+                <Dropdown.ItemIndicator className={styles.indicator}><Check aria-hidden="true" size={15} /></Dropdown.ItemIndicator>
+              </Dropdown.RadioItem>
+            )) : <div className={styles.empty}>Không có lựa chọn</div>}
+          </Dropdown.RadioGroup>
+        </CmsDropdownContent>
+      </span>
+    </CmsDropdown>
   );
 }
