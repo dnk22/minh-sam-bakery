@@ -16,3 +16,5 @@
 .option:hover, .option[data-active] { background: var(--cms-accent); color: var(--cms-accent-foreground); }
 .option:disabled { opacity: 0.45; cursor: not-allowed; }
 .empty { margin: 0; padding: 0.75rem; color: var(--cms-muted-foreground); font-size: 0.875rem; }
+
+@media (prefers-reduced-motion: reduce) { .trigger { transition: none; } }

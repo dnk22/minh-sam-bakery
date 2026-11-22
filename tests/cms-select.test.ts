@@ -34,7 +34,7 @@ test("shared CMS controls use accessible Radix menus without introducing new dep
 });
 
 test("React Hook Form select fields use the controlled adapters", () => {
-  const cases = [
+  const cases: Array<[string, RegExp]> = [
     ["src/cms/features/products/components/product-fields/product-fields.tsx", /CmsFormCombobox[^>]+name="categoryId"/],
     ["src/cms/features/categories/components/category-fields/category-fields.tsx", /CmsFormCombobox[\s\S]+?name="parentId"/],
     ["src/cms/features/users/components/user-fields/user-fields.tsx", /CmsFormCombobox[^>]+name="roleId"/],
