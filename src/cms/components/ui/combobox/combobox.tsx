@@ -86,7 +86,6 @@ export function CmsCombobox({
             className={cn(styles.trigger, className)}
             disabled={disabled}
             id={field.controlId}
-            role="combobox"
             type="button"
           >
             <span className={styles.value} data-placeholder={!chosen || undefined}>{chosen?.label ?? placeholder}</span>
