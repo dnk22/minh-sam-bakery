@@ -4,14 +4,18 @@ import test from "node:test";
 
 import { categorySlugFromPathname, isProductsPath } from "../src/landing/components/layout/landing-header-routing.ts";
 import { normalizeCrossCategoryProducts } from "../src/landing/features/catalog/cross-category.ts";
-import { isCategory, isPaginated, isProduct } from "../src/landing/features/catalog/response-data.ts";
+import { categoryProductsEndpoint, relatedOtherEndpoint } from "../src/landing/features/catalog/endpoints.ts";
+import { catalogRedirectPage, loadCatalogPageOnce } from "../src/landing/features/catalog/page-policy.ts";
+import { isCategory, isPaginated, isProduct, visibleCategories } from "../src/landing/features/catalog/response-data.ts";
 import { boundedPagination, categoryProductsRequest, catalogQueryToSearchParams, isCatalogQueryCanonical, parseCatalogQuery, updateCatalogQuery } from "../src/landing/features/catalog/query.ts";
 import type { CatalogProduct } from "../src/landing/features/catalog/types.ts";
 import { routes } from "../src/landing/lib/routes.ts";
-import { isApiEnvelope } from "../src/lib/api/transport.ts";
+import { BackendRequestError } from "../src/lib/api/errors.ts";
+import { isApiEnvelope, requestApiEnvelope } from "../src/lib/api/transport.ts";
+import type { CategoryResponseDto, ProductResponseDto } from "../src/lib/api/types.ts";
 
-const category = { id: "category-1", parentId: null, name: "Bánh ngọt", slug: "banh-ngot", description: null, imageUrl: null, status: "VISIBLE", sortOrder: 1, seoTitle: null, seoDescription: null, createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" };
-const product = { id: "product-1", categoryId: category.id, categorySlug: category.slug, categoryName: category.name, sku: "SWEET-1", name: "Bánh su kem", slug: "banh-su-kem", shortDescription: null, description: null, price: "200000.00", salePrice: null, status: "PUBLISHED", isFeatured: false, isBestSeller: false, seoTitle: null, seoDescription: null, images: [], variants: [], createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" };
+const category: CategoryResponseDto = { id: "category-1", parentId: null, name: "Bánh ngọt", slug: "banh-ngot", description: null, imageUrl: null, status: "VISIBLE", sortOrder: 1, seoTitle: null, seoDescription: null, createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" };
+const product: ProductResponseDto = { id: "product-1", categoryId: category.id, categorySlug: category.slug, categoryName: category.name, sku: "SWEET-1", name: "Bánh su kem", slug: "banh-su-kem", shortDescription: null, description: null, price: "200000.00", salePrice: null, status: "PUBLISHED", isFeatured: false, isBestSeller: false, seoTitle: null, seoDescription: null, images: [], variants: [], createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" };
 
 test("validates documented category and paginated product responses", () => {
   const page = { items: [product], pagination: { page: 1, limit: 9, total: 1, totalPages: 1 } };
@@ -22,6 +26,95 @@ test("validates documented category and paginated product responses", () => {
   assert.equal(isPaginated({ items: [], pagination: { page: 1, limit: 9, total: 0, totalPages: 0 } }, isProduct), true);
   assert.equal(isPaginated({ ...page, pagination: { ...page.pagination, page: 0 } }, isProduct), false);
   assert.equal(isPaginated({ ...page, items: [{ ...product, price: 200000 }] }, isProduct), false);
+});
+
+test("category API accepts empty lists and excludes hidden categories", async () => {
+  const hidden: CategoryResponseDto = { ...category, id: "category-hidden", slug: "an", status: "HIDDEN" };
+  const data = { items: [category, hidden], pagination: { page: 1, limit: 100, total: 2, totalPages: 1 } };
+  const response = await mockedApiRequest(
+    "/api/v1/public/categories?page=1&limit=100",
+    data,
+    (value): value is typeof data => isPaginated(value, isCategory),
+  );
+  assert.deepEqual(visibleCategories(response.data.items).map(({ slug }) => slug), ["banh-ngot"]);
+  assert.deepEqual(visibleCategories([]), []);
+  await assert.rejects(
+    requestApiEnvelope({
+      baseUrl: "https://backend.test",
+      path: "/api/v1/public/categories?page=1&limit=100",
+      validate: (value): value is typeof data => isPaginated(value, isCategory),
+      fetchImpl: (async () => jsonResponse({ code: 500, message: "Lỗi hệ thống", data: null }, 500)) as typeof fetch,
+    }),
+    (error) => error instanceof BackendRequestError && error.kind === "http" && error.status === 500,
+  );
+});
+
+test("category products API sends encoded slug and documented server-side parameters", async () => {
+  const endpoint = categoryProductsEndpoint("bánh kem", { page: 1, limit: 9, search: "vani bơ" });
+  assert.equal(endpoint, "/api/v1/public/categories/b%C3%A1nh%20kem/products?page=1&limit=9&search=vani+b%C6%A1");
+  const data = { items: [product], pagination: { page: 1, limit: 9, total: 1, totalPages: 1 } };
+  let requestedUrl = "";
+  const response = await requestApiEnvelope({
+    baseUrl: "https://backend.test",
+    path: endpoint,
+    validate: (value): value is typeof data => isPaginated(value, isProduct),
+    fetchImpl: (async (input) => {
+      requestedUrl = String(input);
+      return jsonResponse({ code: 200, message: "OK", data });
+    }) as typeof fetch,
+  });
+  assert.equal(requestedUrl, `https://backend.test${endpoint}`);
+  assert.deepEqual(response.data.pagination, data.pagination);
+  assert.equal(categoryProductsEndpoint("banh-kem"), "/api/v1/public/categories/banh-kem/products?page=1&limit=9");
+});
+
+test("category products API distinguishes HTTP, timeout and invalid DTO failures", async () => {
+  const endpoint = categoryProductsEndpoint("khong-ton-tai");
+  await assert.rejects(
+    requestApiEnvelope({
+      baseUrl: "https://backend.test",
+      path: endpoint,
+      validate: (value): value is never => isPaginated(value, isProduct),
+      fetchImpl: (async () => jsonResponse({ code: 404, message: "Không tìm thấy dữ liệu", data: null }, 404)) as typeof fetch,
+    }),
+    (error) => error instanceof BackendRequestError && error.kind === "http" && error.status === 404,
+  );
+  const keepEventLoopAlive = setInterval(() => undefined, 10);
+  try {
+    await assert.rejects(
+      requestApiEnvelope({
+        baseUrl: "https://backend.test",
+        path: categoryProductsEndpoint("banh-kem", { page: 2 }),
+        timeoutMs: 1,
+        validate: (value): value is never => isPaginated(value, isProduct),
+        fetchImpl: abortingFetch,
+      }),
+      (error) => error instanceof BackendRequestError && error.kind === "timeout",
+    );
+  } finally {
+    clearInterval(keepEventLoopAlive);
+  }
+  await assert.rejects(
+    mockedApiRequest(
+      categoryProductsEndpoint("banh-kem"),
+      { items: [{ ...product, price: 200000 }], pagination: { page: 1, limit: 9, total: 1, totalPages: 1 } },
+      (value): value is { items: Array<typeof product> } => isPaginated(value, isProduct),
+    ),
+    (error) => error instanceof BackendRequestError && error.kind === "invalid_data",
+  );
+});
+
+test("related-other endpoint has no query parameters and validates empty results", async () => {
+  const endpoint = relatedOtherEndpoint("banh-kem");
+  assert.equal(endpoint, "/api/v1/public/products/banh-kem/related-other");
+  assert.equal(endpoint.includes("?"), false);
+  const data = { items: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } };
+  const response = await mockedApiRequest(
+    endpoint,
+    data,
+    (value): value is typeof data => isPaginated(value, isProduct),
+  );
+  assert.deepEqual(response.data.items, []);
 });
 
 test("accepts omitted optional DTO fields while enforcing required fields", () => {
@@ -48,6 +141,32 @@ test("search changes reset pagination while page navigation preserves search", (
   assert.deepEqual(updateCatalogQuery(query, { q: "bơ" }), { q: "bơ", page: 1 });
   assert.deepEqual(updateCatalogQuery(query, { page: 3 }), { q: "bánh", page: 3 });
   assert.deepEqual(boundedPagination(50, 100), [1, "ellipsis-start", 49, 50, 51, "ellipsis-end", 100]);
+});
+
+test("pagination redirects only from valid Backend metadata", async () => {
+  const pagination = { page: 2, limit: 9, total: 11, totalPages: 2 };
+  assert.equal(catalogRedirectPage(2, pagination), null);
+  assert.equal(catalogRedirectPage(3, pagination), 2);
+  assert.equal(catalogRedirectPage(4, { page: 1, limit: 9, total: 0, totalPages: 0 }), 1);
+
+  for (const error of [
+    new BackendRequestError("http", { status: 500 }),
+    new BackendRequestError("timeout"),
+    new BackendRequestError("invalid_data"),
+  ]) {
+    let calls = 0;
+    let captured: unknown;
+    const page = await loadCatalogPageOnce(
+      async () => {
+        calls += 1;
+        throw error;
+      },
+      (current) => { captured = current; },
+    );
+    assert.equal(page, null);
+    assert.equal(calls, 1);
+    assert.equal(captured, error);
+  }
 });
 
 test("category and product route helpers require the category slug", () => {
@@ -80,19 +199,48 @@ test("category listing and related discovery use only their dedicated GET endpoi
   const route = readFileSync("src/app/(landing)/danh-muc/[categorySlug]/page.tsx", "utf8");
   const repository = readFileSync("src/landing/features/catalog/repository.ts", "utf8");
   const browser = readFileSync("src/landing/features/catalog/catalog-browser.tsx", "utf8");
-  assert.match(api, /public\/categories\/\$\{encodeURIComponent\(categorySlug\)\}\/products\?\$\{query\}/);
-  assert.match(api, /public\/products\/\$\{encodeURIComponent\(categorySlug\)\}\/related-other/);
+  assert.match(api, /categoryProductsEndpoint\(categorySlug, filters\)/);
+  assert.match(api, /relatedOtherEndpoint\(categorySlug\)/);
   assert.doesNotMatch(api, /public\/filter|public\/products\?\$\{query\}/);
   assert.match(repository, /fetchCategoryProducts/);
   assert.match(repository, /fetchRelatedOtherCategoryProducts/);
+  assert.match(repository, /cache\(async/);
   assert.doesNotMatch(repository, /fetchProductPage|selectCrossCategorySlugs/);
   assert.match(route, /loadCatalogPage\(categorySlug, query\)/);
   assert.match(route, /if \(!category\) notFound\(\)/);
   assert.match(route, /getCrossCategoryProducts\(categorySlug\)\.catch/);
-  assert.match(route, /return \{ page: null, recovered: false \}/);
+  assert.doesNotMatch(route, /getCatalogPage\(categorySlug, \{ \.\.\.query, page: 1 \}\)/);
+  assert.match(route, /catalogRedirectPage\(query\.page, catalogPage\.pagination\)/);
   assert.doesNotMatch(browser, /CatalogFilterForm|catalog-sort|query\.price|query\.sort/);
+  assert.match(readFileSync("src/landing/features/catalog/storefront-page.tsx", "utf8"), /#danh-muc/);
+  assert.doesNotMatch(readFileSync("src/landing/features/catalog/storefront-page.tsx", "utf8"), /#san-pham|id="san-pham"/);
 });
 
 function catalogProduct(id: string, categorySlug: string): CatalogProduct {
   return { id, slug: id, status: "published", categorySlug, categorySlugs: [categorySlug], name: id, description: "", image: "", imageAlt: id, pricing: { mode: "fixed", amount: 100000, price: "100.000 ₫", unit: "Giá niêm yết", variants: [] } };
 }
+
+function jsonResponse(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function mockedApiRequest<T>(
+  path: string,
+  data: unknown,
+  validate: (value: unknown) => value is T,
+) {
+  return requestApiEnvelope({
+    baseUrl: "https://backend.test",
+    path,
+    validate,
+    fetchImpl: (async () => jsonResponse({ code: 200, message: "OK", data })) as typeof fetch,
+  });
+}
+
+const abortingFetch = (async (_input: RequestInfo | URL, init?: RequestInit) =>
+  new Promise<Response>((_resolve, reject) => {
+    init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), { once: true });
+  })) as typeof fetch;

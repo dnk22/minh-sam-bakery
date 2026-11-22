@@ -22,6 +22,7 @@ export type CmsComboboxProps = Omit<ComponentPropsWithRef<"button">, "onChange" 
   containerClassName?: string;
   invalid?: boolean;
   controlSize?: "default" | "sm";
+  required?: boolean;
 };
 
 export function CmsCombobox({
@@ -86,6 +87,7 @@ export function CmsCombobox({
             className={cn(styles.trigger, className)}
             disabled={disabled}
             id={field.controlId}
+            role="combobox"
             type="button"
           >
             <span className={styles.value} data-placeholder={!chosen || undefined}>{chosen?.label ?? placeholder}</span>
@@ -150,15 +152,23 @@ export function CmsFormCombobox<T extends FieldValues>({
   control: Control<T>;
   name: FieldPath<T>;
 }) {
-  const { field } = useController({ control, name });
+  const {
+    field: {
+      name: fieldName,
+      onBlur,
+      onChange,
+      ref,
+      value,
+    },
+  } = useController({ control, name });
   return (
     <CmsCombobox
       {...props}
-      name={field.name}
-      onBlur={field.onBlur}
-      onValueChange={field.onChange}
-      ref={field.ref}
-      value={field.value == null ? "" : String(field.value)}
+      name={fieldName}
+      onBlur={onBlur}
+      onValueChange={onChange}
+      ref={ref}
+      value={value == null ? "" : String(value)}
     />
   );
 }

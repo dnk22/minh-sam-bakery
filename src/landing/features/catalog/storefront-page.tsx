@@ -28,12 +28,12 @@ export function CategoryStorefrontPage({
   const updateSearch = (q: string) => {
     const next = { ...query, q, page: 1 };
     const params = catalogQueryToSearchParams(next);
-    router.push(`${basePath}${params.size ? `?${params}` : ""}#san-pham`, { scroll: false });
+    router.push(`${basePath}${params.size ? `?${params}` : ""}#danh-muc`, { scroll: false });
   };
 
   return (
     <main className="min-h-[calc(100vh-500px)] w-full bg-surface pt-[var(--landing-header-height)]">
-      <section className="mx-auto w-full max-w-[1360px] scroll-mt-[var(--landing-header-height)] px-gutter py-space-xl lg:px-gutter-desktop" id="san-pham">
+      <section className="mx-auto w-full max-w-[1360px] scroll-mt-[var(--landing-header-height)] px-gutter py-space-xl lg:px-gutter-desktop" id="danh-muc">
         <nav aria-label="Đường dẫn trang" className="mb-space-md flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
           <Link className="transition-colors hover:text-primary" href={routes.home}>Trang chủ</Link>
           <span className="text-outline-variant">/</span>

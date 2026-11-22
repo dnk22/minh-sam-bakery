@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { isCatalogQueryCanonical, catalogQueryToSearchParams, parseCatalogQuery, type RawSearchParams } from "@/landing/features/catalog/query";
 import { getCatalogCategories, getCatalogCategory, getCatalogPage, getCrossCategoryProducts } from "@/landing/features/catalog/repository";
 import { reportCatalogError } from "@/landing/features/catalog/diagnostics";
+import { catalogRedirectPage, loadCatalogPageOnce } from "@/landing/features/catalog/page-policy";
 import { CategoryStorefrontPage } from "@/landing/features/catalog/storefront-page";
 import { routes } from "@/landing/lib/routes";
 
@@ -55,29 +56,22 @@ export default async function CategoryRoute({ params, searchParams }: CategoryRo
     }),
   ]);
   const catalogPage = catalogResult.page;
-  if (catalogPage && catalogResult.recovered) {
-    const recoveryPage = catalogPage.pagination.totalPages > 0 && query.page > catalogPage.pagination.totalPages ? catalogPage.pagination.totalPages : 1;
-    redirectToCategory(categorySlug, { ...query, page: recoveryPage });
-  }
-  const canonicalPage = catalogPage && catalogPage.pagination.totalPages > 0 ? Math.min(query.page, catalogPage.pagination.totalPages) : 1;
-  if (catalogPage && query.page !== canonicalPage) redirectToCategory(categorySlug, { ...query, page: canonicalPage });
+  const redirectPage = catalogPage
+    ? catalogRedirectPage(query.page, catalogPage.pagination)
+    : null;
+  if (redirectPage !== null)
+    redirectToCategory(categorySlug, { ...query, page: redirectPage });
 
   return <CategoryStorefrontPage category={category} crossCategoryProducts={crossCategoryProducts} page={catalogPage} query={query} />;
 }
 
 async function loadCatalogPage(categorySlug: string, query: ReturnType<typeof parseCatalogQuery>) {
   const endpoint = `/api/v1/public/categories/${encodeURIComponent(categorySlug)}/products`;
-  try {
-    return { page: await getCatalogPage(categorySlug, query), recovered: false };
-  } catch (error) {
-    reportCatalogError("category-products", endpoint, error);
-    if (query.page === 1) return { page: null, recovered: false };
-    const page = await getCatalogPage(categorySlug, { ...query, page: 1 }).catch((recoveryError) => {
-      reportCatalogError("category-products", endpoint, recoveryError);
-      return null;
-    });
-    return { page, recovered: page !== null };
-  }
+  const page = await loadCatalogPageOnce(
+    () => getCatalogPage(categorySlug, query),
+    (error) => reportCatalogError("category-products", endpoint, error),
+  );
+  return { page };
 }
 
 function redirectToCategory(categorySlug: string, query: ReturnType<typeof parseCatalogQuery>): never {

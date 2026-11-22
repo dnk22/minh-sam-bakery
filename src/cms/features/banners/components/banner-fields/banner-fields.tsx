@@ -55,7 +55,7 @@ export function BannerFields({
           >
             <CmsInput
               id="banner-link"
-              placeholder="/san-pham"
+              placeholder="/danh-muc/banh-kem"
               {...form.register("link")}
             />
           </CmsFormField>

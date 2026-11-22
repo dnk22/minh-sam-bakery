@@ -34,6 +34,10 @@ export function isCategory(value: unknown): value is CategoryResponseDto {
     typeof value.updatedAt === "string";
 }
 
+export function visibleCategories(categories: CategoryResponseDto[]) {
+  return categories.filter((category) => category.status === "VISIBLE");
+}
+
 export function isProduct(value: unknown): value is ProductResponseDto {
   return isRecord(value) &&
     ["id", "categoryId", "categorySlug", "categoryName", "sku", "name", "slug", "price", "createdAt", "updatedAt"].every((key) => typeof value[key] === "string") &&

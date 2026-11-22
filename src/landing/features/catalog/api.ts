@@ -6,7 +6,8 @@ import type {
   PaginatedResponse,
   ProductResponseDto,
 } from "@/lib/api/types";
-import { isCategory, isPaginated, isProduct } from "./response-data";
+import { categoryProductsEndpoint, relatedOtherEndpoint } from "./endpoints";
+import { isCategory, isPaginated, isProduct, visibleCategories } from "./response-data";
 
 const PAGE_LIMIT = 100;
 const MAX_PAGES = 20;
@@ -17,19 +18,15 @@ export async function fetchCategories() {
     isCategory,
     "catalog-categories",
   );
-  return categories.filter((category) => category.status === "VISIBLE");
+  return visibleCategories(categories);
 }
 
 export async function fetchCategoryProducts(
   categorySlug: string,
   filters: { page?: number; limit?: number; search?: string } = {},
 ) {
-  const query = new URLSearchParams();
-  if (filters.search) query.set("search", filters.search);
-  query.set("page", String(filters.page ?? 1));
-  query.set("limit", String(filters.limit ?? 9));
   const response = await apiGet(
-    `/api/v1/public/categories/${encodeURIComponent(categorySlug)}/products?${query}`,
+    categoryProductsEndpoint(categorySlug, filters),
     (value): value is PaginatedResponse<ProductResponseDto> => isPaginated(value, isProduct),
     { tags: ["catalog-products", `catalog-category-products-${categorySlug}`] },
   );
@@ -38,7 +35,7 @@ export async function fetchCategoryProducts(
 
 export async function fetchRelatedOtherCategoryProducts(categorySlug: string) {
   const response = await apiGet(
-    `/api/v1/public/products/${encodeURIComponent(categorySlug)}/related-other`,
+    relatedOtherEndpoint(categorySlug),
     (value): value is PaginatedResponse<ProductResponseDto> => isPaginated(value, isProduct),
     { tags: ["catalog-products", `catalog-related-other-${categorySlug}`] },
   );

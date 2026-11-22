@@ -2,7 +2,7 @@
 
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronDown } from "lucide-react";
-import { useState, type ComponentPropsWithRef, type ReactNode } from "react";
+import { useId, useState, type ComponentPropsWithRef, type ReactNode } from "react";
 import { useController, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 
 import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
@@ -24,6 +24,7 @@ export type CmsSelectProps = Omit<ComponentPropsWithRef<"button">, "onChange" | 
   invalid?: boolean;
   options: readonly CmsSelectOption[];
   placeholder?: string;
+  required?: boolean;
   value?: string | number;
   onValueChange?: (value: string) => void;
   /** Compatibility with existing controlled CMS toolbars. New callers should use onValueChange. */
@@ -56,6 +57,9 @@ export function CmsSelect({
   ...triggerProps
 }: CmsSelectProps) {
   const field = useCmsFormFieldControl({ id, describedBy, invalid, ariaInvalid });
+  const generatedId = useId();
+  const menuId = `${field.controlId ?? generatedId}-options`;
+  const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(String(defaultValue));
   const selected = value === undefined ? internalValue : String(value);
   const selectedOption = options.find((option) => String(option.value) === selected);
@@ -67,19 +71,22 @@ export function CmsSelect({
   };
 
   return (
-    <CmsDropdown modal={false}>
+    <CmsDropdown modal={false} onOpenChange={setOpen} open={open}>
       <span className={cn(styles.root, containerClassName)} data-size={controlSize} data-disabled={disabled || undefined} data-invalid={field.invalid || undefined}>
         {name ? <input name={name} type="hidden" value={selected} disabled={disabled} /> : null}
         <CmsDropdownTrigger asChild>
           <button
             {...triggerProps}
+            aria-controls={menuId}
             aria-describedby={field.describedBy}
+            aria-expanded={open}
             aria-invalid={field.invalid || undefined}
             aria-label={ariaLabel}
             aria-required={required || undefined}
             className={cn(styles.trigger, className)}
             disabled={disabled}
             id={field.controlId}
+            role="combobox"
             type="button"
           >
             <span className={styles.value} data-placeholder={!selectedOption || undefined}>
@@ -88,7 +95,7 @@ export function CmsSelect({
             <ChevronDown aria-hidden="true" className={styles.chevron} size={16} />
           </button>
         </CmsDropdownTrigger>
-        <CmsDropdownContent align="start" collisionPadding={12} className={styles.menu} sideOffset={5}>
+        <CmsDropdownContent align="start" collisionPadding={12} className={styles.menu} id={menuId} sideOffset={5}>
           <Dropdown.RadioGroup onValueChange={changeValue} value={selected}>
             {options.length ? options.map((option) => (
               <Dropdown.RadioItem className={styles.option} disabled={option.disabled} key={String(option.value)} value={String(option.value)}>
@@ -112,15 +119,23 @@ export function CmsFormSelect<T extends FieldValues>({
   control: Control<T>;
   name: FieldPath<T>;
 }) {
-  const { field } = useController({ control, name });
+  const {
+    field: {
+      name: fieldName,
+      onBlur,
+      onChange,
+      ref,
+      value,
+    },
+  } = useController({ control, name });
   return (
     <CmsSelect
       {...props}
-      name={field.name}
-      onBlur={field.onBlur}
-      onValueChange={field.onChange}
-      ref={field.ref}
-      value={field.value == null ? "" : String(field.value)}
+      name={fieldName}
+      onBlur={onBlur}
+      onValueChange={onChange}
+      ref={ref}
+      value={value == null ? "" : String(value)}
     />
   );
 }
