@@ -554,11 +554,30 @@ body:has(.cms-root) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.cms-breadcrumb-item { display: inline-flex; min-width: 0; align-items: center; gap: 0.6rem; }
-.cms-breadcrumb-item a { color: var(--cms-muted-foreground); text-decoration: none; }
-.cms-breadcrumb-item a:hover { color: var(--cms-foreground); }
-.cms-breadcrumb-separator { color: var(--cms-muted-foreground); opacity: 0.65; }
-.cms-breadcrumb-current { overflow: hidden; color: var(--cms-foreground); font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.cms-breadcrumb-item {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.6rem;
+}
+.cms-breadcrumb-item a {
+  color: var(--cms-muted-foreground);
+  text-decoration: none;
+}
+.cms-breadcrumb-item a:hover {
+  color: var(--cms-foreground);
+}
+.cms-breadcrumb-separator {
+  color: var(--cms-muted-foreground);
+  opacity: 0.65;
+}
+.cms-breadcrumb-current {
+  overflow: hidden;
+  color: var(--cms-foreground);
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .cms-header-actions {
   display: flex;
   flex: 0 0 auto;
@@ -574,7 +593,9 @@ body:has(.cms-root) {
   font-size: 0.78rem;
 }
 @media (max-width: 480px) {
-  .cms-header-actions { gap: 0.5rem; }
+  .cms-header-actions {
+    gap: 0.5rem;
+  }
 }
 
 .cms-main {
@@ -969,7 +990,10 @@ body:has(.cms-root) {
 .cms-dropdown-content {
   z-index: 180;
   min-width: 12rem;
-  max-height: min(22rem, var(--radix-dropdown-menu-content-available-height, 22rem));
+  max-height: min(
+    22rem,
+    var(--radix-dropdown-menu-content-available-height, 22rem)
+  );
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.35rem;
@@ -977,7 +1001,8 @@ body:has(.cms-root) {
   border-radius: calc(var(--cms-radius) - 0.05rem);
   background: var(--cms-popover);
   color: var(--cms-popover-foreground);
-  box-shadow: 0 14px 36px color-mix(in oklab, var(--cms-foreground) 15%, transparent);
+  box-shadow: 0 14px 36px
+    color-mix(in oklab, var(--cms-foreground) 15%, transparent);
 }
 .cms-dropdown-content[data-state="open"] {
   animation: cms-pop-in 140ms ease-out;
@@ -1198,7 +1223,12 @@ body:has(.cms-root) {
 .cms-settings-nav-link[data-active] {
   font-weight: 600;
 }
-.cms-settings-mobile-select {\n  display: none;\n  width: 100%;\n  height: 2.75rem;\n}\n.cms-settings-content {
+.cms-settings-mobile-select {
+  display: none;
+  width: 100%;
+  height: 2.75rem;
+}
+.cms-settings-content {
   min-width: 0;
   overflow-y: auto;
   padding: 0.15rem 0.25rem 3rem;

@@ -16,10 +16,27 @@
   gap: 0.75rem;
 }
 
-.summary { font-size: 0.8125rem; }
+.summary {
+  font-size: 0.8125rem;
+}
 
-.pageSizeSelect { width: 5.75rem; min-width: 5.75rem; }\n\n@media (max-width: 767px) {
-  .root { align-items: stretch; flex-direction: column; }
-  .controls { justify-content: space-between; }
-  .compact .pageSizeLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.pageSizeSelect {
+  width: 5.75rem;
+  min-width: 5.75rem;
+}
+@media (max-width: 767px) {
+  .root {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .controls {
+    justify-content: space-between;
+  }
+  .compact .pageSizeLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
 }
