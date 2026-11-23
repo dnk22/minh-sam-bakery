@@ -7,7 +7,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import {
   loadActiveLandingTheme,
+  loadLandingThemeCacheRecord,
   resolveLandingThemeData,
+  resolveLandingThemeFetchFailure,
   resolveLandingThemeFailure,
   type ActiveLandingTheme,
 } from "../src/landing/features/theme/theme-data.ts";
@@ -134,6 +136,25 @@ test("cacheable loader propagates transient outages and recovers without caching
   assert.equal(recovered.theme.colors.primary, "#14532D");
   assert.equal(call, 3);
 });
+test("cache record stores only a short-lived failure marker, not a Classic theme", async () => {
+  const network = (async () => { throw new TypeError("offline"); }) as typeof fetch;
+  const unavailable = await loadLandingThemeCacheRecord({ baseUrl: "https://theme.test", fetchImpl: network });
+  assert.equal(unavailable.state, "fetch-error");
+  if (unavailable.state === "fetch-error") {
+    assert.equal(unavailable.failure.source, "classic-api-error");
+    assert.equal(unavailable.failure.fetchDiagnostic.code, "network");
+    assert.equal(resolveLandingThemeFetchFailure(unavailable.failure).theme.fallbackUsed, true);
+    assert.ok(!("theme" in unavailable));
+  }
+
+  const resolved = await loadLandingThemeCacheRecord({
+    baseUrl: "https://theme.test",
+    fetchImpl: oneResponse(jsonResponse(themeRecord())),
+  });
+  assert.equal(resolved.state, "resolved");
+  if (resolved.state === "resolved") assert.equal(resolved.value.source, "active");
+});
+
 test("invalid metadata is separate from invalid theme config", async () => {
   const missingConfig = themeRecord() as Record<string, unknown>;
   delete missingConfig.config;
@@ -247,8 +268,9 @@ test("Next cache uses one tagged server cache with bounded stale behavior", () =
   assert.match(server, /cacheLife\(/);
   assert.match(server, /cacheTag\(LANDING_ACTIVE_THEME_CACHE_TAG\)/);
   const cachedBody = server.split("async function getCachedActiveLandingTheme()")[1]?.split("export async function getActiveLandingTheme()")[0] ?? "";
-  assert.match(cachedBody, /return loadActiveLandingTheme\(/);
-  assert.doesNotMatch(cachedBody, /catch\s*\(|resolveLandingThemeFailure\(/);
+  assert.match(cachedBody, /loadLandingThemeCacheRecord\(/);
+  assert.match(cachedBody, /cacheLife\(\{ stale: 1, revalidate: 1, expire: 5 \}\)/);
+  assert.doesNotMatch(cachedBody, /return resolveLandingThemeFailure\(/);
   assert.match(cache, /revalidateTag\(LANDING_ACTIVE_THEME_CACHE_TAG, \{ expire: 0 \}\)/);
   assert.doesNotMatch(server, /no-store|connection\(/);
 });

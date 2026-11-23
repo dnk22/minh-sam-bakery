@@ -5,9 +5,11 @@ import { cacheLife, cacheTag } from "next/cache";
 import { backendBaseUrl } from "@/lib/api/backend-client";
 
 import {
-  loadActiveLandingTheme,
+  loadLandingThemeCacheRecord,
   resolveLandingThemeFailure,
+  resolveLandingThemeFetchFailure,
   type ActiveLandingTheme,
+  type LandingThemeCacheRecord,
 } from "./theme-data";
 import {
   LANDING_ACTIVE_THEME_CACHE_TAG,
@@ -15,22 +17,30 @@ import {
   LANDING_ACTIVE_THEME_REVALIDATE_SECONDS,
 } from "./theme-cache";
 
-async function getCachedActiveLandingTheme(): Promise<ActiveLandingTheme> {
+async function getCachedActiveLandingTheme(): Promise<LandingThemeCacheRecord> {
   "use cache";
-  cacheLife({
-    stale: LANDING_ACTIVE_THEME_REVALIDATE_SECONDS,
-    revalidate: LANDING_ACTIVE_THEME_REVALIDATE_SECONDS,
-    expire: LANDING_ACTIVE_THEME_EXPIRE_SECONDS,
-  });
   cacheTag(LANDING_ACTIVE_THEME_CACHE_TAG);
-  // A transient API failure must not be cached as a successful Classic fallback.
-  // Only the request boundary below may convert failures into Classic.
-  return loadActiveLandingTheme({ baseUrl: backendBaseUrl() });
+  const record = await loadLandingThemeCacheRecord({ baseUrl: backendBaseUrl() });
+  if (record.state === "fetch-error") {
+    // Short-lived negative cache: keep prerender/build safe, retry promptly.
+    // Never store the Classic fallback as an active theme result.
+    cacheLife({ stale: 1, revalidate: 1, expire: 5 });
+  } else {
+    cacheLife({
+      stale: LANDING_ACTIVE_THEME_REVALIDATE_SECONDS,
+      revalidate: LANDING_ACTIVE_THEME_REVALIDATE_SECONDS,
+      expire: LANDING_ACTIVE_THEME_EXPIRE_SECONDS,
+    });
+  }
+  return record;
 }
 
 export async function getActiveLandingTheme(): Promise<ActiveLandingTheme> {
   try {
-    return await getCachedActiveLandingTheme();
+    const record = await getCachedActiveLandingTheme();
+    return record.state === "resolved"
+      ? record.value
+      : resolveLandingThemeFetchFailure(record.failure);
   } catch (error) {
     // Cache/runtime failures are still isolated from Landing rendering.
     return resolveLandingThemeFailure(error);

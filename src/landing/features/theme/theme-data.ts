@@ -27,6 +27,11 @@ export type LandingThemeFetchDiagnostic = {
   message: string;
 };
 
+export type LandingThemeFetchFailure = {
+  source: "classic-invalid-response" | "classic-api-error";
+  fetchDiagnostic: LandingThemeFetchDiagnostic;
+};
+
 export type ActiveLandingTheme = {
   theme: ThemeResolutionResult;
   source: LandingThemeSource;
@@ -79,6 +84,23 @@ export async function loadActiveLandingTheme(options: PublicThemeRequestOptions)
   return resolveLandingThemeData(await requestPublicTheme(options));
 }
 
+export type LandingThemeCacheRecord =
+  | { state: "resolved"; value: ActiveLandingTheme }
+  | { state: "fetch-error"; failure: LandingThemeFetchFailure };
+
+/**
+ * The cache can store a short-lived failure marker, never a successful Classic
+ * fallback. This also keeps Next's prerender pipeline from seeing an uncaught IO
+ * error while filling its cache.
+ */
+export async function loadLandingThemeCacheRecord(options: PublicThemeRequestOptions): Promise<LandingThemeCacheRecord> {
+  try {
+    return { state: "resolved", value: await loadActiveLandingTheme(options) };
+  } catch (error) {
+    return { state: "fetch-error", failure: describeLandingThemeFailure(error) };
+  }
+}
+
 function classicResult(
   source: Exclude<LandingThemeSource, "active" | "classic-invalid-config">,
   fetchDiagnostic: LandingThemeFetchDiagnostic,
@@ -109,15 +131,26 @@ export function resolveLandingThemeData(data: PublicThemeData | null): ActiveLan
   };
 }
 
-export function resolveLandingThemeFailure(error: unknown): ActiveLandingTheme {
+export function describeLandingThemeFailure(error: unknown): LandingThemeFetchFailure {
   const backendError = error instanceof BackendRequestError ? error : null;
   const invalidResponse = backendError !== null
     && ["invalid_json", "invalid_envelope", "invalid_data"].includes(backendError.kind);
-  return classicResult(invalidResponse ? "classic-invalid-response" : "classic-api-error", {
-    code: backendError?.kind ?? "unknown-error",
-    status: backendError?.status ?? null,
-    message: invalidResponse
-      ? "Theme API trả dữ liệu không hợp lệ; Landing đang dùng Classic."
-      : "Không thể tải active theme; Landing đang dùng Classic.",
-  });
+  return {
+    source: invalidResponse ? "classic-invalid-response" : "classic-api-error",
+    fetchDiagnostic: {
+      code: backendError?.kind ?? "unknown-error",
+      status: backendError?.status ?? null,
+      message: invalidResponse
+        ? "Theme API trả dữ liệu không hợp lệ; Landing đang dùng Classic."
+        : "Không thể tải active theme; Landing đang dùng Classic.",
+    },
+  };
+}
+
+export function resolveLandingThemeFetchFailure(failure: LandingThemeFetchFailure): ActiveLandingTheme {
+  return classicResult(failure.source, failure.fetchDiagnostic);
+}
+
+export function resolveLandingThemeFailure(error: unknown): ActiveLandingTheme {
+  return resolveLandingThemeFetchFailure(describeLandingThemeFailure(error));
 }
