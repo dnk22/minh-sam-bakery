@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShoppingBag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { SafeImage } from "@/landing/components/ui/safe-image";
+import { QuantityStepper } from "@/landing/components/ui/quantity-stepper";
 import { formatVnd } from "@/landing/features/catalog/pricing";
 import { saveCartCheckoutIntent } from "@/landing/features/checkout/store/checkout-intent";
 import { routes } from "@/landing/lib/routes";
@@ -178,11 +179,7 @@ function CartRow({ item, onRemove, onToggle, onQuantity, onVariant }: {
             <del className="ml-2 font-body-sm text-[12px] text-outline">{formatVnd(item.originalPrice * item.quantity)}</del>
           ) : null}
         </div>
-        <div className="flex items-center rounded-lg border border-outline-variant bg-surface">
-          <button aria-label={`Giảm số lượng ${item.productName}`} className="flex size-10 items-center justify-center disabled:opacity-40" disabled={item.quantity <= 1} onClick={() => onQuantity(item.quantity - 1)} type="button"><Minus className="size-4" /></button>
-          <span className="min-w-8 text-center font-label-ui font-semibold">{item.quantity}</span>
-          <button aria-label={`Tăng số lượng ${item.productName}`} className="flex size-10 items-center justify-center disabled:opacity-40" disabled={item.quantity >= 20} onClick={() => onQuantity(item.quantity + 1)} type="button"><Plus className="size-4" /></button>
-        </div>
+        <QuantityStepper value={item.quantity} onChange={onQuantity} appearance="bordered" subject={item.productName} />
       </div>
     </li>
   );

@@ -1,6 +1,7 @@
 "use client";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Check, Minus, Plus, X } from "lucide-react";
+import { Check, X } from "lucide-react";
+import { QuantityStepper } from "@/landing/components/ui/quantity-stepper";
 import type { Dispatch, SetStateAction } from "react";
 import { formatVnd } from "../../pricing";
 import type { CatalogProduct, CatalogVariant } from "../../types";
@@ -85,31 +86,7 @@ export function ProductVariantDialog({
               <span className="font-label-ui text-label-ui font-semibold text-on-surface">
                 Số lượng
               </span>
-              <div className="flex items-center rounded-lg bg-surface-container-low">
-                <button
-                  aria-label="Giảm số lượng"
-                  className="flex size-10 items-center justify-center disabled:opacity-40"
-                  disabled={quantity <= 1}
-                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                  type="button"
-                >
-                  <Minus className="size-4" />
-                </button>
-                <output className="w-10 text-center font-label-ui">
-                  {quantity}
-                </output>
-                <button
-                  aria-label="Tăng số lượng"
-                  className="flex size-10 items-center justify-center disabled:opacity-40"
-                  disabled={quantity >= 20}
-                  onClick={() =>
-                    setQuantity((value) => Math.min(20, value + 1))
-                  }
-                  type="button"
-                >
-                  <Plus className="size-4" />
-                </button>
-              </div>
+              <QuantityStepper value={quantity} onChange={setQuantity} subject={product.name} />
             </div>
             <div className="mt-space-lg flex items-center justify-between gap-2 border-t border-outline-variant pt-space-md">
               <div>
