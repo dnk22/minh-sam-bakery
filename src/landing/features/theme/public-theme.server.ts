@@ -5,9 +5,8 @@ import { cacheLife, cacheTag } from "next/cache";
 import { backendBaseUrl } from "@/lib/api/backend-client";
 
 import {
-  resolveLandingThemeData,
+  loadActiveLandingTheme,
   resolveLandingThemeFailure,
-  requestPublicTheme,
   type ActiveLandingTheme,
 } from "./theme-data";
 import {
@@ -24,11 +23,9 @@ async function getCachedActiveLandingTheme(): Promise<ActiveLandingTheme> {
     expire: LANDING_ACTIVE_THEME_EXPIRE_SECONDS,
   });
   cacheTag(LANDING_ACTIVE_THEME_CACHE_TAG);
-  try {
-    return resolveLandingThemeData(await requestPublicTheme({ baseUrl: backendBaseUrl() }));
-  } catch (error) {
-    return resolveLandingThemeFailure(error);
-  }
+  // A transient API failure must not be cached as a successful Classic fallback.
+  // Only the request boundary below may convert failures into Classic.
+  return loadActiveLandingTheme({ baseUrl: backendBaseUrl() });
 }
 
 export async function getActiveLandingTheme(): Promise<ActiveLandingTheme> {

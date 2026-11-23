@@ -15,7 +15,7 @@ export function LandingThemeRoot({
 }) {
   return (
     <div
-      className="min-h-screen bg-surface text-on-surface"
+      className="min-h-screen bg-surface font-body-md text-on-surface"
       data-landing-theme-root=""
       style={theme.cssVariables as CssVariableStyle}
     >

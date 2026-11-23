@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { BackendRequestError } from "../src/lib/api/errors.ts";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
-  requestPublicTheme,
+  loadActiveLandingTheme,
   resolveLandingThemeData,
   resolveLandingThemeFailure,
   type ActiveLandingTheme,
@@ -50,12 +51,11 @@ function oneResponse(response: Response): typeof fetch {
 
 async function loadTheme(fetchImpl: typeof fetch, timeoutMs = 50): Promise<ActiveLandingTheme> {
   try {
-    const data = await requestPublicTheme({
+    return await loadActiveLandingTheme({
       baseUrl: "https://theme.test",
       fetchImpl,
       timeoutMs,
     });
-    return resolveLandingThemeData(data);
   } catch (error) {
     return resolveLandingThemeFailure(error);
   }
@@ -111,6 +111,29 @@ test("timeout uses Classic without leaking the rejected request", async () => {
   assert.equal(result.fetchDiagnostic?.code, "timeout");
 });
 
+test("cacheable loader propagates transient outages and recovers without caching Classic", async () => {
+  const config = cloneClassic();
+  config.colors.primary = "#14532D";
+  let call = 0;
+  const intermittentFetch = (async (input: URL | RequestInfo) => {
+    assert.equal(String(input), THEME_API_URL);
+    call += 1;
+    if (call === 2) throw new TypeError("temporary Backend outage");
+    return jsonResponse(themeRecord(config));
+  }) as typeof fetch;
+
+  const options = { baseUrl: "https://theme.test", fetchImpl: intermittentFetch };
+  const first = await loadActiveLandingTheme(options);
+  assert.equal(first.source, "active");
+  await assert.rejects(
+    () => loadActiveLandingTheme(options),
+    (error: unknown) => error instanceof BackendRequestError && error.kind === "network",
+  );
+  const recovered = await loadActiveLandingTheme(options);
+  assert.equal(recovered.source, "active");
+  assert.equal(recovered.theme.colors.primary, "#14532D");
+  assert.equal(call, 3);
+});
 test("invalid metadata is separate from invalid theme config", async () => {
   const missingConfig = themeRecord() as Record<string, unknown>;
   delete missingConfig.config;
@@ -194,6 +217,7 @@ test("Landing integration scopes SSR variables and portals without touching CMS"
   assert.match(layout, /getActiveLandingTheme\(\)/);
   assert.match(layout, /<LandingThemeRoot theme=\{landingTheme\.theme\}>/);
   assert.match(root, /data-landing-theme-root/);
+  assert.match(root, /className="[^"]*\bfont-body-md\b/);
   assert.match(root, /style=\{theme\.cssVariables/);
   assert.match(root, /<LandingPortalProvider>\{children\}<\/LandingPortalProvider>/);
   assert.match(provider, /data-landing-portal-root/);
@@ -222,6 +246,9 @@ test("Next cache uses one tagged server cache with bounded stale behavior", () =
   assert.match(server, /"use cache"/);
   assert.match(server, /cacheLife\(/);
   assert.match(server, /cacheTag\(LANDING_ACTIVE_THEME_CACHE_TAG\)/);
+  const cachedBody = server.split("async function getCachedActiveLandingTheme()")[1]?.split("export async function getActiveLandingTheme()")[0] ?? "";
+  assert.match(cachedBody, /return loadActiveLandingTheme\(/);
+  assert.doesNotMatch(cachedBody, /catch\s*\(|resolveLandingThemeFailure\(/);
   assert.match(cache, /revalidateTag\(LANDING_ACTIVE_THEME_CACHE_TAG, \{ expire: 0 \}\)/);
   assert.doesNotMatch(server, /no-store|connection\(/);
 });

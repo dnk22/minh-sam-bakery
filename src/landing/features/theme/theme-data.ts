@@ -53,11 +53,13 @@ export function isPublicThemeData(value: unknown): value is PublicThemeData | nu
     && Number.isFinite(Date.parse(data.updatedAt));
 }
 
-export async function requestPublicTheme(options: {
+export type PublicThemeRequestOptions = {
   baseUrl: string;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
-}) {
+};
+
+export async function requestPublicTheme(options: PublicThemeRequestOptions) {
   const response = await requestApiEnvelope({
     baseUrl: options.baseUrl,
     path: "/api/v1/public/theme",
@@ -67,6 +69,14 @@ export async function requestPublicTheme(options: {
     validate: isPublicThemeData,
   });
   return response.data;
+}
+
+/**
+ * Cacheable success path: allow transport errors to propagate instead of
+ * returning a Classic fallback that might be stored as a cache hit.
+ */
+export async function loadActiveLandingTheme(options: PublicThemeRequestOptions): Promise<ActiveLandingTheme> {
+  return resolveLandingThemeData(await requestPublicTheme(options));
 }
 
 function classicResult(
