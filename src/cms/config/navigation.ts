@@ -8,6 +8,7 @@ import {
   UsersRound,
   Settings,
   Images,
+  Palette,
   SlidersHorizontal,
   ShoppingBag,
   type LucideIcon,
@@ -54,6 +55,7 @@ export const cmsNavigation: CmsNavGroup[] = [
           { title: "Sản phẩm", href: "/cms/products", icon: PackageSearch },
           { title: "Bài viết", href: "/cms/posts", icon: FileText },
           { title: "Banner", href: "/cms/banners", icon: Images },
+          { title: "Giao diện website", href: "/cms/themes", icon: Palette },
         ],
       },
       {
