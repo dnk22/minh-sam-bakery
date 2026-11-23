@@ -1,6 +1,6 @@
 .toolbar { display: grid; gap: 0.875rem; padding: 0.875rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
 .dateRange { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 0.75rem; }
-.dateRange > :global(*) { min-width: min(11rem, 100%); }
+.dateRange > * { min-width: min(11rem, 100%); }
 .dateRange :global(.cms-button) { min-height: 2.625rem; }
 .dateError { flex-basis: 100%; margin: 0; color: var(--cms-destructive); font-size: 0.8125rem; }
 .controls { display: flex; min-width: 0; align-items: flex-end; flex-wrap: wrap; gap: 0.75rem; }

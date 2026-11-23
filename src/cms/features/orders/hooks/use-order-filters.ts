@@ -61,6 +61,6 @@ export function useOrderFilters(): OrderFilters {
     setDeliveryTime: useCallback((value: string) => commit((query) => value ? query.set("deliveryTime", value) : query.delete("deliveryTime"), true), [commit]),
     setPage: useCallback((value: number) => commit((query) => value > 1 ? query.set("page", String(value)) : query.delete("page")), [commit]),
     clearAdvancedFilters: useCallback(() => commit(clearOrderAdvancedFilterQuery), [commit]),
-    clearFilters: useCallback(() => commit(clearOrderFilterQuery), [commit]),
+    clearFilters: useCallback(() => commit((query) => { const defaults = getDefaultOrderCreatedRange(); clearOrderFilterQuery(query); query.set("createdFrom", defaults.createdFrom); query.set("createdTo", defaults.createdTo); }, true), [commit]),
   };
 }

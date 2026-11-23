@@ -101,7 +101,7 @@ export function resolveCmsBreadcrumbs(pathname: string): CmsBreadcrumbItem[] {
         if (isCmsRouteActive(pathname, child.href)) {
           return [
             { title: group.title, href: "/cms", active: false },
-            { title: item.title, href: item.title === "Đơn hàng" ? "/cms/orders" : child.href, active: false },
+            { title: item.title, href: item.title === "Đơn hàng" ? "/cms/orders/pending" : child.href, active: false },
             { title: child.title, href: child.href, active: true },
           ];
         }

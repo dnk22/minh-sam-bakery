@@ -42,5 +42,5 @@ export type OrderListParams = {
   deliveryDate?: string;
   deliveryTime?: string;
 };
-export type UpdateOrderStatusInput = { status: OrderStatus };
+export type UpdateOrderStatusInput = { status: "CONFIRMED" | "REJECTED" };
 export type OrderModalState = { id: string; section?: OrderAction } | null;
