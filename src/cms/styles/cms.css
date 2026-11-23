@@ -1426,6 +1426,16 @@ body:has(.cms-root) {
   }
 }
 
+/* Shared mobile alignment for primary actions in CMS list-page headers.
+   Keep natural button width rather than stretching across the column header. */
+@media (max-width: 767px) {
+  .cms-page-header-action {
+    align-self: flex-end;
+    width: fit-content;
+    max-width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cms-root *,
   .cms-portal * {

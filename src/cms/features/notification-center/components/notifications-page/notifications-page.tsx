@@ -51,7 +51,7 @@ export function NotificationsPage() {
   };
 
   return <CmsMain className={styles.main}>
-    <header className={styles.heading}><div><h1>Thông báo</h1><p>Theo dõi hoạt động mới và cập nhật trạng thái thông báo.</p></div><CmsButton type="button" variant="outline" disabled={query.isFetching} onClick={() => query.refetch()}><RefreshCw aria-hidden="true" size={17} /> {query.isFetching ? "Đang tải…" : "Làm mới"}</CmsButton></header>
+    <header className={styles.heading}><div><h1>Thông báo</h1><p>Theo dõi hoạt động mới và cập nhật trạng thái thông báo.</p></div><CmsButton className="cms-page-header-action" type="button" variant="outline" disabled={query.isFetching} onClick={() => query.refetch()}><RefreshCw aria-hidden="true" size={17} /> {query.isFetching ? "Đang tải…" : "Làm mới"}</CmsButton></header>
     <NotificationToolbar filter={filters.filter} selectedCount={selected.size} pending={pending} onFilter={filters.setFilter} onReadSelected={readSelected} onReadAll={() => { if (!pending) mutations.bulkRead.mutate({ all: true }); }} />
     <NotificationsCollection query={query} setPage={filters.setPage} filterActive={filters.filter !== "all"} onDetail={(item) => setDetailId(item.id)} onToggleRead={toggleRead}
       onSelect={(id, checked) => updateSelection((ids) => { if (checked) ids.add(id); else ids.delete(id); })} selected={selected} allSelected={allSelected}

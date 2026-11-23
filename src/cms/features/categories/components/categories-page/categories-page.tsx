@@ -58,7 +58,7 @@ export function CategoriesPage() {
             bánh.
           </p>
         </div>
-        <CmsButton type="button" onClick={() => setModal({ mode: "create" })}>
+        <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}>
           <Plus aria-hidden="true" size={17} /> Thêm danh mục
         </CmsButton>
       </header>
