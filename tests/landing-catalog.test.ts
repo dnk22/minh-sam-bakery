@@ -244,3 +244,28 @@ const abortingFetch = (async (_input: RequestInfo | URL, init?: RequestInit) =>
   new Promise<Response>((_resolve, reject) => {
     init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), { once: true });
   })) as typeof fetch;
+
+test("catalog presentation splits page composition, navigation and purchase dialog without changing routes", () => {
+  const base = "src/landing/features/catalog";
+  const browser = readFileSync(`${base}/catalog-browser.tsx`, "utf8");
+  const controls = readFileSync(`${base}/catalog-controls.tsx`, "utf8");
+  const storefront = readFileSync(`${base}/storefront-page.tsx`, "utf8");
+  const navigate = readFileSync(`${base}/hooks/use-catalog-navigation.ts`, "utf8");
+  const purchaseHook = readFileSync(`${base}/hooks/use-product-actions.ts`, "utf8");
+  const modal = readFileSync(`${base}/components/product-variant-dialog.tsx`, "utf8");
+  assert.ok(browser.split("\n").length < 100);
+  assert.ok(storefront.split("\n").length < 110);
+  assert.match(browser, /export \{ CatalogPagination \}/);
+  assert.match(browser, /export \{ ProductCard \}/);
+  assert.match(controls, /export \{ CatalogSearchForm \}/);
+  assert.match(controls, /export \{ CatalogToolbar \}/);
+  assert.match(navigate, /catalogQueryToSearchParams/);
+  assert.match(navigate, /updateCatalogQuery/);
+  assert.match(navigate, /scroll: false/);
+  assert.match(storefront, /#danh-muc/);
+  assert.match(storefront, /CrossCategoryDiscovery/);
+  assert.match(purchaseHook, /saveBuyNowIntent/);
+  assert.match(purchaseHook, /addItem\(line\)/);
+  assert.match(purchaseHook, /variants.length === 1/);
+  assert.match(modal, /Dialog.Root/);
+});
