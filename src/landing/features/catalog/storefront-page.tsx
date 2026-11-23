@@ -7,14 +7,14 @@ import { routes } from "@/landing/lib/routes";
 
 import { CatalogBrowser } from "./catalog-browser";
 import { CatalogSearchForm } from "./catalog-controls";
-import { CatalogSectionHeading } from "./components/catalog-section-heading";
-import { CrossCategoryDiscovery } from "./components/cross-category-discovery";
+import { CatalogSectionHeading } from "./components/listing/catalog-section-heading";
+import { CrossCategoryDiscovery } from "./components/discovery/cross-category-discovery";
 import { useCatalogNavigation } from "./hooks/use-catalog-navigation";
 import type { CatalogCategory, CatalogPage, CatalogProduct } from "./types";
 import type { CatalogQuery } from "./query";
 
 /** Preserve the public cross-category component export. */
-export { CrossCategoryDiscovery } from "./components/cross-category-discovery";
+export { CrossCategoryDiscovery } from "./components/discovery/cross-category-discovery";
 
 export function CategoryStorefrontPage({
   category,

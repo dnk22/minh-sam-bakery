@@ -1,5 +1,3 @@
-"use client";
-
-/** Stable imports used by both category and global Search pages. */
-export { CatalogSearchForm } from "./components/catalog-search-form";
-export { CatalogToolbar } from "./components/catalog-toolbar";
+/** Compatibility entrypoint for existing Catalog and external imports. */
+export { SearchForm as CatalogSearchForm } from "@/landing/components/ui/search-form";
+export { CatalogToolbar } from "./components/listing/catalog-toolbar";

@@ -45,7 +45,7 @@ test("model adapter selects cheapest ACTIVE variant only and keeps same-variant 
 });
 
 test("price component uses discounted amount, old price and an optional discount badge", () => {
-  const component = readFileSync("src/landing/features/catalog/components/product-price.tsx", "utf8");
+  const component = readFileSync("src/landing/features/catalog/components/product/product-price.tsx", "utf8");
   assert.match(component, /pricing\.effectivePrice/);
   assert.match(component, /pricing\.originalPrice/);
   assert.match(component, /pricing\.hasDiscount/);
@@ -54,11 +54,11 @@ test("price component uses discounted amount, old price and an optional discount
 
 test("buy-now and cart actions use one shared variant selector without relying on mock orders", () => {
   const actions = readFileSync("src/landing/features/catalog/hooks/use-product-actions.ts", "utf8");
-  const cards = readFileSync("src/landing/features/catalog/components/product-card.tsx", "utf8");
+  const cards = readFileSync("src/landing/features/catalog/components/product/product-card.tsx", "utf8");
   assert.match(actions, /variants\.length === 1/);
   assert.match(actions, /saveBuyNowIntent/);
   assert.match(actions, /addItem\(line\)/);
-  const dialog = readFileSync("src/landing/features/catalog/components/product-variant-dialog.tsx", "utf8");
+  const dialog = readFileSync("src/landing/features/catalog/components/product/product-variant-dialog.tsx", "utf8");
   assert.match(dialog, /Dialog.Root/);
   assert.match(cards, /ProductActions/);
   assert.match(cards, /className="absolute inset-0 z-10/);

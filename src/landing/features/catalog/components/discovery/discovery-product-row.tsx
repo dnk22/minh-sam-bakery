@@ -3,9 +3,9 @@ import Link from "next/link";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { routes } from "@/landing/lib/routes";
 
-import { ProductActions } from "./product-actions";
-import { ProductPrice } from "./product-price";
-import type { CatalogProduct } from "../types";
+import { ProductActions } from "../product/product-actions";
+import { ProductPrice } from "../product/product-price";
+import type { CatalogProduct } from "../../types";
 
 export function DiscoveryProductRow({ product }: { product: CatalogProduct }) {
   const eyebrow = product.isBestSeller ? "BÁN CHẠY" : product.isFeatured ? "NỔI BẬT" : "SẢN PHẨM MINH SÂM";

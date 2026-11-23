@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 
-import type { CatalogQuery } from "../query";
+import type { CatalogQuery } from "../../query";
 
 export function CatalogToolbar({
   query,

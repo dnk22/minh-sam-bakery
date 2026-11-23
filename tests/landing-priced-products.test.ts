@@ -41,8 +41,8 @@ test("Landing has no quotation feature, quote card branch, or mock product datas
   ];
   for (const path of removed) assert.equal(existsSync(path), false, path);
   const catalog = readFileSync("src/landing/features/catalog/types.ts", "utf8");
-  const cards = readFileSync("src/landing/features/catalog/components/product-card.tsx", "utf8");
-  const storefront = readFileSync("src/landing/features/catalog/components/cross-category-discovery.tsx", "utf8");
+  const cards = readFileSync("src/landing/features/catalog/components/product/product-card.tsx", "utf8");
+  const storefront = readFileSync("src/landing/features/catalog/components/discovery/discovery-featured-card.tsx", "utf8");
   assert.doesNotMatch(catalog + cards + storefront, /quotationProfile|mode: "quote"|Liên hệ tư vấn/);
   assert.match(cards, /ProductPrice/);
   assert.match(storefront, /ProductPrice/);

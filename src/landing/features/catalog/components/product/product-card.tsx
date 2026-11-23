@@ -7,7 +7,7 @@ import { routes } from "@/landing/lib/routes";
 
 import { ProductActions } from "./product-actions";
 import { ProductPrice } from "./product-price";
-import type { CatalogProduct } from "../types";
+import type { CatalogProduct } from "../../types";
 
 export function ProductCard({ product, imageAspect = "landscape" }: {
   product: CatalogProduct;

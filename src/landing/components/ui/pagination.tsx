@@ -3,11 +3,11 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { boundedPagination } from "../query";
-import type { CatalogPage } from "../types";
+import { boundedPagination } from "@/landing/lib/pagination";
 
-export function CatalogPagination({ pagination, onPage }: {
-  pagination: CatalogPage["pagination"];
+
+export function Pagination({ pagination, onPage }: {
+  pagination: { page: number; total: number; totalPages: number };
   onPage: (page: number) => void;
 }) {
   if (pagination.totalPages <= 1) {

@@ -1,4 +1,4 @@
-import type { CatalogProduct } from "../types";
+import type { CatalogProduct } from "../../types";
 import { DiscoveryFeaturedCard } from "./discovery-featured-card";
 import { DiscoveryProductRow } from "./discovery-product-row";
 

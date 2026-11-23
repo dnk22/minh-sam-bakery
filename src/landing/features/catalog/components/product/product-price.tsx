@@ -1,5 +1,5 @@
-import { formatVnd } from "../pricing";
-import type { CatalogPricing } from "../types";
+import { formatVnd } from "../../pricing";
+import type { CatalogPricing } from "../../types";
 
 export function ProductPrice({
   pricing, compact = false,

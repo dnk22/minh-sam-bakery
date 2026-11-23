@@ -3,7 +3,7 @@
 import { ArrowRight, Search, X } from "lucide-react";
 import { type FormEvent, useRef, useState } from "react";
 
-export function CatalogSearchForm({
+export function SearchForm({
   compact = false,
   value = "",
   ariaLabel = "Tìm sản phẩm",

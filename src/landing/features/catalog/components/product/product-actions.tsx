@@ -1,7 +1,7 @@
 "use client";
 import { ShoppingCart } from "lucide-react";
-import type { CatalogProduct } from "../types";
-import { useProductActions } from "../hooks/use-product-actions";
+import type { CatalogProduct } from "../../types";
+import { useProductActions } from "../../hooks/use-product-actions";
 import { ProductVariantDialog } from "./product-variant-dialog";
 
 export function ProductActions({ product, compact = false }: {

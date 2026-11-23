@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { CatalogSearchForm } from "@/landing/features/catalog/catalog-controls";
+import { SearchForm } from "@/landing/components/ui/search-form";
 import type { CatalogCategory } from "@/landing/features/catalog/types";
 import { routes } from "@/landing/lib/routes";
 
@@ -40,7 +40,7 @@ export function GlobalSearchPage({ categories, query, results }: SearchPageProps
           </p>
         </div>
         <div className="mb-space-xl max-w-3xl">
-          <CatalogSearchForm
+          <SearchForm
             ariaLabel="Tìm kiếm sản phẩm và danh mục"
             placeholder="Tìm bánh, hộp quà..."
             value={query.q}
