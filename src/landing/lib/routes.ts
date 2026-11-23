@@ -3,6 +3,8 @@ export const routes = {
   homeHero: "/#trang-chu",
   categories: "/danh-muc",
   search: "/tim-kiem",
+  cart: "/don-hang",
+  checkout: "/thanh-toan",
   journal: "/tin-tuc",
   about: "/ve-minh-sam",
   category: (slug: string) => `/danh-muc/${slug}`,

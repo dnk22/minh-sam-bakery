@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Eye, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -11,6 +11,8 @@ import { routes } from "@/landing/lib/routes";
 import { CatalogToolbar } from "./catalog-controls";
 import { boundedPagination, catalogQueryToSearchParams, updateCatalogQuery, type CatalogQuery } from "./query";
 import type { CatalogPage, CatalogProduct } from "./types";
+import { ProductPrice } from "./components/product-price";
+import { ProductActions } from "./components/product-actions";
 
 type CatalogBrowserProps = {
   basePath: string;
@@ -61,11 +63,20 @@ function PageButton({ children, disabled, label, onClick }: { children: ReactNod
   return <button aria-label={label} className={`flex size-10 items-center justify-center rounded ${disabled ? "cursor-not-allowed bg-surface-container-high text-outline" : "bg-surface-container-lowest text-on-surface hover:bg-surface-container"}`} disabled={disabled} onClick={onClick} type="button">{children}</button>;
 }
 
-export function ProductCard({ product }: { product: CatalogProduct }) {
+export function ProductCard({ product, imageAspect = "landscape" }: {
+  product: CatalogProduct;
+  imageAspect?: "square" | "landscape";
+}) {
   const detailHref = routes.product(product.categorySlug, product.slug);
+
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
+      <Link
+        aria-label={`Xem chi tiết ${product.name}`}
+        className="absolute inset-0 z-10 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary"
+        href={detailHref}
+      />
+      <div className={`relative w-full overflow-hidden bg-surface-container ${imageAspect === "square" ? "aspect-square" : "aspect-[4/3]"}`}>
         <SafeImage
           alt={product.imageAlt}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -83,26 +94,8 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
           <p className="mb-space-sm line-clamp-2 font-body-md text-body-md text-on-surface-variant">{product.description}</p>
         </div>
         <div className="mt-space-xs flex flex-col gap-space-sm pt-space-sm">
-          <div className="flex items-baseline justify-between gap-space-sm">
-            <span className="font-price-serif text-[18px] text-primary">{product.pricing.price}</span>
-            <span className="font-body-sm text-body-sm text-outline">{product.pricing.unit}</span>
-          </div>
-          <div className="flex items-center gap-space-xs">
-            <Link
-              className="flex flex-1 items-center justify-center gap-1 rounded bg-primary px-space-sm py-2 font-label-ui text-label-ui uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-container"
-              href={detailHref}
-            >
-              <ShoppingBag className="size-4" aria-hidden="true" />
-              Xem sản phẩm
-            </Link>
-            <Link
-              aria-label={`Xem chi tiết ${product.name}`}
-              className="rounded p-2 text-primary transition-colors hover:bg-surface-container"
-              href={detailHref}
-            >
-              <Eye className="size-5" aria-hidden="true" />
-            </Link>
-          </div>
+          <ProductPrice pricing={product.pricing} />
+          <ProductActions product={product} />
         </div>
       </div>
     </article>

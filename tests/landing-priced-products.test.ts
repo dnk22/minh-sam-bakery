@@ -44,8 +44,8 @@ test("Landing has no quotation feature, quote card branch, or mock product datas
   const cards = readFileSync("src/landing/features/catalog/catalog-browser.tsx", "utf8");
   const storefront = readFileSync("src/landing/features/catalog/storefront-page.tsx", "utf8");
   assert.doesNotMatch(catalog + cards + storefront, /quotationProfile|mode: "quote"|Liên hệ tư vấn/);
-  assert.match(cards, /product\.pricing\.price/);
-  assert.match(storefront, /return product\.pricing\.price/);
+  assert.match(cards, /ProductPrice/);
+  assert.match(storefront, /ProductPrice/);
 });
 
 test("product purchase keeps checkout disabled until real order integration", () => {

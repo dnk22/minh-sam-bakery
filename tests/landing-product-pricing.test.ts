@@ -51,3 +51,13 @@ test("price component uses discounted amount, old price and an optional discount
   assert.match(component, /pricing\.hasDiscount/);
   assert.match(component, /pricing\.isFrom/);
 });
+
+test("buy-now and cart actions use one shared variant selector without relying on mock orders", () => {
+  const actions = readFileSync("src/landing/features/catalog/components/product-actions.tsx", "utf8");
+  const cards = readFileSync("src/landing/features/catalog/catalog-browser.tsx", "utf8");
+  assert.match(actions, /variants\.length === 1/);
+  assert.match(actions, /saveBuyNowIntent/);
+  assert.match(actions, /addItem\(line\)/);
+  assert.match(cards, /ProductActions/);
+  assert.match(cards, /className="absolute inset-0 z-10/);
+});
