@@ -7,7 +7,7 @@ export function CheckoutCustomerSection({ draft, errors, onUpdate }: {
   onUpdate: (patch: Partial<CheckoutDraft>) => void;
 }) {
   return (
-    <section className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm" aria-labelledby="checkout-contact-heading">
+    <section className="rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm" aria-labelledby="checkout-contact-heading">
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary" id="checkout-contact-heading">
         1. Thông tin khách hàng
       </h2>

@@ -18,7 +18,7 @@ export function CheckoutOrderSummary({ intent, isDelivery, formChecked }: {
 
   return (
     <aside
-      className="sticky top-24 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm"
+      className="sticky top-24 rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm"
       aria-label="Tóm tắt đơn thanh toán"
     >
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary">Đơn hàng của bạn</h2>
@@ -55,10 +55,6 @@ export function CheckoutOrderSummary({ intent, isDelivery, formChecked }: {
         <span className="font-headline-sm text-headline-sm font-semibold text-primary">Tạm tính</span>
         <strong className="font-price-serif text-[24px] text-primary">{formatVnd(subtotal)}</strong>
       </div>
-      <p className="mt-space-sm font-body-sm text-[12px] text-on-surface-variant">
-        Giá, số lượng và biến thể sẽ được Backend xác nhận khi tích hợp tạo đơn.
-        Đây chưa phải số tiền thanh toán cuối cùng.
-      </p>
       <button
         className="mt-space-lg flex min-h-12 w-full items-center justify-center rounded-lg bg-primary px-space-lg font-label-ui text-label-ui font-semibold text-on-primary"
         type="submit"
@@ -74,9 +70,6 @@ export function CheckoutOrderSummary({ intent, isDelivery, formChecked }: {
           chưa có đơn hàng hay thanh toán nào được tạo.
         </div>
       ) : null}
-      <p className="mt-space-md font-body-sm text-[12px] text-on-surface-variant">
-        Chưa thể xác nhận đặt hàng trực tuyến ở giai đoạn này.
-      </p>
       <Link
         className="mt-space-md flex items-center justify-center gap-2 font-body-sm text-secondary hover:underline"
         href={intent.source === "cart" ? routes.cart : routes.search}

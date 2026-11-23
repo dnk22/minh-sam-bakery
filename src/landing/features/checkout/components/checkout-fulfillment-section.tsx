@@ -14,7 +14,7 @@ export function CheckoutFulfillmentSection({ draft, errors, today, onUpdate, onF
   const isDelivery = draft.fulfillmentMethod === "delivery";
 
   return (
-    <section className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm" aria-labelledby="checkout-fulfillment-heading">
+    <section className="rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm" aria-labelledby="checkout-fulfillment-heading">
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary" id="checkout-fulfillment-heading">
         2. Hình thức nhận bánh
       </h2>

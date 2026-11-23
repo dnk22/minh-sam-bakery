@@ -10,7 +10,7 @@ export function CheckoutPaymentSection({ draft, errors, onUpdate }: {
 }) {
   const isDelivery = draft.fulfillmentMethod === "delivery";
   return (
-    <section className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm" aria-labelledby="checkout-payment-heading">
+    <section className="rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm" aria-labelledby="checkout-payment-heading">
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary" id="checkout-payment-heading">
         3. Phương thức thanh toán
       </h2>
@@ -37,9 +37,6 @@ export function CheckoutPaymentSection({ draft, errors, onUpdate }: {
       {errors.paymentMethod ? (
         <p className="mt-2 font-body-sm text-error" role="alert">{errors.paymentMethod}</p>
       ) : null}
-      <p className="mt-space-md font-body-sm text-body-sm text-on-surface-variant">
-        Chưa phát sinh giao dịch thanh toán tại bước này.
-      </p>
     </section>
   );
 }
