@@ -110,3 +110,52 @@ test("new search route and header link exist without reintroducing legacy routes
   assert.match(header, /aria-label="Tìm kiếm sản phẩm"/);
   assert.match(route, /getGlobalSearchResults/);
 });
+
+test("search page keeps orchestration separate from filters, results and URL navigation", () => {
+  const base = "src/landing/features/search";
+  const page = readFileSync(`${base}/search-page.tsx`, "utf8");
+  const navigation = readFileSync(`${base}/hooks/use-search-navigation.ts`, "utf8");
+  const panel = readFileSync(`${base}/components/search-filter-panel.tsx`, "utf8");
+  const drawer = readFileSync(`${base}/components/search-filter-drawer.tsx`, "utf8");
+  const results = readFileSync(`${base}/components/search-results.tsx`, "utf8");
+  const toolbar = readFileSync(`${base}/components/search-results-toolbar.tsx`, "utf8");
+
+  assert.ok(page.split("\n").length < 120, "search page must only compose UI components");
+  for (const section of ["SearchFilterDrawer", "SearchFilterPanel", "SearchMatchedCategories", "SearchResults"]) {
+    assert.match(page, new RegExp(section));
+  }
+  assert.match(navigation, /searchQueryToSearchParams/);
+  assert.match(navigation, /updateSearchQuery/);
+  assert.match(navigation, /scroll: false/);
+  assert.match(navigation, /router\.refresh\(\)/);
+  assert.doesNotMatch(page, /router\.push|Dialog\.Root|<fieldset/);
+  assert.match(panel, /radioPrefix/);
+  assert.match(page, /radioPrefix="desktop"/);
+  assert.match(drawer, /radioPrefix="mobile"/);
+  assert.match(drawer, /setFiltersOpen\(false\)/);
+  assert.match(results, /ProductCard/);
+  assert.match(results, /CatalogPagination/);
+  assert.match(toolbar, /SORT_OPTIONS/);
+});
+
+test("search options remain consistent with URL query types and price bands", async () => {
+  const { PRICE_OPTIONS, SORT_OPTIONS } = await import("../src/landing/features/search/search-options.ts");
+  assert.deepEqual(PRICE_OPTIONS.map((x) => x.value), ["all", "under-200", "200-500", "over-500"]);
+  assert.deepEqual(SORT_OPTIONS.map((x) => x.value), ["recent", "price-asc", "price-desc"]);
+  for (const option of [...PRICE_OPTIONS, ...SORT_OPTIONS]) {
+    assert.ok(option.label.length > 0);
+  }
+});
+
+test("search public API and response schema remain unchanged by the UI refactor", () => {
+  const base = "src/landing/features/search";
+  const api = readFileSync(`${base}/api.ts`, "utf8");
+  const repository = readFileSync(`${base}/repository.ts`, "utf8");
+  const route = readFileSync("src/app/(landing)/tim-kiem/page.tsx", "utf8");
+  assert.match(api, /\/api\/v1\/public\/filter/);
+  assert.match(api, /method: "POST"/);
+  assert.match(repository, /response\.products\.map\(adaptProduct\)/);
+  assert.match(repository, /response\.categories/);
+  assert.match(route, /isSearchQueryCanonical/);
+  assert.match(route, /getGlobalSearchResults/);
+});
