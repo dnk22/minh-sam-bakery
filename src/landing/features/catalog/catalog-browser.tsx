@@ -10,7 +10,7 @@ import type { CatalogQuery } from "./query";
 
 /** Keep the established public imports for Search and Product Detail. */
 export { Pagination as CatalogPagination } from "@/landing/components/ui/pagination";
-export { ProductCard } from "./components/product-card";
+export { ProductCard } from "./components/product/product-card";
 
 type CatalogBrowserProps = {
   basePath: string;

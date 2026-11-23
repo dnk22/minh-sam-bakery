@@ -255,9 +255,9 @@ test("catalog presentation splits page composition, navigation and purchase dial
   const modal = readFileSync(`${base}/components/product/product-variant-dialog.tsx`, "utf8");
   assert.ok(browser.split("\n").length < 100);
   assert.ok(storefront.split("\n").length < 110);
-  assert.match(browser, /export \{ CatalogPagination \}/);
+  assert.match(browser, /Pagination as CatalogPagination/);
   assert.match(browser, /export \{ ProductCard \}/);
-  assert.match(controls, /export \{ CatalogSearchForm \}/);
+  assert.match(controls, /SearchForm as CatalogSearchForm/);
   assert.match(controls, /export \{ CatalogToolbar \}/);
   assert.match(navigate, /catalogQueryToSearchParams/);
   assert.match(navigate, /updateCatalogQuery/);
