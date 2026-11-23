@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -115,6 +115,7 @@ export function LandingHeader({ categories }: { categories: CatalogCategory[] })
             </div>
             {navigationItems.slice(1).map(({ label, path, href }) => <NavigationLink active={isNavigationItemActive(pathname, href)} href={href} key={path} label={label} path={path} />)}
           </nav>
+          <Link aria-label="Tìm kiếm sản phẩm" aria-current={pathname === routes.search ? "page" : undefined} title="Tìm kiếm sản phẩm" href={routes.search} className={"flex size-11 items-center justify-center rounded transition-colors hover:bg-primary-container " + (pathname === routes.search ? "bg-primary-container text-secondary-fixed" : "text-secondary-fixed-dim")}><Search aria-hidden="true" className="size-5" /></Link>
           <button aria-controls="mobile-navigation-drawer" aria-expanded={isDrawerOpen} aria-label="Mở menu điều hướng" className="flex size-11 items-center justify-center rounded text-secondary-fixed transition-colors hover:bg-primary-container lg:hidden" onClick={() => setIsDrawerOpen(true)} type="button"><Menu aria-hidden="true" className="size-6" /></button>
         </div>
       </div>
@@ -128,7 +129,7 @@ export function LandingHeader({ categories }: { categories: CatalogCategory[] })
             <button aria-controls="mobile-product-categories" aria-expanded={isMobileProductsOpen} className={`flex w-full items-center justify-between border-b border-secondary-fixed/15 py-5 text-left font-headline-sm text-headline-sm transition-colors hover:text-secondary-fixed-dim ${productsActive ? "font-semibold text-secondary-fixed" : "text-secondary-fixed"}`} onClick={() => setIsMobileProductsOpen((open) => !open)} type="button"><span>Sản phẩm</span><ChevronDown aria-hidden="true" className={`size-5 transition-transform ${isMobileProductsOpen ? "rotate-180" : ""}`} /></button>
             {isMobileProductsOpen ? (
               <div className="border-b border-secondary-fixed/15 bg-primary-container/35 py-2 pl-4" id="mobile-product-categories">
-                <Link className="block py-3 font-label-ui text-label-ui text-secondary-fixed-dim hover:text-secondary-fixed" href={routes.categories} onClick={closeDrawer}>Tất cả sản phẩm</Link>
+                <Link className="block py-3 font-label-ui text-label-ui text-secondary-fixed-dim hover:text-secondary-fixed" href={routes.search} onClick={closeDrawer}>Tất cả sản phẩm</Link>
                 {categories.map((category) => <Link aria-current={activeCategorySlug === category.slug ? "page" : undefined} className={`block py-3 font-label-ui text-label-ui hover:text-secondary-fixed ${activeCategorySlug === category.slug ? "font-semibold text-secondary-fixed" : "text-secondary-fixed-dim"}`} href={routes.category(category.slug)} key={category.id ?? category.slug} onClick={closeDrawer}>{category.name}</Link>)}
               </div>
             ) : null}
