@@ -7,7 +7,7 @@ import type {
   ThemeSchemaDiagnostic,
 } from "../contracts/theme.types.ts";
 import { resolveSemanticFonts } from "../fonts/font-registry.ts";
-import { CLASSIC_THEME } from "../presets/classic.ts";
+import { createClassicThemeConfig } from "../presets/classic.ts";
 import { createThemeCssVariables } from "./theme-style.ts";
 
 function isUnsupportedVersion(input: unknown) {
@@ -29,7 +29,7 @@ export function resolveThemeConfig(input: unknown): ThemeConfigResolutionResult 
       : "Cấu hình theme không hợp lệ; đang dùng Classic.",
     issues: parsed.issues,
   };
-  return { config: CLASSIC_THEME, fallbackUsed: true, diagnostics: [diagnostic] };
+  return { config: createClassicThemeConfig(), fallbackUsed: true, diagnostics: [diagnostic] };
 }
 
 export function resolveTheme(configInput: unknown): ThemeResolutionResult {

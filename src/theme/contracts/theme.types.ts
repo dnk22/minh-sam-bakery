@@ -32,11 +32,17 @@ export type ThemeSchemaDiagnostic = {
 
 export type ThemeContrastDiagnostic = {
   kind: "contrast";
+  id: string;
   foreground: SemanticColorToken;
   background: SemanticColorToken;
+  effectiveForeground: string;
+  effectiveBackground: string;
+  foregroundOpacity: number;
   ratio: number;
   requiredRatio: number;
   passed: boolean;
+  context: string;
+  textCategory: "normal" | "large" | "ui";
   message: string;
 };
 

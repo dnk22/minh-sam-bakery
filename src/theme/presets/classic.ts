@@ -1,6 +1,6 @@
 import type { ThemeConfigV1 } from "../contracts/theme.types.ts";
 
-export const CLASSIC_THEME = {
+const classicTheme = {
   schemaVersion: 1,
   colors: {
     primary: "#2E0208",
@@ -10,7 +10,7 @@ export const CLASSIC_THEME = {
     secondaryLight: "#E9C176",
     onSecondary: "#FFFFFF",
     background: "#FFF8F7",
-    surface: "#FFFFFF",
+    surface: "#FFF8F7",
     surfaceMuted: "#FFF0EE",
     surfaceElevated: "#FDE2DE",
     textPrimary: "#261816",
@@ -23,3 +23,18 @@ export const CLASSIC_THEME = {
     body: "be-vietnam-pro",
   },
 } as const satisfies ThemeConfigV1;
+
+export const CLASSIC_THEME = Object.freeze({
+  ...classicTheme,
+  colors: Object.freeze({ ...classicTheme.colors }),
+  typography: Object.freeze({ ...classicTheme.typography }),
+});
+
+/** Returns editable form/runtime state without exposing the frozen preset. */
+export function createClassicThemeConfig(): ThemeConfigV1 {
+  return {
+    schemaVersion: 1,
+    colors: { ...CLASSIC_THEME.colors },
+    typography: { ...CLASSIC_THEME.typography },
+  };
+}
