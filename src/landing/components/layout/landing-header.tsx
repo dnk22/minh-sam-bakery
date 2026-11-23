@@ -1,12 +1,14 @@
 "use client";
 
-import { ChevronDown, Menu, Search, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { FocusEvent, MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
+import { useCartHydrated } from "@/landing/features/cart/components/cart-hydration";
+import { useCartStore } from "@/landing/features/cart/store/cart-store";
 import type { CatalogCategory } from "@/landing/features/catalog/types";
 import { routes } from "@/landing/lib/routes";
 import { categorySlugFromPathname, isProductsPath } from "./landing-header-routing";
@@ -22,6 +24,8 @@ export function LandingHeader({ categories }: { categories: CatalogCategory[] })
   const [isDesktopProductsOpen, setIsDesktopProductsOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const pathname = usePathname();
+  const cartHydrated = useCartHydrated();
+  const cartCount = useCartStore((state) => state.items.reduce((count, item) => count + item.quantity, 0));
   const activeCategorySlug = categorySlugFromPathname(pathname);
   const productsActive = isProductsPath(pathname);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -116,6 +120,20 @@ export function LandingHeader({ categories }: { categories: CatalogCategory[] })
             {navigationItems.slice(1).map(({ label, path, href }) => <NavigationLink active={isNavigationItemActive(pathname, href)} href={href} key={path} label={label} path={path} />)}
           </nav>
           <Link aria-label="Tìm kiếm sản phẩm" aria-current={pathname === routes.search ? "page" : undefined} title="Tìm kiếm sản phẩm" href={routes.search} className={"flex size-11 items-center justify-center rounded transition-colors hover:bg-primary-container " + (pathname === routes.search ? "bg-primary-container text-secondary-fixed" : "text-secondary-fixed-dim")}><Search aria-hidden="true" className="size-5" /></Link>
+          <Link
+            aria-label={cartHydrated && cartCount > 0 ? `Giỏ hàng, ${cartCount} sản phẩm` : "Giỏ hàng"}
+            aria-current={pathname === routes.cart ? "page" : undefined}
+            className={`relative flex size-11 items-center justify-center rounded transition-colors hover:bg-primary-container ${pathname === routes.cart ? "bg-primary-container text-secondary-fixed" : "text-secondary-fixed-dim"}`}
+            href={routes.cart}
+            title="Giỏ hàng"
+          >
+            <ShoppingCart aria-hidden="true" className="size-5" />
+            {cartHydrated && cartCount > 0 ? (
+              <span className="absolute -top-0.5 -right-0.5 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-secondary px-1 font-label-eyebrow text-[10px] font-bold text-on-secondary">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            ) : null}
+          </Link>
           <button aria-controls="mobile-navigation-drawer" aria-expanded={isDrawerOpen} aria-label="Mở menu điều hướng" className="flex size-11 items-center justify-center rounded text-secondary-fixed transition-colors hover:bg-primary-container lg:hidden" onClick={() => setIsDrawerOpen(true)} type="button"><Menu aria-hidden="true" className="size-6" /></button>
         </div>
       </div>
