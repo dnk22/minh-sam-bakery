@@ -25,6 +25,12 @@ export function createCartLine(
     productImageAlt: product.imageAlt,
     variantId,
     variantLabel: variant.label,
+    availableVariants: product.pricing.variants.map((option) => ({
+      id: option.isSynthetic ? null : option.id,
+      label: option.label,
+      originalPrice: option.originalPrice,
+      effectivePrice: option.effectivePrice,
+    })),
     originalPrice: variant.originalPrice,
     effectivePrice: variant.effectivePrice,
     quantity,
