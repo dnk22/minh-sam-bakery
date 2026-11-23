@@ -8,6 +8,7 @@ import { SafeImage } from "@/landing/components/ui/safe-image";
 import { routes } from "@/landing/lib/routes";
 
 import { CatalogBrowser } from "./catalog-browser";
+import { ProductPrice } from "./components/product-price";
 import { CatalogSearchForm } from "./catalog-controls";
 import { catalogQueryToSearchParams, type CatalogQuery } from "./query";
 import type { CatalogCategory, CatalogPage, CatalogProduct } from "./types";
@@ -93,7 +94,7 @@ export function CrossCategoryDiscovery({ products }: { products: CatalogProduct[
             <div className="flex flex-1 flex-col justify-between gap-space-md p-space-lg">
               <div><h3 className="mt-1 font-headline-lg text-headline-sm text-primary lg:text-headline-md">{primaryProduct.name}</h3>{primaryProduct.description ? <p className="mt-2 font-body-md text-body-md leading-relaxed text-on-surface-variant">{primaryProduct.description}</p> : null}</div>
               <div className="flex flex-col justify-between gap-space-sm pt-space-md sm:flex-row sm:items-center">
-                <div><span className="block font-label-eyebrow text-[11px] uppercase text-outline">GIÁ HIỆN TẠI</span><span className="font-headline-sm text-subheading font-semibold text-secondary">{catalogPrice(primaryProduct)}</span></div>
+                <div><span className="block font-label-eyebrow text-[11px] uppercase text-outline">GIÁ HIỆN TẠI</span><ProductPrice pricing={primaryProduct.pricing} /></div>
                 <Link className="rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-secondary-fixed shadow-sm hover:bg-primary-container" href={routes.product(primaryProduct.categorySlug, primaryProduct.slug)}>Xem chi tiết</Link>
               </div>
             </div>
@@ -101,7 +102,7 @@ export function CrossCategoryDiscovery({ products }: { products: CatalogProduct[
           {supportingProducts.length ? <div className="flex flex-col justify-between gap-space-md lg:col-span-6">
             {supportingProducts.map((product) => <article className="group flex flex-col items-center gap-space-md rounded bg-surface-container-lowest p-space-md shadow-sm transition-all hover:shadow-md sm:flex-row" key={product.id}>
               <div className="h-36 w-full shrink-0 overflow-hidden rounded bg-surface-container sm:w-36"><SafeImage alt={product.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={product.image} /></div>
-              <div className="flex w-full flex-1 flex-col justify-between"><div><div className="flex items-center justify-between gap-2"><span className="font-label-eyebrow text-label-eyebrow font-semibold uppercase text-secondary">{product.isBestSeller ? "BÁN CHẠY" : product.isFeatured ? "NỔI BẬT" : "SẢN PHẨM MINH SÂM"}</span><span className="font-price-serif text-price-serif font-bold text-primary">{catalogPrice(product)}</span></div><h3 className="mt-0.5 font-headline-sm text-subheading text-primary group-hover:text-secondary">{product.name}</h3>{product.description ? <p className="mt-1 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">{product.description}</p> : null}</div><div className="mt-space-xs flex items-center justify-between pt-space-sm"><span className="font-body-sm text-body-sm text-outline">{product.sku ? `Mã SP: ${product.sku}` : "Minh Sâm Bakery"}</span><Link className="flex items-center gap-1 rounded bg-primary px-space-md py-1.5 font-label-ui text-label-ui text-secondary-fixed" href={routes.product(product.categorySlug, product.slug)}>Xem chi tiết <ArrowRight className="size-4" /></Link></div></div>
+              <div className="flex w-full flex-1 flex-col justify-between"><div><div className="flex items-center justify-between gap-2"><span className="font-label-eyebrow text-label-eyebrow font-semibold uppercase text-secondary">{product.isBestSeller ? "BÁN CHẠY" : product.isFeatured ? "NỔI BẬT" : "SẢN PHẨM MINH SÂM"}</span><ProductPrice pricing={product.pricing} compact /></div><h3 className="mt-0.5 font-headline-sm text-subheading text-primary group-hover:text-secondary">{product.name}</h3>{product.description ? <p className="mt-1 font-body-sm text-body-sm leading-relaxed text-on-surface-variant">{product.description}</p> : null}</div><div className="mt-space-xs flex items-center justify-between pt-space-sm"><span className="font-body-sm text-body-sm text-outline">{product.sku ? `Mã SP: ${product.sku}` : "Minh Sâm Bakery"}</span><Link className="flex items-center gap-1 rounded bg-primary px-space-md py-1.5 font-label-ui text-label-ui text-secondary-fixed" href={routes.product(product.categorySlug, product.slug)}>Xem chi tiết <ArrowRight className="size-4" /></Link></div></div>
             </article>)}
           </div> : null}
         </div>
@@ -110,6 +111,3 @@ export function CrossCategoryDiscovery({ products }: { products: CatalogProduct[
   );
 }
 
-function catalogPrice(product: CatalogProduct) {
-  return product.pricing.price;
-}

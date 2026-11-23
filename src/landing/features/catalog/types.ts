@@ -1,4 +1,5 @@
 import type { PaginationMetaDto } from "@/lib/api/types";
+import type { PriceBreakdown } from "./pricing";
 
 export type CatalogCategory = {
   id?: string;
@@ -13,6 +14,23 @@ export type CatalogCategory = {
   badgeClassName: string;
   number: string;
   label: string;
+};
+
+export type CatalogVariant = PriceBreakdown & {
+  id: string;
+  label: string;
+  amount: number;
+  currency: "VND";
+  isSynthetic: boolean;
+};
+
+export type CatalogPricing = PriceBreakdown & {
+  amount: number;
+  price: string;
+  unit: string;
+  isFrom: boolean;
+  available: boolean;
+  variants: CatalogVariant[];
 };
 
 export type CatalogProduct = {
@@ -30,12 +48,7 @@ export type CatalogProduct = {
   isBestSeller?: boolean;
   badge?: string;
   badgeClassName?: string;
-  pricing: {
-    amount: number;
-    price: string;
-    unit: string;
-    variants: Array<{ id: string; label: string; amount: number; currency: "VND" }>;
-  };
+  pricing: CatalogPricing;
 };
 
 export type CatalogPage = {

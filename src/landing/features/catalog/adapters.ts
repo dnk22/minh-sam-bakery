@@ -1,18 +1,12 @@
 import type { CategoryResponseDto, ProductResponseDto, ProductVariantResponseDto } from "@/lib/api/types";
 import { backendAssetUrl } from "@/lib/api/client";
 
-import type { CatalogCategory, CatalogProduct } from "./types";
+import { breakDownPrice, formatVnd } from "./pricing";
+import type { CatalogCategory, CatalogProduct, CatalogVariant } from "./types";
+
+export { effectivePrice, formatVnd, parseBackendPrice } from "./pricing";
 
 const FALLBACK_IMAGE = "/images/catalog/product-placeholder.svg";
-
-export function parseBackendPrice(value: string, field = "price") {
-  if (!/^(0|[1-9]\d*)(\.\d{1,2})?$/.test(value)) throw new Error(`Invalid ${field}: ${value}`);
-  const [whole, fraction = ""] = value.split(".");
-  const hundred = BigInt(100);
-  const cents = BigInt(whole) * hundred + BigInt(fraction.padEnd(2, "0"));
-  if (cents < BigInt(0) || cents > BigInt(Number.MAX_SAFE_INTEGER) * hundred) throw new Error(`${field} is outside the supported range`);
-  return Number(cents) / 100;
-}
 
 export function adaptCategory(dto: CategoryResponseDto): CatalogCategory {
   return {
@@ -34,9 +28,21 @@ export function adaptCategory(dto: CategoryResponseDto): CatalogCategory {
 export function adaptProduct(dto: ProductResponseDto): CatalogProduct {
   const images = [...dto.images].sort((a, b) => Number(b.isCover) - Number(a.isCover) || a.sortOrder - b.sortOrder);
   const cover = images[0];
-  const basePrice = effectivePrice(dto.price, dto.salePrice, "product price");
-  const activeVariants = dto.variants.filter((variant) => variant.status === "ACTIVE").sort((a, b) => a.sortOrder - b.sortOrder);
-  const variants = activeVariants.length ? activeVariants.map(adaptVariant) : [baseVariant(dto, basePrice)];
+  const basePrice = breakDownPrice(dto.price, dto.salePrice, "product price");
+  const activeVariants = dto.variants
+    .filter((variant) => variant.status === "ACTIVE")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const variants: CatalogVariant[] = activeVariants.length
+    ? activeVariants.map(adaptVariant)
+    : dto.variants.length === 0
+      ? [baseVariant(dto, basePrice)]
+      : [];
+  // Do not invent a purchasable default for products with only INACTIVE variants.
+  const cheapest = variants.length
+    ? variants.reduce((current, variant) => variant.effectivePrice < current.effectivePrice ? variant : current)
+    : basePrice;
+  const isFrom = variants.length > 1 && new Set(variants.map((variant) => variant.effectivePrice)).size > 1;
+
   return {
     id: dto.id,
     slug: dto.slug,
@@ -53,34 +59,44 @@ export function adaptProduct(dto: ProductResponseDto): CatalogProduct {
     badge: dto.isBestSeller ? "Bán chạy" : dto.isFeatured ? "Nổi bật" : undefined,
     badgeClassName: "bg-secondary text-on-secondary",
     pricing: {
-      amount: basePrice,
-      price: formatVnd(basePrice),
-      unit: variants.length > 1 ? `Từ ${formatVnd(Math.min(...variants.map((variant) => variant.amount)))}` : "Giá niêm yết",
+      originalPrice: cheapest.originalPrice,
+      salePrice: cheapest.salePrice,
+      effectivePrice: cheapest.effectivePrice,
+      hasDiscount: cheapest.hasDiscount,
+      discountPercent: cheapest.discountPercent,
+      amount: cheapest.effectivePrice,
+      price: formatVnd(cheapest.effectivePrice),
+      unit: isFrom ? "Giá từ" : "Giá bán",
+      isFrom,
+      available: variants.length > 0,
       variants,
     },
   };
 }
 
-export function effectivePrice(price: string, salePrice: string | null | undefined, field: string) {
-  const regular = parseBackendPrice(price, field);
-  if (salePrice == null) return regular;
-  return parseBackendPrice(salePrice, `${field} salePrice`);
-}
-
-function baseVariant(dto: ProductResponseDto, amount: number) {
-  return { id: `base-${dto.id}`, label: "Tiêu chuẩn", amount, currency: "VND" as const };
-}
-
-export function adaptVariant(variant: ProductVariantResponseDto) {
-  const parts = [variant.size, variant.style].filter(Boolean);
+function baseVariant(
+  dto: ProductResponseDto,
+  prices: ReturnType<typeof breakDownPrice>,
+): CatalogVariant {
   return {
-    id: variant.id,
-    label: parts.join(" • ") || "Tiêu chuẩn",
-    amount: effectivePrice(variant.price, variant.salePrice, `variant ${variant.id}`),
-    currency: "VND" as const,
+    id: `base-${dto.id}`,
+    label: "Tiêu chuẩn",
+    amount: prices.effectivePrice,
+    ...prices,
+    currency: "VND",
+    isSynthetic: true,
   };
 }
 
-export function formatVnd(amount: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(amount);
+export function adaptVariant(variant: ProductVariantResponseDto): CatalogVariant {
+  const parts = [variant.size, variant.style].filter(Boolean);
+  const prices = breakDownPrice(variant.price, variant.salePrice, `variant ${variant.id}`);
+  return {
+    id: variant.id,
+    label: parts.join(" • ") || "Tiêu chuẩn",
+    amount: prices.effectivePrice,
+    ...prices,
+    currency: "VND",
+    isSynthetic: false,
+  };
 }

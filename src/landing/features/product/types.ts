@@ -1,4 +1,4 @@
-import type { CatalogProduct } from "@/landing/features/catalog/types";
+import type { CatalogPricing, CatalogProduct } from "@/landing/features/catalog/types";
 
 export type ProductImage = {
   src: string;
@@ -9,6 +9,10 @@ export type ProductVariant = {
   id: string;
   label: string;
   price: number;
+  originalPrice: number;
+  salePrice: number | null;
+  hasDiscount: boolean;
+  discountPercent: number | null;
   currency: "VND";
 };
 
@@ -23,6 +27,8 @@ export type PresentationCard = {
   badge?: string;
   meta?: string;
   price?: string;
+  pricing?: CatalogPricing;
+  catalogProduct?: CatalogProduct;
 };
 
 export type FixedPricePresentation = {

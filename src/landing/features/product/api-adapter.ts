@@ -24,12 +24,20 @@ export function adaptApiProductDetail(dto: ProductResponseDto, related: CatalogP
             id: variant.id,
             label: variant.label,
             price: variant.amount,
+            originalPrice: variant.originalPrice,
+            salePrice: variant.salePrice,
+            hasDiscount: variant.hasDiscount,
+            discountPercent: variant.discountPercent,
             currency: variant.currency,
           }))
         : catalog.pricing.variants.map((variant) => ({
             id: variant.id,
             label: variant.label,
             price: variant.amount,
+            originalPrice: variant.originalPrice,
+            salePrice: variant.salePrice,
+            hasDiscount: variant.hasDiscount,
+            discountPercent: variant.discountPercent,
             currency: variant.currency,
           })),
     },
@@ -61,6 +69,8 @@ function toPresentationCard(product: CatalogProduct): PresentationCard {
     imageAlt: product.imageAlt,
     badge: product.badge,
     price: product.pricing.price,
+    pricing: product.pricing,
+    catalogProduct: product,
     meta: product.pricing.unit,
   };
 }

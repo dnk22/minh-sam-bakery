@@ -217,7 +217,7 @@ test("category listing and related discovery use only their dedicated GET endpoi
 });
 
 function catalogProduct(id: string, categorySlug: string): CatalogProduct {
-  return { id, slug: id, status: "published", categorySlug, categorySlugs: [categorySlug], name: id, description: "", image: "", imageAlt: id, pricing: { amount: 100000, price: "100.000 ₫", unit: "Giá niêm yết", variants: [] } };
+  return { id, slug: id, status: "published", categorySlug, categorySlugs: [categorySlug], name: id, description: "", image: "", imageAlt: id, pricing: { amount: 100000, price: "100.000 ₫", unit: "Giá bán", originalPrice: 100000, salePrice: null, effectivePrice: 100000, hasDiscount: false, discountPercent: null, isFrom: false, available: true, variants: [] } };
 }
 
 function jsonResponse(payload: unknown, status = 200) {
