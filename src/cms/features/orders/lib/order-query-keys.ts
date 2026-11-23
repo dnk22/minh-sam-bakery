@@ -1,9 +1,9 @@
-import type { OrderListParams } from "../types";
+import type { OrderListParams, OrderView } from "../types";
 
 export const orderQueryKeys = {
   all: ["cms", "orders"] as const,
   lists: () => ["cms", "orders", "list"] as const,
-  list: (params: OrderListParams) => ["cms", "orders", "list", params] as const,
+  list: (view: OrderView, params: OrderListParams) => ["cms", "orders", "list", view, params] as const,
   details: () => ["cms", "orders", "detail"] as const,
   detail: (id: string) => ["cms", "orders", "detail", id] as const,
 };

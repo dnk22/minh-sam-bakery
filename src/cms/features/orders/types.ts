@@ -1,6 +1,8 @@
 import type { PaginationMetaDto } from "@/lib/api/types";
 
 export type OrderStatus = "PENDING_CONFIRMATION" | "REJECTED" | "CONFIRMED" | "NEED_CALLBACK" | "COMPLETED";
+export type OrderView = "pending" | "delivery" | "completed" | "history";
+export type OrderAction = "detail" | "confirm" | "reject";
 export type OrderPaymentMethod = "AT_STORE" | "BANK_TRANSFER";
 
 export type OrderProductItem = {
@@ -34,11 +36,11 @@ export type OrderList = { items: Order[]; pagination: PaginationMetaDto };
 export type OrderListParams = {
   page: number;
   limit: number;
+  createdFrom: string;
+  createdTo: string;
   search?: string;
-  statuses: OrderStatus[];
   deliveryDate?: string;
   deliveryTime?: string;
-  sortCreated: "asc" | "desc";
 };
-export type UpdateOrderStatusInput = { status: OrderStatus };
-export type OrderModalState = { id: string; section?: "detail" | "status" } | null;
+export type UpdateOrderStatusInput = { status: "CONFIRMED" | "REJECTED" };
+export type OrderModalState = { id: string; section?: OrderAction } | null;

@@ -1,6 +1,5 @@
 import {
   Boxes,
-  ClipboardList,
   FolderTree,
   FileText,
   LayoutDashboard,
@@ -57,8 +56,16 @@ export const cmsNavigation: CmsNavGroup[] = [
           { title: "Banner", href: "/cms/banners", icon: Images },
         ],
       },
-      { title: "Đơn hàng", href: "/cms/orders", icon: ShoppingBag },
-      { title: "Yêu cầu báo giá", href: "/cms/quotations", icon: ClipboardList },
+      {
+        title: "Đơn hàng",
+        icon: ShoppingBag,
+        items: [
+          { title: "Chờ xác nhận", href: "/cms/orders/pending" },
+          { title: "Đợi giao hàng", href: "/cms/orders/delivery" },
+          { title: "Hoàn thành", href: "/cms/orders/completed" },
+          { title: "Lịch sử", href: "/cms/orders/history" },
+        ],
+      },
     ],
   },
   {
@@ -94,7 +101,7 @@ export function resolveCmsBreadcrumbs(pathname: string): CmsBreadcrumbItem[] {
         if (isCmsRouteActive(pathname, child.href)) {
           return [
             { title: group.title, href: "/cms", active: false },
-            { title: item.title, href: child.href, active: false },
+            { title: item.title, href: item.title === "Đơn hàng" ? "/cms/orders/pending" : child.href, active: false },
             { title: child.title, href: child.href, active: true },
           ];
         }
