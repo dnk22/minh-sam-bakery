@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  CakeSlice,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  MessageSquare,
-  Palette,
-  ShoppingBag,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -20,8 +11,6 @@ import { routes } from "@/landing/lib/routes";
 import { CatalogToolbar } from "./catalog-controls";
 import { boundedPagination, catalogQueryToSearchParams, updateCatalogQuery, type CatalogQuery } from "./query";
 import type { CatalogPage, CatalogProduct } from "./types";
-
-const quoteIcons = { calendar: CalendarDays, palette: Palette, cake: CakeSlice };
 
 type CatalogBrowserProps = {
   basePath: string;
@@ -73,14 +62,49 @@ function PageButton({ children, disabled, label, onClick }: { children: ReactNod
 }
 
 export function ProductCard({ product }: { product: CatalogProduct }) {
-  const pricing = product.pricing;
   const detailHref = routes.product(product.categorySlug, product.slug);
-  const QuoteIcon = pricing.mode === "quote" ? quoteIcons[pricing.icon] : MessageSquare;
-  return <article className="group flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
-    <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container"><SafeImage alt={product.imageAlt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={product.image} />{product.badge && <span className={`absolute top-3 left-3 rounded px-2 py-0.5 font-label-eyebrow text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>{product.badge}</span>}</div>
-    <div className="flex flex-1 flex-col justify-between p-space-md"><div><h3 className="mb-1 font-headline-sm text-headline-sm text-primary transition-colors group-hover:text-primary-container">{product.name}</h3><p className="mb-space-sm line-clamp-2 font-body-md text-body-md text-on-surface-variant">{product.description}</p></div><div className="mt-space-xs flex flex-col gap-space-sm pt-space-sm">
-      {pricing.mode === "fixed" ? <div className="flex items-baseline justify-between"><span className="font-price-serif text-[18px] text-primary">{pricing.price}</span><span className="font-body-sm text-body-sm text-outline">{pricing.unit}</span></div> : <div className="flex items-center justify-between"><span className="flex items-center gap-1 font-label-ui text-label-ui font-semibold uppercase tracking-wider text-secondary"><QuoteIcon className="size-4" /> Liên hệ tư vấn</span><span className="font-body-sm text-body-sm text-outline">{pricing.detail}</span></div>}
-      <div className="flex items-center gap-space-xs"><Link className={`flex flex-1 items-center justify-center gap-1 rounded px-space-sm py-2 font-label-ui text-label-ui uppercase tracking-wider transition-colors ${pricing.mode === "fixed" ? "bg-primary text-on-primary hover:bg-primary-container" : "bg-secondary text-on-secondary hover:bg-on-secondary-container"}`} href={detailHref}>{pricing.mode === "fixed" ? <ShoppingBag className="size-4" /> : <MessageSquare className="size-4" />}{pricing.mode === "fixed" ? "Mua ngay" : "Nhận tư vấn"}</Link><Link aria-label={`Xem chi tiết ${product.name}`} className="rounded p-2 text-primary transition-colors hover:bg-surface-container" href={detailHref}><Eye className="size-5" /></Link></div>
-    </div></div>
-  </article>;
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container">
+        <SafeImage
+          alt={product.imageAlt}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          src={product.image}
+        />
+        {product.badge ? (
+          <span className={`absolute top-3 left-3 rounded px-2 py-0.5 font-label-eyebrow text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>
+            {product.badge}
+          </span>
+        ) : null}
+      </div>
+      <div className="flex flex-1 flex-col justify-between p-space-md">
+        <div>
+          <h3 className="mb-1 font-headline-sm text-headline-sm text-primary transition-colors group-hover:text-primary-container">{product.name}</h3>
+          <p className="mb-space-sm line-clamp-2 font-body-md text-body-md text-on-surface-variant">{product.description}</p>
+        </div>
+        <div className="mt-space-xs flex flex-col gap-space-sm pt-space-sm">
+          <div className="flex items-baseline justify-between gap-space-sm">
+            <span className="font-price-serif text-[18px] text-primary">{product.pricing.price}</span>
+            <span className="font-body-sm text-body-sm text-outline">{product.pricing.unit}</span>
+          </div>
+          <div className="flex items-center gap-space-xs">
+            <Link
+              className="flex flex-1 items-center justify-center gap-1 rounded bg-primary px-space-sm py-2 font-label-ui text-label-ui uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-container"
+              href={detailHref}
+            >
+              <ShoppingBag className="size-4" aria-hidden="true" />
+              Xem sản phẩm
+            </Link>
+            <Link
+              aria-label={`Xem chi tiết ${product.name}`}
+              className="rounded p-2 text-primary transition-colors hover:bg-surface-container"
+              href={detailHref}
+            >
+              <Eye className="size-5" aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
 }

@@ -25,24 +25,6 @@ export type PresentationCard = {
   price?: string;
 };
 
-export type ProductSpecification = {
-  label: string;
-  value: string;
-};
-
-export type DetailCatalogProduct = CatalogProduct & {
-  slug: string;
-  categorySlug: string;
-};
-
-type ProductDetailBase = {
-  catalog: DetailCatalogProduct;
-  categoryLabel: string;
-  heroImage: ProductImage;
-  gallery: ProductImage[];
-  galleryStrategy?: "original" | "repeated-mock";
-};
-
 export type FixedPricePresentation = {
   checkoutAvailable?: boolean;
   checkoutUnavailableMessage?: string;
@@ -56,33 +38,15 @@ export type FixedPricePresentation = {
   trustBadges: [string, string, string];
 };
 
-export type FixedPriceProductDetail = ProductDetailBase & {
+export type FixedPriceProductDetail = {
+  catalog: CatalogProduct;
+  categoryLabel: string;
+  heroImage: ProductImage;
+  gallery: ProductImage[];
   pricing: {
-    mode: "fixed";
     variants: ProductVariant[];
   };
   presentation: FixedPricePresentation;
   complementaryProducts: PresentationCard[];
   relatedProducts: PresentationCard[];
 };
-
-export type QuotationProductDetail = ProductDetailBase & {
-  pricing: { mode: "quote" };
-  presentation: {
-    quotationProfile: "corporate-gift" | "custom-event";
-    eyebrow: string;
-    specificationEyebrow: string;
-    pricingExplanation: string;
-    serviceBenefits: Array<{ title: string; text: string; icon: "package" | "gift" | "brush" }>;
-    drawerFooter: string;
-    collectionTitle: string;
-    experienceTitle: string;
-    experienceDescription: string;
-    mobileLabel: string;
-  };
-  specifications: ProductSpecification[];
-  addons: PresentationCard[];
-  alternatives: PresentationCard[];
-};
-
-export type ProductDetail = FixedPriceProductDetail | QuotationProductDetail;

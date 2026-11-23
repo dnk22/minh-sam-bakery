@@ -1,67 +1,30 @@
-import { catalogProducts } from "../src/landing/features/catalog/data.ts";
-import { merchandising } from "../src/landing/features/catalog/merchandising.ts";
-import { productDetails } from "../src/landing/features/product/data.ts";
-import { routes } from "../src/landing/lib/routes.ts";
+import { existsSync, readFileSync } from "node:fs";
 
-const validQuotationProfiles = new Set(["corporate-gift", "custom-event"]);
+import { routes } from "../src/landing/lib/routes.ts";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-function assertUnique(values, label) {
-  assert(new Set(values).size === values.length, `${label} must be unique`);
-}
-
-const published = catalogProducts.filter((product) => product.status === "published");
-const categorySet = new Set(published.flatMap((product) => product.categorySlugs));
-assertUnique(catalogProducts.map(({ id }) => id), "Product IDs");
-assertUnique(published.map(({ slug }) => slug), "Published product slugs");
-
-for (const product of published) {
-  assert(product.slug.trim(), `Published product ${product.id} has no slug`);
-  assert(categorySet.has(product.categorySlug), `Unknown primary category for ${product.id}: ${product.categorySlug}`);
-  assert(product.categorySlugs.includes(product.categorySlug), `Primary category missing from memberships for ${product.id}`);
-  product.categorySlugs.forEach((slug) => assert(categorySet.has(slug), `Unknown category membership ${slug} for ${product.id}`));
-  if (product.pricing.mode === "fixed") {
-    assert(product.pricing.variants.length > 0, `Fixed product ${product.id} has no variants`);
-    assertUnique(product.pricing.variants.map(({ id }) => id), `Variant IDs for ${product.id}`);
-    product.pricing.variants.forEach((variant) => assert(variant.amount > 0 && variant.currency === "VND", `Invalid variant ${variant.id} for ${product.id}`));
-    assert(product.pricing.amount === product.pricing.variants[0].amount, `Catalog/default variant price mismatch for ${product.id}`);
-  } else {
-    assert(validQuotationProfiles.has(product.pricing.quotationProfile), `Invalid quotation profile for ${product.id}`);
-    assert(!("amount" in product.pricing), `Quote product ${product.id} must not have a numeric price`);
-  }
-}
-
-assertUnique(productDetails.map(({ catalog }) => catalog.id), "Product detail product IDs");
-assert(productDetails.length === published.length, `Every published product needs one detail record: ${productDetails.length}/${published.length}`);
-const productById = new Map(published.map((product) => [product.id, product]));
-for (const detail of productDetails) {
-  const product = productById.get(detail.catalog.id);
-  assert(product, `Detail references missing product ${detail.catalog.id}`);
-  assert(detail.gallery.length === 5, `Detail gallery for ${detail.catalog.id} must preserve five slots`);
-  assert(detail.pricing.mode === product.pricing.mode, `Detail pricing mode mismatch for ${detail.catalog.id}`);
-  const references = detail.pricing.mode === "quote" ? detail.alternatives : detail.relatedProducts;
-  const referenceIds = references.map(({ productId }) => productId).filter(Boolean);
-  assertUnique(referenceIds, `Recommendations for ${detail.catalog.id}`);
-  referenceIds.forEach((id) => {
-    assert(id !== detail.catalog.id, `Self recommendation on ${detail.catalog.id}`);
-    assert(productById.has(id), `Missing recommendation ${id} on ${detail.catalog.id}`);
-  });
-  if (product.pricing.mode === "quote") assert(detail.presentation.quotationProfile === product.pricing.quotationProfile, `Quotation profile mismatch for ${product.id}`);
-}
-
-const merchandisingIds = [merchandising.seasonalFeaturedProductId, ...merchandising.supportingProductIds, ...merchandising.relatedFixedProductIds, ...merchandising.alternativeGiftProductIds];
-merchandisingIds.forEach((id) => assert(productById.has(id), `Missing merchandising product ${id}`));
-for (const promotion of merchandising.promotions) {
-  if (promotion.target.type === "product") assert(productById.has(promotion.target.productId), `Promotion ${promotion.id} references missing product`);
-}
+const productRoutePath = "src/app/(landing)/danh-muc/[categorySlug]/[productSlug]/page.tsx";
+const productRoute = readFileSync(productRoutePath, "utf8");
+const adapter = readFileSync("src/landing/features/catalog/adapters.ts", "utf8");
+const productTypes = readFileSync("src/landing/features/product/types.ts", "utf8");
+const catalogTypes = readFileSync("src/landing/features/catalog/types.ts", "utf8");
+const productCard = readFileSync("src/landing/features/catalog/catalog-browser.tsx", "utf8");
 
 assert(routes.category("qua-tang") === "/danh-muc/qua-tang", "Category route helper is inconsistent");
 assert(routes.categories === "/danh-muc", "Categories route helper is inconsistent");
 assert(routes.product("banh-ngot", "sample") === "/danh-muc/banh-ngot/sample", "Product route helper is inconsistent");
 assert(routes.article("sample") === "/tin-tuc/sample", "Article route helper is inconsistent");
 assert(routes.about === "/ve-minh-sam", "About route helper is inconsistent");
+assert(routes.search === "/tim-kiem", "Search route helper is inconsistent");
 
-console.log(`Navigation fixture validation passed: ${published.length} editorial products, ${productDetails.length} product details, dynamic Journal route.`);
+assert(productRoute.includes("getCatalogProduct") && productRoute.includes("FixedPriceProductPage"), "Product detail must use Backend data and priced product page");
+assert(!/QuotationProduct|findEditorialQuotation/.test(productRoute), "Quotation route fallback must not exist");
+assert(!/quotationProfile|mode:\s*["']quote["']/.test(adapter + productTypes + catalogTypes + productCard), "Catalog must not contain quotation pricing");
+assert(!existsSync("src/landing/features/quotation"), "Landing quotation module must be removed");
+assert(!existsSync("src/landing/features/product/components/quotation-product-page.tsx"), "Quotation product page must be removed");
+assert(!existsSync("src/landing/features/catalog/data.ts"), "Legacy catalog mock fixtures must be removed");
+
+console.log("Navigation and priced product contracts validated.");

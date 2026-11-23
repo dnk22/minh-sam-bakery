@@ -18,14 +18,20 @@ export function adaptApiProductDetail(dto: ProductResponseDto, related: CatalogP
     categoryLabel: dto.categoryName,
     heroImage: gallery[0] ?? { src: catalog.image, alt: catalog.imageAlt },
     gallery: gallery.length ? gallery : [{ src: catalog.image, alt: catalog.imageAlt }],
-    galleryStrategy: "original",
     pricing: {
-      mode: "fixed",
       variants: activeVariants.length
-        ? activeVariants.map((variant) => ({ id: variant.id, label: variant.label, price: variant.amount, currency: variant.currency }))
-        : catalog.pricing.mode === "fixed"
-          ? catalog.pricing.variants.map((variant) => ({ id: variant.id, label: variant.label, price: variant.amount, currency: variant.currency }))
-          : [],
+        ? activeVariants.map((variant) => ({
+            id: variant.id,
+            label: variant.label,
+            price: variant.amount,
+            currency: variant.currency,
+          }))
+        : catalog.pricing.variants.map((variant) => ({
+            id: variant.id,
+            label: variant.label,
+            price: variant.amount,
+            currency: variant.currency,
+          })),
     },
     presentation: {
       eyebrow: `DÒNG ${dto.categoryName.toLocaleUpperCase("vi")} • SẢN PHẨM MINH SÂM`,
@@ -54,7 +60,7 @@ function toPresentationCard(product: CatalogProduct): PresentationCard {
     image: product.image,
     imageAlt: product.imageAlt,
     badge: product.badge,
-    price: product.pricing.mode === "fixed" ? product.pricing.price : "Liên hệ tư vấn",
-    meta: product.pricing.mode === "fixed" ? product.pricing.unit : product.pricing.detail,
+    price: product.pricing.price,
+    meta: product.pricing.unit,
   };
 }

@@ -1,3 +1,5 @@
+import type { PaginationMetaDto } from "@/lib/api/types";
+
 export type CatalogCategory = {
   id?: string;
   slug: string;
@@ -28,25 +30,13 @@ export type CatalogProduct = {
   isBestSeller?: boolean;
   badge?: string;
   badgeClassName?: string;
-  pricing:
-    | {
-        mode: "fixed";
-        amount: number;
-        price: string;
-        unit: string;
-        variants: Array<{ id: string; label: string; amount: number; currency: "VND" }>;
-      }
-    | {
-        mode: "quote";
-        detail: string;
-        icon: "calendar" | "palette" | "cake";
-        quotationProfile: "corporate-gift" | "custom-event";
-      };
+  pricing: {
+    amount: number;
+    price: string;
+    unit: string;
+    variants: Array<{ id: string; label: string; amount: number; currency: "VND" }>;
+  };
 };
-import type {
-  PaginationMetaDto,
-} from "@/lib/api/types";
-
 
 export type CatalogPage = {
   search: string | null;

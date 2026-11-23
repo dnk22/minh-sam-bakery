@@ -53,7 +53,6 @@ export function adaptProduct(dto: ProductResponseDto): CatalogProduct {
     badge: dto.isBestSeller ? "Bán chạy" : dto.isFeatured ? "Nổi bật" : undefined,
     badgeClassName: "bg-secondary text-on-secondary",
     pricing: {
-      mode: "fixed",
       amount: basePrice,
       price: formatVnd(basePrice),
       unit: variants.length > 1 ? `Từ ${formatVnd(Math.min(...variants.map((variant) => variant.amount)))}` : "Giá niêm yết",
