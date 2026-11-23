@@ -5,6 +5,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 
 import type { CatalogCategory } from "@/landing/features/catalog/types";
+import { useLandingPortalContainer } from "@/landing/features/theme/landing-portal-provider";
 
 import type { SearchQuery } from "../query";
 import { SearchFilterPanel, type SearchFilterActions } from "./search-filter-panel";
@@ -16,6 +17,7 @@ type SearchFilterDrawerProps = SearchFilterActions & {
 
 export function SearchFilterDrawer({ categories, query, onChange, onReset }: SearchFilterDrawerProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const portalContainer = useLandingPortalContainer();
 
   const updateAndClose = (patch: Partial<SearchQuery>) => {
     setFiltersOpen(false);
@@ -42,7 +44,7 @@ export function SearchFilterDrawer({ categories, query, onChange, onReset }: Sea
             ) : null}
           </button>
         </Dialog.Trigger>
-        <Dialog.Portal>
+        <Dialog.Portal container={portalContainer ?? undefined}>
           <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/60" />
           <Dialog.Content className="fixed inset-y-0 right-0 z-[71] flex w-[min(90vw,370px)] flex-col bg-surface-container-lowest shadow-2xl">
             <div className="flex items-center justify-between border-b border-outline-variant px-space-lg py-space-md">

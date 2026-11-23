@@ -2,6 +2,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Check, X } from "lucide-react";
 import { QuantityStepper } from "@/landing/components/ui/quantity-stepper";
+import { useLandingPortalContainer } from "@/landing/features/theme/landing-portal-provider";
 import type { Dispatch, SetStateAction } from "react";
 import { formatVnd } from "../../pricing";
 import type { CatalogProduct, CatalogVariant } from "../../types";
@@ -21,12 +22,13 @@ export function ProductVariantDialog({
   selectedVariant: CatalogVariant | undefined;
   commit: (action: ProductAction, variant: CatalogVariant, amount: number) => void;
 }) {
+  const portalContainer = useLandingPortalContainer();
   return (
       <Dialog.Root
         open={pendingAction !== null}
         onOpenChange={(open) => !open && setPendingAction(null)}
       >
-        <Dialog.Portal>
+        <Dialog.Portal container={portalContainer ?? undefined}>
           <Dialog.Overlay className="fixed inset-0 z-[90] bg-primary/60 backdrop-blur-sm" />
           <Dialog.Content className="fixed top-1/2 left-1/2 z-[91] max-h-[90dvh] w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl bg-surface-container-lowest p-space-lg text-on-surface shadow-2xl">
             <div className="flex items-start justify-between gap-space-md">

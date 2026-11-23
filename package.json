@@ -28,6 +28,7 @@
     "test:landing-cart": "node --no-warnings --test --experimental-strip-types tests/landing-cart.test.ts",
     "test:landing-checkout": "node --no-warnings --test --experimental-strip-types tests/landing-checkout.test.ts",
     "test:theme": "node --no-warnings --test --experimental-strip-types tests/theme-engine.test.ts",
+    "test:landing-theme": "node --no-warnings --test --experimental-strip-types tests/landing-theme.test.ts",
     "test:cms-ux": "node --no-warnings --test --experimental-strip-types tests/cms-ux.test.ts",
     "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs",
     "test:cms-select": "node --no-warnings --test --experimental-strip-types tests/cms-select.test.ts"

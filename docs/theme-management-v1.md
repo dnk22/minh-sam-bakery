@@ -1,4 +1,65 @@
-# Theme Management V1 — Phase 1
+# Theme Management V1
+
+## Phase 2 — Landing runtime integration
+
+### Luồng dữ liệu và validation
+
+Mọi route trong route group `(landing)` dùng chung `src/app/(landing)/layout.tsx`. Layout lấy categories và active theme song song trên server. `getActiveLandingTheme()` gọi trực tiếp public Backend endpoint `GET /api/v1/public/theme` qua HTTP transport hiện có; browser không gọi lại endpoint và không nhận access token CMS.
+
+Transport kiểm tra riêng response envelope và metadata bắt buộc (`id`, `name`, `code`, `isActive`, timestamps và sự hiện diện của `config`). `data: null` hoặc record không active được xem là chưa có active theme. Nội dung `data.config` chủ ý vẫn là `unknown` ở lớp HTTP rồi mới được đưa nguyên vẹn vào `resolveTheme(config)`. Nhờ đó config legacy, thiếu field hay schema version chưa hỗ trợ đi đúng cơ chế diagnostic/fallback của Theme Engine thay vì bị nhập nhằng với response metadata lỗi.
+
+Các trạng thái runtime:
+
+- Theme V1 hợp lệ: áp dụng config Backend.
+- Theme hợp lệ nhưng contrast thấp: vẫn áp dụng nguyên giá trị và ghi warning; không tự sửa màu.
+- Không có active theme: dùng Classic, không xem là lỗi vận hành.
+- Network, timeout, HTTP/API error, JSON/envelope/metadata lỗi: dùng Classic và ghi diagnostic giới hạn ở loại lỗi/status.
+- Config lỗi hoặc version chưa hỗ trợ: `resolveTheme()` dùng Classic và giữ schema diagnostic.
+
+Không log toàn bộ response hay config theme.
+
+### SSR scope và Tailwind runtime
+
+`LandingThemeRoot` là Server Component bao trọn `LandingHeader`, page content và `LandingFooter`. Map từ `createThemeCssVariables()` được gắn trực tiếp vào thuộc tính `style` của root dưới dạng 47 `--color-*` và 13 `--font-*`; vì vậy HTML đầu tiên đã mang active theme, không cần `useEffect`, DOM mutation, client store hay hydration-time API call.
+
+Root chỉ thêm background/text semantic mặc định và `min-height`; không thêm `transform`, `filter`, `contain`, `overflow` hoặc stacking context nên fixed header, sticky content và viewport section giữ nguyên behavior. CMS layout nằm ngoài route group này và không inherit các override Landing.
+
+`globals.css` tiếp tục dùng Tailwind v4 `@theme`, không đổi sang `@theme inline`. Utility như `bg-primary`, opacity modifier, gradient, border và các `font-*` semantic vì thế đọc runtime custom properties. Hai lựa chọn font vẫn chỉ trỏ tới `--font-noto-serif` và `--font-be-vietnam-pro` đã được `next/font` tải ở root layout; API không thể cung cấp font URL.
+
+Audit Phase 2 đổi shadow thương hiệu của header sang `color-mix(... var(--color-primary) ...)` và thay các `font-serif` mang ý nghĩa editorial trong trang About bằng alias Heading tương ứng. `font-mono` cho nội dung kỹ thuật, overlay trung tính, error palette và shadow đen độc lập thương hiệu được giữ nguyên.
+
+### Radix portals
+
+`LandingPortalProvider` tạo một portal container bên trong `LandingThemeRoot`. Search filter drawer và Product variant dialog truyền container này vào `Dialog.Portal`, nên overlay/content inherit đúng CSS variables mà không gắn theme lên `body` và không duplicate theme state. Radix tiếp tục quản lý focus trap, Escape và scroll locking. Container được tạo client-side nhưng dialog chỉ có thể mở sau hydration; nội dung Landing SSR không phụ thuộc container này.
+
+Khi bổ sung portal-based UI mới trong Landing, component phải dùng `useLandingPortalContainer()` thay vì portal mặc định vào `document.body`.
+
+### Cache và invalidation
+
+Active theme dùng một lớp Next.js Cache Components (`"use cache"`) với:
+
+- tag: `landing-active-theme`;
+- stale/revalidate: 60 giây;
+- hard expire: 300 giây;
+- helper server-only `revalidateLandingActiveTheme()` dùng `revalidateTag(..., { expire: 0 })` để Phase 4 gọi sau activation thành công.
+
+Ở trạng thái bình thường, request đầu tiên sau mốc 60 giây có thể vẫn nhận bản stale trong lúc background revalidation chạy; vì vậy không cam kết theme mới xuất hiện ngay sau activation. Nếu revalidation liên tiếp không thành công, entry hết hạn cứng sau tối đa 5 phút và request kế tiếp phải tính lại. Next client Router Cache cũng có thể giữ payload route đã điều hướng trước đó; cần hard refresh hoặc navigation mới khi kiểm tra TTL. Phase 4 nên gọi helper tag ngay sau Backend xác nhận activation, nhưng tab đang mở vẫn có thể cần refresh/navigation để nhận Server Component payload mới.
+
+### Debug và kiểm tra
+
+Khi theme không áp dụng:
+
+1. Kiểm tra Backend trả envelope đúng và `data.config` đủ ThemeConfigV1.
+2. Tìm server log `[landing-theme]`; log chỉ chỉ ra fetch/schema/contrast category, không chứa secret/config.
+3. Kiểm tra element `[data-landing-theme-root]` trong HTML/DevTools và giá trị computed của `--color-primary`, `--font-display-hero`.
+4. Kiểm tra dialog được mount dưới `[data-landing-portal-root]`.
+5. Xác định entry còn trong cửa sổ stale 60 giây hay Router Cache của tab hiện tại.
+
+Test `pnpm test:landing-theme` bao phủ response/fallback, contrast, đủ 47+13 biến, SSR inline variables, CMS isolation, portal scope và cache contract. Phase 3 có thể tái sử dụng contract/schema/diagnostics cho Theme Editor; không được thay runtime fallback thành validation form.
+
+---
+
+## Phase 1 — Theme engine foundation
 
 ## 1. Phạm vi
 

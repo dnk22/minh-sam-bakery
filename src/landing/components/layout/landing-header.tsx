@@ -138,7 +138,7 @@ export function LandingHeader({
   };
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full bg-primary/95 shadow-[0_4px_24px_rgba(46,2,8,0.18)] backdrop-blur-md">
+    <header className="fixed top-0 left-0 z-50 w-full bg-primary/95 shadow-[0_4px_24px_color-mix(in_srgb,var(--color-primary)_18%,transparent)] backdrop-blur-md">
       <div className="mx-auto flex h-[var(--landing-header-height)] max-w-[1360px] items-center justify-between gap-space-md px-6 md:gap-space-lg md:px-12 lg:px-gutter-desktop">
         <BrandLink onNavigate={navigateToHero} />
         <div className="flex items-center gap-space-md">
