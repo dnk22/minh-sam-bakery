@@ -11,7 +11,7 @@ export function CartHydration({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    void useCartStore.persist.rehydrate().finally(() => {
+    void Promise.resolve(useCartStore.persist.rehydrate()).finally(() => {
       if (active) setHydrated(true);
     });
     return () => { active = false; };
