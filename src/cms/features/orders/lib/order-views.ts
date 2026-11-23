@@ -49,6 +49,6 @@ export function canPerformOrderAction(view: OrderView, status: OrderStatus, acti
   return view === "delivery" && status === "CONFIRMED" && action === "reject";
 }
 
-export function targetOrderStatus(action: Exclude<OrderAction, "detail">): OrderStatus {
+export function targetOrderStatus(action: Exclude<OrderAction, "detail">): "CONFIRMED" | "REJECTED" {
   return action === "confirm" ? "CONFIRMED" : "REJECTED";
 }
