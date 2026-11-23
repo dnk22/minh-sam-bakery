@@ -9,17 +9,18 @@ import { CmsBadge } from "@/cms/components/ui/badge/badge";
 import { getOrderStatusPresentation } from "../../constants";
 import type { OrderFilters } from "../../hooks/use-order-filters";
 import { formatCalendarDate, formatVnd, shortOrderId } from "../../lib/order-format";
-import type { Order, OrderList } from "../../types";
+import type { Order, OrderAction, OrderList, OrderView } from "../../types";
 import { createOrderColumns } from "../order-columns/order-columns";
 import styles from "./orders-collection.module.css";
 
-export function OrdersCollection({ filters, listQuery, onDetail, onStatus }: {
+export function OrdersCollection({ view, filters, listQuery, onDetail, onAction }: {
+  view: OrderView;
   filters: OrderFilters;
   listQuery: UseQueryResult<OrderList, Error>;
   onDetail: (order: Order) => void;
-  onStatus: (order: Order) => void;
+  onAction: (order: Order, action: Exclude<OrderAction, "detail">) => void;
 }) {
-  const columns = useMemo(() => createOrderColumns(onDetail, onStatus), [onDetail, onStatus]);
+  const columns = useMemo(() => createOrderColumns(view, onDetail, onAction), [view, onDetail, onAction]);
   const list = listQuery.data;
   return <ResponsiveCollection<Order>
     className={styles.table}
