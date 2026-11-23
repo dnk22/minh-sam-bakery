@@ -34,9 +34,9 @@ The current Phase 2 access policy admits any Backend-authenticated `ACTIVE` acco
 
 ## Public catalog API
 
-The public catalog uses the Backend through server-side native `fetch` and never falls back to local mock products or categories. Responses are revalidated every five minutes. Filters missing from the Backend contract use bounded aggregation of at most 20 pages of 100 records; exceeding that bound fails explicitly rather than showing partial results.
+The public catalog, product detail pages, and global search use Backend data only. Product detail pages share one priced-product presentation; there is no editorial product or quotation fallback. The category page uses the category-specific GET API; `/tim-kiem` uses the public filter API. Category metadata is loaded with bounded pagination.
 
-The Backend currently exposes catalog reads only. Fixed-price checkout submission remains disabled for API-backed products, while the separate quotation experience stays editorial.
+Online order submission remains disabled until the public order creation API is integrated and the quantity, variant, fulfillment, and payment contracts are aligned with the Backend. The public Landing quotation flow has been removed. CMS quotation routes remain unchanged by this Landing-only refactor.
 
 ## Validation
 

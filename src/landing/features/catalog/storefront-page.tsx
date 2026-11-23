@@ -111,5 +111,5 @@ export function CrossCategoryDiscovery({ products }: { products: CatalogProduct[
 }
 
 function catalogPrice(product: CatalogProduct) {
-  return product.pricing.mode === "fixed" ? product.pricing.price : "Liên hệ tư vấn";
+  return product.pricing.price;
 }
