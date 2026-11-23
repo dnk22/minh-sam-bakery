@@ -33,5 +33,6 @@ jobs:
       - run: pnpm test:themes
       - run: pnpm test:theme
       - run: pnpm test:landing-theme
+      - run: pnpm exec next typegen
       - run: pnpm exec tsc --noEmit
       - run: pnpm exec eslint src/cms/features/themes src/app/api/cms/themes tests/cms-themes.test.ts
