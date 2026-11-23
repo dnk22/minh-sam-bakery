@@ -1,18 +1,16 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
-
-import { SafeImage } from "@/landing/components/ui/safe-image";
-import { routes } from "@/landing/lib/routes";
-
 import { CatalogToolbar } from "./catalog-controls";
-import { boundedPagination, catalogQueryToSearchParams, updateCatalogQuery, type CatalogQuery } from "./query";
-import type { CatalogPage, CatalogProduct } from "./types";
-import { ProductPrice } from "./components/product-price";
-import { ProductActions } from "./components/product-actions";
+import { CatalogEmptyState, CatalogErrorState } from "./components/catalog-feedback";
+import { CatalogPagination } from "./components/catalog-pagination";
+import { ProductCard } from "./components/product-card";
+import { useCatalogNavigation } from "./hooks/use-catalog-navigation";
+import type { CatalogPage } from "./types";
+import type { CatalogQuery } from "./query";
+
+/** Keep the established public imports for Search and Product Detail. */
+export { CatalogPagination } from "./components/catalog-pagination";
+export { ProductCard } from "./components/product-card";
 
 type CatalogBrowserProps = {
   basePath: string;
@@ -21,83 +19,34 @@ type CatalogBrowserProps = {
 };
 
 export function CatalogBrowser({ basePath, page, query }: CatalogBrowserProps) {
-  const router = useRouter();
-
-  const navigate = (path: string, next: CatalogQuery) => {
-    const params = catalogQueryToSearchParams(next);
-    router.push(`${path}${params.size ? `?${params}` : ""}`, { scroll: false });
-  };
-  const updateQuery = (patch: Partial<CatalogQuery>) => {
-    const next = updateCatalogQuery(query, patch);
-    navigate(basePath, next);
-  };
-  const resetQuery = () => {
-    const next = { q: "", page: 1 };
-    navigate(basePath, next);
-  };
-
-  return <div className="w-full min-w-0">
-      {page ? <>
-        <CatalogToolbar currentCount={page.products.length} onChange={updateQuery} onReset={resetQuery} query={query} totalCount={page.pagination.total} />
-        {page.products.length > 0 ? <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">{page.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <CatalogEmptyState hasFilters={Boolean(query.q)} onReset={resetQuery} />}
-        <CatalogPagination onPage={(nextPage) => updateQuery({ page: nextPage })} pagination={page.pagination} />
-      </> : <CatalogErrorState onRetry={() => router.refresh()} />}
-  </div>;
-}
-
-function CatalogEmptyState({ hasFilters, onReset }: { hasFilters: boolean; onReset: () => void }) {
-  return <div className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm"><h3 className="font-headline-sm text-headline-sm text-primary">Chưa có sản phẩm phù hợp</h3><p className="mt-space-xs font-body-md text-body-md text-on-surface-variant">Không tìm thấy sản phẩm khớp với tiêu chí hiện tại. Bạn có thể thử từ khóa hoặc bộ lọc khác.</p>{hasFilters ? <button className="mt-space-md rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-on-primary" onClick={onReset} type="button">Xóa bộ lọc</button> : null}</div>;
-}
-
-function CatalogErrorState({ onRetry }: { onRetry: () => void }) {
-  return <div className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm" role="alert"><h3 className="font-headline-sm text-headline-sm text-primary">Chưa thể tải danh sách sản phẩm</h3><p className="mt-space-xs font-body-md text-body-md text-on-surface-variant">Hệ thống đang tạm thời gián đoạn. Vui lòng thử lại sau ít phút.</p><button className="mt-space-md rounded bg-primary px-space-md py-2.5 font-label-ui text-label-ui text-on-primary" onClick={onRetry} type="button">Thử lại</button></div>;
-}
-
-export function CatalogPagination({ pagination, onPage }: { pagination: CatalogPage["pagination"]; onPage: (page: number) => void }) {
-  if (pagination.totalPages <= 1) return pagination.total > 0 ? <div className="mt-space-xl text-center font-body-sm text-body-sm text-on-surface-variant">Trang 1 / 1</div> : null;
-  const items = boundedPagination(pagination.page, pagination.totalPages);
-  return <nav aria-label="Phân trang sản phẩm" className="mt-space-xl flex flex-col items-center gap-space-md pt-space-lg"><span className="font-body-sm text-body-sm text-on-surface-variant">Trang {pagination.page} / {pagination.totalPages}</span><div className="flex flex-wrap items-center justify-center gap-space-sm"><PageButton disabled={pagination.page === 1} label="Trang trước" onClick={() => onPage(pagination.page - 1)}><ChevronLeft className="size-[18px]" /></PageButton>{items.map((item) => typeof item === "number" ? <button aria-current={item === pagination.page ? "page" : undefined} className={`flex size-10 items-center justify-center rounded font-medium ${item === pagination.page ? "bg-primary text-secondary-fixed" : "bg-surface-container-lowest text-on-surface hover:bg-surface-container"}`} key={item} onClick={() => onPage(item)} type="button">{item}</button> : <span aria-hidden="true" className="px-1 text-outline" key={item}>…</span>)}<PageButton disabled={pagination.page === pagination.totalPages} label="Trang sau" onClick={() => onPage(pagination.page + 1)}><ChevronRight className="size-[18px]" /></PageButton></div></nav>;
-}
-
-function PageButton({ children, disabled, label, onClick }: { children: ReactNode; disabled: boolean; label: string; onClick: () => void }) {
-  return <button aria-label={label} className={`flex size-10 items-center justify-center rounded ${disabled ? "cursor-not-allowed bg-surface-container-high text-outline" : "bg-surface-container-lowest text-on-surface hover:bg-surface-container"}`} disabled={disabled} onClick={onClick} type="button">{children}</button>;
-}
-
-export function ProductCard({ product, imageAspect = "landscape" }: {
-  product: CatalogProduct;
-  imageAspect?: "square" | "landscape";
-}) {
-  const detailHref = routes.product(product.categorySlug, product.slug);
+  const navigation = useCatalogNavigation(basePath, query);
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
-      <Link
-        aria-label={`Xem chi tiết ${product.name}`}
-        className="absolute inset-0 z-10 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary"
-        href={detailHref}
-      />
-      <div className={`relative w-full overflow-hidden bg-surface-container ${imageAspect === "square" ? "aspect-square" : "aspect-[4/3]"}`}>
-        <SafeImage
-          alt={product.imageAlt}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          src={product.image}
-        />
-        {product.badge ? (
-          <span className={`absolute top-3 left-3 rounded px-2 py-0.5 font-label-eyebrow text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>
-            {product.badge}
-          </span>
-        ) : null}
-      </div>
-      <div className="flex flex-1 flex-col justify-between p-space-md">
-        <div>
-          <h3 className="mb-1 font-headline-sm text-headline-sm text-primary transition-colors group-hover:text-primary-container">{product.name}</h3>
-          <p className="mb-space-sm line-clamp-2 font-body-md text-body-md text-on-surface-variant">{product.description}</p>
-        </div>
-        <div className="mt-space-xs flex flex-col gap-space-sm pt-space-sm">
-          <ProductPrice pricing={product.pricing} />
-          <ProductActions product={product} />
-        </div>
-      </div>
-    </article>
+    <div className="w-full min-w-0">
+      {page ? (
+        <>
+          <CatalogToolbar
+            currentCount={page.products.length}
+            totalCount={page.pagination.total}
+            onChange={navigation.change}
+            onReset={navigation.reset}
+            query={query}
+          />
+          {page.products.length > 0 ? (
+            <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">
+              {page.products.map((product) => <ProductCard key={product.id} product={product} />)}
+            </div>
+          ) : (
+            <CatalogEmptyState hasFilters={Boolean(query.q)} onReset={navigation.reset} />
+          )}
+          <CatalogPagination
+            onPage={(pageNumber) => navigation.change({ page: pageNumber })}
+            pagination={page.pagination}
+          />
+        </>
+      ) : (
+        <CatalogErrorState onRetry={navigation.retry} />
+      )}
+    </div>
   );
 }
