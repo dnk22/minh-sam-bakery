@@ -212,7 +212,7 @@ function SearchFilterPanel({
         ))}
       </fieldset>
       <fieldset className="flex flex-col gap-space-sm py-space-md mt-space-md">
-        <legend className="mb-space-sm font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-primary">Khoảng giá niêm yết</legend>
+        <legend className="mb-space-sm font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-primary">Khoảng giá</legend>
         {PRICE_OPTIONS.map((item) => (
           <FilterRadio key={item.value} label={item.label} checked={query.price === item.value} name="search-price" onChange={() => onChange({ price: item.value })} />
         ))}

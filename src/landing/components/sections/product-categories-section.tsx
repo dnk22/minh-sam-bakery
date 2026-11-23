@@ -60,7 +60,7 @@ export function ProductCategoriesSection({ categories, loadFailed = false }: { c
           <span className="h-[1px] w-8 bg-outline-variant" />
           <span className="font-label-eyebrow text-[10px] leading-4 font-semibold tracking-[0.14em] uppercase md:text-label-eyebrow lg:tracking-[0.18em]">Danh Mục Sản Phẩm</span>
         </div>
-        <Link className="font-label-ui text-[12px] leading-[18px] font-medium tracking-[0.06em] text-primary uppercase transition-colors hover:text-secondary md:text-label-ui md:tracking-wider" href={routes.categories}>Xem toàn bộ menu bánh →</Link>
+        <Link className="font-label-ui text-[12px] leading-[18px] font-medium tracking-[0.06em] text-primary uppercase transition-colors hover:text-secondary md:text-label-ui md:tracking-wider" href={routes.search}>Xem toàn bộ menu bánh →</Link>
       </Reveal>
     </section>
   );
