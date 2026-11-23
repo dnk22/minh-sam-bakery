@@ -1,10 +1,13 @@
 import { cmsApiClient } from "@/cms/lib/api/client";
 
 import { serializeOrderListParams } from "../lib/order-data";
-import type { Order, OrderList, OrderListParams, UpdateOrderStatusInput } from "../types";
+import type { Order, OrderList, OrderListParams, OrderView, UpdateOrderStatusInput } from "../types";
 
-export function getOrders(params: OrderListParams, signal?: AbortSignal) {
-  return cmsApiClient.get<OrderList>(`/orders?${serializeOrderListParams(params)}`, { signal });
+export function getOrders(view: OrderView, params: OrderListParams, signal?: AbortSignal) {
+  const query = serializeOrderListParams(params);
+  const path = view === "history" ? "/orders/history" : "/orders";
+  if (view !== "history") query.set("view", view);
+  return cmsApiClient.get<OrderList>(`${path}?${query}`, { signal });
 }
 
 export const getOrder = (id: string, signal?: AbortSignal) =>

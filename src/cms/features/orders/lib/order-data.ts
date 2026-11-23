@@ -1,6 +1,6 @@
 import { ORDER_STATUSES } from "../constants.ts";
 import type { Order, OrderList, OrderListParams, OrderProductItem, OrderStatus } from "../types";
-import { isCalendarDate } from "./order-format.ts";
+import { isCalendarDate, isValidOrderCreatedRange } from "./order-format.ts";
 
 const DECIMAL = /^(?:0|[1-9]\d*)(?:\.\d+)?$/;
 
@@ -53,45 +53,47 @@ export function parseOrderPage(value: string | null) {
   return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
 
-export function parseOrderStatuses(values: readonly string[]) {
-  return [...new Set(values.filter(isOrderStatus))];
+function hasExactlyOne(query: URLSearchParams, key: string) {
+  return query.getAll(key).length === 1;
 }
 
 function hasAtMostOne(query: URLSearchParams, key: string) {
   return query.getAll(key).length <= 1;
 }
 
+/** BFF requires explicit date bounds even if the browser UI supplies defaults. */
 export function parseOrderListQuery(query: URLSearchParams): { ok: true; data: OrderListParams } | { ok: false } {
   const page = Number(query.get("page") ?? 1);
   const limit = Number(query.get("limit") ?? 20);
+  const createdFrom = query.get("createdFrom") ?? "";
+  const createdTo = query.get("createdTo") ?? "";
   const search = query.get("search")?.trim() || undefined;
-  const rawStatuses = query.getAll("status");
-  const statuses = parseOrderStatuses(rawStatuses);
   const deliveryDate = query.get("deliveryDate")?.trim() || undefined;
   const deliveryTime = query.get("deliveryTime")?.trim() || undefined;
-  const sortCreated = query.get("sortCreated") ?? "desc";
-  const singletonKeys = ["page", "limit", "search", "deliveryDate", "deliveryTime", "sortCreated"];
+  const singletonKeys = ["page", "limit", "createdFrom", "createdTo", "search", "deliveryDate", "deliveryTime"];
 
-  if (!singletonKeys.every((key) => hasAtMostOne(query, key)) || !Number.isSafeInteger(page) || page < 1 ||
-    !Number.isSafeInteger(limit) || limit < 1 || limit > 100 || rawStatuses.length !== statuses.length ||
-    (search && search.length > 200) || (deliveryDate && !isCalendarDate(deliveryDate)) ||
-    (deliveryTime && deliveryTime.length > 100) || (sortCreated !== "asc" && sortCreated !== "desc")) return { ok: false };
+  if (!hasExactlyOne(query, "createdFrom") || !hasExactlyOne(query, "createdTo") ||
+    !singletonKeys.every((key) => hasAtMostOne(query, key)) ||
+    !Number.isSafeInteger(page) || page < 1 ||
+    !Number.isSafeInteger(limit) || limit < 1 || limit > 100 ||
+    !isValidOrderCreatedRange(createdFrom, createdTo) ||
+    (search && search.length > 200) ||
+    (deliveryDate && !isCalendarDate(deliveryDate)) ||
+    (deliveryTime && deliveryTime.length > 100) ||
+    query.has("status") || query.has("sortCreated")) return { ok: false };
 
-  return { ok: true, data: { page, limit, search, statuses, deliveryDate, deliveryTime, sortCreated } };
+  return { ok: true, data: { page, limit, createdFrom, createdTo, search, deliveryDate, deliveryTime } };
 }
 
 export function serializeOrderListParams(params: OrderListParams) {
-  const query = new URLSearchParams({ page: String(params.page), limit: String(params.limit) });
+  const query = new URLSearchParams({
+    page: String(params.page), limit: String(params.limit),
+    createdFrom: params.createdFrom, createdTo: params.createdTo,
+  });
   if (params.search) query.set("search", params.search);
-  params.statuses.forEach((status) => query.append("status", status));
   if (params.deliveryDate) query.set("deliveryDate", params.deliveryDate);
   if (params.deliveryTime) query.set("deliveryTime", params.deliveryTime);
-  if (params.sortCreated !== "desc") query.set("sortCreated", params.sortCreated);
   return query;
-}
-
-export function canUpdateOrderStatus(current: OrderStatus, next: OrderStatus) {
-  return current !== next;
 }
 
 export function validOrderId(id: string) {
@@ -105,13 +107,12 @@ export function clearOrderFilterQuery(query: URLSearchParams) {
 }
 
 export function clearOrderAdvancedFilterQuery(query: URLSearchParams) {
-  ["status", "deliveryDate", "deliveryTime", "sortCreated", "page"].forEach((key) => query.delete(key));
+  ["deliveryDate", "deliveryTime", "page"].forEach((key) => query.delete(key));
   return query;
 }
 
-export function countOrderAdvancedFilters(filters: Pick<OrderListParams, "statuses" | "deliveryDate" | "deliveryTime" | "sortCreated">) {
-  return Number(filters.statuses.length > 0) + Number(Boolean(filters.deliveryDate)) +
-    Number(Boolean(filters.deliveryTime)) + Number(filters.sortCreated !== "desc");
+export function countOrderAdvancedFilters(filters: Pick<OrderListParams, "deliveryDate" | "deliveryTime">) {
+  return Number(Boolean(filters.deliveryDate)) + Number(Boolean(filters.deliveryTime));
 }
 
 /** Returns the order requested by a CMS deep link, if the query is valid. */
