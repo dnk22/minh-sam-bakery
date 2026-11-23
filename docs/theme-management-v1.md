@@ -20,7 +20,7 @@ Không log toàn bộ response hay config theme.
 
 ### SSR scope và Tailwind runtime
 
-`LandingThemeRoot` là Server Component bao trọn `LandingHeader`, page content và `LandingFooter`. Map từ `createThemeCssVariables()` được gắn trực tiếp vào thuộc tính `style` của root dưới dạng 47 `--color-*` và 13 `--font-*`; vì vậy HTML đầu tiên đã mang active theme, không cần `useEffect`, DOM mutation, client store hay hydration-time API call.
+`LandingThemeRoot` là Server Component bao trọn `LandingHeader`, page content và `LandingFooter`. Map từ `createThemeCssVariables()` được gắn trực tiếp vào thuộc tính `style` của root dưới dạng 47 `--color-*` và 13 `--font-*`; vì vậy HTML đầu tiên đã mang active theme, không cần `useEffect`, DOM mutation, client store hay hydration-time API call. Root cũng gắn `font-body-md` tại chính boundary để font mặc định được tính nơi có 13 font aliases; nếu chỉ đặt ở `body` phía ngoài, text kế thừa font có thể giữ font Classic.
 
 Root chỉ thêm background/text semantic mặc định và `min-height`; không thêm `transform`, `filter`, `contain`, `overflow` hoặc stacking context nên fixed header, sticky content và viewport section giữ nguyên behavior. CMS layout nằm ngoài route group này và không inherit các override Landing.
 
@@ -43,6 +43,8 @@ Active theme dùng một lớp Next.js Cache Components (`"use cache"`) với:
 - hard expire: 300 giây;
 - helper server-only `revalidateLandingActiveTheme()` dùng `revalidateTag(..., { expire: 0 })` để Phase 4 gọi sau activation thành công.
 
+**Phase 2.1:** Cache lưu hai loại kết quả: theme fetch/resolve thành công (bao gồm `data: null` hợp lệ) với TTL chuẩn 60/300 giây; hoặc dấu hiệu lỗi fetch dạng dữ liệu thuần với `stale: 1`, `revalidate: 1`, `expire: 5` giây. Classic fallback được tạo **bên ngoài cache** tại request boundary `getActiveLandingTheme()`, tránh biến một lần timeout thành Classic theme được cache thành công trong 5 phút. Dấu hiệu lỗi được cache rất ngắn để Next.js có thể prerender ngay cả lúc Backend timeout; nếu để exception thoát khỏi cached function, build có thể lỗi `blocking-prerender-dynamic`. Khi còn cache hợp lệ, Next.js có thể phục vụ stale; khi cache hết hạn hoặc một instance chưa có theme tốt, request vẫn fallback Classic. Đây không phải cơ chế last-known-good bền vững xuyên instance. Tests mô phỏng lỗi và hồi phục, đồng thời kiểm tra dữ liệu cache lỗi không chứa Classic theme.
+
 Ở trạng thái bình thường, request đầu tiên sau mốc 60 giây có thể vẫn nhận bản stale trong lúc background revalidation chạy; vì vậy không cam kết theme mới xuất hiện ngay sau activation. Nếu revalidation liên tiếp không thành công, entry hết hạn cứng sau tối đa 5 phút và request kế tiếp phải tính lại. Next client Router Cache cũng có thể giữ payload route đã điều hướng trước đó; cần hard refresh hoặc navigation mới khi kiểm tra TTL. Phase 4 nên gọi helper tag ngay sau Backend xác nhận activation, nhưng tab đang mở vẫn có thể cần refresh/navigation để nhận Server Component payload mới.
 
 ### Debug và kiểm tra
@@ -57,6 +59,17 @@ Khi theme không áp dụng:
 
 Test `pnpm test:landing-theme` bao phủ response/fallback, contrast, đủ 47+13 biến, SSR inline variables, CMS isolation, portal scope và cache contract. Phase 3 có thể tái sử dụng contract/schema/diagnostics cho Theme Editor; không được thay runtime fallback thành validation form.
 
+### Phase 2.1 — Browser QA trên bản Preview
+
+Các unit tests kiểm tra dữ liệu, CSS variables và tình huống Backend lỗi → hồi phục; không thay thế browser/computed-style/visual regression tests.
+
+1. Với custom Theme V1 ở môi trường thử nghiệm, kiểm tra computed font-family của Landing root và văn bản chỉ kế thừa font, đồng thời kiểm tra Heading có semantic font class.
+2. Kiểm tra /, /ve-minh-sam, /danh-muc/[categorySlug], /tim-kiem, /don-hang, /thanh-toan ở mobile 375px và desktop 1440px; xác minh màu CTA, font, fixed header, hydration và flash.
+3. So sánh Classic screenshots trước/sau của /ve-minh-sam (trích dẫn, chú thích ảnh, chữ cái đầu đoạn); Phase 2 có thay generic font-serif bằng Heading aliases nên không được mặc định visual baseline hoàn toàn giữ nguyên.
+4. Mở Search Filter Drawer và Product Variant Dialog; kiểm tra computed color variables, focus trap, Escape và scroll lock.
+5. Mô phỏng Backend theme timeout sau khi có custom theme, kiểm tra stale cache hoặc per-request fallback; sau khi API phục hồi, theme trở lại theo revalidation. Không cam kết last-known-good xuyên instance.
+
+Nếu chưa chạy được trình duyệt, ghi rõ **chưa xác minh browser** trong PR; Vercel build xanh không có nghĩa visual regression đã pass.
 ---
 
 ## Phase 1 — Theme engine foundation
@@ -106,7 +119,7 @@ Schema Zod là strict ở root và từng object lồng nhau. Màu chỉ nhận 
 
 `CLASSIC_THEME` giữ 14 màu lõi được chốt trong contract và font Heading/Body hiện tại. `CLASSIC_SEMANTIC_COLORS` là bản sao đầy đủ, chính xác của 47 màu trong `globals.css`, dùng làm regression baseline.
 
-Baseline hiện tại có một ngoại lệ lịch sử: core `surface` của contract là `#FFFFFF`, còn semantic `surface` trong `globals.css` là `#FFF8F7`. Resolver bảo toàn semantic baseline theo từng nhóm core chưa đổi. Quy tắc này dựa trên giá trị config, không dựa trên tên/code bản ghi Backend; do đó khi chỉ đổi một nhóm màu, các nhóm Classic không liên quan không bị đổi ngoài ý muốn.
+Phase 1.1 đã sửa mismatch lịch sử: core `surface` và semantic `surface` đều là `#FFF8F7`; `surface-container-lowest` vẫn là `#FFFFFF`. Direct mappings khớp màu trong config, còn các màu dẫn xuất dùng phép biến đổi neo theo Classic baseline. Không phụ thuộc tên/code bản ghi Backend.
 
 Test drift đọc trực tiếp khối `@theme` để phát hiện token hoặc giá trị Classic bị thêm/sửa mà source of truth chưa được cập nhật.
 
