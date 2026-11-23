@@ -252,7 +252,7 @@ test("catalog presentation splits page composition, navigation and purchase dial
   const storefront = readFileSync(`${base}/storefront-page.tsx`, "utf8");
   const navigate = readFileSync(`${base}/hooks/use-catalog-navigation.ts`, "utf8");
   const purchaseHook = readFileSync(`${base}/hooks/use-product-actions.ts`, "utf8");
-  const modal = readFileSync(`${base}/components/product-variant-dialog.tsx`, "utf8");
+  const modal = readFileSync(`${base}/components/product/product-variant-dialog.tsx`, "utf8");
   assert.ok(browser.split("\n").length < 100);
   assert.ok(storefront.split("\n").length < 110);
   assert.match(browser, /export \{ CatalogPagination \}/);
@@ -268,4 +268,23 @@ test("catalog presentation splits page composition, navigation and purchase dial
   assert.match(purchaseHook, /addItem\(line\)/);
   assert.match(purchaseHook, /variants.length === 1/);
   assert.match(modal, /Dialog.Root/);
+});
+
+test("Catalog modules are grouped and shared primitives do not import feature code", () => {
+  const base = "src/landing/features/catalog";
+  const pagination = readFileSync("src/landing/components/ui/pagination.tsx", "utf8");
+  const searchForm = readFileSync("src/landing/components/ui/search-form.tsx", "utf8");
+  const browser = readFileSync(`${base}/catalog-browser.tsx`, "utf8");
+  const controls = readFileSync(`${base}/catalog-controls.tsx`, "utf8");
+  assert.match(browser, /Pagination as CatalogPagination/);
+  assert.match(browser, /components\/product\/product-card/);
+  assert.match(controls, /SearchForm as CatalogSearchForm/);
+  assert.match(pagination, /function Pagination/);
+  assert.match(searchForm, /function SearchForm/);
+  assert.doesNotMatch(pagination + searchForm, /features\/catalog|features\/search/);
+  for (const name of ["listing/catalog-toolbar", "product/product-card", "discovery/cross-category-discovery"]) {
+    assert.equal(existsSync(`${base}/components/${name}.tsx`), true, name);
+  }
+  assert.equal(existsSync(`${base}/utils/query.ts`), true);
+  assert.equal(existsSync(`${base}/utils/pricing.ts`), true);
 });

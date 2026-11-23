@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 
-import { CatalogPagination, ProductCard } from "@/landing/features/catalog/catalog-browser";
+import { Pagination } from "@/landing/components/ui/pagination";
+import { ProductCard } from "@/landing/features/catalog/components/product/product-card";
 import type { CatalogCategory } from "@/landing/features/catalog/types";
 
 import type { SearchQuery } from "../query";
@@ -51,7 +52,7 @@ export function SearchResults({
       ) : (
         <SearchEmptyState hasFilters={hasFilters} onReset={onReset} />
       )}
-      <CatalogPagination pagination={pagination} onPage={(page) => onChange({ page })} />
+      <Pagination pagination={pagination} onPage={(page) => onChange({ page })} />
     </>
   );
 }

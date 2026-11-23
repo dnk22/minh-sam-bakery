@@ -1,15 +1,15 @@
 "use client";
 
 import { CatalogToolbar } from "./catalog-controls";
-import { CatalogEmptyState, CatalogErrorState } from "./components/catalog-feedback";
-import { CatalogPagination } from "./components/catalog-pagination";
-import { ProductCard } from "./components/product-card";
+import { CatalogEmptyState, CatalogErrorState } from "./components/listing/catalog-feedback";
+import { Pagination as CatalogPagination } from "@/landing/components/ui/pagination";
+import { ProductCard } from "./components/product/product-card";
 import { useCatalogNavigation } from "./hooks/use-catalog-navigation";
 import type { CatalogPage } from "./types";
 import type { CatalogQuery } from "./query";
 
 /** Keep the established public imports for Search and Product Detail. */
-export { CatalogPagination } from "./components/catalog-pagination";
+export { Pagination as CatalogPagination } from "@/landing/components/ui/pagination";
 export { ProductCard } from "./components/product-card";
 
 type CatalogBrowserProps = {

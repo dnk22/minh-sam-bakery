@@ -134,7 +134,7 @@ test("search page keeps orchestration separate from filters, results and URL nav
   assert.match(drawer, /radioPrefix="mobile"/);
   assert.match(drawer, /setFiltersOpen\(false\)/);
   assert.match(results, /ProductCard/);
-  assert.match(results, /CatalogPagination/);
+  assert.match(results, /Pagination/);
   assert.match(toolbar, /SORT_OPTIONS/);
 });
 

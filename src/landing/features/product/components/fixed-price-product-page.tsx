@@ -7,7 +7,7 @@ import { FixedPricePurchaseExperience } from "./fixed-price-purchase-experience"
 import { ProductBreadcrumb } from "./product-breadcrumb";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { routes } from "@/landing/lib/routes";
-import { ProductCard } from "@/landing/features/catalog/catalog-browser";
+import { ProductCard } from "@/landing/features/catalog/components/product/product-card";
 
 export function FixedPriceProductPage({ product }: { product: FixedPriceProductDetail }) {
   return (
