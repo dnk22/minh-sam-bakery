@@ -11,7 +11,7 @@ const productRoute = readFileSync(productRoutePath, "utf8");
 const adapter = readFileSync("src/landing/features/catalog/adapters.ts", "utf8");
 const productTypes = readFileSync("src/landing/features/product/types.ts", "utf8");
 const catalogTypes = readFileSync("src/landing/features/catalog/types.ts", "utf8");
-const productCard = readFileSync("src/landing/features/catalog/catalog-browser.tsx", "utf8");
+const productCard = readFileSync("src/landing/features/catalog/components/product-card.tsx", "utf8");
 
 assert(routes.category("qua-tang") === "/danh-muc/qua-tang", "Category route helper is inconsistent");
 assert(routes.categories === "/danh-muc", "Categories route helper is inconsistent");
