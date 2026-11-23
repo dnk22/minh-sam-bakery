@@ -84,7 +84,7 @@ export function GlobalSearchPage({ categories, query, results }: SearchPageProps
         <div className="mb-space-xl max-w-3xl">
           <CatalogSearchForm
             ariaLabel="Tìm kiếm sản phẩm và danh mục"
-            placeholder="Tìm bánh, hộp quà hoặc dòng bánh bạn yêu thích..."
+            placeholder="Tìm bánh, hộp quà..."
             value={query.q}
             onSearch={(q) => update({ q })}
           />
@@ -113,11 +113,11 @@ export function GlobalSearchPage({ categories, query, results }: SearchPageProps
           </aside>
 
           <div className="w-full min-w-0 flex-1">
-            <div className="mb-space-md lg:hidden">
+            <div className="mb-space-md flex justify-end lg:hidden">
               <Dialog.Root open={filtersOpen} onOpenChange={setFiltersOpen}>
                 <Dialog.Trigger asChild>
                   <button
-                    className="inline-flex min-h-11 items-center gap-space-sm rounded-lg bg-surface-container-lowest px-space-md py-2 font-label-ui text-label-ui text-primary shadow-sm"
+                    className="inline-flex min-h-11 items-center justify-end gap-space-sm rounded-lg bg-surface-container-lowest px-space-md py-2 font-label-ui text-label-ui text-primary shadow-sm"
                     type="button"
                   >
                     <SlidersHorizontal className="size-5" aria-hidden="true" />
@@ -211,7 +211,7 @@ function SearchFilterPanel({
           />
         ))}
       </fieldset>
-      <fieldset className="flex flex-col gap-space-sm py-space-md">
+      <fieldset className="flex flex-col gap-space-sm py-space-md mt-space-md">
         <legend className="mb-space-sm font-label-eyebrow text-label-eyebrow uppercase tracking-wider text-primary">Khoảng giá niêm yết</legend>
         {PRICE_OPTIONS.map((item) => (
           <FilterRadio key={item.value} label={item.label} checked={query.price === item.value} name="search-price" onChange={() => onChange({ price: item.value })} />
@@ -272,7 +272,7 @@ function SearchResultsToolbar({ query, categories, currentCount, totalCount, onC
           </div>
         )}
       </div>
-      <label className="flex shrink-0 items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
+      <label className="flex shrink-0 items-center justify-between gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
         Sắp xếp:
         <span className="relative">
           <select

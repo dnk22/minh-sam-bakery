@@ -72,7 +72,7 @@ export function CatalogSearchForm({
     );
   return (
     <form
-      className="relative flex min-w-0 items-center overflow-hidden rounded-lg bg-surface-container-lowest shadow-sm"
+      className="relative flex min-w-0 items-center overflow-hidden rounded-lg bg-surface-container-lowest shadow-sm p-[1px] focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
       onSubmit={submit}
     >
       <Search
@@ -95,7 +95,7 @@ export function CatalogSearchForm({
         </button>
       )}
       <button
-        className="flex shrink-0 items-center gap-space-xs bg-primary px-space-lg py-3.5 font-label-ui text-label-ui text-on-primary transition-colors hover:bg-primary-container"
+        className="flex shrink-0 items-center rounded-lg gap-space-xs bg-primary px-space-lg py-3.5 font-label-ui text-label-ui text-on-primary transition-colors hover:bg-primary-container"
         type="submit"
       >
         <span>Tìm kiếm</span>
