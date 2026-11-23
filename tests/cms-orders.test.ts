@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { hasJsonContentType, isTrustedSameOriginRequest } from "../src/cms/features/auth/lib/csrf.ts";
-import { canUpdateOrderStatus, clearLinkedOrderId, clearOrderAdvancedFilterQuery, clearOrderFilterQuery, countOrderAdvancedFilters, getLinkedOrderId, isOrder, isOrderList, parseOrderListQuery, serializeOrderListParams, validOrderId } from "../src/cms/features/orders/lib/order-data.ts";
-import { formatCalendarDate, formatVnd, isCalendarDate } from "../src/cms/features/orders/lib/order-format.ts";
+import { clearLinkedOrderId, clearOrderAdvancedFilterQuery, clearOrderFilterQuery, getLinkedOrderId, isOrder, isOrderList, parseOrderListQuery, serializeOrderListParams, validOrderId } from "../src/cms/features/orders/lib/order-data.ts";
+import { formatCalendarDate, formatVnd, isCalendarDate, getDefaultOrderCreatedRange, isValidOrderCreatedRange } from "../src/cms/features/orders/lib/order-format.ts";
+import { ORDER_VIEW_CONFIG, canPerformOrderAction, targetOrderStatus } from "../src/cms/features/orders/lib/order-views.ts";
 import { orderInvalidationKeys, orderQueryKeys } from "../src/cms/features/orders/lib/order-query-keys.ts";
 import { updateOrderStatusSchema } from "../src/cms/features/orders/schemas/order.schema.ts";
 import type { Order, OrderListParams } from "../src/cms/features/orders/types.ts";
@@ -44,50 +45,91 @@ test("validates paginated order lists without coercing pagination", () => {
   assert.equal(isOrderList({ items: [order], pagination: { page: 1, limit: "20", total: 1, totalPages: 1 } }), false);
 });
 
-test("strictly validates the documented status update payload", () => {
-  assert.deepEqual(updateOrderStatusSchema.parse({ status: "COMPLETED" }), { status: "COMPLETED" });
-  assert.equal(updateOrderStatusSchema.safeParse({}).success, false);
-  assert.equal(updateOrderStatusSchema.safeParse({ status: "CANCELLED" }).success, false);
+test("manual CMS status updates only support confirmation and rejection", () => {
+  assert.deepEqual(updateOrderStatusSchema.parse({ status: "CONFIRMED" }), { status: "CONFIRMED" });
+  assert.deepEqual(updateOrderStatusSchema.parse({ status: "REJECTED" }), { status: "REJECTED" });
+  for (const status of ["PENDING_CONFIRMATION", "NEED_CALLBACK", "COMPLETED", "UNKNOWN"]) {
+    assert.equal(updateOrderStatusSchema.safeParse({ status }).success, false);
+  }
   assert.equal(updateOrderStatusSchema.safeParse({ status: "CONFIRMED", note: "extra" }).success, false);
 });
 
-test("preserves repeated statuses through browser, BFF and Backend serialization", () => {
-  const params: OrderListParams = { page: 2, limit: 20, statuses: ["CONFIRMED", "COMPLETED"], sortCreated: "asc", deliveryTime: "09:00-11:00" };
+test("maps every order submenu to its documented endpoint and fixed statuses", () => {
+  assert.deepEqual(ORDER_VIEW_CONFIG.pending.statuses, ["PENDING_CONFIRMATION", "NEED_CALLBACK"]);
+  assert.deepEqual(ORDER_VIEW_CONFIG.delivery.statuses, ["CONFIRMED"]);
+  assert.deepEqual(ORDER_VIEW_CONFIG.completed.statuses, ["COMPLETED"]);
+  assert.equal(ORDER_VIEW_CONFIG.history.endpoint, "history");
+  assert.deepEqual(ORDER_VIEW_CONFIG.history.statuses, ["REJECTED", "COMPLETED"]);
+  assert.equal(canPerformOrderAction("pending", "NEED_CALLBACK", "confirm"), true);
+  assert.equal(canPerformOrderAction("pending", "PENDING_CONFIRMATION", "reject"), true);
+  assert.equal(canPerformOrderAction("delivery", "CONFIRMED", "reject"), true);
+  assert.equal(canPerformOrderAction("delivery", "CONFIRMED", "confirm"), false);
+  assert.equal(canPerformOrderAction("completed", "COMPLETED", "reject"), false);
+  assert.equal(canPerformOrderAction("history", "REJECTED", "confirm"), false);
+  assert.equal(canPerformOrderAction("history", "COMPLETED", "detail"), true);
+  assert.equal(targetOrderStatus("confirm"), "CONFIRMED");
+  assert.equal(targetOrderStatus("reject"), "REJECTED");
+});
+
+test("default order range uses Vietnam calendar dates and spans 30 day boundaries", () => {
+  assert.deepEqual(getDefaultOrderCreatedRange(new Date("2026-11-23T01:51:00.000Z")), {
+    createdFrom: "2026-10-24", createdTo: "2026-11-23",
+  });
+  assert.deepEqual(getDefaultOrderCreatedRange(new Date("2026-11-22T18:00:00.000Z")), {
+    createdFrom: "2026-10-24", createdTo: "2026-11-23",
+  });
+  assert.equal(isValidOrderCreatedRange("2026-10-24", "2026-11-23"), true);
+  assert.equal(isValidOrderCreatedRange("2026-10-23", "2026-11-23"), false);
+  assert.equal(isValidOrderCreatedRange("2026-11-24", "2026-11-23"), false);
+  assert.equal(isValidOrderCreatedRange("2026-02-30", "2026-03-01"), false);
+  assert.equal(isValidOrderCreatedRange("", "2026-11-23"), false);
+  assert.equal(isValidOrderCreatedRange("2026-11-23", "2026-11-23"), true);
+});
+
+test("serializes required order date range and roundtrips through BFF", () => {
+  const params: OrderListParams = {
+    page: 2, limit: 20, createdFrom: "2026-10-24", createdTo: "2026-11-23",
+    deliveryTime: "09:00-11:00",
+  };
   const browserQuery = serializeOrderListParams(params);
-  assert.deepEqual(browserQuery.getAll("status"), ["CONFIRMED", "COMPLETED"]);
+  assert.equal(browserQuery.get("createdFrom"), "2026-10-24");
+  assert.equal(browserQuery.get("createdTo"), "2026-11-23");
   const parsed = parseOrderListQuery(browserQuery);
   assert.equal(parsed.ok, true);
   if (!parsed.ok) return;
-  assert.deepEqual(parsed.data.statuses, ["CONFIRMED", "COMPLETED"]);
   assert.equal(parsed.data.deliveryTime, "09:00-11:00");
-  const backendUrl = new URL(buildBackendUrl("https://backend.example", "/api/v1/orders", { status: parsed.data.statuses }));
-  assert.deepEqual(backendUrl.searchParams.getAll("status"), ["CONFIRMED", "COMPLETED"]);
+  const url = new URL(buildBackendUrl("https://backend.example", "/api/v1/orders", {
+    createdFrom: parsed.data.createdFrom, createdTo: parsed.data.createdTo,
+    status: [...ORDER_VIEW_CONFIG.pending.statuses],
+  }));
+  assert.deepEqual(url.searchParams.getAll("status"), ["PENDING_CONFIRMATION", "NEED_CALLBACK"]);
 });
 
-test("parses defaults and rejects malformed list filters", () => {
-  assert.deepEqual(parseOrderListQuery(new URLSearchParams()), {
-    ok: true,
-    data: { page: 1, limit: 20, search: undefined, statuses: [], deliveryDate: undefined, deliveryTime: undefined, sortCreated: "desc" },
-  });
-  for (const query of ["page=0", "limit=101", "sortCreated=newest", "deliveryDate=2026-02-30", "status=CONFIRMED&status=UNKNOWN", "page=1&page=2"]) {
-    assert.equal(parseOrderListQuery(new URLSearchParams(query)).ok, false, query);
-  }
+test("rejects missing, duplicated, malformed or oversized date query parameters", () => {
+  assert.equal(parseOrderListQuery(new URLSearchParams()).ok, false);
+  for (const query of [
+    "createdFrom=2026-10-24&createdTo=2026-11-23&createdTo=2026-11-22",
+    "createdFrom=2026-10-23&createdTo=2026-11-23",
+    "createdFrom=2026-11-24&createdTo=2026-11-23",
+    "createdFrom=2026-02-30&createdTo=2026-03-01",
+    "createdFrom=2026-10-24&createdTo=2026-11-23&page=0",
+    "createdFrom=2026-10-24&createdTo=2026-11-23&limit=101",
+    "createdFrom=2026-10-24&createdTo=2026-11-23&status=CONFIRMED",
+    "createdFrom=2026-10-24&createdTo=2026-11-23&sortCreated=asc",
+  ]) assert.equal(parseOrderListQuery(new URLSearchParams(query)).ok, false, query);
 });
 
-test("clears every order filter and resets pagination", () => {
-  const query = new URLSearchParams("search=090&status=CONFIRMED&status=COMPLETED&deliveryDate=2026-11-20&deliveryTime=morning&sortCreated=asc&page=4&unrelated=kept");
-  assert.equal(clearOrderFilterQuery(query).toString(), "unrelated=kept");
+test("clearing optional order filters preserves mandatory createdFrom/createdTo", () => {
+  const query = new URLSearchParams("search=090&deliveryDate=2026-11-20&deliveryTime=morning&createdFrom=2026-10-24&createdTo=2026-11-23&page=4&unrelated=kept");
+  assert.equal(clearOrderFilterQuery(query).toString(), "createdFrom=2026-10-24&createdTo=2026-11-23&unrelated=kept");
+  const advanced = new URLSearchParams("search=090&deliveryDate=2026-11-20&deliveryTime=morning&createdFrom=2026-10-24&createdTo=2026-11-23&page=3");
+  assert.equal(clearOrderAdvancedFilterQuery(advanced).toString(), "search=090&createdFrom=2026-10-24&createdTo=2026-11-23");
 });
 
-test("counts order dimensions once and clears advanced filters without search", () => {
-  assert.equal(countOrderAdvancedFilters({ statuses: ["CONFIRMED", "COMPLETED", "REJECTED"], deliveryDate: "2026-11-20", deliveryTime: undefined, sortCreated: "asc" }), 3);
-  const query = new URLSearchParams("search=090&status=CONFIRMED&status=COMPLETED&deliveryDate=2026-11-20&deliveryTime=morning&sortCreated=asc&page=4");
-  assert.equal(clearOrderAdvancedFilterQuery(query).toString(), "search=090");
-});
-
-test("uses stable list/detail keys and declares both status invalidations", () => {
-  const params: OrderListParams = { page: 1, limit: 20, statuses: [], sortCreated: "desc" };
-  assert.deepEqual(orderQueryKeys.list(params), ["cms", "orders", "list", params]);
+test("separates order list cache by workflow view", () => {
+  const params: OrderListParams = { page: 1, limit: 20, createdFrom: "2026-10-24", createdTo: "2026-11-23" };
+  assert.deepEqual(orderQueryKeys.list("pending", params), ["cms", "orders", "list", "pending", params]);
+  assert.deepEqual(orderQueryKeys.list("history", params), ["cms", "orders", "list", "history", params]);
   assert.deepEqual(orderInvalidationKeys("order-1"), [orderQueryKeys.lists(), orderQueryKeys.detail("order-1")]);
 });
 
@@ -101,11 +143,6 @@ test("keeps a date-only value on its original calendar day", () => {
   assert.equal(isCalendarDate("2026-11-20"), true);
   assert.equal(isCalendarDate("2026-11-31"), false);
   assert.equal(formatCalendarDate("2026-11-20"), "20/11/2026");
-});
-
-test("disables status no-op while allowing Backend-validated transitions", () => {
-  assert.equal(canUpdateOrderStatus("CONFIRMED", "CONFIRMED"), false);
-  assert.equal(canUpdateOrderStatus("CONFIRMED", "REJECTED"), true);
 });
 
 test("requires same-origin JSON requests for the status PUT boundary", () => {
