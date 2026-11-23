@@ -14,7 +14,7 @@ export function CheckoutPaymentSection({ draft, errors, onUpdate }: {
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary" id="checkout-payment-heading">
         3. Phương thức thanh toán
       </h2>
-      <fieldset className="space-y-space-sm">
+      <fieldset className="grid gap-space-sm sm:grid-cols-2">
         <legend className="sr-only">Chọn phương thức thanh toán</legend>
         <PaymentOption
           value="BANK_TRANSFER"
