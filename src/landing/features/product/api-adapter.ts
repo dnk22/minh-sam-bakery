@@ -43,8 +43,8 @@ export function adaptApiProductDetail(dto: ProductResponseDto, related: CatalogP
     },
     presentation: {
       eyebrow: `DÒNG ${dto.categoryName.toLocaleUpperCase("vi")} • SẢN PHẨM MINH SÂM`,
-      checkoutAvailable: false,
-      checkoutUnavailableMessage: "Đặt hàng trực tuyến đang được kết nối với hệ thống bán hàng. Vui lòng liên hệ cửa hàng để xác nhận.",
+      checkoutAvailable: catalog.pricing.available,
+      checkoutUnavailableMessage: "Hiện chưa có quy cách sản phẩm khả dụng. Vui lòng chọn sản phẩm khác.",
       priceUnitLabel: dto.variants.filter((variant) => variant.status === "ACTIVE").length > 1 ? "/ quy cách đã chọn" : "/ sản phẩm",
       productionNote: dto.isBestSeller ? "Sản phẩm bán chạy" : dto.isFeatured ? "Sản phẩm nổi bật" : "Giá từ hệ thống",
       availabilityNote: "Vui lòng liên hệ để xác nhận tồn kho",

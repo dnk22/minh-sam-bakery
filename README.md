@@ -36,7 +36,7 @@ The current Phase 2 access policy admits any Backend-authenticated `ACTIVE` acco
 
 The public catalog, product detail pages, and global search use Backend data only. Product detail pages share one priced-product presentation; there is no editorial product or quotation fallback. The category page uses the category-specific GET API; `/tim-kiem` uses the public filter API. Category metadata is loaded with bounded pagination.
 
-Online order submission remains disabled until the public order creation API is integrated and the quantity, variant, fulfillment, and payment contracts are aligned with the Backend. The public Landing quotation flow has been removed. CMS quotation routes remain unchanged by this Landing-only refactor.
+The public Landing now includes a selectable cart (/don-hang), Buy Now intent, and a standalone checkout form (/thanh-toan). These pages display provisional product prices from catalog snapshots and do not submit orders. Real order creation and payment remain disabled until the public create-order contract supports quantities, variants, fulfillment, and correct totals. Old quotation and mock-checkout drawers are removed from the Landing; CMS quotation routes are unaffected.
 
 ## Validation
 
