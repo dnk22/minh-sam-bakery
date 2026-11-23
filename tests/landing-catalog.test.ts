@@ -288,3 +288,17 @@ test("Catalog modules are grouped and shared primitives do not import feature co
   assert.equal(existsSync(`${base}/utils/query.ts`), true);
   assert.equal(existsSync(`${base}/utils/pricing.ts`), true);
 });
+
+test("shared quantity stepper serves Catalog, Product and Cart without domain dependencies", () => {
+  const shared = readFileSync("src/landing/components/ui/quantity-stepper.tsx", "utf8");
+  const modal = readFileSync("src/landing/features/catalog/components/product/product-variant-dialog.tsx", "utf8");
+  const detail = readFileSync("src/landing/features/product/components/fixed-price-purchase-experience.tsx", "utf8");
+  const cart = readFileSync("src/landing/features/cart/components/cart-page.tsx", "utf8");
+  assert.match(shared, /function QuantityStepper/);
+  assert.match(shared, /Math\.max\(min, value - 1\)/);
+  assert.match(shared, /Math\.min\(max, value \+ 1\)/);
+  assert.doesNotMatch(shared, /features\/catalog|features\/product|features\/cart|useCartStore/);
+  for (const source of [modal, detail, cart]) {
+    assert.match(source, /<QuantityStepper/);
+  }
+});
