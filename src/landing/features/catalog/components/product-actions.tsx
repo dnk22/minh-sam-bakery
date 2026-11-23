@@ -34,7 +34,10 @@ export function ProductActions({ product, compact = false }: {
       addItem(line);
       setFeedback(`Đã thêm ${amount} sản phẩm vào giỏ hàng`);
     } else {
-      saveBuyNowIntent(line);
+      if (!saveBuyNowIntent(line)) {
+        setFeedback("Không thể lưu thông tin mua hàng. Vui lòng kiểm tra cài đặt trình duyệt.");
+        return;
+      }
       router.push(routes.checkout);
     }
     setPendingAction(null);

@@ -1,15 +1,5 @@
 export type FulfillmentMethod = "pickup" | "delivery";
-
-export type CheckoutLineItem = {
-  productId: string;
-  productName: string;
-  productImage: string;
-  productImageAlt: string;
-  variantId: string;
-  variantLabel: string;
-  unitPrice: number;
-  quantity: number;
-};
+export type PaymentMethod = "AT_STORE" | "BANK_TRANSFER";
 
 export type CheckoutDraft = {
   fullName: string;
@@ -18,15 +8,18 @@ export type CheckoutDraft = {
   fulfillmentMethod: FulfillmentMethod;
   deliveryAddress: string;
   receiveDate: string;
+  deliveryTime: string;
   notes: string;
+  paymentMethod: PaymentMethod;
 };
 
-export type CheckoutField = "fullName" | "phone" | "email" | "deliveryAddress" | "receiveDate";
+export type CheckoutField =
+  | "fullName"
+  | "phone"
+  | "email"
+  | "deliveryAddress"
+  | "receiveDate"
+  | "deliveryTime"
+  | "paymentMethod";
+
 export type CheckoutErrors = Partial<Record<CheckoutField, string>>;
-
-export type CheckoutReceipt = {
-  orderCode: string;
-  createdAt: string;
-};
-
-export type CheckoutStage = "closed" | "editing" | "pickup-success" | "bank-transfer";

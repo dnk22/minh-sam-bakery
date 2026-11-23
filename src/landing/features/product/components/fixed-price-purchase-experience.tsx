@@ -1,10 +1,12 @@
 "use client";
 
-import { ArrowRight, BadgeCheck, CalendarDays, CheckCircle2, Minus, Package, Plus, RefreshCw, Truck, Zap } from "lucide-react";
+import { ArrowRight, BadgeCheck, CheckCircle2, Minus, Package, Plus, RefreshCw, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { type MouseEvent, useState } from "react";
-
-import { useCheckoutFlow } from "@/landing/features/checkout/components/checkout-flow-provider";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createCartLine } from "@/landing/features/cart/selection";
+import { saveBuyNowIntent } from "@/landing/features/checkout/store/checkout-intent";
+import { routes } from "@/landing/lib/routes";
 
 import type { FixedPriceProductDetail } from "../types";
 import { ProductGallery } from "./product-gallery";
@@ -12,25 +14,26 @@ import { ProductGallery } from "./product-gallery";
 const formatVnd = (amount: number) => `${new Intl.NumberFormat("vi-VN").format(amount)}đ`;
 
 export function FixedPricePurchaseExperience({ product }: { product: FixedPriceProductDetail }) {
-  const { openCheckout } = useCheckoutFlow();
-  const [selectedVariantId, setSelectedVariantId] = useState(product.pricing.variants[0].id);
+  const router = useRouter();
+  const [purchaseError, setPurchaseError] = useState("");
+  const [selectedVariantId, setSelectedVariantId] = useState(product.pricing.variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const selectedVariant = product.pricing.variants.find((variant) => variant.id === selectedVariantId) ?? product.pricing.variants[0];
-  const total = selectedVariant.price * quantity;
-  const checkoutAvailable = product.presentation.checkoutAvailable !== false;
+  const total = (selectedVariant?.price ?? 0) * quantity;
+  const selectedCatalogVariant = product.catalog.pricing.variants.find((variant) => variant.id === selectedVariant?.id);
+  const checkoutAvailable = product.presentation.checkoutAvailable !== false && Boolean(selectedCatalogVariant);
 
-  const openOrder = (trigger: HTMLElement) => openCheckout({
-    productId: product.catalog.id,
-    productName: product.catalog.name,
-    productImage: product.heroImage.src,
-    productImageAlt: product.heroImage.alt,
-    variantId: selectedVariant.id,
-    variantLabel: selectedVariant.label,
-    unitPrice: selectedVariant.price,
-    quantity,
-  }, trigger);
+  const handlePurchase = () => {
+    if (!selectedCatalogVariant) return;
+    const line = createCartLine(product.catalog, selectedCatalogVariant, quantity);
+    if (!saveBuyNowIntent(line)) {
+      setPurchaseError("Không thể lưu thông tin đặt hàng. Vui lòng kiểm tra cài đặt trình duyệt.");
+      return;
+    }
+    setPurchaseError("");
+    router.push(routes.checkout);
+  };
 
-  const handlePurchase = (event: MouseEvent<HTMLButtonElement>) => openOrder(event.currentTarget);
 
   return (
     <>
@@ -39,10 +42,9 @@ export function FixedPricePurchaseExperience({ product }: { product: FixedPriceP
           <div className="lg:col-span-7"><ProductGallery heroImage={product.heroImage} images={product.gallery} /></div>
           <div className="sticky top-24 flex flex-col rounded-xl bg-surface-container-lowest p-space-md shadow-lg md:p-space-lg lg:col-span-5">
             <div className="flex flex-col gap-1"><span className="font-label-eyebrow text-label-eyebrow font-semibold uppercase tracking-widest text-secondary">{product.presentation.eyebrow}</span><h1 className="mt-1 font-headline-lg text-headline-md leading-snug tracking-tight text-primary sm:text-headline-lg">{product.catalog.name}</h1><p className="mt-2 font-body-md text-body-md leading-relaxed text-on-surface-variant">{product.catalog.description}</p></div>
-            <div className="mt-space-md flex items-baseline justify-between rounded-lg bg-surface-container-low px-4 py-3"><div className="flex items-baseline gap-2"><span className="font-price-serif text-[32px] leading-tight font-semibold text-primary">{formatVnd(total)}</span><span className="font-body-sm text-body-sm text-outline-variant">{product.presentation.priceUnitLabel}</span></div><span className="font-body-sm text-body-sm font-medium text-secondary">{product.presentation.productionNote}</span></div>
-            <div className="mt-space-md flex flex-col gap-2"><span className="font-label-ui text-label-ui font-semibold uppercase tracking-wider text-on-surface">Chọn quy cách đóng gói</span><div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{product.pricing.variants.map((variant) => { const selected = variant.id === selectedVariantId; return <button aria-pressed={selected} className={`flex cursor-pointer flex-col justify-between rounded-lg p-3 text-left transition-all ${selected ? "bg-surface-container text-primary shadow-sm ring-2 ring-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container"}`} key={variant.id} onClick={() => setSelectedVariantId(variant.id)} type="button"><span className="flex items-center justify-between"><span className="font-label-ui text-label-ui font-semibold">{variant.label}</span><CheckCircle2 className={`size-4 ${selected ? "opacity-100" : "opacity-0"}`} /></span><span className="mt-2 font-price-serif text-price-serif font-bold text-primary">{formatVnd(variant.price)}</span></button>; })}</div></div>
+            <div className="mt-space-md flex items-baseline justify-between rounded-lg bg-surface-container-low px-4 py-3"><div className="flex items-baseline gap-2"><span className="font-price-serif text-[32px] leading-tight font-semibold text-primary">{formatVnd(total)}</span>{selectedVariant?.hasDiscount ? <del className="font-body-sm text-body-sm text-outline">{formatVnd(selectedVariant.originalPrice * quantity)}</del> : null}<span className="font-body-sm text-body-sm text-outline-variant">{product.presentation.priceUnitLabel}</span></div><span className="font-body-sm text-body-sm font-medium text-secondary">{product.presentation.productionNote}</span></div>
+            <div className="mt-space-md flex flex-col gap-2"><span className="font-label-ui text-label-ui font-semibold uppercase tracking-wider text-on-surface">Chọn quy cách đóng gói</span><div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{product.pricing.variants.map((variant) => { const selected = variant.id === selectedVariantId; return <button aria-pressed={selected} className={`flex cursor-pointer flex-col justify-between rounded-lg p-3 text-left transition-all ${selected ? "bg-surface-container text-primary shadow-sm ring-2 ring-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container"}`} key={variant.id} onClick={() => setSelectedVariantId(variant.id)} type="button"><span className="flex items-center justify-between"><span className="font-label-ui text-label-ui font-semibold">{variant.label}</span><CheckCircle2 className={`size-4 ${selected ? "opacity-100" : "opacity-0"}`} /></span><span className="mt-2 font-price-serif text-price-serif font-bold text-primary">{formatVnd(variant.price)}</span>{variant.hasDiscount ? <del className="mt-1 font-body-sm text-[12px] text-outline">{formatVnd(variant.originalPrice)}</del> : null}</button>; })}</div></div>
             <div className="mt-space-md flex items-center justify-between py-1"><div className="flex flex-col"><span className="font-label-ui text-label-ui font-semibold uppercase tracking-wider text-on-surface">Số lượng</span><span className="mt-0.5 font-body-sm text-[12px] text-secondary">{product.presentation.availabilityNote}</span></div><div className="flex items-center rounded-lg bg-surface-container-low p-1 shadow-inner"><button aria-label="Giảm số lượng" className="flex size-8 items-center justify-center rounded bg-surface text-on-surface transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-40" disabled={quantity === 1} onClick={() => setQuantity((current) => Math.max(1, current - 1))} type="button"><Minus className="size-[18px]" /></button><span className="w-10 select-none text-center font-headline-sm text-headline-sm font-semibold text-primary">{quantity}</span><button aria-label="Tăng số lượng" className="flex size-8 items-center justify-center rounded bg-surface text-on-surface transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-40" disabled={quantity === 20} onClick={() => setQuantity((current) => Math.min(20, current + 1))} type="button"><Plus className="size-[18px]" /></button></div></div>
-            <div className="mt-space-md flex flex-col gap-2 border-t border-outline-variant/40 pt-2"><span className="font-label-ui text-label-ui font-semibold uppercase tracking-wider text-on-surface">Thông tin nhận hàng</span><div className="flex flex-col gap-2"><FutureControl Icon={CalendarDays} label="Ngày muốn nhận bánh" text="Chọn ngày nhận khi đặt hàng" /><FutureControl Icon={Truck} label="Giao tận nơi hoặc nhận tại cửa hàng" text="Chọn phương thức nhận bánh khi đặt hàng" /></div><p className="mt-0.5 font-body-sm text-[11px] leading-normal italic text-on-surface-variant">Địa chỉ và phí giao hàng sẽ được xác nhận trong quá trình đặt hàng.</p></div>
             <div className="mt-space-lg flex flex-col gap-2.5">
               <button
                 className="group flex w-full items-center justify-center gap-2 rounded-lg bg-primary-container px-6 py-3.5 font-label-ui text-[15px] font-bold uppercase tracking-widest text-secondary-fixed shadow-md transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
@@ -53,6 +55,7 @@ export function FixedPricePurchaseExperience({ product }: { product: FixedPriceP
                 {checkoutAvailable ? "ĐẶT HÀNG" : "ĐẶT HÀNG ĐANG CẬP NHẬT"}
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
+              {purchaseError ? <p className="font-body-sm text-body-sm text-error" role="alert">{purchaseError}</p> : null}
               {!checkoutAvailable ? (
                 <p className="font-body-sm text-body-sm leading-relaxed text-on-surface-variant">
                   {product.presentation.checkoutUnavailableMessage}
@@ -80,10 +83,6 @@ export function FixedPricePurchaseExperience({ product }: { product: FixedPriceP
       </div>
     </>
   );
-}
-
-function FutureControl({ Icon, label, text }: { Icon: LucideIcon; label: string; text: string }) {
-  return <div className="flex w-full items-center justify-between rounded-lg bg-surface-container-low p-3 text-left"><span className="flex items-center gap-2.5"><Icon className="size-5 text-secondary" /><span className="flex flex-col"><span className="font-label-ui text-body-sm font-semibold text-primary">{label}</span><span className="font-body-sm text-[12px] text-on-surface-variant">{text}</span></span></span></div>;
 }
 
 function TrustBadge({ Icon, text }: { Icon: LucideIcon; text: string }) {

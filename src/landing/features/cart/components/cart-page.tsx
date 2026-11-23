@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { formatVnd } from "@/landing/features/catalog/pricing";
@@ -16,6 +17,7 @@ import type { CartLine } from "../types";
 
 export function CartPage() {
   const router = useRouter();
+  const [navigationError, setNavigationError] = useState("");
   const hydrated = useCartHydrated();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
@@ -29,7 +31,11 @@ export function CartPage() {
 
   const proceedToCheckout = () => {
     if (!selected.length) return;
-    saveCartCheckoutIntent(selected);
+    if (!saveCartCheckoutIntent(selected)) {
+      setNavigationError("Không thể lưu thông tin thanh toán. Vui lòng kiểm tra cài đặt trình duyệt.");
+      return;
+    }
+    setNavigationError("");
     router.push(routes.checkout);
   };
 
@@ -108,6 +114,7 @@ export function CartPage() {
                 Thanh toán ({selected.length})
                 <ArrowRight aria-hidden="true" className="size-5" />
               </button>
+              {navigationError ? <p className="mt-space-sm font-body-sm text-error" role="alert">{navigationError}</p> : null}
               <Link className="mt-space-md flex items-center justify-center gap-2 font-body-sm text-body-sm text-secondary hover:underline" href={routes.search}>
                 <ArrowLeft aria-hidden="true" className="size-4" />
                 Tiếp tục mua sắm

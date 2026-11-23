@@ -25,7 +25,7 @@ test("all public product routes use priced API detail without editorial fallback
   const detailAdapter = readFileSync("src/landing/features/product/api-adapter.ts", "utf8");
   assert.match(route, /return <FixedPriceProductPage product=\{product\} \/>/);
   assert.doesNotMatch(route, /findEditorialQuotation|QuotationProductPage|isQuotationProductDetail/);
-  assert.match(detailAdapter, /checkoutAvailable: false/);
+  assert.match(detailAdapter, /checkoutAvailable: catalog\.pricing\.available/);
   assert.doesNotMatch(detailAdapter, /Liên hệ tư vấn|pricing\.mode/);
 });
 
@@ -48,10 +48,11 @@ test("Landing has no quotation feature, quote card branch, or mock product datas
   assert.match(storefront, /ProductPrice/);
 });
 
-test("product purchase keeps checkout disabled until real order integration", () => {
+test("product purchase creates an intent but never submits a simulated order", () => {
   const purchase = readFileSync("src/landing/features/product/components/fixed-price-purchase-experience.tsx", "utf8");
   const adapter = readFileSync("src/landing/features/product/api-adapter.ts", "utf8");
-  assert.match(adapter, /checkoutAvailable: false/);
-  assert.match(purchase, /disabled=\{!checkoutAvailable\}/);
+  assert.match(adapter, /checkoutAvailable: catalog\.pricing\.available/);
+  assert.match(purchase, /saveBuyNowIntent/);
+  assert.doesNotMatch(purchase, /useCheckoutFlow|createOrderCode/);
   assert.doesNotMatch(purchase, /handleAddToCart|THÊM VÀO GIỎ/);
 });
