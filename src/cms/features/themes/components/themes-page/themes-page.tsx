@@ -45,7 +45,7 @@ export function ThemesPage() {
       <ThemesCollection filters={filters} listQuery={query} onDetail={onDetail} onDuplicate={onDuplicate} onDelete={setDeleteTarget} />
       <p className={styles.note}>Việc xem trước trên Landing và kích hoạt theme sẽ được bổ sung ở Phase 4. Không chỉnh sửa trực tiếp theme đang hoạt động.</p>
       <ThemeModal state={modal} onStateChange={setModal} onDelete={setDeleteTarget} />
-      <ThemeDeleteDialog theme={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={deleted} />
+      <ThemeDeleteDialog key={deleteTarget?.id ?? "closed"} theme={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={deleted} />
     </CmsMain>
   );
 }
