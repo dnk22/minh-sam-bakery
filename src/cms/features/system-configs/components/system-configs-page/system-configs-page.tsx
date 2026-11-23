@@ -27,7 +27,7 @@ export function SystemConfigsPage() {
     <CmsMain className={styles.main}>
       <header className={styles.heading}>
         <div><h1>Cấu hình hệ thống</h1><p>Quản lý các giá trị cấu hình dùng chung của hệ thống.</p></div>
-        <CmsButton type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm cấu hình</CmsButton>
+        <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm cấu hình</CmsButton>
       </header>
       <SystemConfigsToolbar filters={filters} />
       <SystemConfigsCollection filters={filters} listQuery={listQuery} onDetail={openDetail} onDelete={setDeleteTarget} />

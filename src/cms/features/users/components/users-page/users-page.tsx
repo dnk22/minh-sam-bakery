@@ -32,7 +32,7 @@ export function UsersPage() {
   return <CmsMain className={styles.main}>
     <header className={styles.heading}>
       <div><h1>Tài khoản</h1><p>Quản lý tài khoản CMS, vai trò và trạng thái truy cập.</p></div>
-      <CmsButton type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm tài khoản</CmsButton>
+      <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm tài khoản</CmsButton>
     </header>
     <UsersToolbar filters={filters} />
     <UsersCollection filters={filters} listQuery={listQuery} {...collectionActions} />

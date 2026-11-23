@@ -40,7 +40,7 @@ export function ProductsPage() {
     <CmsMain className={styles.main}>
       <header className={styles.heading}>
         <div><h1>Sản phẩm</h1><p>Quản lý sản phẩm, giá, hình ảnh và biến thể.</p></div>
-        <CmsButton type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm sản phẩm</CmsButton>
+        <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm sản phẩm</CmsButton>
       </header>
       <ProductsToolbar filters={filters} />
       <ProductsCollection filters={filters} listQuery={listQuery} onDetail={openDetail} onDelete={setDeleteTarget} />

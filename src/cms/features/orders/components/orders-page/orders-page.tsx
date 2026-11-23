@@ -70,7 +70,7 @@ export function OrdersPage({ view }: { view: OrderView }) {
   return <CmsMain className={styles.main}>
     <header className={styles.heading}>
       <div><h1>{config.title}</h1><p>{config.description}</p></div>
-      <CmsButton type="button" variant="outline" disabled={listQuery.isFetching} onClick={() => listQuery.refetch()}>
+      <CmsButton className="cms-page-header-action" type="button" variant="outline" disabled={listQuery.isFetching} onClick={() => listQuery.refetch()}>
         <RefreshCw aria-hidden="true" size={17} /> {listQuery.isFetching ? "Đang tải…" : "Làm mới"}
       </CmsButton>
     </header>

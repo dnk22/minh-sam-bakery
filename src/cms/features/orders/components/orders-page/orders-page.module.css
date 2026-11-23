@@ -2,4 +2,4 @@
 .heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .heading h1 { margin: 0; font-size: 1.5rem; }
 .heading p { margin: 0.25rem 0 0; color: var(--cms-muted-foreground); }
-@media (max-width: 767px) { .heading { align-items: stretch; flex-direction: column; } .heading :global(.cms-button) { align-self: flex-start; } }
+@media (max-width: 767px) { .heading { align-items: stretch; flex-direction: column; }  }
