@@ -1,0 +1,25 @@
+import type { ThemeConfigV1 } from "../contracts/theme.types.ts";
+
+export const CLASSIC_THEME = {
+  schemaVersion: 1,
+  colors: {
+    primary: "#2E0208",
+    primaryContainer: "#4A151B",
+    onPrimary: "#FFFFFF",
+    secondary: "#775A19",
+    secondaryLight: "#E9C176",
+    onSecondary: "#FFFFFF",
+    background: "#FFF8F7",
+    surface: "#FFFFFF",
+    surfaceMuted: "#FFF0EE",
+    surfaceElevated: "#FDE2DE",
+    textPrimary: "#261816",
+    textSecondary: "#534343",
+    border: "#D8C1C1",
+    accent: "#FFDEA5",
+  },
+  typography: {
+    heading: "noto-serif",
+    body: "be-vietnam-pro",
+  },
+} as const satisfies ThemeConfigV1;

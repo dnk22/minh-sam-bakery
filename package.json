@@ -27,6 +27,7 @@
     "test:landing-product-pricing": "node --no-warnings --test --experimental-strip-types tests/landing-product-pricing.test.ts",
     "test:landing-cart": "node --no-warnings --test --experimental-strip-types tests/landing-cart.test.ts",
     "test:landing-checkout": "node --no-warnings --test --experimental-strip-types tests/landing-checkout.test.ts",
+    "test:theme": "node --no-warnings --test --experimental-strip-types tests/theme-engine.test.ts",
     "test:cms-ux": "node --no-warnings --test --experimental-strip-types tests/cms-ux.test.ts",
     "validate:navigation": "node --no-warnings --experimental-strip-types scripts/validate-navigation.mjs",
     "test:cms-select": "node --no-warnings --test --experimental-strip-types tests/cms-select.test.ts"
@@ -48,6 +49,7 @@
     "@tiptap/starter-kit": "^3.34.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "culori": "^4.0.2",
     "lucide-react": "^1.63.0",
     "motion": "^14.7.1",
     "next": "16.4.6",
@@ -63,6 +65,7 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
+    "@types/culori": "^4.0.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
