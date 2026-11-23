@@ -8,11 +8,10 @@ export function ProductActions({ product, compact = false }: {
   product: CatalogProduct;
   compact?: boolean;
 }) {
-  const { pendingAction, setPendingAction, variantId, setVariantId, quantity, setQuantity, feedback,
+  const { pendingAction, setPendingAction, setVariantId, quantity, setQuantity, feedback,
     variants, selectedVariant, commit, start } = useProductActions(product);
 
   return (
-
     <div className="relative z-20 w-full">
       <div className="flex items-stretch gap-space-xs">
         <button
@@ -41,13 +40,11 @@ export function ProductActions({ product, compact = false }: {
         {feedback}
       </span>
 
-
       <ProductVariantDialog
         product={product}
         pendingAction={pendingAction}
         setPendingAction={setPendingAction}
         variants={variants}
-        variantId={variantId}
         setVariantId={setVariantId}
         quantity={quantity}
         setQuantity={setQuantity}

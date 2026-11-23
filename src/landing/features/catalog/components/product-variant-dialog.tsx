@@ -7,14 +7,13 @@ import type { CatalogProduct, CatalogVariant } from "../types";
 import type { ProductAction } from "../hooks/use-product-actions";
 
 export function ProductVariantDialog({
-  product, pendingAction, setPendingAction, variants, variantId, setVariantId,
+  product, pendingAction, setPendingAction, variants, setVariantId,
   quantity, setQuantity, selectedVariant, commit,
 }: {
   product: CatalogProduct;
   pendingAction: ProductAction | null;
   setPendingAction: Dispatch<SetStateAction<ProductAction | null>>;
   variants: CatalogVariant[];
-  variantId: string;
   setVariantId: Dispatch<SetStateAction<string>>;
   quantity: number;
   setQuantity: Dispatch<SetStateAction<number>>;
