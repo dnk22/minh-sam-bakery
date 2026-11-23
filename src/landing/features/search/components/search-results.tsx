@@ -1,0 +1,72 @@
+import { Search } from "lucide-react";
+
+import { CatalogPagination, ProductCard } from "@/landing/features/catalog/catalog-browser";
+import type { CatalogCategory } from "@/landing/features/catalog/types";
+
+import type { SearchQuery } from "../query";
+import type { GlobalSearchResults } from "../repository";
+import type { SearchFilterActions } from "./search-filter-panel";
+import { SearchResultsToolbar } from "./search-results-toolbar";
+
+type SearchResultsProps = SearchFilterActions & {
+  categories: CatalogCategory[];
+  query: SearchQuery;
+  results: GlobalSearchResults | null;
+  onRetry: () => void;
+};
+
+export function SearchResults({
+  categories, query, results, onChange, onReset, onRetry,
+}: SearchResultsProps) {
+  if (!results) {
+    return (
+      <div role="alert" className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm">
+        <h2 className="font-headline-sm text-headline-sm text-primary">Chưa thể tải kết quả tìm kiếm</h2>
+        <p className="mt-space-xs font-body-md text-body-md text-on-surface-variant">Vui lòng thử lại sau ít phút.</p>
+        <button className="mt-space-md rounded-lg bg-primary px-space-lg py-2.5 font-label-ui text-on-primary" onClick={onRetry} type="button">
+          Thử lại
+        </button>
+      </div>
+    );
+  }
+
+  const products = results.page.products;
+  const pagination = results.page.pagination;
+  const hasFilters = Boolean(query.q || query.category || query.price !== "all");
+
+  return (
+    <>
+      <SearchResultsToolbar
+        query={query}
+        categories={categories}
+        currentCount={products.length}
+        totalCount={pagination.total}
+        onChange={onChange}
+        onReset={onReset}
+      />
+      {products.length ? (
+        <div aria-label="Sản phẩm tìm thấy" className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">
+          {products.map((product) => <ProductCard key={product.id} product={product} />)}
+        </div>
+      ) : (
+        <SearchEmptyState hasFilters={hasFilters} onReset={onReset} />
+      )}
+      <CatalogPagination pagination={pagination} onPage={(page) => onChange({ page })} />
+    </>
+  );
+}
+
+function SearchEmptyState({ hasFilters, onReset }: { hasFilters: boolean; onReset: () => void }) {
+  return (
+    <div className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm">
+      <Search aria-hidden="true" className="mx-auto mb-space-sm size-7 text-secondary" />
+      <h2 className="font-headline-sm text-headline-sm text-primary">Chưa có sản phẩm phù hợp</h2>
+      <p className="mt-space-sm font-body-md text-body-md text-on-surface-variant">Bạn có thể thử từ khóa hoặc điều chỉnh bộ lọc khác.</p>
+      {hasFilters && (
+        <button className="mt-space-md rounded-lg bg-primary px-space-lg py-2.5 font-label-ui text-on-primary" type="button" onClick={onReset}>
+          Xóa bộ lọc
+        </button>
+      )}
+    </div>
+  );
+}
