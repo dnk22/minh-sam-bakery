@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { CmsFilterGroup } from "@/cms/components/filter-group/filter-group";
 import { CmsButton } from "@/cms/components/ui/button";
@@ -16,8 +16,6 @@ import styles from "./orders-toolbar.module.css";
 
 function OrderDateRange({ filters }: { filters: OrderFilters }) {
   const [draft, setDraft] = useState({ createdFrom: filters.createdFrom, createdTo: filters.createdTo });
-  useEffect(() => { setDraft({ createdFrom: filters.createdFrom, createdTo: filters.createdTo }); },
-    [filters.createdFrom, filters.createdTo]);
   const valid = isValidOrderCreatedRange(draft.createdFrom, draft.createdTo);
   const changed = draft.createdFrom !== filters.createdFrom || draft.createdTo !== filters.createdTo;
 
@@ -52,7 +50,7 @@ export function OrdersToolbar({ filters }: { filters: OrderFilters }) {
   const advancedCount = countOrderAdvancedFilters(filters);
 
   return <section className={styles.toolbar} aria-label="Bộ lọc đơn hàng">
-    <OrderDateRange filters={filters} />
+    <OrderDateRange key={`${filters.createdFrom}:${filters.createdTo}`} filters={filters} />
     <div className={styles.controls}>
       <CmsFormField className={styles.searchField} htmlFor="order-search" label="Tìm kiếm">
         <CmsInput id="order-search" containerClassName={styles.search} controlSize="sm"
