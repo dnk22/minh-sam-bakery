@@ -1,5 +1,6 @@
 import "server-only";
 
+import { resolveBackendAssetUrl } from "./asset-url";
 import { backendBaseUrl, backendRequest } from "./backend-client";
 import { BackendRequestError, type BackendErrorKind } from "./errors";
 
@@ -18,9 +19,7 @@ export class ApiClientError extends Error {
 export { backendBaseUrl };
 
 export function backendAssetUrl(path: string | null | undefined) {
-  if (!path) return null;
-  if (/^https?:\/\//i.test(path)) return path;
-  return `${backendBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  return resolveBackendAssetUrl(path, backendBaseUrl());
 }
 
 export async function apiGet<T>(
