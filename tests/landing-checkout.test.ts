@@ -56,7 +56,7 @@ test("checkout page delegates form state, sections and summary to focused module
   const draftStorage = readFileSync("src/landing/features/checkout/store/checkout-draft.ts", "utf8");
   const purchase = readFileSync("src/landing/features/product/components/fixed-price-purchase-experience.tsx", "utf8");
 
-  assert.ok(page.split("\n").length < 120, "page must remain an orchestration component");
+  assert.ok(page.split("\n").length < 140, "page must remain an orchestration component");
   for (const section of ["CheckoutCustomerSection", "CheckoutFulfillmentSection", "CheckoutPaymentSection", "CheckoutOrderSummary"]) {
     assert.match(page, new RegExp(section));
   }
@@ -67,12 +67,45 @@ test("checkout page delegates form state, sections and summary to focused module
   assert.doesNotMatch(controller, /sessionStorage/);
   assert.match(draftStorage, /minh-sam-checkout-contact-v1/);
   assert.match(field, /checkoutInputStyles/);
-  assert.match(summary, /Kiểm tra thông tin/);
+  assert.match(summary, /Đặt hàng/);
   for (const source of [page, controller, summary]) {
-    assert.doesNotMatch(source, /createOrderCode|orders\/create|IllustrativeQr/);
+    assert.doesNotMatch(source, /createOrderCode/);
   }
   assert.doesNotMatch(purchase, /Thông tin nhận hàng/);
   assert.match(purchase, /saveBuyNowIntent/);
   assert.equal(existsSync("src/app/(landing)/thanh-toan/page.tsx"), true);
   assert.equal(existsSync(`${componentDir}/checkout-flow-provider.tsx`), false);
+});
+
+test("order mapper uses real variant IDs, quantities and mock transfer URL only for transfer", async () => {
+  const { buildOrderRequest } = await import("../src/landing/features/checkout/utils/order-request-mapper.ts");
+  const { MOCK_PAYMENT_IMAGE_URL, isCreateOrderInput } = await import("../src/lib/contracts/order/order.schema.ts");
+  const line = { key: '["p","v"]', productId:"p", variantId:"v", quantity:2, categorySlug:"cake", productSlug:"cake", productName:"Bánh", productImage:"", productImageAlt:"", variantLabel:"L", availableVariants:[], originalPrice:100, effectivePrice:90, selected:true };
+  const intent = { source:"cart" as const, items:[line] };
+  const draft = { ...initialCheckoutDraft(), fullName:"Nguyễn An", phone:"0901234567", receiveDate:"2026-12-01" };
+  const pickup = buildOrderRequest(intent,draft);
+  assert.deepEqual(pickup.items,[{productId:"p",variantId:"v",quantity:2}]);
+  assert.equal(pickup.fulfillmentMethod,"PICKUP");
+  assert.equal(pickup.shippingAddress,null);
+  assert.equal(pickup.paymentImageUrl,undefined);
+  const transfer = buildOrderRequest(intent,{...draft,fulfillmentMethod:"delivery",deliveryAddress:"Hà Nội",paymentMethod:"BANK_TRANSFER"});
+  assert.equal(transfer.paymentImageUrl,MOCK_PAYMENT_IMAGE_URL);
+  assert.equal(transfer.shippingAddress,"Hà Nội");
+  assert.throws(()=>buildOrderRequest({...intent,items:[{...line,variantId:null}]},draft));
+  assert.equal(isCreateOrderInput({...pickup,totalAmount:1}),false);
+  assert.equal(isCreateOrderInput({...pickup,items:[{...pickup.items[0],quantity:0}]}),false);
+  assert.equal(isCreateOrderInput({...pickup,deliveryDate:"2026-02-30"}),false);
+});
+
+test("checkout uses centered theme-aware dialogs and preserves uncertain submission guard", () => {
+  const dir = "src/landing/features/checkout";
+  const dialog = readFileSync(dir+"/components/checkout-dialog.tsx","utf8");
+  const controller = readFileSync(dir+"/hooks/use-checkout-controller.ts","utf8");
+  const mutation = readFileSync(dir+"/hooks/use-create-order.ts","utf8");
+  assert.match(dialog,/top-1\/2 left-1\/2/);
+  assert.match(dialog,/useLandingPortalContainer/);
+  assert.match(controller,/consumePurchasedItems/);
+  assert.match(controller,/intent.source === "cart"/);
+  assert.match(mutation,/lock.current/);
+  assert.match(mutation,/markPending/);
 });

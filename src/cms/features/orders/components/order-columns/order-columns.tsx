@@ -29,8 +29,8 @@ export function createOrderColumns(
       cell: ({ row }) => { const status = getOrderStatusPresentation(row.original.status); return <CmsBadge variant={status.variant}>{status.label}</CmsBadge>; },
     },
     {
-      id: "delivery", header: "Giao hàng", size: 145,
-      cell: ({ row }) => <div className={styles.stack}><span>{formatCalendarDate(row.original.deliveryDate)}</span><small>{row.original.deliveryTime || "Chưa có khung giờ"}</small></div>,
+      id: "delivery", header: "Nhận hàng", size: 145,
+      cell: ({ row }) => <div className={styles.stack}><span>{row.original.fulfillmentMethod === "PICKUP" ? "Tại cửa hàng" : "Giao tận nơi"}</span><span>{formatCalendarDate(row.original.deliveryDate)}</span><small>{row.original.deliveryTime || "Chưa có khung giờ"}</small></div>,
     },
     {
       accessorKey: "paymentMethod", header: "Thanh toán", size: 140,

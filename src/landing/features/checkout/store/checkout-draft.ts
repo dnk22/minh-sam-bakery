@@ -48,3 +48,5 @@ export function persistCheckoutDraft(draft: CheckoutDraft): void {
     // A blocked or full sessionStorage must not prevent form editing.
   }
 }
+
+export function clearCheckoutDraft() { try { window.sessionStorage.removeItem(CHECKOUT_DRAFT_KEY); } catch {} }

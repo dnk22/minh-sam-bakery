@@ -14,6 +14,7 @@ type CartState = {
   switchVariant: (key: string, variantId: string | null) => void;
   selectAll: (selected: boolean) => void;
   clearPurchasedItems: (keys: string[]) => void;
+  consumePurchasedItems: (lines: Pick<CartLine, "key" | "quantity">[]) => void;
 };
 
 export const useCartStore = create<CartState>()(
@@ -45,6 +46,13 @@ export const useCartStore = create<CartState>()(
       selectAll: (selected) => set((state) => ({
         items: state.items.map((entry) => ({ ...entry, selected })),
       })),
+      consumePurchasedItems: (lines) => set((state) => {
+        const purchased = new Map(lines.map(line => [line.key, line.quantity]));
+        return { items: state.items.flatMap(entry => {
+          const quantity = entry.quantity - (purchased.get(entry.key) ?? 0);
+          return quantity > 0 ? [{ ...entry, quantity }] : [];
+        }) };
+      }),
       clearPurchasedItems: (keys) => set((state) => {
         const purchased = new Set(keys);
         return { items: state.items.filter((entry) => !purchased.has(entry.key)) };

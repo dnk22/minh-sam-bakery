@@ -1,42 +1,9 @@
-import { ORDER_STATUSES } from "../constants.ts";
-import type { Order, OrderList, OrderListParams, OrderProductItem, OrderStatus } from "../types";
+import { isOrder } from "../../../../lib/contracts/order/order.schema.ts";
+export { isOrder, isOrderStatus } from "../../../../lib/contracts/order/order.schema.ts";
+import type { OrderList, OrderListParams } from "../types";
 import { isCalendarDate, isValidOrderCreatedRange } from "./order-format.ts";
-
-const DECIMAL = /^(?:0|[1-9]\d*)(?:\.\d+)?$/;
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function optionalString(value: unknown): value is string | null | undefined {
-  return value === undefined || value === null || typeof value === "string";
-}
-
-function isDateTime(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0 && !Number.isNaN(Date.parse(value));
-}
-
-export function isOrderStatus(value: unknown): value is OrderStatus {
-  return typeof value === "string" && (ORDER_STATUSES as readonly string[]).includes(value);
-}
-
-export function isOrderProductItem(value: unknown): value is OrderProductItem {
-  return isRecord(value) && typeof value.id === "string" && value.id.length > 0 &&
-    typeof value.sku === "string" && typeof value.name === "string" &&
-    typeof value.unitPrice === "string" && DECIMAL.test(value.unitPrice) && optionalString(value.imageUrl);
-}
-
-export function isOrder(value: unknown): value is Order {
-  return isRecord(value) && typeof value.id === "string" && value.id.length > 0 &&
-    optionalString(value.email) && typeof value.phone === "string" &&
-    typeof value.shippingAddress === "string" && optionalString(value.fullName) && optionalString(value.note) &&
-    (value.paymentMethod === "AT_STORE" || value.paymentMethod === "BANK_TRANSFER") &&
-    optionalString(value.paymentImageUrl) && isOrderStatus(value.status) &&
-    optionalString(value.deliveryDate) && (value.deliveryDate == null || isCalendarDate(value.deliveryDate)) &&
-    optionalString(value.deliveryTime) && Array.isArray(value.productIds) && value.productIds.every((id) => typeof id === "string") &&
-    typeof value.totalAmount === "string" && DECIMAL.test(value.totalAmount) &&
-    Array.isArray(value.products) && value.products.every(isOrderProductItem) &&
-    isDateTime(value.createdAt) && isDateTime(value.updatedAt);
 }
 
 export function isOrderList(value: unknown): value is OrderList {

@@ -22,9 +22,9 @@ const order: Order = {
   status: "CONFIRMED",
   deliveryDate: "2026-11-20",
   deliveryTime: "09:00-11:00",
-  productIds: ["product-1"],
+  fulfillmentMethod: "DELIVERY",
   totalAmount: "450000.00",
-  products: [{ id: "product-1", sku: "BANH-01", name: "Bánh mẫu", unitPrice: "450000.00", imageUrl: null }],
+  items: [{ id: "item-1", productId: "product-1", variantId: "variant-1", quantity: 2, productSku: "BANH-01", variantSku: "BANH-01-L", productName: "Bánh mẫu", size: "L", style: "", unitPrice: "225000.00", lineTotal: "450000.00", imageUrl: null }],
   createdAt: "2026-11-19T08:00:00.000Z",
   updatedAt: "2026-11-19T09:00:00.000Z",
 };
@@ -33,7 +33,7 @@ test("validates exact order DTOs and rejects unsafe ambiguous values", () => {
   assert.equal(isOrder(order), true);
   assert.equal(isOrder({ ...order, email: null, fullName: undefined, deliveryTime: undefined }), true);
   assert.equal(isOrder({ ...order, email: { value: "customer@example.com" } }), false);
-  assert.equal(isOrder({ ...order, products: [{ ...order.products[0], imageUrl: { url: "/unsafe" } }] }), false);
+  assert.equal(isOrder({ ...order, items: [{ ...order.items[0], imageUrl: { url: "/unsafe" } }] }), false);
   assert.equal(isOrder({ ...order, totalAmount: "45e4" }), false);
   assert.equal(isOrder({ ...order, deliveryDate: "2026-02-30" }), false);
   assert.equal(isOrder({ ...order, status: "CANCELLED" }), false);

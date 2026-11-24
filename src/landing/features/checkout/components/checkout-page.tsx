@@ -1,5 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { CheckoutTransferModal } from "./checkout-transfer-modal";
+import { CheckoutSuccessModal } from "./checkout-success-modal";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
@@ -13,6 +16,8 @@ import { useCheckoutController } from "../hooks/use-checkout-controller";
 
 export function CheckoutPage() {
   const checkout = useCheckoutController();
+  const router = useRouter();
+  if (checkout.receipt) return <CheckoutSuccessModal order={checkout.receipt} onClose={() => { checkout.closeReceipt(); router.replace(routes.home); }} />;
 
   if (!checkout.loaded) {
     return (
@@ -64,7 +69,7 @@ export function CheckoutPage() {
           onSubmit={checkout.checkInformation}
           ref={checkout.formRef}
         >
-          <div className="min-w-0 space-y-space-lg">
+          <fieldset disabled={checkout.pending || checkout.blocked} className="min-w-0 space-y-space-lg">
             <CheckoutCustomerSection
               draft={checkout.draft}
               errors={checkout.errors}
@@ -82,13 +87,16 @@ export function CheckoutPage() {
               errors={checkout.errors}
               onUpdate={checkout.updateDraft}
             />
-          </div>
+          </fieldset>
           <CheckoutOrderSummary
             intent={checkout.intent}
             isDelivery={checkout.draft.fulfillmentMethod === "delivery"}
-            formChecked={checkout.formChecked}
+            pending={checkout.pending}
+            blocked={checkout.blocked}
+            error={checkout.submitError}
           />
         </form>
+        {checkout.transferInput && <CheckoutTransferModal total={checkout.intent.items.reduce((sum, item) => sum + item.effectivePrice * item.quantity, 0)} pending={checkout.pending} blocked={checkout.blocked} error={checkout.submitError} onClose={checkout.closeTransfer} onConfirm={checkout.confirmTransfer} />}
       </section>
     </main>
   );

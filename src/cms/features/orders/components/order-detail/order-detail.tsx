@@ -1,3 +1,4 @@
+import { MOCK_PAYMENT_IMAGE_URL } from "@/lib/contracts/order/order.schema";
 import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 
@@ -33,15 +34,16 @@ export function OrderDetail({ order }: { order: Order }) {
         <DetailEntry label="Họ tên" value={order.fullName || "Chưa cung cấp"} />
         <DetailEntry label="Điện thoại" value={order.phone} />
         <DetailEntry label="Email" value={order.email || "Chưa cung cấp"} />
-        <DetailEntry label="Địa chỉ" value={order.shippingAddress} />
+        <DetailEntry label="Địa chỉ" value={order.shippingAddress || "Nhận tại cửa hàng"} />
         <DetailEntry label="Ghi chú" value={order.note || "—"} />
       </dl>
     </section>
 
     <section className={styles.section}>
-      <h2>Giao hàng</h2>
+      <h2>Nhận hàng</h2>
       <dl className={styles.entries}>
-        <DetailEntry label="Ngày giao" value={formatCalendarDate(order.deliveryDate)} />
+        <DetailEntry label="Hình thức" value={order.fulfillmentMethod === "PICKUP" ? "Tại cửa hàng" : "Giao tận nơi"} />
+        <DetailEntry label="Ngày nhận" value={formatCalendarDate(order.deliveryDate)} />
         <DetailEntry label="Khung giờ" value={order.deliveryTime || "—"} />
       </dl>
     </section>
@@ -52,23 +54,23 @@ export function OrderDetail({ order }: { order: Order }) {
         <DetailEntry label="Phương thức" value={getOrderPaymentLabel(order.paymentMethod)} />
         <DetailEntry label="Tổng tiền" value={<strong>{formatVnd(order.totalAmount)}</strong>} />
       </dl>
-      {paymentImage ? <div className={styles.paymentProof}><span>Ảnh thanh toán</span><Image alt="Ảnh thanh toán của đơn hàng" height={180} src={paymentImage} unoptimized width={320} /></div>
+      {order.paymentImageUrl === MOCK_PAYMENT_IMAGE_URL ? <p className={styles.assetNotice}>Minh chứng giả lập — chưa xác minh thanh toán.</p> : paymentImage ? <div className={styles.paymentProof}><span>Ảnh thanh toán</span><Image alt="Ảnh thanh toán của đơn hàng" height={180} src={paymentImage} unoptimized width={320} /></div>
         : order.paymentImageUrl ? <p className={styles.assetNotice}>Ảnh thanh toán dùng URL chưa được xác thực nên không được tải tự động.</p> : null}
     </section>
 
     <section className={styles.section}>
-      <div className={styles.sectionHeading}><h2>Sản phẩm</h2><span className={styles.count}>{order.products.length} bản ghi sản phẩm</span></div>
-      {order.products.length ? <ul className={styles.products}>
-        {order.products.map((product) => {
+      <div className={styles.sectionHeading}><h2>Sản phẩm</h2><span className={styles.count}>{order.items.length} bản ghi sản phẩm</span></div>
+      {order.items.length ? <ul className={styles.products}>
+        {order.items.map((product) => {
           const image = safeOrderAsset(product.imageUrl);
           return <li key={product.id}>
             {image ? <Image alt="" height={56} src={image} unoptimized width={56} /> : <span className={styles.placeholder}><ImageIcon aria-hidden="true" /></span>}
-            <div><strong>{product.name}</strong><code>{product.sku}</code></div>
-            <b>{formatVnd(product.unitPrice)}</b>
+            <div><strong>{product.productName}</strong><code>{product.variantSku}</code><span>{[product.size, product.style].filter(Boolean).join(" • ")} × {product.quantity}</span><span>{formatVnd(product.unitPrice)} / đơn vị</span></div>
+            <b>{formatVnd(product.lineTotal)}</b>
           </li>;
         })}
       </ul> : <p className={styles.empty}>Chưa có thông tin sản phẩm trong đơn hàng.</p>}
-      <p className={styles.disclaimer}>Một số thông tin chi tiết của sản phẩm có thể chưa được hiển thị.</p>
+      
     </section>
 
     <section className={styles.section}>
