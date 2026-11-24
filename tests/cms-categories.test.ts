@@ -115,7 +115,7 @@ test("category image patch accepts upload paths and absolute URLs, rejects inval
   for (const imageUrl of ["", "javascript:alert(1)", "blob:https://example.com/a", "/uploads/../private.png", "/uploads/%2e%2e/private.png", "https://user:pass@example.com/a.png"]) {
     assert.equal(categoryPatchSchema.safeParse({ imageUrl }).success, false);
   }
-  const withoutImage = { ...original, imageUrl: undefined };
+  const withoutImage: Category = { ...original, imageUrl: null };
   assert.deepEqual(formToPatch(categoryToForm(withoutImage), withoutImage), {});
 });
 
