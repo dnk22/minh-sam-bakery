@@ -10,6 +10,7 @@ import { formToThemeCreate, formToThemePatch, themeCreateSchema, themeFormSchema
 import type { CmsTheme } from "../src/cms/features/themes/types.ts";
 import { CLASSIC_THEME } from "../src/theme/presets/classic.ts";
 import { parseThemeConfig } from "../src/theme/contracts/theme-config.schema.ts";
+import type { ThemeConfigV1 } from "../src/theme/contracts/theme.types.ts";
 import { parseThemeImportJson } from "../src/cms/features/themes/lib/theme-import.ts";
 
 const fixture: CmsTheme = {
@@ -123,7 +124,7 @@ test("theme toolbar uses the shared responsive filter group", () => {
 });
 
 test("JSON import accepts strict config-only payload and normalizes HEX", () => {
-  const config = structuredClone(CLASSIC_THEME);
+  const config: ThemeConfigV1 = structuredClone(CLASSIC_THEME);
   config.colors.primary = "#abcdef";
   const imported = parseThemeImportJson(JSON.stringify(config));
   assert.equal(imported.success, true);
@@ -134,7 +135,7 @@ test("JSON import accepts strict config-only payload and normalizes HEX", () => 
 });
 
 test("JSON import accepts the CMS create payload without activation", () => {
-  const config = structuredClone(CLASSIC_THEME);
+  const config: ThemeConfigV1 = structuredClone(CLASSIC_THEME);
   const imported = parseThemeImportJson(JSON.stringify({
     name: "Minh Sâm Tết 2027", code: "minh-sam-tet-2027",
     description: "Tết cổ truyền", config, isActive: false,
