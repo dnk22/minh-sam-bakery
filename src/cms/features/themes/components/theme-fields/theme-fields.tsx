@@ -29,9 +29,9 @@ export function ThemeFields({ form, onCodeManual }: {
   return (
     <>
       <section className={styles.section} aria-label="Thông tin theme">
-        <h3>Thông tin cơ bản</h3>
+        <h3>Thông tin theme</h3>
         <div className={styles.metaGrid}>
-          <CmsFormField htmlFor="theme-name" label="Tên giao diện" error={errors.name?.message} required>
+          <CmsFormField htmlFor="theme-name" label="Tên theme" error={errors.name?.message} required>
             <CmsInput id="theme-name" placeholder="Ví dụ: Minh Sâm Classic" {...register("name")} />
           </CmsFormField>
           <CmsFormField htmlFor="theme-code" label="Mã theme" error={errors.code?.message} required
@@ -54,7 +54,7 @@ export function ThemeFields({ form, onCodeManual }: {
         </section>
       ))}
       <section className={styles.section} aria-label="Font chữ">
-        <h3>Font chữ</h3>
+        <h3>Typography</h3>
         <div className={styles.metaGrid}>
           <CmsFormField htmlFor="theme-font-heading" label="Heading Font" error={errors.config?.typography?.heading?.message} required>
             <CmsFormSelect id="theme-font-heading" options={THEME_FONT_OPTIONS} control={form.control} name="config.typography.heading" />
@@ -63,7 +63,7 @@ export function ThemeFields({ form, onCodeManual }: {
             <CmsFormSelect id="theme-font-body" options={THEME_FONT_OPTIONS} control={form.control} name="config.typography.body" />
           </CmsFormField>
         </div>
-        <p className={styles.note}>Giữ nguyên layout, cỡ chữ, độ đậm, khoảng cách và animation. Không hỗ trợ font ngoài registry.</p>
+        <p className={styles.note}>Chọn font cho Heading và Body. Font size, weight, line-height, spacing và animation không thay đổi.</p>
       </section>
       {warnings.length ? (
         <section className={styles.warning} role="status" aria-label="Cảnh báo tương phản màu">
