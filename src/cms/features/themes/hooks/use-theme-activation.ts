@@ -1,4 +1,5 @@
 "use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notify } from "@/cms/lib/notifications";
 import { activateTheme } from "../api/themes.client";
@@ -8,10 +9,13 @@ export function useThemeActivation() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: activateTheme,
-    onSuccess: async (theme) => {
-      await client.invalidateQueries({ queryKey: themeQueryKeys.lists() });
-      await client.invalidateQueries({ queryKey: themeQueryKeys.detail(theme.id) });
-      notify.success("Theme đã được kích hoạt. Tải lại Landing để nhận giao diện mới.");
+    retry: false,
+    onSettled: async () => {
+      await client.invalidateQueries({ queryKey: themeQueryKeys.all });
+    },
+    onSuccess: (result) => {
+      if (result.cacheSync === "pending") notify.info("Theme đã active nhưng cache Landing chưa đồng bộ. Có thể thử đồng bộ lại.");
+      else notify.success("Theme đã được kích hoạt. Tải lại Landing để nhận giao diện mới.");
     },
   });
 }
