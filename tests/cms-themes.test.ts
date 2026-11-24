@@ -109,3 +109,14 @@ test("routes require auth and CSRF; active themes cannot be updated or removed i
   assert.match(navigation, /href: "\/cms\/themes"/);
   assert.doesNotMatch(detailRoute, /revalidateLandingActiveTheme/);
 });
+
+test("theme toolbar uses the shared responsive filter group", () => {
+  const toolbar = readFileSync("src/cms/features/themes/components/themes-toolbar/themes-toolbar.tsx", "utf8");
+  const styles = readFileSync("src/cms/features/themes/components/themes-toolbar/themes-toolbar.module.css", "utf8");
+  assert.match(toolbar, /<CmsFilterGroup/);
+  assert.match(toolbar, /activeCount=\{Number\(filters\.isActive !== undefined\)\}/);
+  assert.match(toolbar, /onClear=\{\(\) => filters\.setActive\(undefined\)\}/);
+  assert.match(toolbar, /className=\{styles\.clearAll\}/);
+  assert.match(styles, /@media \(max-width: 767px\)/);
+  assert.match(styles, /\.clearAll \{ display: none; \}/);
+});
