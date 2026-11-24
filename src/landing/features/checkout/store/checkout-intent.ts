@@ -55,3 +55,5 @@ export function loadCheckoutIntent(): CheckoutIntent | null {
     return null;
   }
 }
+
+export function clearCheckoutIntent() { try { window.sessionStorage.removeItem(CHECKOUT_INTENT_KEY); } catch {} }
