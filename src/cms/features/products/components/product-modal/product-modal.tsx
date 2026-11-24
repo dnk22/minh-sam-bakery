@@ -54,7 +54,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   }, [product, treeQuery.data, treeQuery.error, treeQuery.isLoading]);
   const categoryIssue = treeQuery.error instanceof Error ? treeQuery.error.message : treeQuery.data?.reason;
   const close = () => onStateChange(null);
-  const confirmDiscard = () => !isEditing || (!form.formState.isDirty && !uploadPending) || window.confirm("Bỏ các thay đổi hoặc ảnh đang chờ upload?");
+  const confirmDiscard = () => !pending && (!isEditing || (!form.formState.isDirty && !uploadPending) || window.confirm("Bỏ các thay đổi hoặc ảnh đang chờ upload?"));
   const setBackendError = (error: unknown) => {
     if (error instanceof CmsApiError) {
       const fields = Object.entries(error.fields ?? {});
@@ -94,7 +94,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   const title = mode === "create" ? "Thêm sản phẩm" : mode === "edit" ? "Chỉnh sửa sản phẩm" : "Chi tiết sản phẩm";
   const footer = !state ? null : isEditing ? <>
     <CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) close(); }}>Hủy</CmsButton>
-    <CmsButton type="submit" form="product-form" disabled={pending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu sản phẩm</CmsButton>
+    <CmsButton type="submit" form="product-form" disabled={pending || uploadPending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu sản phẩm</CmsButton>
   </> : product ? <>
     <CmsButton type="button" variant="outline" onClick={() => onDelete(product)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
     <CmsButton type="button" onClick={() => onStateChange({ mode: "edit", id: product.id })}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton>
@@ -106,7 +106,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   else if (detail.error) content = <div className={styles.state} role="alert"><p>{detail.error instanceof Error ? detail.error.message : "Không thể tải sản phẩm."}</p><CmsButton type="button" variant="outline" onClick={() => detail.refetch()}>Thử lại</CmsButton></div>;
   else if (mode === "detail" && product) content = <ProductDetail product={product} />;
   else if (isEditing) content = <form id="product-form" className={styles.form} noValidate onChange={() => form.clearErrors("root.server")} onSubmit={submit}>
-    <ProductFields form={form} categoryOptions={categoryOptions} categoryDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} collectionEditingDisabled={pending} onUploadPendingChange={(nextPending) => { setUploadState({ session: uploadSession, pending: nextPending }); if (!nextPending) form.clearErrors("root.server"); }} />
+    <ProductFields key={uploadSession} form={form} categoryOptions={categoryOptions} categoryDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} collectionEditingDisabled={pending} onUploadPendingChange={(nextPending) => { setUploadState({ session: uploadSession, pending: nextPending }); if (!nextPending) form.clearErrors("root.server"); }} />
     {categoryIssue ? <div className={styles.alert} role="alert"><p>{categoryIssue}</p><CmsButton type="button" variant="outline" size="sm" onClick={() => treeQuery.refetch()}>Tải lại danh mục</CmsButton></div> : null}
     {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
     {isEditing ? <p className={styles.orphan}>Ảnh đã tải lên có thể vẫn được lưu nếu bạn đóng biểu mẫu hoặc lưu thất bại.</p> : null}
