@@ -4,11 +4,11 @@ import type { Category, CategoryFormValues, CategoryWriteInput } from "../types"
 
 const nullableText = z.string().trim().nullable().optional();
 const imageUrl = z.string().trim().refine(value => {
-  if (/\p{Cc}/u.test(value) || value.includes("\\")) return false;
+  if (/[\x00-\x1f\x7f]/.test(value) || value.includes("\\")) return false;
   if (value.startsWith("/uploads/")) {
     try {
       const decoded = decodeURIComponent(value);
-      return !decoded.includes("\\") && !decoded.split(/[/?#]/).includes("..") && !/\p{Cc}/u.test(decoded);
+      return !decoded.includes("\\") && !decoded.split(/[/?#]/).includes("..") && !/[\x00-\x1f\x7f]/.test(decoded);
     } catch { return false; }
   }
   try {
@@ -51,7 +51,7 @@ export function categoryToForm(category?: Category, parentId?: string | null): C
     slug: category?.slug ?? "",
     parentId: category?.parentId ?? parentId ?? "",
     description: category?.description ?? "",
-    imageUrl: category?.imageUrl ?? null,
+    imageUrl: category?.imageUrl?.trim() || null,
     status: category?.status ?? "VISIBLE",
     sortOrder: category?.sortOrder ?? 0,
     seoTitle: category?.seoTitle ?? "",
