@@ -64,6 +64,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
     } else form.setError("root.server", { message: "Không thể lưu sản phẩm lúc này." });
   };
   const submit = form.handleSubmit(async (values) => {
+    if (pending) return;
     if (uploadPending) {
       const message = "Hãy tải xong các ảnh đã chọn trước khi lưu.";
       form.setError("root.server", { message });

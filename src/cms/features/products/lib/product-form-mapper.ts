@@ -1,5 +1,5 @@
 import type { Product, ProductFormValues, ProductWriteInput } from "../types";
-import { serializeImages, serializeVariants } from "./product-collection-utils";
+import { serializeImages, serializeVariants } from "./product-collection-utils.ts";
 
 const nullable = (value: string) => value.trim() || undefined;
 export function productToForm(product?: Product): ProductFormValues {
