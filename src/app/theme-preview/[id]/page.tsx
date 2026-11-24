@@ -12,6 +12,9 @@ import { requireThemeAccess, validThemeId } from "@/cms/features/themes/api/them
 import { parseThemeConfig } from "@/theme/contracts/theme-config.schema";
 import { resolveTheme } from "@/theme/runtime/resolve-theme";
 
+// Private authenticated preview is intentionally request-time rendered.
+export const instant = false;
+
 export const metadata: Metadata = {
   title: "Preview theme | Minh Sâm CMS",
   robots: { index: false, follow: false, nocache: true },
