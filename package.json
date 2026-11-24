@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --no-warnings --test --experimental-strip-types tests/*.test.ts",
     "test:auth": "node --no-warnings --test --experimental-strip-types tests/cms-auth.test.ts",
     "test:cms-foundation": "node --no-warnings --test --experimental-strip-types tests/cms-foundation.test.ts",
     "test:themes": "node --no-warnings --test --experimental-strip-types tests/cms-themes.test.ts",
