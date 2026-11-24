@@ -4,7 +4,12 @@ import { BackendRequestError } from "../../../../lib/api/errors.ts";
 import type { CmsTheme, ThemeActivationResult } from "../types.ts";
 
 export class ThemeActivationError extends Error {
-  constructor(readonly status: number, message: string) { super(message); }
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
 }
 
 type Dependencies = {

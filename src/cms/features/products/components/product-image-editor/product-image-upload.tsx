@@ -1,7 +1,7 @@
 "use client";
 
 import { LoaderCircle, Upload, X } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef } from "react";
 import { CmsButton } from "@/cms/components/ui/button";
 import styles from "./product-image-editor.module.css";
 
@@ -11,12 +11,6 @@ export function ProductImageUpload({ files, uploading, disabled, onSelect, onUpl
 }) {
   const input = useRef<HTMLInputElement>(null);
   const id = useId();
-  const [previews, setPreviews] = useState<Array<{ url: string; name: string }>>([]);
-  useEffect(() => {
-    const next = files.map(file => ({ url: URL.createObjectURL(file), name: file.name }));
-    setPreviews(next);
-    return () => next.forEach(item => URL.revokeObjectURL(item.url));
-  }, [files]);
   return <>
     <input ref={input} id={id} className={styles.hidden} type="file" accept="image/*" multiple disabled={disabled || uploading} onChange={event => { const next = Array.from(event.target.files ?? []); if (next.length) onSelect(next); event.currentTarget.value = ""; }} />
     <div className={styles.upload}>
@@ -26,9 +20,21 @@ export function ProductImageUpload({ files, uploading, disabled, onSelect, onUpl
         <CmsButton type="button" variant="ghost" disabled={uploading || disabled} onClick={onCancel}><X size={15} aria-hidden="true" /> Hủy ảnh chờ</CmsButton>
       </> : null}
     </div>
-    {previews.length ? <div className={styles.previews}>{previews.map((item, index) => <div key={item.url}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={item.url} alt={item.name} /><span>{files[index]?.name ?? item.name}</span>
-    </div>)}</div> : null}
+    {files.length ? <div className={styles.previews}>{files.map((file, index) => <PendingImagePreview key={`${file.name}:${file.lastModified}:${index}`} file={file} />)}</div> : null}
   </>;
+}
+
+function PendingImagePreview({ file }: { file: File }) {
+  const image = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    const element = image.current;
+    if (!element) return;
+    const url = URL.createObjectURL(file);
+    element.src = url;
+    return () => { element.removeAttribute("src"); URL.revokeObjectURL(url); };
+  }, [file]);
+  return <div>
+    {/* eslint-disable-next-line @next/next/no-img-element -- local object URL attached and released by the effect */}
+    <img ref={image} alt={file.name} /><span>{file.name}</span>
+  </div>;
 }

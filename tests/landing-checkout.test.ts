@@ -63,7 +63,11 @@ test("checkout page delegates form state, sections and summary to focused module
   assert.match(controller, /loadCheckoutIntent/);
   assert.match(controller, /validateCheckoutDraft/);
   assert.match(controller, /persistCheckoutDraft/);
-  assert.match(controller, /formRef\.current\?\.querySelector/);
+  assert.match(controller, /event\.currentTarget\.querySelector/);
+  assert.match(controller, /useSyncExternalStore\(subscribeHydration, clientSnapshot, serverSnapshot\)/);
+  assert.match(page, /if \(!ready\)/);
+  assert.match(page, /<HydratedCheckoutPage \/>/);
+  assert.doesNotMatch(controller, /formRef/);
   assert.doesNotMatch(controller, /sessionStorage/);
   assert.match(draftStorage, /minh-sam-checkout-contact-v1/);
   assert.match(field, /checkoutInputStyles/);

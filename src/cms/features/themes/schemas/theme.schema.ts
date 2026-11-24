@@ -3,7 +3,6 @@ import { z } from "zod";
 import { themeConfigV1Schema } from "../../../../theme/contracts/theme-config.schema.ts";
 import { createClassicThemeConfig } from "../../../../theme/presets/classic.ts";
 import { parseThemeConfig } from "../../../../theme/contracts/theme-config.schema.ts";
-import { themeCodeFromName } from "../lib/theme-format.ts";
 import type { CmsTheme, ThemeCreateInput, ThemeFormValues, ThemePatchInput } from "../types.ts";
 
 const name = z.string().trim().min(1, "Tên theme không được để trống.").max(120, "Tên theme tối đa 120 ký tự.");
