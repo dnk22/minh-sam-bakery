@@ -21,3 +21,5 @@ export type ThemeModalState =
   | { mode: "create" }
   | { mode: "detail" | "edit" | "duplicate"; id: string }
   | null;
+
+export type ThemeActivationResult = { theme: CmsTheme; cacheSync: "synced" | "pending"; recovered: boolean };

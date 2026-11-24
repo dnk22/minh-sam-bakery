@@ -26,6 +26,7 @@ export function ThemesPage() {
 
   const onDetail = useCallback((theme: CmsTheme) => setModal({ mode: "detail", id: theme.id }), []);
   const onDuplicate = useCallback((theme: CmsTheme) => setModal({ mode: "duplicate", id: theme.id }), []);
+  const onActivate = useCallback((theme: CmsTheme) => { setModal(null); setActivateTarget(theme); }, []);
   const deleted = () => {
     setDeleteTarget(null);
     setModal(null);
@@ -44,11 +45,11 @@ export function ThemesPage() {
         </CmsButton>
       </header>
       <ThemesToolbar filters={filters} />
-      <ThemesCollection filters={filters} listQuery={query} onDetail={onDetail} onDuplicate={onDuplicate} onDelete={setDeleteTarget} onActivate={setActivateTarget} />
+      <ThemesCollection filters={filters} listQuery={query} onDetail={onDetail} onDuplicate={onDuplicate} onDelete={setDeleteTarget} onActivate={onActivate} />
       <p className={styles.note}>Có thể xem trước Landing và kích hoạt theme tại đây. Theme đang hoạt động không thể chỉnh sửa trực tiếp.</p>
-      <ThemeModal state={modal} onStateChange={setModal} onDelete={setDeleteTarget} onActivate={setActivateTarget} />
+      <ThemeModal state={modal} onStateChange={setModal} onDelete={setDeleteTarget} onActivate={onActivate} />
       <ThemeDeleteDialog key={deleteTarget?.id ?? "closed"} theme={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={deleted} />
-      <ThemeActivateDialog theme={activateTarget} onClose={() => setActivateTarget(null)} onActivated={() => { setActivateTarget(null); setModal(null); }} />
+      <ThemeActivateDialog key={activateTarget?.id ?? "closed"} theme={activateTarget} onClose={() => setActivateTarget(null)} onActivated={() => { setActivateTarget(null); setModal(null); }} />
     </CmsMain>
   );
 }

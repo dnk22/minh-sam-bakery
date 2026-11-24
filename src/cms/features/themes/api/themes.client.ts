@@ -1,7 +1,7 @@
 import { cmsApiClient } from "@/cms/lib/api/client";
 
 import { buildThemeListQuery } from "../lib/theme-data";
-import type { CmsTheme, ThemeCreateInput, ThemeList, ThemeListParams, ThemePatchInput } from "../types";
+import type { CmsTheme, ThemeActivationResult, ThemeCreateInput, ThemeList, ThemeListParams, ThemePatchInput } from "../types";
 
 export function getThemes(params: ThemeListParams, signal?: AbortSignal) {
   return cmsApiClient.get<ThemeList>("/themes?" + buildThemeListQuery(params), { signal });
@@ -16,5 +16,5 @@ export const updateTheme = (id: string, input: ThemePatchInput) =>
   cmsApiClient.patch<CmsTheme>("/themes/" + encodeURIComponent(id), input);
 export const deleteTheme = (id: string) => cmsApiClient.delete<{ id: string }>("/themes/" + encodeURIComponent(id));
 
-export const activateTheme = (id: string) =>
-  cmsApiClient.post<CmsTheme>("/themes/" + encodeURIComponent(id) + "/activate", {});
+export const activateTheme = ({ id, acceptWarnings, syncOnly }: { id: string; acceptWarnings: boolean; syncOnly: boolean }) =>
+  cmsApiClient.post<ThemeActivationResult>("/themes/" + encodeURIComponent(id) + "/activate", { acceptWarnings, syncOnly }, { timeoutMs: 60_000 });

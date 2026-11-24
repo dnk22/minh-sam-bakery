@@ -11,6 +11,7 @@ import type { CmsTheme } from "../src/cms/features/themes/types.ts";
 import { CLASSIC_THEME } from "../src/theme/presets/classic.ts";
 import { parseThemeConfig } from "../src/theme/contracts/theme-config.schema.ts";
 import type { ThemeConfigV1 } from "../src/theme/contracts/theme.types.ts";
+import { executeThemeActivation, ThemeActivationError } from "../src/cms/features/themes/lib/theme-activation.ts";
 import { parseThemeImportJson } from "../src/cms/features/themes/lib/theme-import.ts";
 
 const fixture: CmsTheme = {
@@ -181,9 +182,8 @@ test("Phase 4 activation is isolated, authenticated and only revalidates after B
   assert.match(route, /isTrustedSameOriginRequest\(request\)/);
   assert.match(route, /requireThemeAccess\(\)/);
   assert.match(route, /backendThemeDetail\(access\.accessToken, id/);
-  assert.match(route, /parseThemeConfig\(theme\.config\)/);
-  assert.match(route, /result\.id !== id \|\| !result\.isActive/);
-  assert.ok(route.indexOf("backendActivateTheme(") < route.indexOf("revalidateLandingActiveTheme()"));
+  assert.match(route, /executeThemeActivation/);
+  assert.match(route, /synchronize: revalidateLandingActiveTheme/);
   assert.match(server, /body: \{ isActive: true \}/);
   assert.match(client, /"\/activate"/);
   const edit = readFileSync("src/app/api/cms/themes/[id]/route.ts", "utf8");
@@ -201,7 +201,9 @@ test("Phase 4 CMS actions show preview and restrict activation to valid inactive
   assert.match(page, /<ThemeActivateDialog/);
   assert.match(modal, /onActivate\(theme\)/);
   assert.match(dialog, /validateThemeContrast\(parsed\.data\)/);
-  assert.match(dialog, /activation\.mutateAsync\(theme\.id\)/);
+  assert.match(dialog, /activation\.mutateAsync\(\{ id: theme\.id/);
+  assert.match(dialog, /type="checkbox"/);
+  assert.match(page, /setModal\(null\); setActivateTarget\(theme\)/);
 });
 
 test("Private Landing preview does not read/write the active public theme cache", () => {
@@ -213,4 +215,61 @@ test("Private Landing preview does not read/write the active public theme cache"
   assert.match(preview, /robots: \{ index: false, follow: false/);
   assert.match(preview, /<HomePage \/>/);
   assert.doesNotMatch(preview, /getActiveLandingTheme|revalidateLandingActiveTheme|cacheTag|use cache/);
+});
+
+test("activation distinguishes committed Backend state from failed cache synchronization", async () => {
+  let writes = 0;
+  const active = { ...fixture, isActive: true };
+  const deps = {
+    read: async () => fixture,
+    activate: async () => { writes++; return active; },
+    synchronize: () => { throw new Error("cache unavailable"); },
+    reportSyncFailure: () => {},
+  };
+  const result = await executeThemeActivation(fixture.id, true, deps);
+  assert.equal(result.theme.isActive, true);
+  assert.equal(result.cacheSync, "pending");
+  const retry = await executeThemeActivation(fixture.id, true, { ...deps, read: async () => active, synchronize: () => {} }, true);
+  assert.equal(retry.cacheSync, "synced");
+  assert.equal(writes, 1);
+  await assert.rejects(() => executeThemeActivation(fixture.id, true, deps, true), ThemeActivationError);
+  assert.equal(writes, 1);
+});
+
+test("ambiguous activation response is reconciled without repeating PATCH", async () => {
+  let reads = 0;
+  let writes = 0;
+  const result = await executeThemeActivation(fixture.id, true, {
+    read: async () => ++reads === 1 ? fixture : { ...fixture, isActive: true },
+    activate: async () => { writes++; throw new Error("response lost"); },
+    synchronize: () => {},
+    reportSyncFailure: () => {},
+  });
+  assert.equal(result.recovered, true);
+  assert.equal(result.cacheSync, "synced");
+  assert.equal(writes, 1);
+  assert.equal(reads, 2);
+});
+
+test("unconfirmed activation does not invalidate Landing cache", async () => {
+  let syncs = 0;
+  await assert.rejects(() => executeThemeActivation(fixture.id, true, {
+    read: async () => fixture,
+    activate: async () => { throw new Error("timeout"); },
+    synchronize: () => { syncs++; },
+    reportSyncFailure: () => {},
+  }), ThemeActivationError);
+  assert.equal(syncs, 0);
+});
+
+test("contrast warnings require explicit confirmation on server", async () => {
+  const invalidContrast = { ...fixture, config: { ...CLASSIC_THEME, colors: { ...CLASSIC_THEME.colors, onPrimary: CLASSIC_THEME.colors.primary } } };
+  let writes = 0;
+  await assert.rejects(() => executeThemeActivation(fixture.id, false, {
+    read: async () => invalidContrast,
+    activate: async () => { writes++; return { ...invalidContrast, isActive: true }; },
+    synchronize: () => {},
+    reportSyncFailure: () => {},
+  }), ThemeActivationError);
+  assert.equal(writes, 0);
 });
