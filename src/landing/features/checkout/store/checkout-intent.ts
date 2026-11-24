@@ -1,3 +1,4 @@
+import { cartOrigin, currentShoppingUrl, safeReturnTo, clearReceiptOrigin } from "./checkout-return";
 import { cartLineKey } from "../../cart/selection";
 import type { CartLine, CheckoutIntent } from "../../cart/types";
 
@@ -25,6 +26,7 @@ function writeCheckoutIntent(intent: CheckoutIntent): boolean {
   try {
     window.sessionStorage.setItem(CHECKOUT_INTENT_KEY, JSON.stringify(intent));
     window.sessionStorage.removeItem("minh-sam-checkout-receipt-v1");
+    clearReceiptOrigin();
     return true;
   } catch {
     return false;
@@ -32,11 +34,11 @@ function writeCheckoutIntent(intent: CheckoutIntent): boolean {
 }
 
 export function saveBuyNowIntent(item: CartLine): boolean {
-  return writeCheckoutIntent({ source: "buy-now", items: [item] });
+  return writeCheckoutIntent({ source: "buy-now", items: [item], returnTo: currentShoppingUrl() ?? undefined });
 }
 
 export function saveCartCheckoutIntent(items: CartLine[]): boolean {
-  return writeCheckoutIntent({ source: "cart", items: items.map((item) => ({ ...item })) });
+  return writeCheckoutIntent({ source: "cart", items: items.map((item) => ({ ...item })), returnTo: cartOrigin() ?? undefined });
 }
 
 export function loadCheckoutIntent(): CheckoutIntent | null {
@@ -51,7 +53,7 @@ export function loadCheckoutIntent(): CheckoutIntent | null {
         !Array.isArray(candidate.items) || candidate.items.length === 0 ||
         candidate.items.length > 100 || !candidate.items.every(validCartLine) ||
         (candidate.source === "buy-now" && candidate.items.length !== 1)) return null;
-    return { source: candidate.source, items: candidate.items };
+    return { source: candidate.source, items: candidate.items, returnTo: safeReturnTo(candidate.returnTo) ?? undefined };
   } catch {
     return null;
   }

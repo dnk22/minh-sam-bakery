@@ -24,5 +24,6 @@ export type CartLine = {
 
 export type CheckoutIntent = {
   source: "buy-now" | "cart";
+  returnTo?: string;
   items: CartLine[];
 };

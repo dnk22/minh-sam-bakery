@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { formatVnd } from "@/landing/features/catalog/pricing";
 import type { CheckoutIntent } from "@/landing/features/cart/types";
+import { checkoutReturnTo } from "../store/checkout-return";
 import { routes } from "@/landing/lib/routes";
 
 export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, error }: {
@@ -67,7 +68,7 @@ export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, err
       {error ? <p className="mt-space-md text-error" role="alert">{error}</p> : null}
       <Link
         className="mt-space-md flex items-center justify-center gap-2 font-body-sm text-secondary hover:underline"
-        href={intent.source === "cart" ? routes.cart : routes.search}
+        href={intent.source === "cart" ? routes.cart : checkoutReturnTo(intent.returnTo)}
       >
         <ArrowLeft aria-hidden="true" className="size-4" />
         Quay lại mua sắm
