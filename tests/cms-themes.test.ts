@@ -10,6 +10,7 @@ import { formToThemeCreate, formToThemePatch, themeCreateSchema, themeFormSchema
 import type { CmsTheme } from "../src/cms/features/themes/types.ts";
 import { CLASSIC_THEME } from "../src/theme/presets/classic.ts";
 import { parseThemeConfig } from "../src/theme/contracts/theme-config.schema.ts";
+import { parseThemeImportJson } from "../src/cms/features/themes/lib/theme-import.ts";
 
 const fixture: CmsTheme = {
   id: "theme-1", name: "Classic", code: "classic", description: "Mặc định",
@@ -119,4 +120,55 @@ test("theme toolbar uses the shared responsive filter group", () => {
   assert.match(toolbar, /className=\{styles\.clearAll\}/);
   assert.match(styles, /@media \(max-width: 767px\)/);
   assert.match(styles, /\.clearAll \{ display: none; \}/);
+});
+
+test("JSON import accepts strict config-only payload and normalizes HEX", () => {
+  const config = structuredClone(CLASSIC_THEME);
+  config.colors.primary = "#abcdef";
+  const imported = parseThemeImportJson(JSON.stringify(config));
+  assert.equal(imported.success, true);
+  if (imported.success) {
+    assert.equal(imported.data.config.colors.primary, "#ABCDEF");
+    assert.equal(imported.data.metadata, undefined);
+  }
+});
+
+test("JSON import accepts the CMS create payload without activation", () => {
+  const config = structuredClone(CLASSIC_THEME);
+  const imported = parseThemeImportJson(JSON.stringify({
+    name: "Minh Sâm Tết 2027", code: "minh-sam-tet-2027",
+    description: "Tết cổ truyền", config, isActive: false,
+  }));
+  assert.equal(imported.success, true);
+  if (imported.success) {
+    assert.deepEqual(imported.data.metadata, {
+      name: "Minh Sâm Tết 2027", code: "minh-sam-tet-2027", description: "Tết cổ truyền",
+    });
+    assert.equal(imported.data.config.colors.primary, CLASSIC_THEME.colors.primary);
+  }
+});
+
+test("JSON import rejects corrupt, partial, legacy, unsupported and unsafe inputs", () => {
+  const invalid = [
+    "{", "null", "[]",
+    JSON.stringify({ primaryColor: "#123456", fontFamily: "Georgia" }),
+    JSON.stringify({ ...CLASSIC_THEME, schemaVersion: 2 }),
+    JSON.stringify({ ...CLASSIC_THEME, colors: { primary: "#000000" } }),
+    JSON.stringify({ ...CLASSIC_THEME, colors: { ...CLASSIC_THEME.colors, primary: "url(javascript:alert(1))" } }),
+    JSON.stringify({ name: "Tết", code: "tet", config: CLASSIC_THEME, isActive: true }),
+    JSON.stringify({ name: "Tết", code: "tet", config: CLASSIC_THEME, extra: true }),
+  ];
+  for (const input of invalid) assert.equal(parseThemeImportJson(input).success, false, input);
+});
+
+test("import control is only rendered during create and keeps the existing form/schema", () => {
+  const modal = readFileSync("src/cms/features/themes/components/theme-modal/theme-modal.tsx", "utf8");
+  const component = readFileSync("src/cms/features/themes/components/theme-json-import/theme-json-import.tsx", "utf8");
+  assert.match(modal, /mode === "create" \? <ThemeJsonImport/);
+  assert.match(modal, /form.setValue\("config", data.config/);
+  assert.match(component, /type="file"/);
+  assert.match(component, /MAX_FILE_BYTES = 64 \* 1024/);
+  assert.match(component, /type="button"/);
+  assert.match(component, /parseThemeImportJson/);
+  assert.match(modal, /formToThemeCreate\(values\)/);
 });

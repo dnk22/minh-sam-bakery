@@ -19,6 +19,8 @@ import { formToThemeCreate, formToThemePatch } from "../../schemas/theme.schema"
 import type { CmsTheme, ThemeFormValues, ThemeModalState } from "../../types";
 import { ThemeDetail } from "../theme-detail/theme-detail";
 import { ThemeFields } from "../theme-fields/theme-fields";
+import { ThemeJsonImport } from "../theme-json-import/theme-json-import";
+import type { ImportedThemeJson } from "../../lib/theme-import";
 import styles from "../theme-ui.module.css";
 
 const FORM_ID = "theme-form";
@@ -76,14 +78,31 @@ export function ThemeModal({ state, onStateChange, onDelete }: {
     }
   }, onInvalid);
 
-  const title = mode === "create" ? "Tạo giao diện mới"
-    : mode === "duplicate" ? "Nhân bản giao diện"
-    : mode === "edit" ? "Chỉnh sửa giao diện" : "Chi tiết giao diện";
+  const title = mode === "create" ? "Tạo theme mới"
+    : mode === "duplicate" ? "Nhân bản theme"
+    : mode === "edit" ? "Chỉnh sửa theme" : "Chi tiết theme";
   const configValid = theme ? themeConfigStatus(theme).valid : false;
   const protectedEdit = mode === "edit" && theme?.isActive;
   const unsupported = (mode === "edit" || mode === "duplicate") && theme && !configValid;
   const canEdit = theme && !theme.isActive && configValid;
   const canDuplicate = theme && configValid;
+
+  const importJson = (data: ImportedThemeJson) => {
+    // Import overwrites current fields only after explicit confirmation.
+    if (form.formState.isDirty && !window.confirm("Import sẽ thay thế các màu/font đang nhập. Tiếp tục?")) return false;
+    if (data.metadata) {
+      // Prevent name-to-code auto-generation from overwriting the imported code.
+      markCodeManual();
+      form.setValue("name", data.metadata.name, { shouldDirty: true, shouldValidate: true });
+      form.setValue("code", data.metadata.code, { shouldDirty: true, shouldValidate: true });
+      form.setValue("description", data.metadata.description ?? "", { shouldDirty: true, shouldValidate: true });
+    }
+    form.setValue("config", data.config, { shouldDirty: true, shouldValidate: true });
+    form.clearErrors("root.server");
+    setFailure(null);
+    notify.success("Đã import JSON. Kiểm tra và lưu theme khi sẵn sàng.");
+    return true;
+  };
 
   return (
     <ResponsiveModal
@@ -92,7 +111,7 @@ export function ThemeModal({ state, onStateChange, onDelete }: {
       onBeforeClose={() => !pending && confirmDiscard()}
       className={styles.modal}
       title={title}
-      description={isEditing ? "Tùy chỉnh 14 màu nền tảng và 2 font chữ; chỉ lưu theme chưa kích hoạt." : "Thông tin theme hiện tại từ Backend."}
+      description={isEditing ? "Chọn 14 core colors và 2 font, hoặc import JSON. Lưu theme ở trạng thái nháp." : "Thông tin theme hiện tại từ Backend."}
       footer={!state ? null : isEditing ? <>
         <CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) close(); }}>Hủy</CmsButton>
         <CmsButton type="submit" form={FORM_ID} disabled={pending || Boolean(protectedEdit || unsupported || (id && !theme))}>
@@ -121,10 +140,11 @@ export function ThemeModal({ state, onStateChange, onDelete }: {
         : unsupported ? <p className={styles.alert} role="alert">Config legacy hoặc lỗi không thể chỉnh sửa/nhân bản tự động. Vui lòng tạo theme V1 mới.</p>
         : isEditing && (mode === "create" || theme) ? (
           <form id={FORM_ID} className={styles.form} noValidate onSubmit={submit} onChange={() => { form.clearErrors("root.server"); setFailure(null); }}>
+            {mode === "create" ? <ThemeJsonImport onImport={importJson} disabled={pending} /> : null}
             <ThemeFields form={form} onCodeManual={markCodeManual} />
             {failure || form.formState.errors.root?.server?.message ?
               <p className={styles.alert} role="alert">{failure || form.formState.errors.root?.server?.message}</p> : null}
-            <p className={styles.note}>Theme chưa kích hoạt sẽ không làm thay đổi Landing. Không hỗ trợ chỉnh layout, spacing hoặc các derived tokens.</p>
+            <p className={styles.note}>Lưu theme nháp không đổi giao diện Landing. Layout, spacing và derived tokens không thuộc phạm vi chỉnh sửa.</p>
           </form>
         ) : <p className={styles.state}>Không tìm thấy theme.</p>}
     </ResponsiveModal>

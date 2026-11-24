@@ -41,3 +41,11 @@
   .section { padding: 0.75rem; }
 }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+.importSection { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; padding: 1rem; border: 1px dashed var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-muted); }
+.importText { display: grid; gap: 0.25rem; flex: 1 1 17rem; min-width: 0; }
+.importText strong { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.88rem; }
+.importText p { margin: 0; color: var(--cms-muted-foreground); font-size: 0.8rem; line-height: 1.5; }
+.importFile { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.importSection .alert { flex-basis: 100%; }
+@media (max-width: 767px) { .importSection > :global(.cms-button) { width: 100%; justify-content: center; } }
