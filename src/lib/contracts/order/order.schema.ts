@@ -26,6 +26,8 @@ export function isOrder(v: unknown): v is Order {
 export function isCreateOrderInput(v: unknown): v is CreateOrderInput {
   if (!record(v) || !Array.isArray(v.items) || !v.items.length || v.items.length > 100 || !v.items.every(item)) return false;
   if (!v.items.every(x => x.quantity <= 20) || new Set(v.items.map(x => JSON.stringify([x.productId,x.variantId]))).size !== v.items.length) return false;
+  if (Object.keys(v).some(key => !["items","fullName","phone","email","fulfillmentMethod","shippingAddress","deliveryDate","deliveryTime","paymentMethod","paymentImageUrl","note"].includes(key)) ||
+      v.items.some(x => Object.keys(x).some(key => !["productId","variantId","quantity"].includes(key)))) return false;
   return nonempty(v.fullName) && v.fullName.length <= 100 && str(v.phone) && /^(?:\+84|0)(?:\d[ .-]?){8,10}$/.test(v.phone) &&
     (v.email === undefined || (str(v.email) && v.email.length <= 150 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email))) &&
     fulfillment(v.fulfillmentMethod) && payment(v.paymentMethod) &&

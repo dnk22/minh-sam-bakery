@@ -68,7 +68,7 @@ export function adaptProduct(dto: ProductResponseDto): CatalogProduct {
       price: formatVnd(cheapest.effectivePrice),
       unit: isFrom ? "Giá từ" : "Giá bán",
       isFrom,
-      available: variants.length > 0,
+      available: activeVariants.length > 0,
       variants,
     },
   };

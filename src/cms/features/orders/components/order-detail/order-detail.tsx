@@ -1,3 +1,4 @@
+import { MOCK_PAYMENT_IMAGE_URL } from "@/lib/contracts/order/order.schema";
 import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 
@@ -53,7 +54,7 @@ export function OrderDetail({ order }: { order: Order }) {
         <DetailEntry label="Phương thức" value={getOrderPaymentLabel(order.paymentMethod)} />
         <DetailEntry label="Tổng tiền" value={<strong>{formatVnd(order.totalAmount)}</strong>} />
       </dl>
-      {paymentImage ? <div className={styles.paymentProof}><span>Ảnh thanh toán</span><Image alt="Ảnh thanh toán của đơn hàng" height={180} src={paymentImage} unoptimized width={320} /></div>
+      {order.paymentImageUrl === MOCK_PAYMENT_IMAGE_URL ? <p className={styles.assetNotice}>Minh chứng giả lập — chưa xác minh thanh toán.</p> : paymentImage ? <div className={styles.paymentProof}><span>Ảnh thanh toán</span><Image alt="Ảnh thanh toán của đơn hàng" height={180} src={paymentImage} unoptimized width={320} /></div>
         : order.paymentImageUrl ? <p className={styles.assetNotice}>Ảnh thanh toán dùng URL chưa được xác thực nên không được tải tự động.</p> : null}
     </section>
 

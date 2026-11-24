@@ -58,7 +58,7 @@ export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, err
         <strong className="font-price-serif text-[24px] text-primary">{formatVnd(subtotal)}</strong>
       </div>
       <button
-        className="mt-space-lg flex min-h-12 w-full items-center justify-center rounded-lg bg-primary px-space-lg font-label-ui text-label-ui font-semibold text-on-primary"
+        className="mt-space-lg flex min-h-12 w-full items-center justify-center rounded-lg bg-primary px-space-lg font-label-ui text-label-ui font-semibold text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={pending || blocked}
         type="submit"
       >

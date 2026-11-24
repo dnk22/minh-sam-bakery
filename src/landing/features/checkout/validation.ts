@@ -36,7 +36,7 @@ export function validateCheckoutDraft(
   if (draft.fulfillmentMethod === "delivery" && !draft.deliveryAddress.trim()) {
     errors.deliveryAddress = "Vui lòng nhập địa chỉ giao hàng.";
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.receiveDate) || Number.isNaN(Date.parse(draft.receiveDate)) || draft.receiveDate < today) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.receiveDate) || Number.isNaN(Date.parse(draft.receiveDate)) || new Date(draft.receiveDate).toISOString().slice(0, 10) !== draft.receiveDate || draft.receiveDate < today) {
     errors.receiveDate = draft.fulfillmentMethod === "pickup"
       ? "Vui lòng chọn ngày nhận bánh hợp lệ."
       : "Vui lòng chọn ngày giao bánh hợp lệ.";

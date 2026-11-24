@@ -32,6 +32,9 @@ export function CartPage() {
 
   const proceedToCheckout = () => {
     if (!selected.length) return;
+    if (selected.some(item => !item.variantId || item.variantId.startsWith("base-"))) {
+      setNavigationError("Có sản phẩm chưa có quy cách đặt hàng hợp lệ. Vui lòng bỏ chọn hoặc chọn lại sản phẩm."); return;
+    }
     if (!saveCartCheckoutIntent(selected)) {
       setNavigationError("Không thể lưu thông tin thanh toán. Vui lòng kiểm tra cài đặt trình duyệt.");
       return;

@@ -24,6 +24,7 @@ function writeCheckoutIntent(intent: CheckoutIntent): boolean {
   if (typeof window === "undefined" || intent.items.length === 0) return false;
   try {
     window.sessionStorage.setItem(CHECKOUT_INTENT_KEY, JSON.stringify(intent));
+    window.sessionStorage.removeItem("minh-sam-checkout-receipt-v1");
     return true;
   } catch {
     return false;

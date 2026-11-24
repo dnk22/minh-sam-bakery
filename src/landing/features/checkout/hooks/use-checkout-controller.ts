@@ -2,6 +2,7 @@
 
 import { type FormEvent, useEffect, useRef, useState } from "react";
 
+import { useCartHydrated } from "@/landing/features/cart/components/cart-hydration";
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
 import type { Order, CreateOrderInput } from "@/lib/contracts/order/order.types";
 import { buildOrderRequest } from "../utils/order-request-mapper";
@@ -24,16 +25,18 @@ export function useCheckoutController() {
   const [transferInput, setTransferInput] = useState<CreateOrderInput | null>(null);
   const [blocked, setBlocked] = useState(false);
   const submission = useCreateOrder();
+  const cartHydrated = useCartHydrated();
   const [today, setToday] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const savedIntent = loadCheckoutIntent();
     setIntent(savedIntent);
-    if (!savedIntent) setReceipt(readReceipt());
+    const savedReceipt = readReceipt();
+    if (savedReceipt) { setReceipt(savedReceipt); setIntent(null); clearCheckoutIntent(); clearCheckoutDraft(); }
     setBlocked(hasPending());
     const savedDraft = readCheckoutDraft();
-    if (savedDraft) setDraft(savedDraft);
+    if (savedDraft && !savedReceipt) setDraft(savedDraft);
     setToday(localCalendarDate());
     setLoaded(true);
   }, []);
@@ -80,7 +83,7 @@ export function useCheckoutController() {
         `[data-checkout-field="${result.firstInvalidField}"]`,
       )?.focus();
     }
-    if (result.firstInvalidField || !intent || blocked || submission.pending || submission.uncertain || transferInput || receipt) return;
+    if (result.firstInvalidField || (intent?.source === "cart" && !cartHydrated) || !intent || blocked || submission.pending || submission.uncertain || transferInput || receipt) return;
     try {
       const input = buildOrderRequest(intent, normalized);
       if (input.paymentMethod === "BANK_TRANSFER") setTransferInput(input);
@@ -89,7 +92,7 @@ export function useCheckoutController() {
   };
 
   async function submit(input: CreateOrderInput) {
-    if (!intent) return;
+    if (!intent || (intent.source === "cart" && !cartHydrated)) return;
     await submission.submit(input, order => {
       if (intent.source === "cart") {
         useCartStore.getState().consumePurchasedItems(intent.items);
@@ -105,7 +108,7 @@ export function useCheckoutController() {
   return {
     receipt, transferInput,
     pending: submission.pending,
-    blocked: blocked || submission.uncertain,
+    blocked: blocked || submission.uncertain || Boolean(intent?.source === "cart" && !cartHydrated),
     submitError: submission.error || (blocked ? "Chưa xác minh được lần đặt hàng trước. Vui lòng liên hệ cửa hàng trước khi đặt lại." : ""),
     closeTransfer: () => { if (!submission.pending) setTransferInput(null); },
     confirmTransfer: () => { if (transferInput && !blocked) void submit(transferInput); },

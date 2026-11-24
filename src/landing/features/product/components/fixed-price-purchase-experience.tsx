@@ -22,10 +22,10 @@ export function FixedPricePurchaseExperience({ product }: { product: FixedPriceP
   const selectedVariant = product.pricing.variants.find((variant) => variant.id === selectedVariantId) ?? product.pricing.variants[0];
   const total = (selectedVariant?.price ?? 0) * quantity;
   const selectedCatalogVariant = product.catalog.pricing.variants.find((variant) => variant.id === selectedVariant?.id);
-  const checkoutAvailable = product.presentation.checkoutAvailable !== false && Boolean(selectedCatalogVariant);
+  const checkoutAvailable = product.presentation.checkoutAvailable !== false && Boolean(selectedCatalogVariant && !selectedCatalogVariant.isSynthetic);
 
   const handlePurchase = () => {
-    if (!selectedCatalogVariant) return;
+    if (!checkoutAvailable || !selectedCatalogVariant) return;
     const line = createCartLine(product.catalog, selectedCatalogVariant, quantity);
     if (!saveBuyNowIntent(line)) {
       setPurchaseError("Không thể lưu thông tin đặt hàng. Vui lòng kiểm tra cài đặt trình duyệt.");
