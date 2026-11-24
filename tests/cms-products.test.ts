@@ -180,3 +180,15 @@ test("rejects duplicate variant SKU and invalid discount in create and patch", (
   assert.equal(productFormSchema.safeParse(values).success, false);
   assert.equal(productPatchSchema.safeParse({ variants: formToCreate(values).variants }).success, false);
 });
+
+test("collection reorder and cover changes are included in PATCH", () => {
+  const values = productToForm(product);
+  values.images.reverse();
+  values.images = values.images.map((image, index) => ({ ...image, isCover: index === 1 }));
+  values.variants.reverse();
+  const patch = formToPatch(values, product);
+  assert.deepEqual(patch.images?.map(image => image.sortOrder), [0, 1]);
+  assert.deepEqual(patch.variants?.map(variant => variant.sku), ["BK-L", "BK-S"]);
+  assert.equal(productPatchSchema.safeParse(patch).success, true);
+  assert.equal(productPatchSchema.safeParse({ images: [{ url: "/a.jpg", sortOrder: 0, isCover: false }] }).success, false);
+});

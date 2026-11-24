@@ -16,7 +16,7 @@ import { notify } from "@/cms/lib/notifications";
 import { useProductForm } from "../../hooks/use-product-form";
 import { useProductMutations } from "../../hooks/use-product-mutations";
 import { useProductDetail } from "../../hooks/use-products";
-import { formToCreate, formToPatch } from "../../lib/product-form-mapper";
+import { formToCreate, formToPatch, productToForm } from "../../lib/product-form-mapper";
 import { productCategoryGuard } from "../../lib/product-category-guard";
 import type { Product, ProductFormValues, ProductModalState } from "../../types";
 import { ProductDetail } from "../product-detail/product-detail";
@@ -89,7 +89,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
         }
         saved = await mutations.update.mutateAsync({ id: product.id, input: patch });
       }
-      if (saved) onStateChange({ mode: "detail", id: saved.id });
+      if (saved) { form.reset(productToForm(saved)); onStateChange({ mode: "detail", id: saved.id }); }
     } catch (error) { setBackendError(error); }
   }, onInvalid);
   const title = mode === "create" ? "Thêm sản phẩm" : mode === "edit" ? "Chỉnh sửa sản phẩm" : "Chi tiết sản phẩm";

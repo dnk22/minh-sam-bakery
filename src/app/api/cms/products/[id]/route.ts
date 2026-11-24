@@ -27,6 +27,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const current = await backendProductDetail(auth.accessToken, id, request.signal);
     const parsed = productPatchSchema.safeParse(body);
     if (!parsed.success) return productError(400);
+    if (parsed.data.price !== undefined || parsed.data.salePrice !== undefined) {
+      const prices = productPatchSchema.safeParse({ price: parsed.data.price ?? current.price, salePrice: parsed.data.salePrice === undefined ? current.salePrice ?? null : parsed.data.salePrice });
+      if (!prices.success) return productError(400);
+    }
     const saved = await backendUpdateProduct(auth.accessToken, id, parsed.data);
     revalidateTag("catalog-products", "max");
     revalidateTag(`catalog-product-${current.slug}`, "max");

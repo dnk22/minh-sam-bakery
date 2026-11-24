@@ -1,6 +1,5 @@
 import { z } from "zod";
-
-
+import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "../lib/product-collection-utils.ts";
 
 const money = z.string().trim().regex(/^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/, "Nhập số tiền hợp lệ, tối đa 2 chữ số thập phân.");
 const optionalText = z.string().trim().max(5000);
@@ -41,7 +40,7 @@ const productWriteBaseSchema = z.object({
   categoryId: z.string().trim().min(1), sku: z.string().trim().min(1), name: z.string().trim().min(1), slug: z.string().trim().optional(),
   shortDescription: optionalText.optional(), description: optionalText.optional(), price: money, salePrice: z.union([money, z.null()]).optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "HIDDEN"]).optional(), isFeatured: z.boolean().optional(), isBestSeller: z.boolean().optional(),
-  seoTitle: optionalText.optional(), seoDescription: optionalText.optional(), images: z.array(imageWriteSchema).max(20).optional(), variants: z.array(variantWriteSchema).max(100).optional(),
+  seoTitle: optionalText.optional(), seoDescription: optionalText.optional(), images: z.array(imageWriteSchema).max(MAX_PRODUCT_IMAGES).optional(), variants: z.array(variantWriteSchema).max(MAX_PRODUCT_VARIANTS).optional(),
 }).strict();
 export const productWriteSchema = productWriteBaseSchema.superRefine(validateCollections);
 export const productPatchSchema = productWriteBaseSchema.partial().refine(value => Object.keys(value).length > 0, "Không có thay đổi để lưu.").superRefine(validateCollections);
@@ -51,5 +50,5 @@ export const productFormSchema = z.object({
   name: z.string().trim().min(1, "Tên sản phẩm không được để trống."), slug: z.string().trim(),
   shortDescription: optionalText, description: optionalText, price: money, salePrice: z.union([money, z.literal("")]),
   status: z.enum(["DRAFT", "PUBLISHED", "HIDDEN"]), isFeatured: z.boolean(), isBestSeller: z.boolean(),
-  seoTitle: optionalText, seoDescription: optionalText, images: z.array(imageSchema).max(20), variants: z.array(variantSchema).max(100),
+  seoTitle: optionalText, seoDescription: optionalText, images: z.array(imageSchema).max(MAX_PRODUCT_IMAGES), variants: z.array(variantSchema).max(MAX_PRODUCT_VARIANTS),
 }).superRefine(validateCollections);
