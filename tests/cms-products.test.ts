@@ -5,7 +5,8 @@ import { clearProductAdvancedFilterQuery, countProductAdvancedFilters, isProduct
 import { formatVnd, sortProductImages, sortProductVariants } from "../src/cms/features/products/lib/product-format.ts";
 import { productQueryKeys } from "../src/cms/features/products/lib/product-query-keys.ts";
 import type { Product } from "../src/cms/features/products/types.ts";
-import { formToCreate, formToPatch, productFormSchema, productToForm, productWriteSchema, productPatchSchema, vietnameseProductSlug } from "../src/cms/features/products/schemas/product.schema.ts";
+import { productFormSchema, productWriteSchema, productPatchSchema } from "../src/cms/features/products/schemas/product.schema.ts";
+import { formToCreate, formToPatch, productToForm, vietnameseProductSlug } from "../src/cms/features/products/lib/product-form-mapper.ts";
 import { CMS_IMAGE_MAX_BYTES, isUploadResult, validateImageUploadBatch } from "../src/cms/lib/api/upload-validation.ts";
 import { productCategoryGuard } from "../src/cms/features/products/lib/product-category-guard.ts";
 import { cmsAssetUrl } from "../src/cms/lib/api/asset-url.ts";
@@ -114,7 +115,7 @@ test("creates Vietnamese slugs and preserves unchanged scalar and collection dat
   assert.equal("variants" in patch, false);
   assert.equal("description" in formToPatch(productToForm(product), product), false);
   assert.equal(productPatchSchema.safeParse(patch).success, true);
-  assert.equal(productPatchSchema.safeParse({ images: [] }).success, false);
+  assert.equal(productPatchSchema.safeParse({ images: [] }).success, true);
 });
 
 test("serializes explicit optional text clearing, new text and whitespace independently", () => {
@@ -153,4 +154,41 @@ test("normalizes only backend-root-relative CMS assets through the authenticated
   assert.equal(isUploadResult([{ url: "/uploads/products/cake.jpg" }]), true);
   assert.equal(isUploadResult([{ url: "https://cdn.example.com/cake.jpg" }]), true);
   assert.equal(isUploadResult([{ url: "javascript:alert(1)" }]), false);
+});
+
+test("patch only changed collections and sends explicit empty lists", () => {
+  assert.deepEqual(formToPatch(productToForm(product), product), {});
+  const values = productToForm(product);
+  values.variants[0].price = "200000";
+  const patch = formToPatch(values, product);
+  assert.equal(patch.variants?.[0].price, "200000");
+  assert.equal("id" in patch.variants![0], false);
+  assert.equal("images" in patch, false);
+  assert.deepEqual(formToPatch({ ...productToForm(product), images: [], variants: [] }, product), { images: [], variants: [] });
+  const imageValues = productToForm(product);
+  imageValues.images[0].alt = "New alt";
+  assert.equal(formToPatch(imageValues, product).images?.[0].alt, "New alt");
+  assert.equal("variants" in formToPatch(imageValues, product), false);
+});
+test("rejects duplicate variant SKU and invalid discount in create and patch", () => {
+  const values = productToForm(product);
+  values.variants[1].sku = values.variants[0].sku.toLowerCase();
+  assert.equal(productFormSchema.safeParse(values).success, false);
+  assert.equal(productPatchSchema.safeParse({ variants: formToCreate(values).variants }).success, false);
+  values.variants[1].sku = "UNIQUE";
+  values.variants[0].salePrice = "999999";
+  assert.equal(productFormSchema.safeParse(values).success, false);
+  assert.equal(productPatchSchema.safeParse({ variants: formToCreate(values).variants }).success, false);
+});
+
+test("collection reorder and cover changes are included in PATCH", () => {
+  const values = productToForm(product);
+  values.images.reverse();
+  values.images = values.images.map((image, index) => ({ ...image, isCover: index === 1 }));
+  values.variants.reverse();
+  const patch = formToPatch(values, product);
+  assert.deepEqual(patch.images?.map(image => image.sortOrder), [0, 1]);
+  assert.deepEqual(patch.variants?.map(variant => variant.sku), ["BK-L", "BK-S"]);
+  assert.equal(productPatchSchema.safeParse(patch).success, true);
+  assert.equal(productPatchSchema.safeParse({ images: [{ url: "/a.jpg", sortOrder: 0, isCover: false }] }).success, false);
 });

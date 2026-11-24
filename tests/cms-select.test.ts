@@ -39,7 +39,7 @@ test("React Hook Form select fields use the controlled adapters", () => {
     ["src/cms/features/categories/components/category-fields/category-fields.tsx", /CmsFormCombobox[\s\S]+?name="parentId"/],
     ["src/cms/features/users/components/user-fields/user-fields.tsx", /CmsFormCombobox[^>]+name="roleId"/],
     ["src/cms/features/banners/components/banner-fields/banner-fields.tsx", /CmsFormSelect[^>]+name="position"/],
-    ["src/cms/features/products/components/product-variants-editor/product-variants-editor.tsx", /CmsFormSelect[^>]+name=\{`variants\.\$\{index\}\.status`\}/],
+    ["src/cms/features/products/components/product-variants-editor/product-variant-card.tsx", /CmsFormSelect[^>]+name=\{`variants\.\$\{index\}\.status`\}/],
   ];
   for (const [path, pattern] of cases) {
     assert.match(source(path), pattern);
