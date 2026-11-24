@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useState, useSyncExternalStore } from "react";
 
 import { useCartHydrated } from "@/landing/features/cart/components/cart-hydration";
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
@@ -16,40 +16,53 @@ import { loadCheckoutIntent, clearCheckoutIntent } from "../store/checkout-inten
 import type { CheckoutDraft, CheckoutErrors, CheckoutField, FulfillmentMethod } from "../types";
 import { initialCheckoutDraft, localCalendarDate, normalizeCheckoutDraft, validateCheckoutDraft } from "../validation";
 
-/** Client-only checkout orchestration. */
+// The session is read only after hydration. The external-store snapshot is a
+// stable boolean, not a freshly allocated object.
+const subscribeHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
+
+export function useCheckoutReady() {
+  return useSyncExternalStore(subscribeHydration, clientSnapshot, serverSnapshot);
+}
+
+function readInitialSession() {
+  const savedReceipt = readReceipt();
+  const savedIntent = loadCheckoutIntent();
+  return {
+    intent: savedReceipt ? null : savedIntent,
+    receipt: savedReceipt,
+    returnTo: checkoutReturnTo(savedIntent?.returnTo ?? receiptOrigin()),
+    blocked: hasPending(),
+    draft: savedReceipt ? initialCheckoutDraft() : readCheckoutDraft() ?? initialCheckoutDraft(),
+    today: localCalendarDate(),
+  };
+}
+
+/** Client-only checkout orchestration, mounted after hydration. */
 export function useCheckoutController() {
-  const [loaded, setLoaded] = useState(false);
-  const [intent, setIntent] = useState<CheckoutIntent | null>(null);
-  const [draft, setDraft] = useState<CheckoutDraft>(initialCheckoutDraft);
+  const [initial] = useState(readInitialSession);
+  const [intent, setIntent] = useState<CheckoutIntent | null>(initial.intent);
+  const [draft, setDraft] = useState<CheckoutDraft>(initial.draft);
   const [errors, setErrors] = useState<CheckoutErrors>({});
-  const [returnTo, setReturnTo] = useState<string>("/tim-kiem");
-  const [receipt, setReceipt] = useState<Order | null>(null);
+  const [returnTo] = useState(initial.returnTo);
+  const [receipt, setReceipt] = useState<Order | null>(initial.receipt);
   const [transferInput, setTransferInput] = useState<CreateOrderInput | null>(null);
-  const [blocked, setBlocked] = useState(false);
+  const [blocked] = useState(initial.blocked);
   const submission = useCreateOrder();
   const cartHydrated = useCartHydrated();
-  const [today, setToday] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
+  const today = initial.today;
 
   useEffect(() => {
-    const savedIntent = loadCheckoutIntent();
-    setIntent(savedIntent);
-    setReturnTo(checkoutReturnTo(savedIntent?.returnTo ?? receiptOrigin()));
-    const savedReceipt = readReceipt();
-    if (savedReceipt) { setReceipt(savedReceipt); setIntent(null); clearCheckoutIntent(); clearCheckoutDraft(); }
-    setBlocked(hasPending());
-    const savedDraft = readCheckoutDraft();
-    if (savedDraft && !savedReceipt) setDraft(savedDraft);
-    setToday(localCalendarDate());
-    setLoaded(true);
-  }, []);
+    if (initial.receipt) { clearCheckoutIntent(); clearCheckoutDraft(); }
+  }, [initial.receipt]);
 
   // Persist after React has committed the state, not from inside a state updater.
-  // The hydration guard prevents the initial empty draft from overwriting saved data.
+  // This hook mounts only after hydration, with the restored draft.
   useEffect(() => {
-    if (!loaded || !intent || receipt) return;
+    if (!intent || receipt) return;
     persistCheckoutDraft(draft);
-  }, [draft, loaded, intent, receipt]);
+  }, [draft, intent, receipt]);
 
   const updateDraft = (patch: Partial<CheckoutDraft>) => {
     setDraft((current) => ({ ...current, ...patch }));
@@ -82,7 +95,7 @@ export function useCheckoutController() {
     setErrors(result.errors);
 
     if (result.firstInvalidField) {
-      formRef.current?.querySelector<HTMLElement>(
+      event.currentTarget.querySelector<HTMLElement>(
         `[data-checkout-field="${result.firstInvalidField}"]`,
       )?.focus();
     }
@@ -118,12 +131,10 @@ export function useCheckoutController() {
     closeTransfer: () => { if (!submission.pending) setTransferInput(null); },
     confirmTransfer: () => { if (transferInput && !blocked) void submit(transferInput); },
     closeReceipt: () => { clearReceipt(); clearReceiptOrigin(); setReceipt(null); },
-    loaded,
     intent,
     draft,
     errors,
     today,
-    formRef,
     updateDraft,
     chooseFulfillment,
     checkInformation,

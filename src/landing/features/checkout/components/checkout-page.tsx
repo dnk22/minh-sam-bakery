@@ -12,14 +12,11 @@ import { CheckoutCustomerSection } from "./checkout-customer-section";
 import { CheckoutFulfillmentSection } from "./checkout-fulfillment-section";
 import { CheckoutOrderSummary } from "./checkout-order-summary";
 import { CheckoutPaymentSection } from "./checkout-payment-section";
-import { useCheckoutController } from "../hooks/use-checkout-controller";
+import { useCheckoutController, useCheckoutReady } from "../hooks/use-checkout-controller";
 
 export function CheckoutPage() {
-  const checkout = useCheckoutController();
-  const router = useRouter();
-  if (checkout.receipt) return <CheckoutSuccessModal order={checkout.receipt} onClose={() => { checkout.closeReceipt(); router.replace(checkout.returnTo); }} />;
-
-  if (!checkout.loaded) {
+  const ready = useCheckoutReady();
+  if (!ready) {
     return (
       <main className="min-h-[65vh] bg-surface pt-[var(--landing-header-height)]">
         <div className="mx-auto max-w-[1360px] px-gutter py-space-xl font-body-md text-on-surface-variant">
@@ -28,6 +25,14 @@ export function CheckoutPage() {
       </main>
     );
   }
+
+  return <HydratedCheckoutPage />;
+}
+
+function HydratedCheckoutPage() {
+  const checkout = useCheckoutController();
+  const router = useRouter();
+  if (checkout.receipt) return <CheckoutSuccessModal order={checkout.receipt} onClose={() => { checkout.closeReceipt(); router.replace(checkout.returnTo); }} />;
 
   if (!checkout.intent) {
     return (
@@ -67,7 +72,6 @@ export function CheckoutPage() {
           className="grid items-start gap-gutter-desktop lg:grid-cols-[minmax(0,1fr)_minmax(310px,400px)]"
           noValidate
           onSubmit={checkout.checkInformation}
-          ref={checkout.formRef}
         >
           <fieldset disabled={checkout.pending || checkout.blocked} className="min-w-0 space-y-space-lg">
             <CheckoutCustomerSection
