@@ -31,7 +31,7 @@ function validateCollections(value: { images?: { isCover: boolean }[]; variants?
 }
 
 function greaterMoney(a: string, b: string) {
-  const cents = (v: string) => { const [whole, fraction = ""] = v.split("."); return BigInt(whole) * 100n + BigInt(fraction.padEnd(2, "0")); };
+  const cents = (v: string) => { const [whole, fraction = ""] = v.split("."); return BigInt(whole) * BigInt(100) + BigInt(fraction.padEnd(2, "0")); };
   if (!/^\d+(?:\.\d{1,2})?$/.test(a) || !/^\d+(?:\.\d{1,2})?$/.test(b)) return false;
   return cents(a) > cents(b);
 }

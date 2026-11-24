@@ -192,3 +192,9 @@ test("collection reorder and cover changes are included in PATCH", () => {
   assert.equal(productPatchSchema.safeParse(patch).success, true);
   assert.equal(productPatchSchema.safeParse({ images: [{ url: "/a.jpg", sortOrder: 0, isCover: false }] }).success, false);
 });
+
+test("discount validation preserves exact decimal precision for large prices", () => {
+  assert.equal(productPatchSchema.safeParse({ price: "999999999999999999.50", salePrice: "999999999999999999.51" }).success, false);
+  assert.equal(productPatchSchema.safeParse({ price: "999999999999999999.51", salePrice: "999999999999999999.50" }).success, true);
+  assert.equal(productPatchSchema.safeParse({ price: "1.2", salePrice: "1.20" }).success, true);
+});
