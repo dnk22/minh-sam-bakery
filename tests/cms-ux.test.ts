@@ -46,8 +46,6 @@ test("confirmation modal remains compact at every breakpoint", () => {
 
 test("toolbar search sizing uses flex basis instead of competing width rules", () => {
   const files = [
-    "categories/components/categories-toolbar/categories-toolbar.module.css",
-    "products/components/products-toolbar/products-toolbar.module.css",
     "posts/components/posts-toolbar/posts-toolbar.module.css",
     "orders/components/orders-toolbar/orders-toolbar.module.css",
     "roles/components/roles-toolbar/roles-toolbar.module.css",
@@ -98,3 +96,26 @@ test("notification bulk actions remain side-by-side on mobile", () => {
 function source(path: string) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
+
+test("product and category toolbar sizing is isolated from shared control roots", () => {
+  const shared = source("src/cms/components/toolbar/cms-toolbar.module.css");
+  const layout = source("src/cms/components/toolbar/cms-toolbar.tsx");
+  const field = source("src/cms/components/toolbar/cms-toolbar-field.tsx");
+  const group = source("src/cms/components/filter-group/filter-group.module.css");
+  assert.match(layout, /className=\{styles.search\}>\{search\}/);
+  assert.match(field, /data-toolbar-field=\{size\}/);
+  assert.match(shared, /grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(shared, /\.search \{[^}]*flex: 0 1 22rem/);
+  assert.match(shared, /\.search \{[^}]*flex: 1 1 0/);
+  assert.doesNotMatch(shared, /!important/);
+  assert.match(group, /\.desktop > \[data-toolbar-field\]/);
+  assert.match(group, /\.body > \[data-toolbar-field\]/);
+  assert.match(group, /\.body > :not\(\[data-toolbar-field\]\)/);
+  for (const name of ["products", "categories"]) {
+    const component = source(`src/cms/features/${name}/components/${name}-toolbar/${name}-toolbar.tsx`);
+    assert.match(component, /<CmsToolbar\b/);
+    assert.match(component, /<CmsToolbarField\b/);
+    assert.doesNotMatch(component, /containerClassName=/);
+    assert.doesNotMatch(component, /className=\{styles\.(toolbar|search|controls|filters|select|statusSelect)\}/);
+  }
+});

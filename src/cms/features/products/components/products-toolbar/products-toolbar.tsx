@@ -2,6 +2,8 @@
 
 import { Search, X } from "lucide-react";
 
+import { CmsToolbar } from "@/cms/components/toolbar/cms-toolbar";
+import { CmsToolbarField } from "@/cms/components/toolbar/cms-toolbar-field";
 import { CmsFilterGroup } from "@/cms/components/filter-group/filter-group";
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsInput } from "@/cms/components/ui/input/input";
@@ -30,17 +32,16 @@ export function ProductsToolbar({ filters }: { filters: ProductFilters }) {
   ];
   const advancedCount = countProductAdvancedFilters(filters);
 
-  return <section className={styles.toolbar} aria-label="Bộ lọc sản phẩm">
-    <div className={styles.controls}>
-      <CmsInput aria-label="Tìm kiếm sản phẩm" containerClassName={styles.search} controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} onBlur={search.onBlur} onChange={(event) => search.onChange(event.target.value)} onFocus={search.onFocus} placeholder="Tìm theo tên hoặc SKU" type="search" value={search.draft} />
-      <CmsFilterGroup activeCount={advancedCount} label="Bộ lọc sản phẩm" onClear={filters.clearAdvancedFilters}>
-        <CmsSelect aria-label="Lọc theo trạng thái" containerClassName={styles.select} controlSize="sm" options={PRODUCT_STATUS_FILTER_OPTIONS} value={filters.status ?? ""} onChange={(event) => filters.setStatus((event.target.value || undefined) as ProductStatus | undefined)} />
-        <CmsCombobox aria-label="Lọc theo danh mục" containerClassName={styles.category} controlSize="sm" disabled={categories.isLoading || Boolean(reason)} options={categoryOptions} value={filters.categoryId ?? ""} onValueChange={(value) => filters.setCategoryId(value || undefined)} />
-        <CmsSelect aria-label="Lọc sản phẩm nổi bật" containerClassName={styles.boolean} controlSize="sm" options={BOOLEAN_FILTER_OPTIONS.map((option) => ({ ...option, label: option.value === "" ? "Nổi bật: Tất cả" : `Nổi bật: ${option.label}` }))} value={filters.isFeatured === undefined ? "" : String(filters.isFeatured)} onChange={(event) => filters.setFeatured(parseBoolean(event.target.value))} />
-        <CmsSelect aria-label="Lọc sản phẩm bán chạy" containerClassName={styles.boolean} controlSize="sm" options={BOOLEAN_FILTER_OPTIONS.map((option) => ({ ...option, label: option.value === "" ? "Bán chạy: Tất cả" : `Bán chạy: ${option.label}` }))} value={filters.isBestSeller === undefined ? "" : String(filters.isBestSeller)} onChange={(event) => filters.setBestSeller(parseBoolean(event.target.value))} />
-      </CmsFilterGroup>
-      {filters.isFiltered ? <CmsButton className={styles.clearAll} type="button" size="sm" variant="ghost" onClick={filters.clearFilters}><X aria-hidden="true" size={15} /> Xóa tất cả</CmsButton> : null}
-    </div>
-    {reason ? <p className={styles.error} role="alert">Không thể tải đầy đủ danh mục để lọc. <button type="button" onClick={() => categories.refetch()}>Thử lại</button></p> : null}
-  </section>;
+  return <CmsToolbar
+    label="Bộ lọc sản phẩm"
+    search={<CmsInput aria-label="Tìm kiếm sản phẩm" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} onBlur={search.onBlur} onChange={(event) => search.onChange(event.target.value)} onFocus={search.onFocus} placeholder="Tìm theo tên hoặc SKU" type="search" value={search.draft} />}
+    filters={<CmsFilterGroup activeCount={advancedCount} label="Bộ lọc sản phẩm" onClear={filters.clearAdvancedFilters}>
+        <CmsToolbarField><CmsSelect aria-label="Lọc theo trạng thái" controlSize="sm" options={PRODUCT_STATUS_FILTER_OPTIONS} value={filters.status ?? ""} onChange={(event) => filters.setStatus((event.target.value || undefined) as ProductStatus | undefined)} /></CmsToolbarField>
+        <CmsToolbarField size="wide"><CmsCombobox aria-label="Lọc theo danh mục" controlSize="sm" disabled={categories.isLoading || Boolean(reason)} options={categoryOptions} value={filters.categoryId ?? ""} onValueChange={(value) => filters.setCategoryId(value || undefined)} /></CmsToolbarField>
+        <CmsToolbarField size="compact"><CmsSelect aria-label="Lọc sản phẩm nổi bật" controlSize="sm" options={BOOLEAN_FILTER_OPTIONS.map((option) => ({ ...option, label: option.value === "" ? "Nổi bật: Tất cả" : `Nổi bật: ${option.label}` }))} value={filters.isFeatured === undefined ? "" : String(filters.isFeatured)} onChange={(event) => filters.setFeatured(parseBoolean(event.target.value))} /></CmsToolbarField>
+        <CmsToolbarField size="compact"><CmsSelect aria-label="Lọc sản phẩm bán chạy" controlSize="sm" options={BOOLEAN_FILTER_OPTIONS.map((option) => ({ ...option, label: option.value === "" ? "Bán chạy: Tất cả" : `Bán chạy: ${option.label}` }))} value={filters.isBestSeller === undefined ? "" : String(filters.isBestSeller)} onChange={(event) => filters.setBestSeller(parseBoolean(event.target.value))} /></CmsToolbarField>
+      </CmsFilterGroup>}
+    actions={filters.isFiltered ? <CmsButton type="button" size="sm" variant="ghost" onClick={filters.clearFilters}><X aria-hidden="true" size={15} /> Xóa tất cả</CmsButton> : null}
+    feedback={reason ? <p className={styles.error} role="alert">Không thể tải đầy đủ danh mục để lọc. <button type="button" onClick={() => categories.refetch()}>Thử lại</button></p> : null}
+  />;
 }
