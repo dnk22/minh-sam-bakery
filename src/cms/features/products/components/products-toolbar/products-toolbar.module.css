@@ -1,14 +1,2 @@
-.toolbar { display: grid; gap: .5rem; padding: .75rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
-.controls { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: .75rem; }
-.search { min-width: min(18rem, 100%); max-width: 22rem; flex: 0 1 22rem; }
-.select { width: 11rem; }
-.category { width: clamp(13rem, 20vw, 17rem); }
-.boolean { width: 10.5rem; }
-.toolbar :global(.cms-button) { min-height: 2.5rem; }
-.error { margin: 0; color: var(--cms-destructive); font-size: .8125rem; }
+.error { margin: 0; color: var(--cms-destructive); font-size: 0.8125rem; }
 .error button { border: 0; padding: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; }
-@media (max-width: 767px) {
-  .controls { align-items: center; flex-wrap: nowrap; }
-  .search { width: auto; min-width: 0; max-width: none; flex: 1 1 0; }
-  .clearAll { display: none; }
-}

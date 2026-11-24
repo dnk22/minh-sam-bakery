@@ -14,12 +14,14 @@ export function CmsFilterGroup({
   activeCount,
   children,
   className,
+  layout = "legacy",
   label,
   onClear,
 }: {
   activeCount: number;
   children: ReactNode;
   className?: string;
+  layout?: "legacy" | "toolbar";
   label: string;
   onClear?: () => void;
 }) {
@@ -30,7 +32,7 @@ export function CmsFilterGroup({
   const open = popoverState.mobile === isMobile ? popoverState.open : false;
   if (popoverState.mobile !== isMobile) setPopoverState({ mobile: isMobile, open: false });
 
-  if (!isMobile) return <div className={cn(styles.desktop, className)}>{children}</div>;
+  if (!isMobile) return <div className={cn(styles.desktop, className)} data-layout={layout}>{children}</div>;
 
   const accessibleLabel = count > 0 ? `${label}, ${count} bộ lọc đang áp dụng` : label;
   return <CmsPopover open={open} onOpenChange={(nextOpen) => setPopoverState({ mobile: true, open: nextOpen })}>
@@ -49,7 +51,7 @@ export function CmsFilterGroup({
           </CmsButton>
         </CmsPopoverClose>
       </header>
-      <div className={styles.body}>{children}</div>
+      <div className={styles.body} data-layout={layout}>{children}</div>
       {onClear && count > 0 ? <footer className={styles.footer}>
         <CmsButton type="button" size="sm" variant="ghost" onClick={onClear}><X aria-hidden="true" size={15} /> Xóa bộ lọc</CmsButton>
       </footer> : null}
