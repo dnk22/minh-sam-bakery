@@ -345,7 +345,7 @@ export function LandingHeader({
               aria-current={pathname === routes.cart ? "page" : undefined}
               className={`flex items-center justify-between border-b border-secondary-fixed/15 py-5 font-headline-sm text-headline-sm transition-colors hover:text-secondary-fixed-dim ${pathname === routes.cart ? "font-semibold text-secondary-fixed" : "text-secondary-fixed"}`}
               href={routes.cart}
-            onNavigate={rememberCartOrigin}
+              onNavigate={rememberCartOrigin}
               onClick={closeDrawer}
             >
               <span className="flex items-center gap-3">

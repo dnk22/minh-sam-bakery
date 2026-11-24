@@ -113,9 +113,20 @@ test("checkout uses centered theme-aware dialogs and preserves uncertain submiss
 test("checkout return destination preserves shopping query and rejects unsafe or checkout paths", async () => {
   const { safeReturnTo, checkoutReturnTo } = await import("../src/landing/features/checkout/store/checkout-return.ts");
   for (const path of ["/", "/danh-muc/banh-tet", "/danh-muc/banh-tet/banh-a", "/tim-kiem?q=banh&page=2#ket-qua"]) assert.equal(safeReturnTo(path),path);
-  for (const path of ["https://evil.example","//evil.example","/don-hang","/thanh-toan","/cms","/api/public/orders/create","/danh-muc/../thanh-toan","/%2f%2fevil.example",null]) assert.equal(safeReturnTo(path),null);
+  for (const path of ["https://evil.example","//evil.example","/don-hang","/thanh-toan","/cms","/api/public/orders/create","/danh-muc/../thanh-toan","/%2f%2fevil.example","/danh-muc/foo%2f..%2f..%2fcms",null]) assert.equal(safeReturnTo(path),null);
   assert.equal(checkoutReturnTo(undefined),"/tim-kiem");
   const page = readFileSync("src/landing/features/checkout/components/checkout-page.tsx","utf8");
   assert.match(page,/router.replace\(checkout.returnTo\)/);
   assert.doesNotMatch(page,/router.replace\(routes.home\)/);
+});
+
+test("both cart links capture the source and checkout preserves the destination through receipt cleanup", () => {
+  const header = readFileSync("src/landing/components/layout/landing-header.tsx","utf8");
+  const intent = readFileSync("src/landing/features/checkout/store/checkout-intent.ts","utf8");
+  const controller = readFileSync("src/landing/features/checkout/hooks/use-checkout-controller.ts","utf8");
+  assert.equal((header.match(/onNavigate=\{rememberCartOrigin\}/g) ?? []).length,2);
+  assert.match(intent,/returnTo: cartOrigin\(\)/);
+  assert.match(intent,/returnTo: currentShoppingUrl\(\)/);
+  assert.match(controller,/saveReceiptOrigin\(intent.returnTo\)/);
+  assert.match(controller,/savedIntent\?\.returnTo \?\? receiptOrigin\(\)/);
 });

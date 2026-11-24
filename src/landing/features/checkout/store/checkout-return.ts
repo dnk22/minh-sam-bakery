@@ -10,7 +10,7 @@ export function safeReturnTo(value: unknown): string | null {
     const url = new URL(value, "https://landing.invalid");
     if (url.origin !== "https://landing.invalid") return null;
     const path = decodeURIComponent(url.pathname).replace(/\/+$/, "") || "/";
-    if (path.includes("\\") || path.startsWith("//")) return null;
+    if (path.includes("\\") || path.startsWith("//") || path.split("/").some(segment => segment === "." || segment === "..") || /[\u0000-\u001f\u007f]/.test(path)) return null;
     if (!(path === "/" || [routes.categories, routes.search, routes.journal, routes.about].some(root => path === root || path.startsWith(root + "/")))) return null;
     return url.pathname + url.search + url.hash;
   } catch { return null; }
