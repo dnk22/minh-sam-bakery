@@ -17,10 +17,10 @@ type Props = ThemeActions & {
   listQuery: UseQueryResult<ThemeList, Error>;
 };
 
-export function ThemesCollection({ filters, listQuery, onDetail, onDuplicate, onDelete }: Props) {
+export function ThemesCollection({ filters, listQuery, onDetail, onDuplicate, onDelete, onActivate }: Props) {
   const columns = useMemo(
-    () => createThemeColumns({ onDetail, onDuplicate, onDelete }),
-    [onDetail, onDuplicate, onDelete],
+    () => createThemeColumns({ onDetail, onDuplicate, onDelete, onActivate }),
+    [onDetail, onDuplicate, onDelete, onActivate],
   );
   const data = listQuery.data;
   return (

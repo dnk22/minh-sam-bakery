@@ -38,3 +38,12 @@ export async function backendDeleteTheme(token: string, id: string): Promise<{ i
     accessToken: token, cache: "no-store", validate: isDeletedTheme,
   })).data;
 }
+
+/** A separate mutation: normal theme PATCH must remain draft-only. */
+export async function backendActivateTheme(token: string, id: string): Promise<CmsTheme> {
+  return (await backendRequest({
+    path: "/api/v1/themes/" + encodeURIComponent(id),
+    method: "PATCH", accessToken: token, body: { isActive: true },
+    cache: "no-store", validate: isTheme,
+  })).data;
+}

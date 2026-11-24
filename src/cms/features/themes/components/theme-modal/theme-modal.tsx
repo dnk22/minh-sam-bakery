@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, LoaderCircle, Pencil, Trash2 } from "lucide-react";
+import { Copy, Eye, LoaderCircle, Pencil, Power, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { FieldPath } from "react-hook-form";
 
@@ -25,10 +25,11 @@ import styles from "../theme-ui.module.css";
 
 const FORM_ID = "theme-form";
 
-export function ThemeModal({ state, onStateChange, onDelete }: {
+export function ThemeModal({ state, onStateChange, onDelete, onActivate }: {
   state: ThemeModalState;
   onStateChange: (state: ThemeModalState) => void;
   onDelete: (theme: CmsTheme) => void;
+  onActivate: (theme: CmsTheme) => void;
 }) {
   const mode = state?.mode;
   const id = state && "id" in state ? state.id : undefined;
@@ -119,6 +120,12 @@ export function ThemeModal({ state, onStateChange, onDelete }: {
           Lưu theme nháp
         </CmsButton>
       </> : theme ? <>
+        {configValid ? <CmsButton type="button" variant="outline" asChild>
+          <a href={"/theme-preview/" + encodeURIComponent(theme.id)} target="_blank" rel="noopener noreferrer"><Eye size={16} aria-hidden="true" /> Xem trước</a>
+        </CmsButton> : null}
+        {!theme.isActive && configValid ? <CmsButton type="button" onClick={() => onActivate(theme)}>
+          <Power size={16} aria-hidden="true" /> Kích hoạt
+        </CmsButton> : null}
         {canDuplicate ? <CmsButton type="button" variant="outline" onClick={() => onStateChange({ mode: "duplicate", id: theme.id })}>
           <Copy size={16} aria-hidden="true" /> Nhân bản
         </CmsButton> : null}

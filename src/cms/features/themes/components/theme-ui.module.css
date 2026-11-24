@@ -49,3 +49,8 @@
 .importFile { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .importSection .alert { flex-basis: 100%; }
 @media (max-width: 767px) { .importSection > :global(.cms-button) { width: 100%; justify-content: center; } }
+
+.activationDetails { display: grid; gap: 0.65rem; }
+.activationDetails p { margin: 0; }
+.activationWarnings { padding: 0.75rem; border: 1px solid var(--cms-border); background: var(--cms-muted); border-radius: var(--cms-radius); }
+.activationWarnings ul { margin: 0.4rem 0 0; padding-left: 1.25rem; }

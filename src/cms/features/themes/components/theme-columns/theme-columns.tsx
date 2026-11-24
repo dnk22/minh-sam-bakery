@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Copy, Trash2 } from "lucide-react";
+import { Copy, Eye, Power, Trash2 } from "lucide-react";
 
 import { CmsRowActions } from "@/cms/components/row-actions/row-actions";
 import { CmsBadge } from "@/cms/components/ui/badge/badge";
@@ -12,6 +12,7 @@ export type ThemeActions = {
   onDetail: (theme: CmsTheme) => void;
   onDuplicate: (theme: CmsTheme) => void;
   onDelete: (theme: CmsTheme) => void;
+  onActivate: (theme: CmsTheme) => void;
 };
 
 export function createThemeColumns(actions: ThemeActions): ColumnDef<CmsTheme, unknown>[] {
@@ -29,6 +30,8 @@ export function createThemeColumns(actions: ThemeActions): ColumnDef<CmsTheme, u
       return <CmsRowActions moreLabel={"Mở thao tác " + theme.name} viewLabel={"Xem " + theme.name}
         onView={() => actions.onDetail(theme)}
         actions={[
+          { key: "preview", icon: <Eye size={15} aria-hidden="true" />, label: "Xem trước Landing", disabled: !themeConfigStatus(theme).valid, onSelect: () => window.open("/theme-preview/" + encodeURIComponent(theme.id), "_blank", "noopener,noreferrer") },
+          { key: "activate", icon: <Power size={15} aria-hidden="true" />, label: "Kích hoạt theme", disabled: theme.isActive || !themeConfigStatus(theme).valid, onSelect: () => actions.onActivate(theme) },
           { key: "duplicate", icon: <Copy size={15} aria-hidden="true" />, label: "Nhân bản thành theme nháp", disabled: !themeConfigStatus(theme).valid, onSelect: () => actions.onDuplicate(theme) },
           { key: "delete", icon: <Trash2 size={15} aria-hidden="true" />, label: "Xóa theme", destructive: true, disabled: theme.isActive, separatorBefore: true, onSelect: () => actions.onDelete(theme) },
         ]} />;
