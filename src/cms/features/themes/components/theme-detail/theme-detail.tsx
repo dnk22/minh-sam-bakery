@@ -57,7 +57,7 @@ export function ThemeDetail({ theme }: { theme: CmsTheme }) {
             <li key={item.id}>{item.context} ({item.ratio.toFixed(2)}:1)</li>)}</ul>
         </div> : null}
       </>}
-      {theme.isActive ? <p className={styles.note}>Theme đang chạy trên website. Hãy nhân bản để chỉnh sửa; Phase 4 sẽ bổ sung Preview và kích hoạt an toàn.</p> : null}
+      {theme.isActive ? <p className={styles.note}>Theme đang chạy trên Landing. Hãy nhân bản trước khi chỉnh sửa.</p> : null}
     </div>
   );
 }

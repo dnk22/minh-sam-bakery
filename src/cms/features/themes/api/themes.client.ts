@@ -15,3 +15,6 @@ export const createTheme = (input: ThemeCreateInput) => cmsApiClient.post<CmsThe
 export const updateTheme = (id: string, input: ThemePatchInput) =>
   cmsApiClient.patch<CmsTheme>("/themes/" + encodeURIComponent(id), input);
 export const deleteTheme = (id: string) => cmsApiClient.delete<{ id: string }>("/themes/" + encodeURIComponent(id));
+
+export const activateTheme = (id: string) =>
+  cmsApiClient.post<CmsTheme>("/themes/" + encodeURIComponent(id) + "/activate", {});

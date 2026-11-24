@@ -173,3 +173,44 @@ test("import control is only rendered during create and keeps the existing form/
   assert.match(component, /parseThemeImportJson/);
   assert.match(modal, /formToThemeCreate\(values\)/);
 });
+
+test("Phase 4 activation is isolated, authenticated and only revalidates after Backend success", () => {
+  const route = readFileSync("src/app/api/cms/themes/[id]/activate/route.ts", "utf8");
+  const server = readFileSync("src/cms/features/themes/api/themes.server.ts", "utf8");
+  const client = readFileSync("src/cms/features/themes/api/themes.client.ts", "utf8");
+  assert.match(route, /isTrustedSameOriginRequest\(request\)/);
+  assert.match(route, /requireThemeAccess\(\)/);
+  assert.match(route, /backendThemeDetail\(access\.accessToken, id/);
+  assert.match(route, /parseThemeConfig\(theme\.config\)/);
+  assert.match(route, /result\.id !== id \|\| !result\.isActive/);
+  assert.ok(route.indexOf("backendActivateTheme(") < route.indexOf("revalidateLandingActiveTheme()"));
+  assert.match(server, /body: \{ isActive: true \}/);
+  assert.match(client, /"\/activate"/);
+  const edit = readFileSync("src/app/api/cms/themes/[id]/route.ts", "utf8");
+  assert.match(edit, /themePatchSchema/);
+  assert.doesNotMatch(edit, /backendActivateTheme/);
+});
+
+test("Phase 4 CMS actions show preview and restrict activation to valid inactive theme", () => {
+  const columns = readFileSync("src/cms/features/themes/components/theme-columns/theme-columns.tsx", "utf8");
+  const page = readFileSync("src/cms/features/themes/components/themes-page/themes-page.tsx", "utf8");
+  const modal = readFileSync("src/cms/features/themes/components/theme-modal/theme-modal.tsx", "utf8");
+  const dialog = readFileSync("src/cms/features/themes/components/theme-activate-dialog/theme-activate-dialog.tsx", "utf8");
+  assert.match(columns, /theme-preview\//);
+  assert.match(columns, /disabled: theme\.isActive \|\| !themeConfigStatus\(theme\)\.valid/);
+  assert.match(page, /<ThemeActivateDialog/);
+  assert.match(modal, /onActivate\(theme\)/);
+  assert.match(dialog, /validateThemeContrast\(parsed\.data\)/);
+  assert.match(dialog, /activation\.mutateAsync\(theme\.id\)/);
+});
+
+test("Private Landing preview does not read/write the active public theme cache", () => {
+  const preview = readFileSync("src/app/theme-preview/[id]/page.tsx", "utf8");
+  assert.match(preview, /requireThemeAccess\(\)/);
+  assert.match(preview, /backendThemeDetail\(access\.accessToken, id\)/);
+  assert.match(preview, /parseThemeConfig\(theme\.config\)/);
+  assert.match(preview, /resolveTheme\(parsed\.data\)/);
+  assert.match(preview, /robots: \{ index: false, follow: false/);
+  assert.match(preview, /<HomePage \/>/);
+  assert.doesNotMatch(preview, /getActiveLandingTheme|revalidateLandingActiveTheme|cacheTag|use cache/);
+});

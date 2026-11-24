@@ -202,3 +202,27 @@ Registry không tải URL/font tùy ý và không thay font size, weight, line-h
 Legacy config không có `schemaVersion: 1` không được migrate. Runtime fallback Classic và trả diagnostic; CMS strict parse trả issues. Phase 1 chưa xác minh semantics activation của Backend, quyền activate, khả năng nhiều active theme, cache headers, giá trị `null` khi chưa có theme, hay việc `PATCH isActive` có tự deactivate bản ghi cũ hay không. Các điểm này phải xác nhận trước Phase 2/3.
 
 V1 chưa quản lý hardcoded overlay/shadow, generic `font-serif`/`font-mono`, layout, spacing, typography metrics, animation, scheduling hoặc content. `cssVariables` chỉ là dữ liệu sẵn sàng tích hợp; Phase 1 không thay runtime `globals.css`.
+
+## Phase 4 — CMS Activation và Landing Preview
+
+### Activation
+
+BFF `POST /api/cms/themes/:id/activate` yêu cầu session CMS hợp lệ và same-origin request. Trước khi gọi Backend, BFF đọc theme trực tiếp (không cache), kiểm tra chưa active và parse nghiêm ngặt `ThemeConfigV1`. Backend nhận `PATCH /api/v1/themes/:id` với `{ "isActive": true }`; response phải xác nhận đúng ID và `isActive === true`. Sau đó BFF gọi `revalidateLandingActiveTheme()` để invalidate cache tag `landing-active-theme`, đồng thời UI invalidate React Query lists/detail. Trường hợp BE trả lỗi thì không đổi trạng thái UI hoặc cache.
+
+**Backend contract bắt buộc:** chỉ một active theme tại mọi thời điểm. Chuyển đổi active theme phải atomic/transactional ở Backend; FE không tự thay đổi trạng thái các bản ghi cũ vì có rủi ro race. BFF chỉ tin response của Backend; nếu backend không enforce exclusivity, activation workflow chưa an toàn cho production.
+
+**Cache caveat:** Next.js cache tag đã invalidate nhưng browser tab đang mở có thể giữ Router Cache. Người xem nên navigation/refresh để nhận theme mới. Nếu cache invalidation lỗi sau khi BE đã kích hoạt, cần ghi nhận và kiểm tra lại trạng thái trước khi retry; Backend update không thể rollback bằng UI tự động.
+
+### Protected preview
+
+Route `/theme-preview/[id]` là server-rendered Landing homepage preview dùng chính Header, Footer, HomePage và Theme Engine. Nó đọc session CMS trên server và lấy theme draft trực tiếp qua Backend detail API với access token CMS. Không gửi token hay config lên URL, không set preview cookie, không ghi vào public cache, và có metadata `robots: noindex, nofollow, nocache`. Session không hợp lệ/theme không tồn tại/config invalid trả 404. Link mở tab mới. Preview chỉ bao gồm **trang chủ** trong V1; điều hướng sang trang catalog sẽ trở lại public theme, không coi đó là preview nhiều trang.
+
+### Test / QA
+
+- Kiểm tra chuyển Classic → Tết → Classic, verify Backend chỉ một bản ghi active sau mỗi lần chuyển.
+- Verify trong CMS action không xuất hiện cho theme config invalid hoặc đang active.
+- BFF yêu cầu CSRF origin và session; không thể bypass bằng direct POST.
+- Preview theme nháp với session CMS có quyền và kiểm tra người không đăng nhập nhận 404.
+- Visual check homepage preview trên 375px, 768px và 1440px; dialog/portal và computed colors/fonts.
+- Sau activation hard refresh public Landing, kiểm tra root semantic CSS variables trùng active ThemeConfigV1; test cold cache, stale cache, Backend timeout và retry.
+- `pnpm test:cms-themes`, `pnpm test:theme`, `pnpm test:landing-theme`, `pnpm exec tsc --noEmit`, `pnpm build`.
