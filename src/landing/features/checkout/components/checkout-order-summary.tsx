@@ -6,10 +6,12 @@ import { formatVnd } from "@/landing/features/catalog/pricing";
 import type { CheckoutIntent } from "@/landing/features/cart/types";
 import { routes } from "@/landing/lib/routes";
 
-export function CheckoutOrderSummary({ intent, isDelivery, formChecked }: {
+export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, error }: {
   intent: CheckoutIntent;
   isDelivery: boolean;
-  formChecked: boolean;
+  pending: boolean;
+  blocked: boolean;
+  error: string;
 }) {
   const subtotal = intent.items.reduce(
     (sum, item) => sum + item.effectivePrice * item.quantity,
@@ -57,19 +59,12 @@ export function CheckoutOrderSummary({ intent, isDelivery, formChecked }: {
       </div>
       <button
         className="mt-space-lg flex min-h-12 w-full items-center justify-center rounded-lg bg-primary px-space-lg font-label-ui text-label-ui font-semibold text-on-primary"
+        disabled={pending || blocked}
         type="submit"
       >
-        Kiểm tra thông tin
+        {pending ? "Đang gửi đơn..." : "Đặt hàng"}
       </button>
-      {formChecked ? (
-        <div
-          className="mt-space-md rounded-lg bg-surface-container-low p-space-md font-body-sm text-body-sm text-primary"
-          role="status"
-        >
-          Thông tin hợp lệ. Chức năng gửi đơn hàng đang chờ cập nhật API;
-          chưa có đơn hàng hay thanh toán nào được tạo.
-        </div>
-      ) : null}
+      {error ? <p className="mt-space-md text-error" role="alert">{error}</p> : null}
       <Link
         className="mt-space-md flex items-center justify-center gap-2 font-body-sm text-secondary hover:underline"
         href={intent.source === "cart" ? routes.cart : routes.search}

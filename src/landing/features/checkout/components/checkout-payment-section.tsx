@@ -22,7 +22,7 @@ export function CheckoutPaymentSection({ draft, errors, onUpdate }: {
           onChange={(paymentMethod) => onUpdate({ paymentMethod })}
           icon={<CreditCard className="size-5" />}
           label="Chuyển khoản ngân hàng"
-          note="Thông tin chuyển khoản hiển thị sau khi đơn được tạo"
+          note="Hiển thị QR trước khi xác nhận đặt hàng"
         />
         <PaymentOption
           value="AT_STORE"
