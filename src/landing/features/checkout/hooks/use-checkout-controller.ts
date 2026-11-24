@@ -7,6 +7,7 @@ import { useCartStore } from "@/landing/features/cart/store/cart-store";
 import type { Order, CreateOrderInput } from "@/lib/contracts/order/order.types";
 import { buildOrderRequest } from "../utils/order-request-mapper";
 import { useCreateOrder } from "./use-create-order";
+import { checkoutReturnTo, receiptOrigin, saveReceiptOrigin, clearReceiptOrigin, clearCartOrigin } from "../store/checkout-return";
 import { readReceipt, clearReceipt, hasPending } from "../store/checkout-receipt";
 import type { CheckoutIntent } from "@/landing/features/cart/types";
 
@@ -21,6 +22,7 @@ export function useCheckoutController() {
   const [intent, setIntent] = useState<CheckoutIntent | null>(null);
   const [draft, setDraft] = useState<CheckoutDraft>(initialCheckoutDraft);
   const [errors, setErrors] = useState<CheckoutErrors>({});
+  const [returnTo, setReturnTo] = useState<string>("/tim-kiem");
   const [receipt, setReceipt] = useState<Order | null>(null);
   const [transferInput, setTransferInput] = useState<CreateOrderInput | null>(null);
   const [blocked, setBlocked] = useState(false);
@@ -32,6 +34,7 @@ export function useCheckoutController() {
   useEffect(() => {
     const savedIntent = loadCheckoutIntent();
     setIntent(savedIntent);
+    setReturnTo(checkoutReturnTo(savedIntent?.returnTo ?? receiptOrigin()));
     const savedReceipt = readReceipt();
     if (savedReceipt) { setReceipt(savedReceipt); setIntent(null); clearCheckoutIntent(); clearCheckoutDraft(); }
     setBlocked(hasPending());
@@ -97,6 +100,8 @@ export function useCheckoutController() {
       if (intent.source === "cart") {
         useCartStore.getState().consumePurchasedItems(intent.items);
       }
+      saveReceiptOrigin(intent.returnTo);
+      if (intent.source === "cart") clearCartOrigin();
       clearCheckoutIntent();
       clearCheckoutDraft();
       setTransferInput(null);
@@ -106,13 +111,13 @@ export function useCheckoutController() {
   }
 
   return {
-    receipt, transferInput,
+    receipt, transferInput, returnTo,
     pending: submission.pending,
     blocked: blocked || submission.uncertain || Boolean(intent?.source === "cart" && !cartHydrated),
     submitError: submission.error || (blocked ? "Chưa xác minh được lần đặt hàng trước. Vui lòng liên hệ cửa hàng trước khi đặt lại." : ""),
     closeTransfer: () => { if (!submission.pending) setTransferInput(null); },
     confirmTransfer: () => { if (transferInput && !blocked) void submit(transferInput); },
-    closeReceipt: () => { clearReceipt(); setReceipt(null); },
+    closeReceipt: () => { clearReceipt(); clearReceiptOrigin(); setReceipt(null); },
     loaded,
     intent,
     draft,

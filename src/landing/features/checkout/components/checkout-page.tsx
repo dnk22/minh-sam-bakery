@@ -17,7 +17,7 @@ import { useCheckoutController } from "../hooks/use-checkout-controller";
 export function CheckoutPage() {
   const checkout = useCheckoutController();
   const router = useRouter();
-  if (checkout.receipt) return <CheckoutSuccessModal order={checkout.receipt} onClose={() => { checkout.closeReceipt(); router.replace(routes.home); }} />;
+  if (checkout.receipt) return <CheckoutSuccessModal order={checkout.receipt} onClose={() => { checkout.closeReceipt(); router.replace(checkout.returnTo); }} />;
 
   if (!checkout.loaded) {
     return (

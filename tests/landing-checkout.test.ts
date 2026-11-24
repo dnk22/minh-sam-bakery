@@ -109,3 +109,13 @@ test("checkout uses centered theme-aware dialogs and preserves uncertain submiss
   assert.match(mutation,/lock.current/);
   assert.match(mutation,/markPending/);
 });
+
+test("checkout return destination preserves shopping query and rejects unsafe or checkout paths", async () => {
+  const { safeReturnTo, checkoutReturnTo } = await import("../src/landing/features/checkout/store/checkout-return.ts");
+  for (const path of ["/", "/danh-muc/banh-tet", "/danh-muc/banh-tet/banh-a", "/tim-kiem?q=banh&page=2#ket-qua"]) assert.equal(safeReturnTo(path),path);
+  for (const path of ["https://evil.example","//evil.example","/don-hang","/thanh-toan","/cms","/api/public/orders/create","/danh-muc/../thanh-toan","/%2f%2fevil.example",null]) assert.equal(safeReturnTo(path),null);
+  assert.equal(checkoutReturnTo(undefined),"/tim-kiem");
+  const page = readFileSync("src/landing/features/checkout/components/checkout-page.tsx","utf8");
+  assert.match(page,/router.replace\(checkout.returnTo\)/);
+  assert.doesNotMatch(page,/router.replace\(routes.home\)/);
+});

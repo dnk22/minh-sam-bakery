@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import type { FocusEvent, MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
+import { rememberCartOrigin } from "@/landing/features/checkout/store/checkout-return";
 import { useCartHydrated } from "@/landing/features/cart/components/cart-hydration";
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
 import type { CatalogCategory } from "@/landing/features/catalog/types";
@@ -230,6 +231,7 @@ export function LandingHeader({
             aria-current={pathname === routes.cart ? "page" : undefined}
             className={`relative hidden size-11 items-center justify-center rounded-lg transition-colors hover:bg-primary-container lg:flex ${pathname === routes.cart ? "bg-primary-container text-secondary-fixed" : "text-secondary-fixed-dim"}`}
             href={routes.cart}
+            onNavigate={rememberCartOrigin}
             title="Giỏ hàng"
           >
             <ShoppingCart aria-hidden="true" className="size-5" />
@@ -343,6 +345,7 @@ export function LandingHeader({
               aria-current={pathname === routes.cart ? "page" : undefined}
               className={`flex items-center justify-between border-b border-secondary-fixed/15 py-5 font-headline-sm text-headline-sm transition-colors hover:text-secondary-fixed-dim ${pathname === routes.cart ? "font-semibold text-secondary-fixed" : "text-secondary-fixed"}`}
               href={routes.cart}
+            onNavigate={rememberCartOrigin}
               onClick={closeDrawer}
             >
               <span className="flex items-center gap-3">
