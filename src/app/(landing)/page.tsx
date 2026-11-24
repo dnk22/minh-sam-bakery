@@ -2,6 +2,7 @@ import { CraftsmanshipSection } from "@/landing/components/sections/craftsmanshi
 import { FinalCtaSection } from "@/landing/components/sections/final-cta-section";
 import { GiftingSection } from "@/landing/components/sections/gifting-section";
 import { HeroSection } from "@/landing/components/sections/hero-section";
+import { selectHomeCategories } from "@/landing/components/sections/category-showcase-policy";
 import { ProductCategoriesSection } from "@/landing/components/sections/product-categories-section";
 import { TrainingTransferSection } from "@/landing/components/sections/training-transfer-section";
 import { getCatalogCategories } from "@/landing/features/catalog/repository";
@@ -23,7 +24,7 @@ export default async function HomePage() {
       <div className="flex flex-col w-full">
         <HeroSection banners={heroBanners} />
         <ProductCategoriesSection
-          categories={categories}
+          categories={selectHomeCategories(categories)}
           loadFailed={categoriesResult.status === "rejected"}
         />
         <GiftingSection banners={giftingBanners} />

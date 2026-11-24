@@ -302,3 +302,30 @@ test("shared quantity stepper serves Catalog, Product and Cart without domain de
     assert.match(source, /<QuantityStepper/);
   }
 });
+
+test("homepage caps the ordered catalog at six without truncating shared navigation data", async () => {
+  const { selectHomeCategories } = await import("../src/landing/components/sections/category-showcase-policy.ts");
+  const items = Array.from({ length: 9 }, (_, index) => ({ slug: String(index) }));
+  assert.deepEqual(selectHomeCategories(items), items.slice(0, 6));
+  assert.equal(items.length, 9);
+  assert.deepEqual(selectHomeCategories(items.slice(0, 2)), items.slice(0, 2));
+  assert.deepEqual(selectHomeCategories([]), []);
+});
+test("public category image URLs support backend relative paths and external CDN URLs", async () => {
+  const { resolveBackendAssetUrl } = await import("../src/lib/api/asset-url.ts");
+  const base = "https://backend.test";
+  assert.equal(resolveBackendAssetUrl("/uploads/categories/a.jpg", base), base + "/uploads/categories/a.jpg");
+  assert.equal(resolveBackendAssetUrl(" uploads/categories/a.jpg ", base), base + "/uploads/categories/a.jpg");
+  assert.equal(resolveBackendAssetUrl("https://cdn.test/a.jpg", base), "https://cdn.test/a.jpg");
+  assert.equal(resolveBackendAssetUrl("//cdn.test/a.jpg", base), "https://cdn.test/a.jpg");
+  assert.equal(resolveBackendAssetUrl(" ", base), null);
+  assert.equal(resolveBackendAssetUrl("javascript:alert(1)", base), null);
+  assert.equal(isCategory({ ...category, imageUrl: "/uploads/categories/a.jpg" }), true);
+});
+test("category updates expire public cache and homepage uses responsive minimum heights", () => {
+  const cache = readFileSync("src/cms/features/categories/api/category-cache.ts", "utf8");
+  const section = readFileSync("src/landing/components/sections/product-categories-section.tsx", "utf8");
+  assert.match(cache, /revalidateTag\("catalog-categories", \{ expire: 0 \}\)/);
+  assert.match(section, /selectHomeCategories\(categories\)/);
+  assert.match(section, /lg:auto-rows-\[minmax\(300px,1fr\)\]/);
+});

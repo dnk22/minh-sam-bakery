@@ -3,18 +3,20 @@ import Link from "next/link";
 
 import { Reveal } from "@/landing/components/motion/reveal";
 import { StaggerReveal } from "@/landing/components/motion/stagger-reveal";
-import { SafeImage } from "@/landing/components/ui/safe-image";
+import { CategoryCardImage } from "./category-card-image";
 import type { CatalogCategory } from "@/landing/features/catalog/types";
 import { routes } from "@/landing/lib/routes";
 
+import { selectHomeCategories } from "./category-showcase-policy";
 import { categoryLayout } from "./category-bento-layout";
 
 export function ProductCategoriesSection({ categories, loadFailed = false }: { categories: CatalogCategory[]; loadFailed?: boolean }) {
-  const itemClassNames = categories.map((_, index) => categoryLayout(index, categories.length));
+  const items = selectHomeCategories(categories);
+  const itemClassNames = items.map((_, index) => categoryLayout(index, items.length));
 
   return (
-    <section className="flex w-full flex-col justify-between bg-surface px-6 py-16 text-on-surface md:px-12 lg:min-h-[calc(100vh-var(--landing-header-height))] lg:px-20" id="danh-muc">
-      <div className="mx-auto w-full max-w-7xl">
+    <section className="flex w-full flex-col bg-surface px-6 py-16 text-on-surface md:px-12 lg:min-h-[calc(100vh-var(--landing-header-height))] lg:px-20" id="danh-muc">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <Reveal>
             <div>
@@ -35,13 +37,13 @@ export function ProductCategoriesSection({ categories, loadFailed = false }: { c
               <Link className="mt-4 inline-flex rounded bg-primary px-5 py-2.5 font-label-ui text-label-ui text-on-primary transition-colors hover:bg-primary-container" href={routes.home}>Thử lại</Link>
             </div>
           </Reveal>
-        ) : categories.length > 0 ? (
+        ) : items.length > 0 ? (
           <StaggerReveal
-            className="grid grid-cols-1 auto-rows-[minmax(200px,auto)] gap-5 md:grid-cols-2 md:auto-rows-[minmax(185px,auto)] lg:grid-cols-12 lg:auto-rows-[minmax(185px,auto)]"
+            className="grid flex-1 grid-cols-1 auto-rows-[minmax(280px,1fr)] gap-5 md:grid-cols-2 md:auto-rows-[minmax(260px,1fr)] lg:grid-cols-12 lg:auto-rows-[minmax(300px,1fr)]"
             delay={0.06}
             itemClassNames={itemClassNames}
           >
-            {categories.map((category, index) => (
+            {items.map((category, index) => (
               <CategoryCard category={category} index={index} key={category.id ?? category.slug} />
             ))}
           </StaggerReveal>
@@ -73,10 +75,10 @@ function CategoryCard({ category, index }: { category: CatalogCategory; index: n
 
   return (
     <Link
-      className={`group relative flex h-full min-h-[200px] overflow-hidden rounded bg-surface-container shadow-sm transition-all duration-300 hover:shadow-md ${isHorizontal ? "flex-col justify-center p-6" : `flex-col justify-end ${isLarge ? "p-6" : "p-4"}`}`}
+      className={`group relative flex h-full min-h-[280px] md:min-h-[260px] lg:min-h-[300px] overflow-hidden rounded bg-surface-container shadow-sm transition-all duration-300 hover:shadow-md ${isHorizontal ? "flex-col justify-center p-6" : `flex-col justify-end ${isLarge ? "p-6" : "p-4"}`}`}
       href={routes.category(category.slug)}
     >
-      <SafeImage alt={category.imageAlt} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={category.image} />
+      <CategoryCardImage alt={category.imageAlt} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={category.image} />
       <div className={`absolute inset-0 ${isHorizontal ? "bg-gradient-to-r from-primary/95 via-primary/80 to-primary/45" : isLarge ? "bg-gradient-to-t from-primary/95 via-primary/40 to-transparent" : "bg-gradient-to-t from-primary/90 via-primary/50 to-transparent"}`} />
       <div className={`relative z-10 text-on-primary ${isHorizontal ? "flex items-center justify-between gap-4" : ""}`}>
         <div className="min-w-0">
