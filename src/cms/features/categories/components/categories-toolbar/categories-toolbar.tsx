@@ -27,7 +27,7 @@ export function CategoriesToolbar({ filters }: { filters: CategoryFilters }) {
   return <CmsToolbar
     label="Bộ lọc danh mục"
     search={<CmsInput aria-label="Tìm kiếm danh mục" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} onBlur={search.onBlur} onChange={(event) => search.onChange(event.target.value)} onFocus={search.onFocus} placeholder="Tìm theo tên hoặc slug" type="search" value={search.draft} />}
-    filters={<CmsFilterGroup activeCount={advancedCount} label="Bộ lọc danh mục" onClear={filters.clearAdvancedFilters}>
+    filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc danh mục" onClear={filters.clearAdvancedFilters}>
         <CmsToolbarField>
           <CmsSelect aria-label="Lọc theo trạng thái" controlSize="sm" id="category-status-filter" options={CATEGORY_STATUS_FILTER_OPTIONS} value={filters.status ?? ""} onChange={(event) => { const value = event.target.value; filters.setStatus(value === "VISIBLE" || value === "HIDDEN" ? value : undefined); }} />
         </CmsToolbarField>

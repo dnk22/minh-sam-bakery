@@ -6,6 +6,7 @@
   gap: 0.75rem;
 }
 
+.desktop[data-layout="toolbar"] { flex: 1 1 0; }
 .desktop > [data-toolbar-field] { flex: 0 1 var(--toolbar-field-basis, 11rem); width: var(--toolbar-field-basis, 11rem); }
 .trigger:global(.cms-button) { position: relative; flex: 0 0 2.5rem; width: 2.5rem; height: 2.5rem; }
 .badge {
@@ -47,7 +48,8 @@
 .close { width: 2rem; height: 2rem; min-height: 2rem; }
 .body { display: grid; min-height: 0; overflow-y: auto; overscroll-behavior: contain; gap: 0.875rem; padding: 0.875rem; }
 .body > [data-toolbar-field] { width: auto; max-width: none; }
-.body > :not([data-toolbar-field]) { width: 100% !important; max-width: none !important; }
+.body[data-layout="toolbar"] { grid-template-columns: minmax(0, 1fr); }
+.body[data-layout="legacy"] > :not([data-toolbar-field]) { width: 100% !important; max-width: none !important; }
 .footer { justify-content: flex-end; border-block-start: 1px solid var(--cms-border); }
 
 @keyframes filter-pop-in {

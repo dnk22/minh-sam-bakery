@@ -110,11 +110,12 @@ test("product and category toolbar sizing is isolated from shared control roots"
   assert.doesNotMatch(shared, /!important/);
   assert.match(group, /\.desktop > \[data-toolbar-field\]/);
   assert.match(group, /\.body > \[data-toolbar-field\]/);
-  assert.match(group, /\.body > :not\(\[data-toolbar-field\]\)/);
+  assert.match(group, /\.body\[data-layout="legacy"\] > :not\(\[data-toolbar-field\]\)/);
   for (const name of ["products", "categories"]) {
     const component = source(`src/cms/features/${name}/components/${name}-toolbar/${name}-toolbar.tsx`);
     assert.match(component, /<CmsToolbar\b/);
     assert.match(component, /<CmsToolbarField\b/);
+    assert.match(component, /<CmsFilterGroup layout="toolbar"/);
     assert.doesNotMatch(component, /containerClassName=/);
     assert.doesNotMatch(component, /className=\{styles\.(toolbar|search|controls|filters|select|statusSelect)\}/);
   }

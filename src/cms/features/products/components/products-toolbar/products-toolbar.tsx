@@ -35,7 +35,7 @@ export function ProductsToolbar({ filters }: { filters: ProductFilters }) {
   return <CmsToolbar
     label="Bộ lọc sản phẩm"
     search={<CmsInput aria-label="Tìm kiếm sản phẩm" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} onBlur={search.onBlur} onChange={(event) => search.onChange(event.target.value)} onFocus={search.onFocus} placeholder="Tìm theo tên hoặc SKU" type="search" value={search.draft} />}
-    filters={<CmsFilterGroup activeCount={advancedCount} label="Bộ lọc sản phẩm" onClear={filters.clearAdvancedFilters}>
+    filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc sản phẩm" onClear={filters.clearAdvancedFilters}>
         <CmsToolbarField><CmsSelect aria-label="Lọc theo trạng thái" controlSize="sm" options={PRODUCT_STATUS_FILTER_OPTIONS} value={filters.status ?? ""} onChange={(event) => filters.setStatus((event.target.value || undefined) as ProductStatus | undefined)} /></CmsToolbarField>
         <CmsToolbarField size="wide"><CmsCombobox aria-label="Lọc theo danh mục" controlSize="sm" disabled={categories.isLoading || Boolean(reason)} options={categoryOptions} value={filters.categoryId ?? ""} onValueChange={(value) => filters.setCategoryId(value || undefined)} /></CmsToolbarField>
         <CmsToolbarField size="compact"><CmsSelect aria-label="Lọc sản phẩm nổi bật" controlSize="sm" options={BOOLEAN_FILTER_OPTIONS.map((option) => ({ ...option, label: option.value === "" ? "Nổi bật: Tất cả" : `Nổi bật: ${option.label}` }))} value={filters.isFeatured === undefined ? "" : String(filters.isFeatured)} onChange={(event) => filters.setFeatured(parseBoolean(event.target.value))} /></CmsToolbarField>

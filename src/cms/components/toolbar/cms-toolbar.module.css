@@ -18,6 +18,7 @@
 }
 
 .controls { flex: 1 1 22rem; }
+.controls > [data-layout="toolbar"] { flex: 1 1 auto; }
 .search { min-width: min(18rem, 100%); max-width: 22rem; flex: 0 1 22rem; }
 .field { display: grid; min-width: 0; max-width: 100%; gap: 0.35rem; grid-template-columns: minmax(0, 1fr); }
 .field[data-toolbar-field="compact"] { --toolbar-field-basis: 10.5rem; }
