@@ -8,7 +8,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import {
   loadActiveLandingTheme,
   loadLandingThemeCacheRecord,
-  resolveLandingThemeData,
   resolveLandingThemeFetchFailure,
   resolveLandingThemeFailure,
   type ActiveLandingTheme,

@@ -2,7 +2,7 @@
 
 import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
 import { ImageUploadPreview } from "@/cms/components/image-upload/image-upload-preview";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, type FormEvent } from "react";
 
 import { ResponsiveModal } from "@/cms/components/responsive-modal/responsive-modal";
 import { CmsButton } from "@/cms/components/ui/button";
@@ -57,7 +57,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
     } else form.setError("root.server", { message: "Không thể lưu danh mục lúc này." });
   };
 
-  const submit = form.handleSubmit(async (values) => {
+  const save = async (values: CategoryFormValues) => {
     if (pending || submitting.current) return;
     if (uploadPending) {
       const message = "Hãy tải ảnh đã chọn lên trước khi lưu.";
@@ -80,7 +80,8 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
       }
       if (saved) { form.reset(categoryToForm(saved)); onStateChange({ mode: "detail", id: saved.id }); }
     } catch (error) { setBackendError(error); } finally { submitting.current = false; }
-  }, onInvalid);
+  };
+  const submit = (event: FormEvent<HTMLFormElement>) => { void form.handleSubmit(save, onInvalid)(event); };
 
   const title = mode === "create" ? "Thêm danh mục" : mode === "edit" ? "Chỉnh sửa danh mục" : "Chi tiết danh mục";
   return (

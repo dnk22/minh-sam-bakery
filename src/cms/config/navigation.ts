@@ -87,6 +87,14 @@ export function isCmsRouteActive(pathname: string, href: string) {
 }
 
 export function resolveCmsBreadcrumbs(pathname: string): CmsBreadcrumbItem[] {
+  if (isCmsRouteActive(pathname, "/cms/settings/display")) {
+    return [
+      { title: "Hệ thống", href: "/cms", active: false },
+      { title: "Cài đặt", href: "/cms/settings", active: false },
+      { title: "Giao diện & hiển thị", href: "/cms/settings/display", active: true },
+    ];
+  }
+
   for (const group of cmsNavigation) {
     for (const item of group.items) {
       if (!("items" in item)) {
@@ -109,14 +117,6 @@ export function resolveCmsBreadcrumbs(pathname: string): CmsBreadcrumbItem[] {
         }
       }
     }
-  }
-
-  if (pathname.startsWith("/cms/settings/")) {
-    return [
-      { title: "Hệ thống", href: "/cms", active: false },
-      { title: "Cài đặt", href: "/cms/settings", active: false },
-      { title: "Giao diện & hiển thị", href: "/cms/settings/display", active: true },
-    ];
   }
 
   if (pathname === "/cms/notifications") {

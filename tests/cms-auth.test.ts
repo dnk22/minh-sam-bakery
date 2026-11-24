@@ -328,9 +328,13 @@ test("resolves active CMS route breadcrumbs from navigation", () => {
     { title: "Nội dung cửa hàng", href: "/cms/products", active: false },
     { title: "Sản phẩm", href: "/cms/products", active: true },
   ]);
+  assert.deepEqual(resolveCmsBreadcrumbs("/cms/settings"), [
+    { title: "Hệ thống", href: "/cms", active: false },
+    { title: "Cài đặt", href: "/cms/settings", active: true },
+  ]);
   assert.deepEqual(resolveCmsBreadcrumbs("/cms/settings/display"), [
     { title: "Hệ thống", href: "/cms", active: false },
-    { title: "Cài đặt", href: "/cms/settings/appearance", active: false },
-    { title: "Hiển thị", href: "/cms/settings/display", active: true },
+    { title: "Cài đặt", href: "/cms/settings", active: false },
+    { title: "Giao diện & hiển thị", href: "/cms/settings/display", active: true },
   ]);
 });
