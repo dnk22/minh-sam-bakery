@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 
-import { productFormSchema, productToForm, vietnameseProductSlug } from "../schemas/product.schema";
+import { productFormSchema } from "../schemas/product.schema";
+import { productToForm, vietnameseProductSlug } from "../lib/product-form-mapper";
 import type { Product, ProductFormValues, ProductModalState } from "../types";
 
 export function useProductForm({ state, product }: { state: ProductModalState; product?: Product }) {
