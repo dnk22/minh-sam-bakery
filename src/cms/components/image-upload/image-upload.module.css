@@ -11,3 +11,5 @@
 .spin { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+.placeholder { display: grid; place-items: center; gap: .5rem; padding: 1rem; font-size: .8125rem; text-align: center; }

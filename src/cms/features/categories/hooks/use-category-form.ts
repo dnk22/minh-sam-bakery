@@ -55,7 +55,7 @@ export function useCategoryForm({
     if (!sessionChanged && !sourceChanged) return;
 
     source.current = { sessionKey, version: sourceVersion };
-    if (!sessionChanged && form.formState.isDirty) return;
+    if (!sessionChanged && (form.formState.isDirty || uploadPending)) return;
 
     slugManual.current = mode === "edit";
     // A new form session must not inherit unfinished upload state.
@@ -63,7 +63,7 @@ export function useCategoryForm({
     form.reset(
       categoryToForm(mode === "edit" ? category : undefined, state.parentId),
     );
-  }, [category, form, mode, sessionKey, sourceVersion, state]);
+  }, [category, form, mode, sessionKey, sourceVersion, state, uploadPending]);
 
   useEffect(() => {
     if (mode === "create" && !slugManual.current) {

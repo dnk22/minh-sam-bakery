@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 
 import { getCategoryStatusPresentation } from "../src/cms/features/categories/constants.ts";
 import { clearCategoryAdvancedFilterQuery, countCategoryAdvancedFilters } from "../src/cms/features/categories/lib/category-data.ts";
@@ -101,4 +102,35 @@ test("validates single image count, MIME and 10 MB bound", () => {
   assert.match(validateSingleImageUpload([{ size: 10, type: "text/plain" }]) ?? "", /10 MB/);
   assert.match(validateSingleImageUpload([{ size: CMS_IMAGE_MAX_BYTES + 1, type: "image/png" }]) ?? "", /10 MB/);
   assert.equal(validateSingleImageUpload([{ size: CMS_IMAGE_MAX_BYTES, type: "image/png" }]), null);
+});
+
+test("category image patch accepts upload paths and absolute URLs, rejects invalid URLs", () => {
+  const original = { ...category("1", null, "Bánh kem"), imageUrl: "/uploads/categories/old.png" };
+  assert.deepEqual(formToPatch(categoryToForm(original), original), {});
+  assert.deepEqual(formToPatch({ ...categoryToForm(original), imageUrl: "/uploads/categories/new.png" }, original), { imageUrl: "/uploads/categories/new.png" });
+  assert.deepEqual(formToPatch({ ...categoryToForm(original), imageUrl: null }, original), { imageUrl: null });
+  for (const imageUrl of [null, "/uploads/categories/new.png", "https://cdn.example.com/image.png"]) {
+    assert.equal(categoryPatchSchema.safeParse({ imageUrl }).success, true);
+  }
+  for (const imageUrl of ["", "javascript:alert(1)", "blob:https://example.com/a", "/uploads/../private.png", "/uploads/%2e%2e/private.png", "https://user:pass@example.com/a.png"]) {
+    assert.equal(categoryPatchSchema.safeParse({ imageUrl }).success, false);
+  }
+  const withoutImage = { ...original, imageUrl: undefined };
+  assert.deepEqual(formToPatch(categoryToForm(withoutImage), withoutImage), {});
+});
+
+test("shared image upload separates cancellation from removal and aborts abandoned requests", () => {
+  const hook = readFileSync("src/cms/components/image-upload/hooks/use-image-upload.ts", "utf8");
+  const actions = readFileSync("src/cms/components/image-upload/image-upload-actions.tsx", "utf8");
+  const preview = readFileSync("src/cms/components/image-upload/image-upload-preview.tsx", "utf8");
+  const modal = readFileSync("src/cms/features/categories/components/category-modal/category-modal.tsx", "utf8");
+  assert.match(hook, /validateSingleImageUpload\(\[file\]\)/);
+  assert.match(hook, /request.current\?\.abort\(\)/);
+  assert.match(hook, /uploadCmsImage\(pending.file, folder, controller.signal\)/);
+  assert.match(hook, /controller.signal.aborted \|\| request.current !== controller/);
+  assert.doesNotMatch(hook.slice(hook.indexOf("const cancel ="), hook.indexOf("const remove =")), /onChange\(/);
+  assert.match(actions, /Hủy ảnh chờ/);
+  assert.match(preview, /Không thể hiển thị ảnh/);
+  assert.match(modal, /form="category-form" disabled=\{pending \|\| uploadPending\}/);
+  assert.match(modal, /saving=\{pending\}/);
 });

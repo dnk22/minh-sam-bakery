@@ -1,19 +1,18 @@
 "use client";
 
 import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
-import Image from "next/image";
-import { useMemo } from "react";
+import { ImageUploadPreview } from "@/cms/components/image-upload/image-upload-preview";
+import { useMemo, useRef } from "react";
 
 import { ResponsiveModal } from "@/cms/components/responsive-modal/responsive-modal";
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsApiError } from "@/cms/lib/api/errors";
-import { cmsAssetUrl } from "@/cms/lib/api/asset-url";
 import { focusCmsFormIssue, useFormValidationFeedback } from "@/cms/hooks/use-form-validation-feedback";
 import { notify } from "@/cms/lib/notifications";
 import { useUnsavedChangesWarning } from "@/cms/hooks/use-unsaved-changes-warning";
 
 import { descendantIds, flattenTreeOptions } from "../../lib/category-tree";
-import { formToCreate, formToPatch } from "../../schemas/category.schema";
+import { categoryToForm, formToCreate, formToPatch } from "../../schemas/category.schema";
 import { useCategoryForm } from "../../hooks/use-category-form";
 import { useCategoryDetail, useCategoryMutations } from "../../hooks/use-category-mutations";
 import { useCategoryTree } from "../../hooks/use-categories";
@@ -30,6 +29,8 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
   const detail = useCategoryDetail(state?.id);
   const treeQuery = useCategoryTree(Boolean(state));
   const mutations = useCategoryMutations();
+  const submitting = useRef(false);
+  const pending = mutations.create.isPending || mutations.update.isPending;
   const isEditing = mode === "create" || mode === "edit";
   const category = detail.data;
   const { form, uploadPending, setUploadPending, markSlugManual } =
@@ -44,7 +45,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
   }, [state, treeQuery.data]);
 
   const close = () => onStateChange(null);
-  const confirmDiscard = () => !isEditing || !form.formState.isDirty || window.confirm("Bỏ các thay đổi chưa lưu?");
+  const confirmDiscard = () => !pending && !submitting.current && (!isEditing || (!form.formState.isDirty && !uploadPending) || window.confirm("Bỏ các thay đổi hoặc ảnh đang chờ upload?"));
   const setBackendError = (error: unknown) => {
     if (error instanceof CmsApiError) {
       const fields = Object.entries(error.fields ?? {}).filter(([field]) => field in form.getValues());
@@ -57,6 +58,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
   };
 
   const submit = form.handleSubmit(async (values) => {
+    if (pending || submitting.current) return;
     if (uploadPending) {
       const message = "Hãy tải ảnh đã chọn lên trước khi lưu.";
       form.setError("root.server", { message });
@@ -64,6 +66,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
       focusCmsFormIssue("category-form", "__upload__");
       return;
     }
+    submitting.current = true;
     try {
       let saved: Category | null = null;
       if (mode === "create") saved = await mutations.create.mutateAsync(formToCreate(values));
@@ -75,18 +78,17 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
         }
         saved = await mutations.update.mutateAsync({ id: category.id, input: patch });
       }
-      if (saved) onStateChange({ mode: "detail", id: saved.id });
-    } catch (error) { setBackendError(error); }
+      if (saved) { form.reset(categoryToForm(saved)); onStateChange({ mode: "detail", id: saved.id }); }
+    } catch (error) { setBackendError(error); } finally { submitting.current = false; }
   }, onInvalid);
 
-  const pending = mutations.create.isPending || mutations.update.isPending;
   const title = mode === "create" ? "Thêm danh mục" : mode === "edit" ? "Chỉnh sửa danh mục" : "Chi tiết danh mục";
   return (
     <ResponsiveModal open={Boolean(state)} onOpenChange={(open) => { if (!open) close(); }} onBeforeClose={confirmDiscard} title={title}
       description={mode === "detail" ? "Thông tin hiện tại từ hệ thống." : "Các trường có dấu yêu cầu phải hợp lệ trước khi lưu."}
       footer={state ? isEditing ? <>
         <CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) close(); }}>Hủy</CmsButton>
-        <CmsButton type="submit" form="category-form" disabled={pending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu danh mục</CmsButton>
+        <CmsButton type="submit" form="category-form" disabled={pending || uploadPending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu danh mục</CmsButton>
       </> : category ? <>
         <CmsButton type="button" variant="outline" onClick={() => onDelete(category)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
         <CmsButton type="button" variant="outline" onClick={() => onStateChange({ mode: "create", parentId: category.id })}><Plus aria-hidden="true" size={16} /> Thêm danh mục con</CmsButton>
@@ -97,7 +99,7 @@ export function CategoryModal({ state, onStateChange, onDelete }: {
         : detail.error ? <div className={styles.state} role="alert"><p>{detail.error instanceof Error ? detail.error.message : "Không thể tải chi tiết."}</p><CmsButton type="button" variant="outline" onClick={() => detail.refetch()}>Thử lại</CmsButton></div>
         : mode === "detail" && category ? <CategoryDetail category={category} parentName={treeQuery.data?.tree?.byId.get(category.parentId ?? "")?.name} />
         : isEditing ? <form id="category-form" className={styles.form} noValidate onChange={() => form.clearErrors("root.server")} onSubmit={submit}>
-          <CategoryFields key={`${mode}:${state.id ?? ""}:${state.parentId ?? ""}`} form={form} parentOptions={parentOptions} parentDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} onUploadPending={(nextPending) => { setUploadPending(nextPending); if (!nextPending) form.clearErrors("root.server"); }} />
+          <CategoryFields key={`${mode}:${state.id ?? ""}:${state.parentId ?? ""}`} form={form} saving={pending} parentOptions={parentOptions} parentDisabled={!treeQuery.data?.tree} onSlugManual={markSlugManual} onUploadPending={(nextPending) => { setUploadPending(nextPending); if (!nextPending) form.clearErrors("root.server"); }} />
           {form.formState.errors.root?.server?.message ? <p className={styles.alert} role="alert">{form.formState.errors.root.server.message}</p> : null}
           <p className={styles.orphanNote}>Ảnh đã tải lên có thể vẫn được lưu nếu bạn đóng biểu mẫu hoặc lưu danh mục thất bại.</p>
         </form> : <p className={styles.state}>Không tìm thấy danh mục.</p>}
@@ -113,7 +115,7 @@ function CategoryDetail({ category, parentName }: { category: Category; parentNa
     ["Ngày tạo", formatDate(category.createdAt)], ["Cập nhật", formatDate(category.updatedAt)],
   ];
   return <div className={styles.detail}>
-    {category.imageUrl ? <Image className={styles.detailImage} src={cmsAssetUrl(category.imageUrl)} alt={`Ảnh ${category.name}`} width={640} height={320} unoptimized /> : null}
+    {category.imageUrl ? <ImageUploadPreview value={category.imageUrl} altText={`Ảnh ${category.name}`} /> : null}
     <dl>{entries.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
   </div>;
 }

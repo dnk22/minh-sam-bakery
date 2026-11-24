@@ -13,12 +13,13 @@ import { CATEGORY_STATUS_OPTIONS } from "../../constants";
 import type { CategoryFormValues } from "../../types";
 import styles from "./category-fields.module.css";
 
-export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManual, onUploadPending }: {
+export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManual, onUploadPending, saving = false }: {
   form: UseFormReturn<CategoryFormValues>;
   parentOptions: Array<{ id: string; label: string }>;
   parentDisabled: boolean;
   onSlugManual: () => void;
   onUploadPending: (pending: boolean) => void;
+  saving?: boolean;
 }) {
   const { register, formState: { errors }, setValue, watch } = form;
   const parentSelectOptions = [
@@ -101,7 +102,7 @@ export function CategoryFields({ form, parentOptions, parentDisabled, onSlugManu
         />
       </CmsFormField>
       <CmsFormField fieldName="imageUrl" label="Ảnh đại diện" error={errors.imageUrl?.message}>
-        <ImageUpload folder="categories" value={watch("imageUrl")} onPendingChange={onUploadPending} onChange={(url) => setValue("imageUrl", url, { shouldDirty: true })} />
+        <ImageUpload disabled={saving} folder="categories" value={watch("imageUrl")} onPendingChange={onUploadPending} onChange={(url) => setValue("imageUrl", url, { shouldDirty: true, shouldValidate: true })} />
       </CmsFormField>
       <CmsFormField
         error={errors.seoTitle?.message}

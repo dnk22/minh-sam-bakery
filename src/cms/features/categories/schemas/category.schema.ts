@@ -3,13 +3,26 @@ import { z } from "zod";
 import type { Category, CategoryFormValues, CategoryWriteInput } from "../types";
 
 const nullableText = z.string().trim().nullable().optional();
+const imageUrl = z.string().trim().refine(value => {
+  if (/[\x00-\x1f\x7f]/.test(value) || value.includes("\\")) return false;
+  if (value.startsWith("/uploads/")) {
+    try {
+      const decoded = decodeURIComponent(value);
+      return !decoded.includes("\\") && !decoded.split(/[/?#]/).includes("..") && !/[\x00-\x1f\x7f]/.test(decoded);
+    } catch { return false; }
+  }
+  try {
+    const url = new URL(value);
+    return (url.protocol === "https:" || url.protocol === "http:") && !url.username && !url.password;
+  } catch { return false; }
+}, "URL ảnh không hợp lệ.").nullable();
 
 export const categoryWriteSchema = z.object({
   name: z.string().trim().min(1, "Tên danh mục không được để trống."),
   slug: z.string().trim().optional(),
   parentId: z.string().trim().nullable().optional(),
   description: nullableText,
-  imageUrl: nullableText,
+  imageUrl: imageUrl.optional(),
   status: z.enum(["VISIBLE", "HIDDEN"]).optional(),
   sortOrder: z.number().finite().int().nonnegative().optional(),
   seoTitle: nullableText,
@@ -25,7 +38,7 @@ export const categoryFormSchema = z.object({
   slug: z.string().trim(),
   parentId: z.string(),
   description: z.string(),
-  imageUrl: z.string().nullable(),
+  imageUrl,
   status: z.enum(["VISIBLE", "HIDDEN"]),
   sortOrder: z.number().finite("Thứ tự phải là số.").int("Thứ tự phải là số nguyên.").nonnegative("Thứ tự không được âm."),
   seoTitle: z.string(),
@@ -38,7 +51,7 @@ export function categoryToForm(category?: Category, parentId?: string | null): C
     slug: category?.slug ?? "",
     parentId: category?.parentId ?? parentId ?? "",
     description: category?.description ?? "",
-    imageUrl: category?.imageUrl ?? null,
+    imageUrl: category?.imageUrl?.trim() || null,
     status: category?.status ?? "VISIBLE",
     sortOrder: category?.sortOrder ?? 0,
     seoTitle: category?.seoTitle ?? "",
@@ -66,7 +79,7 @@ export function formToPatch(values: CategoryFormValues, original: Category): Par
   const next = formToCreate(values);
   const patch: Partial<CategoryWriteInput> = {};
   for (const key of Object.keys(next) as Array<keyof CategoryWriteInput>) {
-    if (next[key] !== original[key]) Object.assign(patch, { [key]: next[key] });
+    if (next[key] !== (key === "imageUrl" ? original[key] ?? null : original[key])) Object.assign(patch, { [key]: next[key] });
   }
   return patch;
 }
