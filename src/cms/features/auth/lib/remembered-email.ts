@@ -58,3 +58,14 @@ function normalizeEmail(value: unknown) {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+
+/** Persist only the email, and honor opt-out without affecting authentication. */
+export function persistRememberedEmail(storage: EmailStorage, email: string, enabled: boolean) {
+  if (enabled) {
+    rememberEmail(storage, email);
+    return;
+  }
+  for (const key of [REMEMBERED_EMAIL_KEY, LEGACY_REMEMBERED_LOGIN_KEY]) {
+    try { storage.removeItem(key); } catch { /* Storage restrictions must not block login. */ }
+  }
+}

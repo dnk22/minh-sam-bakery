@@ -15,6 +15,7 @@ import {
   migrateAndReadRememberedEmail,
   REMEMBERED_EMAIL_KEY,
   rememberEmail,
+  persistRememberedEmail,
 } from "../src/cms/features/auth/lib/remembered-email.ts";
 import { defaultLoginValues, loginSchema, parseLoginInput } from "../src/cms/features/auth/schemas/login.schema.ts";
 import { isAccessTokenFresh } from "../src/cms/features/auth/session/policy.ts";
@@ -337,4 +338,23 @@ test("resolves active CMS route breadcrumbs from navigation", () => {
     { title: "Cài đặt", href: "/cms/settings", active: false },
     { title: "Giao diện & hiển thị", href: "/cms/settings/display", active: true },
   ]);
+});
+
+test("remember email opt-out clears current and legacy storage without retaining password", () => {
+  const values = new Map<string, string>([
+    [LEGACY_REMEMBERED_LOGIN_KEY, JSON.stringify({ email: "old@example.com", password: "old-secret" })],
+    [REMEMBERED_EMAIL_KEY, "saved@example.com"],
+  ]);
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+    removeItem: (key: string) => { values.delete(key); },
+  };
+  persistRememberedEmail(storage, "new@example.com", false);
+  assert.equal(values.size, 0);
+  persistRememberedEmail(storage, " new@example.com ", true);
+  assert.deepEqual([...values], [[REMEMBERED_EMAIL_KEY, "new@example.com"]]);
+  assert.doesNotThrow(() => persistRememberedEmail({
+    ...storage, removeItem: () => { throw new Error("blocked"); },
+  }, "new@example.com", false));
 });

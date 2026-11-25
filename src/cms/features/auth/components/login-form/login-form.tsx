@@ -13,7 +13,7 @@ import styles from "./login-form.module.css";
 
 export function CmsLoginForm({ redirectTo }: { redirectTo: string }) {
   const [showPassword, setShowPassword] = useState(false);
-  const { email, errors, isSubmitting, password, submit } = useLogin(redirectTo);
+  const { email, errors, isSubmitting, password, rememberEmail, setRememberEmail, submit } = useLogin(redirectTo);
 
   return (
     <form className={styles.form} id="cms-login-form" noValidate onSubmit={submit} aria-busy={isSubmitting}>
@@ -50,6 +50,10 @@ export function CmsLoginForm({ redirectTo }: { redirectTo: string }) {
           </button>
         </div>
       </CmsFormField>
+      <label className={styles.remember}>
+        <input checked={rememberEmail} disabled={isSubmitting} onChange={event => setRememberEmail(event.target.checked)} type="checkbox" />
+        <span>Ghi nhớ email</span>
+      </label>
       {errors.root?.server?.message ? <LoginAlert kind="error">{errors.root.server.message}</LoginAlert> : null}
       <CmsButton className={styles.submit} disabled={isSubmitting} type="submit">
         {isSubmitting ? <LoaderCircle aria-hidden="true" className="cms-spin" size={19} /> : <LogIn aria-hidden="true" size={19} />}

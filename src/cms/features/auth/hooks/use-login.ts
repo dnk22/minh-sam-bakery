@@ -3,12 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { useFormValidationFeedback } from "@/cms/hooks/use-form-validation-feedback";
 import { authApi, AuthClientError } from "@/cms/features/auth/api/auth.client";
-import { migrateAndReadRememberedEmail, rememberEmail } from "@/cms/features/auth/lib/remembered-email";
+import { migrateAndReadRememberedEmail, persistRememberedEmail } from "@/cms/features/auth/lib/remembered-email";
 import {
   defaultLoginValues,
   loginSchema,
@@ -18,6 +18,7 @@ import {
 
 export function useLogin(redirectTo: string) {
   const router = useRouter();
+  const [rememberEmail, setRememberEmail] = useState(true);
   const form = useForm<LoginFormValues, unknown, LoginCredentials>({
     resolver: zodResolver(loginSchema),
     defaultValues: defaultLoginValues,
@@ -27,7 +28,8 @@ export function useLogin(redirectTo: string) {
   const onInvalid = useFormValidationFeedback<LoginFormValues>({ formId: "cms-login-form" });
 
   useEffect(() => {
-    const rememberedEmail = migrateAndReadRememberedEmail(window.localStorage);
+    let rememberedEmail: string | null = null;
+    try { rememberedEmail = migrateAndReadRememberedEmail(window.localStorage); } catch { return; }
     if (!rememberedEmail || form.getFieldState("email").isDirty || form.getValues("email")) return;
     form.setValue("email", rememberedEmail, {
       shouldDirty: false,
@@ -40,7 +42,7 @@ export function useLogin(redirectTo: string) {
     form.clearErrors("root.server");
     try {
       await authApi.login(credentials);
-      rememberEmail(window.localStorage, credentials.email);
+      try { persistRememberedEmail(window.localStorage, credentials.email, rememberEmail); } catch { /* Login must succeed even if localStorage cannot be accessed. */ }
       router.replace(redirectTo);
       router.refresh();
     } catch (error) {
@@ -71,6 +73,8 @@ export function useLogin(redirectTo: string) {
     password: form.register("password", { onChange: clearServerError }),
     errors: form.formState.errors,
     isSubmitting: form.formState.isSubmitting,
+    rememberEmail,
+    setRememberEmail,
     submit,
   };
 }
