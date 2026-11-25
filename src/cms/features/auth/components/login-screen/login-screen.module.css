@@ -1,0 +1,161 @@
+/* Fixed bakery identity. Overrides are scoped to this login screen only. */
+.screen {
+  --login-bg: #fceddf;
+  --login-surface: #fffdfa;
+  --login-text: #39261d;
+  --login-muted: #725e52;
+  --login-primary: #884c2c;
+  --login-primary-hover: #713b22;
+  --login-accent: #bc7b39;
+  --login-border: #d9c8bb;
+  --cms-background: #fffdfa;
+  --cms-card: #fffdfa;
+  --cms-foreground: #39261d;
+  --cms-card-foreground: #39261d;
+  --cms-primary: #884c2c;
+  --cms-primary-foreground: #ffffff;
+  --cms-muted-foreground: #725e52;
+  --cms-input: #d9c8bb;
+  --cms-border: #d9c8bb;
+  --cms-ring: #a15c37;
+  --cms-destructive: #a92727;
+  --cms-accent: #f5e6d7;
+  --cms-accent-foreground: #39261d;
+  --cms-radius: 0.875rem;
+  color-scheme: light;
+  color: var(--login-text);
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: radial-gradient(ellipse at 10% 8%, #fffcf5 0%, transparent 54%),
+    radial-gradient(ellipse at 95% 96%, #f6d4af 0%, transparent 44%), var(--login-bg);
+}
+.layout {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  min-height: 100%;
+  width: 100%;
+}
+.decorations {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--login-accent);
+}
+.decorations svg { position: absolute; opacity: .28; width: clamp(4rem, 9vw, 9rem); height: auto; }
+.croissant { top: 2%; right: 3%; transform: rotate(12deg); }
+.cake { top: 42%; right: 1%; transform: rotate(-10deg); }
+.wheat { bottom: 2%; right: 2%; transform: rotate(15deg); }
+.brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  padding-top: clamp(2rem, 6vh, 5rem);
+  overflow: hidden;
+}
+.brandContent {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 42rem);
+  padding: 0 clamp(1.5rem, 4vw, 4rem) 1.5rem;
+  text-align: center;
+}
+.brandLogo { width: clamp(3.75rem, 6vw, 6rem); height: auto; margin-inline: auto; object-fit: contain; }
+.brandName {
+  margin: .45rem 0 0;
+  color: var(--login-primary);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 3.2vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.12;
+}
+.tagline { display: flex; align-items: center; justify-content: center; gap: .65rem; margin: .8rem 0 0; font-size: clamp(.75rem, 1.2vw, 1rem); color: var(--login-muted); }
+.tagline span { flex: 0 1 2.25rem; height: 1px; background: var(--login-accent); opacity: .65; }
+.welcome { margin: clamp(1.5rem, 4vh, 3rem) 0 .55rem; color: var(--login-primary); font-family: Georgia, "Times New Roman", serif; font-size: clamp(2rem, 3.5vw, 3.65rem); font-style: italic; line-height: 1.15; letter-spacing: -.045em; }
+.brandDescription { max-width: 26rem; margin: 0 auto; font-size: clamp(.9rem, 1.3vw, 1.125rem); line-height: 1.6; color: var(--login-muted); }
+.photography {
+  position: relative;
+  width: 100%;
+  height: clamp(15rem, 44vh, 32rem);
+  margin-top: auto;
+  mask-image: linear-gradient(to bottom, transparent, black 8%), linear-gradient(to right, black 87%, transparent);
+  mask-composite: intersect;
+}
+.photo { object-fit: cover; object-position: center bottom; }
+.authArea {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  min-width: 0;
+  padding: clamp(2rem, 5vh, 4rem) clamp(1.5rem, 4vw, 5rem) clamp(2rem, 5vh, 4rem) 1.5rem;
+}
+.card {
+  width: min(100%, 30rem);
+  min-width: 0;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 1.5rem;
+  background: var(--login-surface);
+  box-shadow: 0 20px 65px rgba(110, 62, 33, .13), 0 4px 18px rgba(110, 62, 33, .05);
+}
+.cardHeader { display: grid; justify-items: center; gap: .5rem; margin-bottom: 1.75rem; text-align: center; }
+.logoFrame { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; margin-bottom: .5rem; border-radius: 50%; background: #f7e7d5; }
+.logoFrame img { width: 4.5rem; height: 4.5rem; object-fit: contain; }
+.cardHeader h1 { margin: 0; font-size: clamp(1.4rem, 2.15vw, 1.9rem); font-weight: 750; line-height: 1.25; letter-spacing: -.035em; }
+.cardHeader p { margin: 0; color: var(--login-muted); font-size: .9375rem; line-height: 1.5; }
+.alert { margin: 0 0 1rem; padding: .8rem 1rem; border: 1px solid; border-radius: .75rem; font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.alert[data-kind="error"] { background: #fff1ef; color: #982727; border-color: #e7b7b1; }
+.alert[data-kind="success"] { background: #eff8ef; color: #246237; border-color: #b6d5bd; }
+.footer { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #eaded4; color: var(--login-muted); text-align: center; font-size: .75rem; line-height: 1.6; }
+
+@media (max-width: 1023px) {
+  .layout { grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .brand { padding-top: 1.5rem; justify-content: center; min-height: 14rem; }
+  .brandContent { padding: 0 1.5rem 1.5rem; }
+  .brandLogo { width: 3.5rem; }
+  .brandName { font-size: 2rem; }
+  .welcome { font-size: 1.8rem; margin-top: 1rem; }
+  .brandDescription { font-size: .875rem; }
+  .photography { position: absolute; inset: 0; height: 100%; opacity: .21; mask-image: linear-gradient(90deg, black, transparent 68%); mask-composite: add; }
+  .authArea { padding: .5rem 1.5rem 2.5rem; }
+  .card { width: min(100%, 30rem); }
+  .cardHeader { margin-bottom: 1.25rem; }
+}
+@media (max-width: 767px) {
+  .screen { height: auto; min-height: 100dvh; overflow: visible; }
+  .layout { min-height: 100dvh; align-content: center; }
+  .brand { display: none; }
+  .authArea { padding: max(1.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); }
+  .card { padding: 1.5rem; border-radius: 1.25rem; }
+  .logoFrame { width: 4.5rem; height: 4.5rem; }
+  .logoFrame img { width: 3.75rem; height: 3.75rem; }
+  .cardHeader h1 { font-size: 1.5rem; }
+  .cardHeader p { font-size: .875rem; }
+  .footer { margin-top: 1.25rem; padding-top: 1rem; }
+  .decorations svg { opacity: .15; }
+}
+@media (max-width: 359px) {
+  .card { padding: 1.125rem; }
+  .cardHeader h1 { font-size: 1.375rem; }
+}
+@media (min-width: 1024px) and (max-height: 740px) {
+  .brand { padding-top: 1.5rem; }
+  .welcome { margin-top: 1.25rem; }
+  .photography { height: clamp(13rem, 36vh, 19rem); }
+  .authArea { padding-block: 1.5rem; }
+  .card { padding-block: 1.5rem; }
+  .cardHeader { margin-bottom: 1.25rem; }
+  .logoFrame { width: 4.5rem; height: 4.5rem; }
+  .logoFrame img { width: 3.75rem; height: 3.75rem; }
+  .footer { margin-top: 1.25rem; padding-top: 1rem; }
+}

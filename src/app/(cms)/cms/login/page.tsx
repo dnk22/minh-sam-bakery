@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { CmsLoginScreen } from "@/cms/features/auth/components/login-screen";
+import { CmsLoginScreen } from "@/cms/features/auth/components/login-screen/login-screen";
 import { sanitizeCmsRedirect } from "@/cms/features/auth/lib/redirect";
 import { resolveCmsSession } from "@/cms/features/auth/session/current-session";
 

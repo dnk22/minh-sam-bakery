@@ -1,0 +1,41 @@
+.form { display: grid; gap: 1.15rem; }
+.form .field { gap: .5rem; }
+.field label { color: var(--login-text); font-size: .875rem; font-weight: 650; }
+.field .control { min-height: 3.25rem; height: auto; padding: 0 .875rem; border-radius: .75rem; background: #fffdfa; }
+.control input { font-size: 1rem; min-height: 3.125rem; }
+.control input::placeholder { color: #88766b; }
+.passwordControl { position: relative; min-width: 0; }
+.passwordControl .passwordInput { padding-inline-end: 2.75rem; }
+.passwordToggle {
+  position: absolute;
+  inset-inline-end: .25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: .625rem;
+  background: transparent;
+  color: var(--login-muted);
+}
+.passwordToggle:hover:not(:disabled) { background: #f7e8db; color: var(--login-primary); }
+.passwordToggle:focus-visible, .remember input:focus-visible { outline: 2px solid var(--login-primary); outline-offset: 2px; }
+.passwordToggle:disabled { opacity: .5; }
+.form .submit {
+  width: 100%;
+  min-height: 3.25rem;
+  height: auto;
+  padding: .75rem 1rem;
+  background: var(--login-primary);
+  color: white;
+  border-radius: .75rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+.form .submit:hover:not(:disabled) { background: var(--login-primary-hover); }
+.remember { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .625rem; width: fit-content; font-size: .875rem; cursor: pointer; }
+.remember input { width: 1.125rem; height: 1.125rem; margin: 0; flex: none; accent-color: var(--login-primary); }
+.remember:has(input:disabled) { opacity: .55; cursor: not-allowed; }
+@media (max-width: 767px) { .form { gap: 1rem; } }
