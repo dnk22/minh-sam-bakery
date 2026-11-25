@@ -750,38 +750,6 @@ body:has(.cms-root) {
   color: var(--cms-foreground);
 }
 
-.cms-auth-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 1.25rem;
-}
-.cms-auth-brand img {
-  border-radius: 0.55rem;
-  object-fit: contain;
-}
-.cms-auth-brand div {
-  display: grid;
-  line-height: 1.2;
-}
-.cms-auth-brand strong {
-  font-size: 1rem;
-}
-.cms-auth-brand span {
-  margin-top: 0.2rem;
-  color: var(--cms-muted-foreground);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.cms-auth-caption {
-  margin: 1rem 0 0;
-  color: var(--cms-muted-foreground);
-  font-size: 0.72rem;
-  text-align: center;
-}
-
-.cms-login-card,
 .cms-session-card {
   width: min(100%, 24rem);
   padding: 1.5rem;
@@ -792,114 +760,17 @@ body:has(.cms-root) {
   box-shadow: 0 16px 44px
     color-mix(in oklab, var(--cms-foreground) 9%, transparent);
 }
-.cms-login-card > header {
-  margin-bottom: 1.2rem;
-}
-.cms-login-card h1,
 .cms-session-card h1 {
   margin: 0;
   font-size: 1.15rem;
   font-weight: 680;
   letter-spacing: -0.015em;
 }
-.cms-login-card > header p,
 .cms-session-card p {
   margin: 0.4rem 0 0;
   color: var(--cms-muted-foreground);
   font-size: 0.82rem;
   line-height: 1.55;
-}
-.cms-login-form {
-  display: grid;
-  gap: 0.95rem;
-}
-.cms-form-field {
-  display: grid;
-  gap: 0.35rem;
-}
-.cms-form-field label {
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-.cms-form-field input {
-  width: 100%;
-  height: 2.35rem;
-  padding: 0 0.7rem;
-  border: 1px solid var(--cms-input);
-  border-radius: calc(var(--cms-radius) - 0.12rem);
-  outline: none;
-  background: transparent;
-  color: var(--cms-foreground);
-  font: inherit;
-  box-shadow: 0 1px 2px
-    color-mix(in oklab, var(--cms-foreground) 4%, transparent);
-}
-.cms-form-field input::placeholder {
-  color: var(--cms-muted-foreground);
-}
-.cms-form-field input:focus-visible {
-  border-color: var(--cms-ring);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cms-ring) 25%, transparent);
-}
-.cms-form-field input[aria-invalid="true"] {
-  border-color: var(--cms-destructive);
-}
-.cms-password-input {
-  position: relative;
-}
-.cms-password-input input {
-  padding-inline-end: 2.5rem;
-}
-.cms-password-input button {
-  position: absolute;
-  top: 50%;
-  inset-inline-end: 0.35rem;
-  display: grid;
-  width: 1.75rem;
-  height: 1.75rem;
-  transform: translateY(-50%);
-  place-items: center;
-  border: 0;
-  border-radius: 0.35rem;
-  background: transparent;
-  color: var(--cms-muted-foreground);
-}
-.cms-password-input button:hover {
-  background: var(--cms-accent);
-  color: var(--cms-accent-foreground);
-}
-.cms-field-error {
-  margin: 0;
-  color: var(--cms-destructive);
-  font-size: 0.72rem;
-}
-.cms-login-alert {
-  margin: 0 0 0.9rem;
-  padding: 0.65rem 0.75rem;
-  border: 1px solid;
-  border-radius: calc(var(--cms-radius) - 0.12rem);
-  font-size: 0.77rem;
-  line-height: 1.45;
-}
-.cms-login-form .cms-login-alert {
-  margin: 0;
-}
-.cms-login-alert--error {
-  border-color: color-mix(in oklab, var(--cms-destructive) 45%, transparent);
-  background: color-mix(in oklab, var(--cms-destructive) 9%, transparent);
-  color: var(--cms-destructive);
-}
-.cms-login-alert--success {
-  border-color: color-mix(in oklab, #15803d 35%, transparent);
-  background: color-mix(in oklab, #15803d 9%, transparent);
-  color: #15803d;
-}
-.cms-root[data-cms-theme="dark"] .cms-login-alert--success {
-  color: #86efac;
-}
-.cms-login-submit {
-  width: 100%;
-  margin-top: 0.25rem;
 }
 .cms-session-card {
   display: grid;
