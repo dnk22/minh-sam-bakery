@@ -38,6 +38,10 @@ test("login styles are isolated and support tablet, mobile, narrow and short vie
   assert.match(styles, /max-height: 740px/);
   assert.match(styles, /min-height: 100dvh/);
   assert.match(styles, /overflow-y: auto/);
+  assert.match(styles, /\.photography \{\s*position: absolute;\s*inset: 0;/);
+  assert.match(styles, /\.photo \{ object-fit: cover; object-position: left center; \}/);
+  assert.match(styles, /\.authArea::before \{[\s\S]*?background: linear-gradient\(90deg, transparent, rgba\(252, 237, 223, \.88\) 52%, transparent\);/);
+  assert.match(styles, /\.authArea::before \{ display: none; \}/);
   assert.match(styles, /\.brand \{ display: none; \}/);
   assert.match(formStyles, /min-height: 3\.25rem/);
   assert.match(formStyles, /font-size: 1rem/);
