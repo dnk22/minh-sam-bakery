@@ -101,7 +101,7 @@ function HydratedCheckoutPage() {
             error={checkout.submitError}
           />
         </form>
-        {checkout.transferInput && <CheckoutTransferModal qr={checkout.paymentQr} onQrUnavailable={checkout.markQrUnavailable} total={checkout.intent.items.reduce((sum, item) => sum + item.effectivePrice * item.quantity, 0)} pending={checkout.pending} blocked={checkout.blocked} error={checkout.submitError} onClose={checkout.closeTransfer} onConfirm={checkout.confirmTransfer} />}
+        {checkout.transferInput && <CheckoutTransferModal qr={checkout.paymentQr} total={checkout.intent.items.reduce((sum, item) => sum + item.effectivePrice * item.quantity, 0)} pending={checkout.pending} blocked={checkout.blocked} error={checkout.submitError} onClose={checkout.closeTransfer} onConfirm={checkout.confirmTransfer} />}
       </section>
     </main>
   );

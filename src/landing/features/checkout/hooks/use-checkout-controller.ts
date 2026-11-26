@@ -52,10 +52,10 @@ export function useCheckoutController() {
   const [blocked] = useState(initial.blocked);
   const submission = useCreateOrder();
   const paymentQr = usePaymentQr(Boolean(intent) && !receipt);
-  const qrReady = paymentQr.state.status === "ready";
+  const qrReady = paymentQr.status === "ready";
   // A restored transfer draft must not stay selected when QR is unavailable.
   const effectivePaymentMethod = draft.fulfillmentMethod === "delivery" && qrReady ? "BANK_TRANSFER"
-    : draft.fulfillmentMethod === "pickup" && paymentQr.state.status === "unavailable" ? "AT_STORE" : draft.paymentMethod;
+    : draft.fulfillmentMethod === "pickup" && paymentQr.status === "unavailable" ? "AT_STORE" : draft.paymentMethod;
   const effectiveDraft = { ...draft, paymentMethod: effectivePaymentMethod };
   const paymentBlocked = !qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery");
   const cartHydrated = useCartHydrated();
@@ -101,7 +101,7 @@ export function useCheckoutController() {
     const result = validateCheckoutDraft(normalized);
     setDraft(normalized);
     if (paymentBlocked) {
-      setErrors({ ...result.errors, paymentMethod: paymentQr.state.status === "loading" ? "Đang kiểm tra phương thức chuyển khoản." : "Chuyển khoản ngân hàng chưa có sẵn. Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." });
+      setErrors({ ...result.errors, paymentMethod: paymentQr.status === "loading" ? "Đang kiểm tra phương thức chuyển khoản." : "Chuyển khoản ngân hàng chưa có sẵn. Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." });
       return;
     }
     setErrors(result.errors);
@@ -145,9 +145,8 @@ export function useCheckoutController() {
     closeReceipt: () => { clearReceipt(); clearReceiptOrigin(); setReceipt(null); },
     intent,
     draft: effectiveDraft,
-    paymentQr: paymentQr.state,
+    paymentQr: paymentQr,
     paymentBlocked,
-    markQrUnavailable: paymentQr.markUnavailable,
     errors,
     today,
     updateDraft,
