@@ -43,9 +43,9 @@ function sharedResult(): SharedResult | null {
 export function refreshVersion() {
   return sharedResult()?.version ?? "";
 }
-export function withSessionLock<T>(action: () => Promise<T>): Promise<T> {
+export async function withSessionLock<T>(action: () => Promise<T>): Promise<T> {
   if (typeof window !== "undefined" && navigator.locks) {
-    return navigator.locks.request(LOCK, action);
+    return await navigator.locks.request(LOCK, action);
   }
   const result = localLock.then(action);
   localLock = result.then(() => undefined, () => undefined);

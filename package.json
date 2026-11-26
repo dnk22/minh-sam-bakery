@@ -11,6 +11,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --no-warnings --test --experimental-strip-types tests/*.test.ts",
     "test:login-ui": "node --no-warnings --test --experimental-strip-types tests/cms-login-ui.test.ts",
+    "test:auth-refresh": "node --no-warnings --test --experimental-strip-types tests/cms-refresh-*.test.ts",
     "test:auth": "node --no-warnings --test --experimental-strip-types tests/cms-auth.test.ts",
     "test:cms-foundation": "node --no-warnings --test --experimental-strip-types tests/cms-foundation.test.ts",
     "test:themes": "node --no-warnings --test --experimental-strip-types tests/cms-themes.test.ts",
