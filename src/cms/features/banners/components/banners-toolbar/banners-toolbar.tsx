@@ -1,7 +1,8 @@
 "use client";
-import { Search, X } from "lucide-react";
+import { CmsToolbar } from "@/cms/components/toolbar/cms-toolbar";
+import { useToolbarDraft } from "@/cms/hooks/use-toolbar-draft";
+import { Search } from "lucide-react";
 import { CmsFilterGroup } from "@/cms/components/filter-group/filter-group";
-import { CmsButton } from "@/cms/components/ui/button";
 import { CmsInput } from "@/cms/components/ui/input/input";
 import { CmsSelect } from "@/cms/components/ui/select/select";
 import {
@@ -9,7 +10,6 @@ import {
   type BannerPosition,
 } from "@/lib/banner/positions";
 import type { BannerFilters } from "../../hooks/use-banner-filters";
-import { useBannerSearch } from "../../hooks/use-banner-search";
 import styles from "./banners-toolbar.module.css";
 const activeOptions = [
   { value: "", label: "Trạng thái: Tất cả" },
@@ -17,32 +17,23 @@ const activeOptions = [
   { value: "false", label: "Đang tắt" },
 ];
 export function BannersToolbar({ filters }: { filters: BannerFilters }) {
-  const search = useBannerSearch({
-    value: filters.search,
-    onCommit: filters.setSearch,
-  });
-  return (
-    <section className={styles.toolbar} aria-label="Bộ lọc banner">
-      <div className={styles.controls}>
-        <CmsInput
+  const draft = useToolbarDraft({ search: filters.search, position: filters.position, isActive: filters.isActive });
+  const apply = () => filters.applyFilters(draft.values);
+  const clearAll = () => { draft.reset({ search: "", position: undefined, isActive: undefined }); filters.clearFilters(); };
+  const clearAdvanced = () => { const next = { search: filters.search, position: undefined, isActive: undefined }; draft.reset(next); filters.applyFilters(next); };
+  return <CmsToolbar label="Bộ lọc banner" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
+    search={<CmsInput
           aria-label="Tìm kiếm banner"
-          containerClassName={styles.search}
+          
           controlSize="sm"
           leadingIcon={<Search aria-hidden="true" size={17} />}
-          type="search"
-          placeholder="Tìm theo tiêu đề"
-          value={search.draft}
-          onBlur={search.onBlur}
-          onFocus={search.onFocus}
-          onChange={(event) => search.onChange(event.target.value)}
-        />
-        <CmsFilterGroup
+    filters={<CmsFilterGroup layout="toolbar"
           activeCount={
-            Number(Boolean(filters.position)) +
-            Number(filters.isActive !== undefined)
+            Number(Boolean(draft.values.position)) +
+            Number(draft.values.isActive !== undefined)
           }
           label="Bộ lọc banner"
-          onClear={filters.clearAdvancedFilters}
+          onClear={clearAdvanced}
         >
           <CmsSelect
             aria-label="Lọc theo vị trí"
@@ -52,9 +43,9 @@ export function BannersToolbar({ filters }: { filters: BannerFilters }) {
               { value: "", label: "Vị trí: Tất cả" },
               ...BANNER_POSITION_OPTIONS,
             ]}
-            value={filters.position ?? ""}
+            value={draft.values.position ?? ""}
             onChange={(event) =>
-              filters.setPosition(
+              draft.set("position", 
                 (event.target.value || undefined) as BannerPosition | undefined,
               )
             }
@@ -65,10 +56,10 @@ export function BannersToolbar({ filters }: { filters: BannerFilters }) {
             controlSize="sm"
             options={activeOptions}
             value={
-              filters.isActive === undefined ? "" : String(filters.isActive)
+              draft.values.isActive === undefined ? "" : String(draft.values.isActive)
             }
             onChange={(event) =>
-              filters.setActive(
+              draft.set("isActive", 
                 event.target.value === "true"
                   ? true
                   : event.target.value === "false"
@@ -77,19 +68,7 @@ export function BannersToolbar({ filters }: { filters: BannerFilters }) {
               )
             }
           />
-        </CmsFilterGroup>
-        {filters.isFiltered ? (
-          <CmsButton
-            className={styles.clearAll}
-            type="button"
-            size="sm"
-            variant="ghost"
-            onClick={filters.clearFilters}
-          >
-            <X aria-hidden="true" size={15} /> Xóa tất cả
-          </CmsButton>
-        ) : null}
-      </div>
-    </section>
-  );
+        </CmsFilterGroup>}
+    
+  />;
 }
