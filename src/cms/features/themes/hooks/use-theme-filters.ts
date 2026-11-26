@@ -11,7 +11,7 @@ export type ThemeFilters = {
   isActive?: boolean;
   isFiltered: boolean;
   setPage: (page: number) => void;
-  setSearch: (value: string) => void;
+  applyFilters: (values: Pick<ThemeFilters, "search" | "isActive">) => void; setSearch: (value: string) => void;
   setActive: (value?: boolean) => void;
   clear: () => void;
 };
@@ -42,6 +42,7 @@ export function useThemeFilters(): ThemeFilters {
     isActive,
     isFiltered: Boolean(search || isActive !== undefined),
     setPage: useCallback((next) => change({ page: String(next) }), [change]),
+    applyFilters: useCallback((values: Pick<ThemeFilters, "search" | "isActive">) => change({ search: values.search.trim() || null, isActive: values.isActive === undefined ? null : String(values.isActive) }, true), [change]),
     setSearch: useCallback((next) => change({ search: next || null }, true), [change]),
     setActive: useCallback((next) => change({ isActive: next === undefined ? null : String(next) }, true), [change]),
     clear: useCallback(() => change({ search: null, isActive: null }, true), [change]),

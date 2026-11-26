@@ -5,7 +5,7 @@ import { useCallback } from "react";
 
 import { parseSystemConfigPage } from "../lib/system-config-data";
 
-export type SystemConfigFilters = { search: string; page: number; isFiltered: boolean; setSearch: (value: string) => void; setPage: (value: number) => void; clearFilters: () => void };
+export type SystemConfigFilters = { search: string; page: number; isFiltered: boolean; applyFilters: (values: Pick<SystemConfigFilters, "search">) => void; setSearch: (value: string) => void; setPage: (value: number) => void; clearFilters: () => void };
 
 export function useSystemConfigFilters(): SystemConfigFilters {
   const router = useRouter();
@@ -26,6 +26,7 @@ export function useSystemConfigFilters(): SystemConfigFilters {
   }, [pathname, router, serializedParams]);
   return {
     search, page, isFiltered: Boolean(search),
+    applyFilters: useCallback((values: Pick<SystemConfigFilters, "search">) => updateUrl({ search: values.search.trim() || null }, true), [updateUrl]),
     setSearch: useCallback((value: string) => updateUrl({ search: value || null }, true), [updateUrl]),
     setPage: useCallback((value: number) => updateUrl({ page: value }), [updateUrl]),
     clearFilters: useCallback(() => updateUrl({ search: null }, true), [updateUrl]),

@@ -39,3 +39,10 @@
   .search { min-width: 0; max-width: none; flex: 1 1 0; }
   .actions, .trailing { display: none; }
 }
+
+.submit, .clear { flex: 0 0 auto; min-height: 2.5rem; }
+@media (max-width: 767px) {
+  .submitLabel { display: none; }
+  .submit, .clear { width: 2.5rem; height: 2.5rem; padding: 0; }
+  .controls { gap: 0.375rem; }
+}
