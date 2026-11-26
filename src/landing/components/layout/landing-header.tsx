@@ -43,9 +43,7 @@ export function LandingHeader({
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const pathname = usePathname();
   const cartHydrated = useCartHydrated();
-  const cartCount = useCartStore((state) =>
-    state.items.reduce((count, item) => count + item.quantity, 0),
-  );
+  const cartCount = useCartStore((state) => state.items.length);
   const activeCategorySlug = categorySlugFromPathname(pathname);
   const productsActive = isProductsPath(pathname);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
