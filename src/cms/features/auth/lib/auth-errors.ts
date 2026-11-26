@@ -6,12 +6,14 @@ export type AuthOperation = "login" | "refresh" | "logout" | "me";
 export class CmsAuthBackendError extends Error {
   readonly kind: CmsAuthErrorKind;
   readonly status: number;
+  readonly retryAfter?: string;
 
-  constructor(kind: CmsAuthErrorKind, status: number) {
+  constructor(kind: CmsAuthErrorKind, status: number, retryAfter?: string) {
     super(kind);
     this.name = "CmsAuthBackendError";
     this.kind = kind;
     this.status = status;
+    this.retryAfter = retryAfter;
   }
 }
 
@@ -38,5 +40,5 @@ export function toCmsAuthBackendError(error: unknown, operation: AuthOperation) 
     return new CmsAuthBackendError("invalid_response", 502);
   }
   const status = error.code && error.code >= 400 && error.code <= 599 ? error.code : error.status ?? 502;
-  return new CmsAuthBackendError(mapBackendError(status, error.backendMessage ?? "", operation), status);
+  return new CmsAuthBackendError(mapBackendError(status, error.backendMessage ?? "", operation), status, error.retryAfter);
 }

@@ -14,7 +14,11 @@ export function useSessionRefresh({ locked, redirectTo }: { locked: boolean; red
     const scope = sessionScope();
     // StrictMode/remounts share one flight. Unmounting must not cancel rotation.
     void browserRefresh.refresh(refreshVersion(), true).then(result => {
-      if (!active || scope !== sessionScope()) return;
+      if (!active) return;
+      if (scope !== sessionScope()) {
+        redirectAfterRecovery({ ok: false, reason: "session-changed" }, redirectTo);
+        return;
+      }
       if (result.ok) {
         router.replace(redirectTo);
         router.refresh();

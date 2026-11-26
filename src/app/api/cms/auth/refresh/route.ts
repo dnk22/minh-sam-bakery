@@ -46,7 +46,8 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     const kind = error instanceof CmsAuthBackendError ? error.kind : "unavailable";
-    const response = authErrorResponse(kind);
+    const response = authErrorResponse(kind, kind === "unauthorized" ? { message: "Phiên đăng nhập đã hết hạn." } : undefined);
+    if (error instanceof CmsAuthBackendError && error.retryAfter) response.headers.set("Retry-After", error.retryAfter);
     if (kind === "unauthorized" || kind === "locked") clearCmsSessionCookies(response);
     else if (error instanceof CmsRotatedSessionError) writeCmsSessionCookies(response, error.tokens, Date.now());
     return response;

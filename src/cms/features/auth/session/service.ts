@@ -13,7 +13,7 @@ export async function refreshCmsSession(refreshToken: string): Promise<{ tokens:
     return { tokens, user };
   } catch (error) {
     if (error instanceof CmsAuthBackendError && error.kind !== "locked") {
-      throw new CmsRotatedSessionError(error.kind, error.status, tokens);
+      throw new CmsRotatedSessionError(error.kind, error.status, tokens, error.retryAfter);
     }
     throw error;
   }
@@ -22,8 +22,8 @@ export async function refreshCmsSession(refreshToken: string): Promise<{ tokens:
 export class CmsRotatedSessionError extends CmsAuthBackendError {
   readonly tokens: CmsAuthTokens;
 
-  constructor(kind: CmsAuthErrorKind, status: number, tokens: CmsAuthTokens) {
-    super(kind, status);
+  constructor(kind: CmsAuthErrorKind, status: number, tokens: CmsAuthTokens, retryAfter?: string) {
+    super(kind, status, retryAfter);
     this.name = "CmsRotatedSessionError";
     this.tokens = tokens;
   }

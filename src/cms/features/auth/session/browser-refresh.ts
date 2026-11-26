@@ -7,12 +7,12 @@ import { retryAfterMilliseconds, runRefreshAttempts, type RefreshAttemptResult, 
 
 async function performRefresh(checkFresh: boolean): Promise<RefreshAttemptResult> {
   try {
-    // The BFF may perform two 10-second Backend calls (refresh and me).
+    // The BFF may perform up to three 10-second Backend calls (freshness check, refresh and me).
     const response = await fetch("/api/cms/auth/refresh", {
       method: "POST", credentials: "same-origin", cache: "no-store",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ checkFresh }),
-      signal: AbortSignal.timeout(25_000),
+      signal: AbortSignal.timeout(35_000),
     });
     if (response.ok) {
       const payload = await response.json() as { ok?: boolean };
@@ -43,25 +43,41 @@ export function resetBrowserRecovery() {
 export function redirectAfterRecovery(result: RecoveryResult, redirectTo: string, locked = false) {
   if (result.ok || redirecting || typeof window === "undefined") return;
   redirecting = true;
-  window.location.replace(cmsLoginUrl(redirectTo, locked ? "locked" : result.reason));
+  window.location.replace(cmsLoginUrl(redirectTo, locked && result.reason !== "session-changed" ? "locked" : result.reason));
 }
 
 export async function awaitRecovery(promise: Promise<RecoveryResult>, scope: string, signal?: AbortSignal) {
+  // Keep the terminal redirect attached even if all original callers abort.
+  const checked = promise.then(result => {
+    if (typeof window !== "undefined") {
+      const redirectTo = window.location.pathname + window.location.search;
+      if (scope !== sessionScope()) {
+        redirectAfterRecovery({ ok: false, reason: "session-changed" }, redirectTo);
+      } else if (!result.ok) {
+        redirectAfterRecovery(result, redirectTo);
+      }
+    }
+    return result;
+  });
   if (signal?.aborted) throw new CmsApiError("NETWORK", "Yêu cầu đã bị hủy.");
   // Abort a waiting operation, not the shared refresh used by other callers.
   let onAbort: (() => void) | undefined;
   const result = await (signal ? Promise.race([
-    promise,
+    checked,
     new Promise<never>((_, reject) => {
       onAbort = () => reject(new CmsApiError("NETWORK", "Yêu cầu đã bị hủy."));
       signal.addEventListener("abort", onAbort, { once: true });
       if (signal.aborted) onAbort();
     }),
-  ]).finally(() => { if (onAbort) signal.removeEventListener("abort", onAbort); }) : promise);
+  ]).finally(() => { if (onAbort) signal.removeEventListener("abort", onAbort); }) : checked);
   if (scope !== sessionScope()) throw new CmsApiError("UNAUTHORIZED", "Phiên đăng nhập đã thay đổi. Vui lòng thử lại.");
   if (!result.ok) {
-    if (typeof window !== "undefined") redirectAfterRecovery(result, window.location.pathname + window.location.search);
     throw new CmsApiError("SESSION_RECOVERY_FAILED", "Không thể khôi phục phiên đăng nhập.");
   }
+}
+export function assertRecoveryScope(scope: string) {
+  if (scope === sessionScope()) return;
+  if (typeof window !== "undefined") redirectAfterRecovery({ ok: false, reason: "session-changed" }, window.location.pathname + window.location.search);
+  throw new CmsApiError("UNAUTHORIZED", "Phiên đăng nhập đã thay đổi. Vui lòng đăng nhập lại.");
 }
 export { refreshVersion, sessionScope };

@@ -1,5 +1,5 @@
 import { CmsApiError } from "./errors.ts";
-import { awaitRecovery, browserRefresh, redirectAfterRecovery, refreshVersion, sessionScope } from "../../features/auth/session/browser-refresh.ts";
+import { assertRecoveryScope, awaitRecovery, browserRefresh, redirectAfterRecovery, refreshVersion, sessionScope } from "../../features/auth/session/browser-refresh.ts";
 import { canReplayAfterUnauthorized, CMS_PREAUTH_REJECTION_HEADER, isProtectedCmsRequest } from "../../features/auth/lib/replay-policy.ts";
 
 type CmsRequestOptions = {
@@ -68,11 +68,12 @@ async function request<T>(
     if (pending) await awaitRecovery(pending, scope, options.signal);
   }
   if (options.signal?.aborted) throw new CmsApiError("NETWORK", "Yêu cầu đã bị hủy.");
+  if (protectedRequest) assertRecoveryScope(scope);
   const version = refreshVersion();
   const original = await requestOnce<T>(method, path, options);
+  if (protectedRequest) assertRecoveryScope(scope);
   if ("data" in original) return original.data;
   if (!protectedRequest) throw original.error;
-  if (scope !== sessionScope()) throw new CmsApiError("UNAUTHORIZED", "Phiên đăng nhập đã thay đổi. Vui lòng thử lại.");
   if (original.error.status === 423) {
     redirectAfterRecovery({ ok: false, reason: "locked" }, window.location.pathname + window.location.search);
     throw original.error;
@@ -84,7 +85,9 @@ async function request<T>(
     // A Backend 401 after dispatch does not prove a mutation was never applied.
     throw new CmsApiError("SESSION_RECOVERED_RETRY_REQUIRED", "Phiên đã được khôi phục. Vui lòng kiểm tra dữ liệu trước khi thực hiện lại thao tác.", { status: 401 });
   }
+  assertRecoveryScope(scope);
   const replay = await requestOnce<T>(method, path, options);
+  assertRecoveryScope(scope);
   if ("data" in replay) return replay.data;
   // Never recursively refresh/replay a request. A second 401 requires login.
   if (replay.error.status === 401 || replay.error.status === 423) {

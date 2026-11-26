@@ -1,6 +1,6 @@
 export const MAX_REFRESH_ATTEMPTS = 3;
 
-export type RecoveryReason = "session-expired" | "locked" | "forbidden" | "session-recovery-failed";
+export type RecoveryReason = "session-expired" | "locked" | "forbidden" | "session-recovery-failed" | "session-changed";
 export type RefreshAttemptResult = { ok: true } | { ok: false; code: string; retryAfterMs?: number };
 export type RecoveryResult = { ok: true } | { ok: false; reason: RecoveryReason };
 

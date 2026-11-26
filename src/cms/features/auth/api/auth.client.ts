@@ -43,8 +43,6 @@ export const authApi = {
     }),
   me: (signal?: AbortSignal) =>
     authRequest(() => cmsApiClient.get("/auth/me", { signal }), isLoginResponse),
-  refresh: (signal?: AbortSignal) =>
-    authRequest(() => cmsApiClient.post("/auth/refresh", {}, { signal }), isRefreshResponse),
 };
 
 async function authRequest<T>(operation: () => Promise<unknown>, validate: (value: unknown) => value is T) {
@@ -75,6 +73,3 @@ function isLogoutResponse(value: unknown): value is { ok: boolean; revoked: bool
     typeof value.localSessionCleared === "boolean";
 }
 
-function isRefreshResponse(value: unknown): value is { ok: true } {
-  return isRecord(value) && value.ok === true;
-}

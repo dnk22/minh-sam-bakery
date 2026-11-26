@@ -7,6 +7,7 @@ const RESULT_TTL_MS = 120_000;
 type SharedResult = { version: string; scope: string; at: number; result: RecoveryResult };
 let localResult: SharedResult | null = null;
 let localScope = "initial";
+let localLock = Promise.resolve();
 
 function read(key: string) {
   try { return typeof window === "undefined" ? null : window.localStorage.getItem(key); }
@@ -34,7 +35,7 @@ function sharedResult(): SharedResult | null {
       const record = JSON.parse(stored) as SharedResult;
       if (typeof record.version === "string" && typeof record.at === "number" && record.scope === sessionScope() &&
           (record.result?.ok === true || (record.result?.ok === false &&
-            ["session-expired", "locked", "forbidden", "session-recovery-failed"].includes(record.result.reason)))) return record;
+            ["session-expired", "locked", "forbidden", "session-recovery-failed", "session-changed"].includes(record.result.reason)))) return record;
     } catch { /* Ignore malformed, non-authoritative browser metadata. */ }
   }
   return localResult?.scope === sessionScope() ? localResult : null;
@@ -46,18 +47,20 @@ export function withSessionLock<T>(action: () => Promise<T>): Promise<T> {
   if (typeof window !== "undefined" && navigator.locks) {
     return navigator.locks.request(LOCK, action);
   }
-  return action();
+  const result = localLock.then(action);
+  localLock = result.then(() => undefined, () => undefined);
+  return result;
 }
 export function coordinateRefresh(observedVersion: string, recover: () => Promise<RecoveryResult>): Promise<RecoveryResult> {
   const scope = sessionScope();
   return withSessionLock(async () => {
-    if (scope !== sessionScope()) return { ok: false, reason: "session-expired" };
+    if (scope !== sessionScope()) return { ok: false, reason: "session-changed" };
     const latest = sharedResult();
     if (latest && latest.version !== observedVersion && Date.now() - latest.at < RESULT_TTL_MS) {
       return latest.result;
     }
     const result = await recover();
-    if (scope !== sessionScope()) return { ok: false, reason: "session-expired" };
+    if (scope !== sessionScope()) return { ok: false, reason: "session-changed" };
     localResult = { version: id(), scope, at: Date.now(), result };
     write(RESULT_KEY, JSON.stringify(localResult));
     return result;
