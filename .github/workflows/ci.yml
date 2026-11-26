@@ -62,3 +62,7 @@ jobs:
       - name: Production build
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm build
+
+      - name: Offline backend build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm build:offline
