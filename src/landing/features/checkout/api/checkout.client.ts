@@ -1,13 +1,19 @@
-import { isOrder } from "@/lib/contracts/order/order.schema";
-import type { CreateOrderInput } from "@/lib/contracts/order/order.types";
+import { isOrder } from "../../../../lib/contracts/order/order.schema.ts";
+import type { CreateOrderInput } from "../../../../lib/contracts/order/order.types.ts";
 
 export class CheckoutSubmitError extends Error {
-  constructor(message: string, readonly uncertain = false) { super(message); }
+  readonly uncertain: boolean;
+
+  constructor(message: string, uncertain = false) {
+    super(message);
+    this.name = "CheckoutSubmitError";
+    this.uncertain = uncertain;
+  }
 }
-export async function createOrder(input: CreateOrderInput) {
+export async function createOrder(input: CreateOrderInput, fetchImpl: typeof fetch = fetch) {
   let response: Response;
   try {
-    response = await fetch("/api/public/orders/create", {
+    response = await fetchImpl("/api/public/orders/create", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input), cache: "no-store", signal: AbortSignal.timeout(35000),
     });

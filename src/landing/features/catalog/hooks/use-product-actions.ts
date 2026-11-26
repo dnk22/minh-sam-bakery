@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createCartLine } from "@/landing/features/cart/selection";
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
-import { saveBuyNowIntent } from "@/landing/features/checkout/store/checkout-intent";
+import { beginBuyNowCheckout } from "@/landing/features/checkout/store/checkout-session-store";
 import { routes } from "@/landing/lib/routes";
 import type { CatalogProduct, CatalogVariant } from "../types";
 
@@ -35,7 +35,7 @@ export function useProductActions(product: CatalogProduct) {
       addItem(line);
       setFeedback(`Đã thêm ${amount} sản phẩm vào giỏ hàng`);
     } else {
-      if (!saveBuyNowIntent(line)) {
+      if (!beginBuyNowCheckout(line)) {
         setFeedback(
           "Không thể lưu thông tin mua hàng. Vui lòng kiểm tra cài đặt trình duyệt.",
         );

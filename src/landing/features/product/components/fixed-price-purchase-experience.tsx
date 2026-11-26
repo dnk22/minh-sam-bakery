@@ -6,7 +6,7 @@ import { useState } from "react";
 import { QuantityStepper } from "@/landing/components/ui/quantity-stepper";
 import { useRouter } from "next/navigation";
 import { createCartLine } from "@/landing/features/cart/selection";
-import { saveBuyNowIntent } from "@/landing/features/checkout/store/checkout-intent";
+import { beginBuyNowCheckout } from "@/landing/features/checkout/store/checkout-session-store";
 import { routes } from "@/landing/lib/routes";
 
 import type { FixedPriceProductDetail } from "../types";
@@ -27,7 +27,7 @@ export function FixedPricePurchaseExperience({ product }: { product: FixedPriceP
   const handlePurchase = () => {
     if (!checkoutAvailable || !selectedCatalogVariant) return;
     const line = createCartLine(product.catalog, selectedCatalogVariant, quantity);
-    if (!saveBuyNowIntent(line)) {
+    if (!beginBuyNowCheckout(line)) {
       setPurchaseError("Không thể lưu thông tin đặt hàng. Vui lòng kiểm tra cài đặt trình duyệt.");
       return;
     }

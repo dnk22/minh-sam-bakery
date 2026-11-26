@@ -60,13 +60,14 @@ test("checkout page delegates form state, sections and summary to focused module
   for (const section of ["CheckoutCustomerSection", "CheckoutFulfillmentSection", "CheckoutPaymentSection", "CheckoutOrderSummary"]) {
     assert.match(page, new RegExp(section));
   }
-  assert.match(controller, /loadCheckoutIntent/);
+  assert.match(controller, /CheckoutSessionSnapshot/);
   assert.match(controller, /validateCheckoutDraft/);
   assert.match(controller, /persistCheckoutDraft/);
   assert.match(controller, /event\.currentTarget\.querySelector/);
   assert.match(controller, /useSyncExternalStore\(subscribeHydration, clientSnapshot, serverSnapshot\)/);
   assert.match(page, /if \(!ready\)/);
   assert.match(page, /<HydratedCheckoutPage \/>/);
+  assert.match(page, /key=\{sessionKey\}/);
   assert.doesNotMatch(controller, /formRef/);
   assert.doesNotMatch(controller, /sessionStorage/);
   assert.match(draftStorage, /minh-sam-checkout-contact-v1/);
@@ -76,7 +77,7 @@ test("checkout page delegates form state, sections and summary to focused module
     assert.doesNotMatch(source, /createOrderCode/);
   }
   assert.doesNotMatch(purchase, /Thông tin nhận hàng/);
-  assert.match(purchase, /saveBuyNowIntent/);
+  assert.match(purchase, /beginBuyNowCheckout/);
   assert.equal(existsSync("src/app/(landing)/thanh-toan/page.tsx"), true);
   assert.equal(existsSync(`${componentDir}/checkout-flow-provider.tsx`), false);
 });
@@ -110,8 +111,8 @@ test("checkout uses centered theme-aware dialogs and preserves uncertain submiss
   assert.match(dialog,/useLandingPortalContainer/);
   assert.match(controller,/consumePurchasedItems/);
   assert.match(controller,/intent.source === "cart"/);
-  assert.match(mutation,/lock.current/);
-  assert.match(mutation,/markPending/);
+  assert.match(mutation,/activeAttempt\.current/);
+  assert.match(mutation,/markCheckoutSessionPending/);
 });
 
 test("checkout return destination preserves shopping query and rejects unsafe or checkout paths", async () => {
@@ -126,18 +127,28 @@ test("checkout return destination preserves shopping query and rejects unsafe or
 
 test("both cart links capture the source and checkout preserves the destination through receipt cleanup", () => {
   const header = readFileSync("src/landing/components/layout/landing-header.tsx","utf8");
-  const intent = readFileSync("src/landing/features/checkout/store/checkout-intent.ts","utf8");
+  const session = readFileSync("src/landing/features/checkout/store/checkout-session-store.ts","utf8");
   const controller = readFileSync("src/landing/features/checkout/hooks/use-checkout-controller.ts","utf8");
   assert.equal((header.match(/onNavigate=\{rememberCartOrigin\}/g) ?? []).length,2);
-  assert.match(intent,/returnTo: cartOrigin\(\)/);
-  assert.match(intent,/returnTo: currentShoppingUrl\(\)/);
+  assert.match(session,/returnTo: cartOrigin\(\)/);
+  assert.match(session,/returnTo: currentShoppingUrl\(\)/);
   assert.match(controller,/saveReceiptOrigin\(intent.returnTo\)/);
-  assert.match(controller,/savedIntent\?\.returnTo \?\? receiptOrigin\(\)/);
+  assert.match(controller,/intent\?\.returnTo \?\? receiptOrigin\(\)/);
 });
 
-test("pending lock is scoped to the checkout session, including legacy sessions", async () => {
-  const { CHECKOUT_INTENT_KEY, loadCheckoutIntent, saveBuyNowIntent, saveCartCheckoutIntent, isCurrentCheckoutSession } = await import("../src/landing/features/checkout/store/checkout-intent.ts");
-  const { markPending, hasPending, clearPending } = await import("../src/landing/features/checkout/store/checkout-receipt.ts");
+test("new buy-now and cart actions publish isolated reactive sessions without losing customer draft", async () => {
+  const { CHECKOUT_INTENT_KEY } = await import("../src/landing/features/checkout/store/checkout-intent.ts");
+  const {
+    beginBuyNowCheckout,
+    beginCartCheckout,
+    clearCheckoutSessionPending,
+    getCheckoutSessionSnapshot,
+    isCheckoutSessionPending,
+    markCheckoutSessionPending,
+    restoreCheckoutSession,
+    subscribeCheckoutSession,
+  } = await import("../src/landing/features/checkout/store/checkout-session-store.ts");
+  const { CHECKOUT_DRAFT_KEY } = await import("../src/landing/features/checkout/store/checkout-draft.ts");
   const data = new Map<string, string>();
   const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value); }, removeItem: (key: string) => { data.delete(key); } };
   const oldWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
@@ -146,32 +157,192 @@ test("pending lock is scoped to the checkout session, including legacy sessions"
   Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: storage });
   const line = { key: '["p","v"]', productId: "p", variantId: "v", quantity: 1, categorySlug: "cake", productSlug: "cake", productName: "Bánh", productImage: "", productImageAlt: "", variantLabel: "L", availableVariants: [], originalPrice: 100, effectivePrice: 90, selected: true };
   try {
+    const draft = { ...initialCheckoutDraft(), fullName: "Nguyễn An", phone: "0901234567" };
+    storage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(draft));
     storage.setItem(CHECKOUT_INTENT_KEY, JSON.stringify({ source: "buy-now", items: [line] }));
     storage.setItem("minh-sam-checkout-submit-pending-v1", "1");
-    const legacy = loadCheckoutIntent()!.sessionId;
-    assert.equal(hasPending(legacy), true);
-    assert.equal(saveBuyNowIntent(line), true);
-    const first = loadCheckoutIntent()!.sessionId;
-    assert.equal(hasPending(first), false);
-    assert.equal(markPending(first), true);
-    assert.equal(hasPending(loadCheckoutIntent()!.sessionId), true);
-    assert.equal(markPending(first), false);
-    assert.equal(saveBuyNowIntent(line), true);
-    const second = loadCheckoutIntent()!.sessionId;
+    restoreCheckoutSession();
+    const legacy = getCheckoutSessionSnapshot().intent!.sessionId;
+    assert.equal(isCheckoutSessionPending(legacy), true);
+
+    let publications = 0;
+    const unsubscribe = subscribeCheckoutSession(() => { publications += 1; });
+    assert.equal(beginBuyNowCheckout(line), true);
+    const first = getCheckoutSessionSnapshot().intent!.sessionId;
+    assert.equal(isCheckoutSessionPending(first), false);
+    assert.equal(markCheckoutSessionPending(first), true);
+    assert.equal(markCheckoutSessionPending(first), false, "double submit in one session must be rejected");
+
+    assert.equal(beginBuyNowCheckout(line), true);
+    const second = getCheckoutSessionSnapshot().intent!.sessionId;
     assert.notEqual(second, first);
-    assert.equal(hasPending(second), false);
-    assert.equal(isCurrentCheckoutSession(first), false);
-    assert.equal(markPending(first), false);
-    assert.equal(markPending(second), true);
-    clearPending(first);
-    assert.equal(hasPending(second), true);
-    assert.equal(saveCartCheckoutIntent([line]), true);
-    const third = loadCheckoutIntent()!.sessionId;
+    assert.equal(isCheckoutSessionPending(second), false);
+    assert.equal(markCheckoutSessionPending(first), false);
+    assert.equal(markCheckoutSessionPending(second), true);
+    clearCheckoutSessionPending(first);
+    assert.equal(isCheckoutSessionPending(second), true, "late cleanup from A must not clear B");
+
+    assert.equal(beginCartCheckout([line]), true);
+    const third = getCheckoutSessionSnapshot().intent!.sessionId;
     assert.notEqual(third, second);
-    assert.equal(hasPending(third), false);
-    assert.equal(markPending(third), true);
-    clearPending(third);
-    assert.equal(hasPending(third), false);
+    assert.equal(getCheckoutSessionSnapshot().intent!.source, "cart");
+    assert.equal(isCheckoutSessionPending(third), false);
+    assert.deepEqual(JSON.parse(storage.getItem(CHECKOUT_DRAFT_KEY)!), draft);
+    assert.ok(publications >= 3, "mounted subscribers must receive every explicit checkout action");
+    unsubscribe();
+  } finally {
+    if (oldWindow) Object.defineProperty(globalThis, "window", oldWindow); else Reflect.deleteProperty(globalThis, "window");
+    if (oldStorage) Object.defineProperty(globalThis, "sessionStorage", oldStorage); else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("reload and back-forward restoration keep only the matching session guard", async () => {
+  const { beginBuyNowCheckout, getCheckoutSessionSnapshot, isCheckoutSessionPending, markCheckoutSessionPending, restoreCheckoutSession } = await import("../src/landing/features/checkout/store/checkout-session-store.ts");
+  const { CHECKOUT_INTENT_KEY } = await import("../src/landing/features/checkout/store/checkout-intent.ts");
+  const data = new Map<string, string>();
+  const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value); }, removeItem: (key: string) => { data.delete(key); } };
+  const oldWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const oldStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { sessionStorage: storage, location: { pathname: "/danh-muc/cake", search: "", hash: "" } } });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: storage });
+  const line = { key: '["p","v"]', productId: "p", variantId: "v", quantity: 1, categorySlug: "cake", productSlug: "cake", productName: "Bánh", productImage: "", productImageAlt: "", variantLabel: "L", availableVariants: [], originalPrice: 100, effectivePrice: 90, selected: true };
+  try {
+    restoreCheckoutSession();
+    assert.equal(beginBuyNowCheckout(line), true);
+    const sessionA = getCheckoutSessionSnapshot().intent!.sessionId;
+    const rawA = storage.getItem(CHECKOUT_INTENT_KEY)!;
+    assert.equal(markCheckoutSessionPending(sessionA), true);
+    restoreCheckoutSession();
+    assert.equal(getCheckoutSessionSnapshot().intent!.sessionId, sessionA);
+    assert.equal(isCheckoutSessionPending(sessionA), true, "reload must retain uncertain guard for A");
+
+    assert.equal(beginBuyNowCheckout(line), true);
+    const sessionB = getCheckoutSessionSnapshot().intent!.sessionId;
+    const rawB = storage.getItem(CHECKOUT_INTENT_KEY)!;
+    storage.setItem(CHECKOUT_INTENT_KEY, rawA);
+    restoreCheckoutSession();
+    assert.equal(getCheckoutSessionSnapshot().intent!.sessionId, sessionA);
+    storage.setItem(CHECKOUT_INTENT_KEY, rawB);
+    restoreCheckoutSession();
+    assert.equal(getCheckoutSessionSnapshot().intent!.sessionId, sessionB);
+    assert.notEqual(sessionB, sessionA);
+  } finally {
+    if (oldWindow) Object.defineProperty(globalThis, "window", oldWindow); else Reflect.deleteProperty(globalThis, "window");
+    if (oldStorage) Object.defineProperty(globalThis, "sessionStorage", oldStorage); else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("submission machine ignores late results and cleanup from an abandoned session", async () => {
+  const { idleSubmission, submissionReducer } = await import("../src/landing/features/checkout/hooks/checkout-submission-machine.ts");
+  let state = submissionReducer(idleSubmission("A"), { type: "start", sessionId: "A", attemptId: 1 });
+  state = submissionReducer(state, { type: "uncertain", sessionId: "A", attemptId: 1, error: "timeout" });
+  state = submissionReducer(state, { type: "start", sessionId: "B", attemptId: 2 });
+  assert.equal(state.sessionId, "B");
+  assert.equal(state.status, "submitting");
+  assert.strictEqual(submissionReducer(state, { type: "failed", sessionId: "A", attemptId: 1, error: "late A" }), state);
+  assert.strictEqual(submissionReducer(state, { type: "succeeded", sessionId: "A", attemptId: 1 }), state);
+  assert.strictEqual(submissionReducer(state, { type: "start", sessionId: "B", attemptId: 3 }), state, "double click must not replace active B attempt");
+  state = submissionReducer(state, { type: "failed", sessionId: "B", attemptId: 2, error: "retry allowed" });
+  assert.equal(state.status, "failed");
+  state = submissionReducer(state, { type: "start", sessionId: "B", attemptId: 3 });
+  assert.equal(state.status, "submitting");
+});
+
+test("successful completion publishes a session-scoped receipt and stale success cannot replace it", async () => {
+  const { beginBuyNowCheckout, completeCheckoutSession, getCheckoutSessionSnapshot, markCheckoutSessionPending, restoreCheckoutSession } = await import("../src/landing/features/checkout/store/checkout-session-store.ts");
+  const data = new Map<string, string>();
+  const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value); }, removeItem: (key: string) => { data.delete(key); } };
+  const oldWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const oldStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { sessionStorage: storage, location: { pathname: "/danh-muc/cake", search: "", hash: "" } } });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: storage });
+  const line = { key: '["p","v"]', productId: "p", variantId: "v", quantity: 1, categorySlug: "cake", productSlug: "cake", productName: "Bánh", productImage: "", productImageAlt: "", variantLabel: "L", availableVariants: [], originalPrice: 100, effectivePrice: 90, selected: true };
+  const order = {
+    id: "order-1", phone: "0901234567", fullName: "Nguyễn An", paymentMethod: "AT_STORE" as const,
+    fulfillmentMethod: "PICKUP" as const, status: "PENDING_CONFIRMATION" as const, totalAmount: "90",
+    items: [{ id: "item-1", productId: "p", variantId: "v", quantity: 1, unitPrice: "90", lineTotal: "90", productName: "Bánh", productSku: "P", variantSku: "V", size: "L", style: "" }],
+    createdAt: "2026-11-26T00:00:00.000Z", updatedAt: "2026-11-26T00:00:00.000Z",
+  };
+  try {
+    restoreCheckoutSession();
+    assert.equal(beginBuyNowCheckout(line), true);
+    const sessionA = getCheckoutSessionSnapshot().intent!.sessionId;
+    assert.equal(markCheckoutSessionPending(sessionA), true);
+    assert.equal(beginBuyNowCheckout(line), true);
+    const sessionB = getCheckoutSessionSnapshot().intent!.sessionId;
+    assert.equal(completeCheckoutSession(sessionA, { ...order, id: "late-A" }), false);
+    assert.equal(getCheckoutSessionSnapshot().intent!.sessionId, sessionB);
+    assert.equal(markCheckoutSessionPending(sessionB), true);
+    assert.equal(completeCheckoutSession(sessionB, order), true);
+    assert.equal(getCheckoutSessionSnapshot().intent, null);
+    assert.equal(getCheckoutSessionSnapshot().receipt?.sessionId, sessionB);
+    assert.equal(getCheckoutSessionSnapshot().receipt?.order.id, "order-1");
+    restoreCheckoutSession();
+    assert.equal(getCheckoutSessionSnapshot().receipt?.order.id, "order-1");
+  } finally {
+    if (oldWindow) Object.defineProperty(globalThis, "window", oldWindow); else Reflect.deleteProperty(globalThis, "window");
+    if (oldStorage) Object.defineProperty(globalThis, "sessionStorage", oldStorage); else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("checkout client distinguishes retryable 4xx from uncertain failures", async () => {
+  const { CheckoutSubmitError, createOrder } = await import("../src/landing/features/checkout/api/checkout.client.ts");
+  const input = { items: [{ productId: "p", variantId: "v", quantity: 1 }], fullName: "Nguyễn An", phone: "0901234567", fulfillmentMethod: "PICKUP" as const, shippingAddress: null, deliveryDate: "2026-12-01", paymentMethod: "AT_STORE" as const };
+  const deterministic = await createOrder(input, (async () => new Response(JSON.stringify({ code: 422, message: "Thông tin chưa hợp lệ", data: null }), { status: 422 })) as typeof fetch).catch(error => error);
+  assert.ok(deterministic instanceof CheckoutSubmitError);
+  assert.equal(deterministic.uncertain, false);
+  const serverFailure = await createOrder(input, (async () => new Response(JSON.stringify({ code: 502, message: "Chưa xác minh", data: null }), { status: 502 })) as typeof fetch).catch(error => error);
+  assert.ok(serverFailure instanceof CheckoutSubmitError);
+  assert.equal(serverFailure.uncertain, true);
+  const networkFailure = await createOrder(input, (async () => { throw new TypeError("offline"); }) as typeof fetch).catch(error => error);
+  assert.ok(networkFailure instanceof CheckoutSubmitError);
+  assert.equal(networkFailure.uncertain, true);
+  const timeoutFailure = await createOrder(input, (async () => { throw new DOMException("timed out", "TimeoutError"); }) as typeof fetch).catch(error => error);
+  assert.ok(timeoutFailure instanceof CheckoutSubmitError);
+  assert.equal(timeoutFailure.uncertain, true);
+});
+
+test("late QR result from session A is discarded and session B can load its own config", async () => {
+  const { beginBuyNowCheckout, getCheckoutSessionSnapshot, restoreCheckoutSession } = await import("../src/landing/features/checkout/store/checkout-session-store.ts");
+  const { loadPaymentQrForSession } = await import("../src/landing/features/checkout/hooks/use-payment-qr.ts");
+  const data = new Map<string, string>();
+  const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value); }, removeItem: (key: string) => { data.delete(key); } };
+  const oldWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const oldStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { sessionStorage: storage, location: { pathname: "/danh-muc/cake", search: "", hash: "" } } });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: storage });
+  const line = { key: '["p","v"]', productId: "p", variantId: "v", quantity: 1, categorySlug: "cake", productSlug: "cake", productName: "Bánh", productImage: "", productImageAlt: "", variantLabel: "L", availableVariants: [], originalPrice: 100, effectivePrice: 90, selected: true };
+  const config = { accountNumber: "123", accountHolder: "MINH SAM", bankName: "Test Bank", bankBranch: "HN", qrImageUrl: "/uploads/qr.webp" };
+  let resolveA!: (value: typeof config) => void;
+  try {
+    restoreCheckoutSession();
+    beginBuyNowCheckout(line);
+    const sessionA = getCheckoutSessionSnapshot().intent!.sessionId;
+    const requestA = loadPaymentQrForSession(sessionA, new AbortController().signal, () => new Promise(resolve => { resolveA = resolve; }));
+    beginBuyNowCheckout(line);
+    const sessionB = getCheckoutSessionSnapshot().intent!.sessionId;
+    resolveA(config);
+    assert.equal(await requestA, null);
+    assert.deepEqual(await loadPaymentQrForSession(sessionB, new AbortController().signal, async () => config), config);
+  } finally {
+    if (oldWindow) Object.defineProperty(globalThis, "window", oldWindow); else Reflect.deleteProperty(globalThis, "window");
+    if (oldStorage) Object.defineProperty(globalThis, "sessionStorage", oldStorage); else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("unavailable sessionStorage rejects a new checkout without corrupting the reactive session", async () => {
+  const { beginBuyNowCheckout, getCheckoutSessionSnapshot, restoreCheckoutSession } = await import("../src/landing/features/checkout/store/checkout-session-store.ts");
+  const storage = { getItem: () => null, setItem: () => { throw new DOMException("blocked", "SecurityError"); }, removeItem: () => undefined };
+  const oldWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const oldStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { sessionStorage: storage, location: { pathname: "/", search: "", hash: "" } } });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: storage });
+  const line = { key: '["p","v"]', productId: "p", variantId: "v", quantity: 1, categorySlug: "cake", productSlug: "cake", productName: "Bánh", productImage: "", productImageAlt: "", variantLabel: "L", availableVariants: [], originalPrice: 100, effectivePrice: 90, selected: true };
+  try {
+    restoreCheckoutSession();
+    assert.equal(beginBuyNowCheckout(line), false);
+    assert.equal(getCheckoutSessionSnapshot().intent, null);
+    assert.equal(getCheckoutSessionSnapshot().receipt, null);
   } finally {
     if (oldWindow) Object.defineProperty(globalThis, "window", oldWindow); else Reflect.deleteProperty(globalThis, "window");
     if (oldStorage) Object.defineProperty(globalThis, "sessionStorage", oldStorage); else Reflect.deleteProperty(globalThis, "sessionStorage");

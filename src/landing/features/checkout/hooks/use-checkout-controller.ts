@@ -4,15 +4,19 @@ import { type FormEvent, useEffect, useState, useSyncExternalStore } from "react
 
 import { useCartHydrated } from "@/landing/features/cart/components/cart-hydration";
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
-import type { Order, CreateOrderInput } from "@/lib/contracts/order/order.types";
+import type { CreateOrderInput } from "@/lib/contracts/order/order.types";
 import { buildOrderRequest } from "../utils/order-request-mapper";
 import { usePaymentQr } from "./use-payment-qr";
 import { useCreateOrder } from "./use-create-order";
 import { checkoutReturnTo, receiptOrigin, saveReceiptOrigin, clearReceiptOrigin, clearCartOrigin } from "../store/checkout-return";
-import { readReceipt, clearReceipt, hasPending } from "../store/checkout-receipt";
 
 import { readCheckoutDraft, persistCheckoutDraft, clearCheckoutDraft } from "../store/checkout-draft";
-import { loadCheckoutIntent, clearCheckoutIntent, isCurrentCheckoutSession, type StoredCheckoutIntent } from "../store/checkout-intent";
+import {
+  clearCheckoutReceipt,
+  isCheckoutSessionPending,
+  isCurrentCheckoutSession,
+  type CheckoutSessionSnapshot,
+} from "../store/checkout-session-store";
 import type { CheckoutDraft, CheckoutErrors, CheckoutField, FulfillmentMethod } from "../types";
 import { initialCheckoutDraft, localCalendarDate, normalizeCheckoutDraft, validateCheckoutDraft } from "../validation";
 
@@ -26,31 +30,17 @@ export function useCheckoutReady() {
   return useSyncExternalStore(subscribeHydration, clientSnapshot, serverSnapshot);
 }
 
-function readInitialSession() {
-  const savedReceipt = readReceipt();
-  const savedIntent = loadCheckoutIntent();
-  return {
-    intent: savedReceipt ? null : savedIntent,
-    receipt: savedReceipt,
-    returnTo: checkoutReturnTo(savedIntent?.returnTo ?? receiptOrigin()),
-    blocked: Boolean(savedIntent && hasPending(savedIntent.sessionId)),
-    draft: savedReceipt ? initialCheckoutDraft() : readCheckoutDraft() ?? initialCheckoutDraft(),
-    today: localCalendarDate(),
-  };
-}
-
 /** Client-only checkout orchestration, mounted after hydration. */
-export function useCheckoutController() {
-  const [initial] = useState(readInitialSession);
-  const [intent, setIntent] = useState<StoredCheckoutIntent | null>(initial.intent);
-  const [draft, setDraft] = useState<CheckoutDraft>(initial.draft);
+export function useCheckoutController(session: CheckoutSessionSnapshot) {
+  const { intent, receipt: storedReceipt } = session;
+  const receipt = storedReceipt?.order ?? null;
+  const [draft, setDraft] = useState<CheckoutDraft>(() => receipt ? initialCheckoutDraft() : readCheckoutDraft() ?? initialCheckoutDraft());
   const [errors, setErrors] = useState<CheckoutErrors>({});
-  const [returnTo] = useState(initial.returnTo);
-  const [receipt, setReceipt] = useState<Order | null>(initial.receipt);
+  const [returnTo] = useState(() => checkoutReturnTo(intent?.returnTo ?? receiptOrigin()));
   const [transferInput, setTransferInput] = useState<CreateOrderInput | null>(null);
-  const [blocked] = useState(initial.blocked);
-  const submission = useCreateOrder();
-  const paymentQr = usePaymentQr(Boolean(intent) && !receipt);
+  const [restoredBlocked] = useState(() => Boolean(intent && isCheckoutSessionPending(intent.sessionId)));
+  const submission = useCreateOrder(intent?.sessionId ?? null);
+  const paymentQr = usePaymentQr(intent?.sessionId ?? null, !receipt);
   const qrReady = paymentQr.status === "ready";
   // A restored transfer draft must not stay selected when QR is unavailable.
   const effectivePaymentMethod = draft.fulfillmentMethod === "delivery" && qrReady ? "BANK_TRANSFER"
@@ -58,11 +48,11 @@ export function useCheckoutController() {
   const effectiveDraft = { ...draft, paymentMethod: effectivePaymentMethod };
   const paymentBlocked = !qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery");
   const cartHydrated = useCartHydrated();
-  const today = initial.today;
+  const today = localCalendarDate();
 
   useEffect(() => {
-    if (initial.receipt) { clearCheckoutIntent(); clearCheckoutDraft(); }
-  }, [initial.receipt]);
+    if (receipt) clearCheckoutDraft();
+  }, [receipt]);
 
   // Persist after React has committed the state, not from inside a state updater.
   // This hook mounts only after hydration, with the restored draft.
@@ -110,7 +100,7 @@ export function useCheckoutController() {
         `[data-checkout-field="${result.firstInvalidField}"]`,
       )?.focus();
     }
-    if (result.firstInvalidField || (intent?.source === "cart" && !cartHydrated) || !intent || blocked || submission.pending || submission.uncertain || transferInput || receipt) return;
+    if (result.firstInvalidField || (intent?.source === "cart" && !cartHydrated) || !intent || restoredBlocked || submission.pending || submission.uncertain || transferInput || receipt) return;
     try {
       const input = buildOrderRequest(intent, normalized);
       if (input.paymentMethod === "BANK_TRANSFER") setTransferInput(input);
@@ -120,28 +110,25 @@ export function useCheckoutController() {
 
   async function submit(input: CreateOrderInput) {
     if (!intent || (intent.source === "cart" && !cartHydrated)) return;
-    await submission.submit(intent.sessionId, input, order => {
+    await submission.submit(input, () => {
       if (intent.source === "cart") {
         useCartStore.getState().consumePurchasedItems(intent.items);
       }
       saveReceiptOrigin(intent.returnTo);
       if (intent.source === "cart") clearCartOrigin();
-      clearCheckoutIntent();
       clearCheckoutDraft();
       setTransferInput(null);
-      setReceipt(order);
-      setIntent(null);
     });
   }
 
   return {
     receipt, transferInput, returnTo,
     pending: submission.pending,
-    blocked: blocked || submission.uncertain || Boolean(intent?.source === "cart" && !cartHydrated),
-    submitError: submission.error || (blocked ? "Chưa xác minh được lần đặt hàng này. Vui lòng kiểm tra với cửa hàng trước khi bắt đầu đơn hàng mới." : ""),
+    blocked: restoredBlocked || submission.uncertain || Boolean(intent?.source === "cart" && !cartHydrated),
+    submitError: submission.error || (restoredBlocked ? "Chưa xác minh được lần đặt hàng này. Vui lòng kiểm tra với cửa hàng trước khi bắt đầu đơn hàng mới." : ""),
     closeTransfer: () => { if (!submission.pending) setTransferInput(null); },
-    confirmTransfer: () => { if (transferInput && !blocked && qrReady) void submit(transferInput); },
-    closeReceipt: () => { clearReceipt(); clearReceiptOrigin(); setReceipt(null); },
+    confirmTransfer: () => { if (transferInput && !restoredBlocked && qrReady) void submit(transferInput); },
+    closeReceipt: () => { clearCheckoutReceipt(); clearReceiptOrigin(); },
     intent,
     draft: effectiveDraft,
     paymentQr: paymentQr,

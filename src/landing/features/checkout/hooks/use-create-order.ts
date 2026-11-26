@@ -1,33 +1,65 @@
 "use client";
-import { useRef, useState } from "react";
+import { useReducer, useRef } from "react";
 import type { CreateOrderInput, Order } from "@/lib/contracts/order/order.types";
 import { createOrder, CheckoutSubmitError } from "../api/checkout.client";
-import { isCurrentCheckoutSession } from "../store/checkout-intent";
-import { clearPending, markPending, saveReceipt } from "../store/checkout-receipt";
+import {
+  clearCheckoutSessionPending,
+  completeCheckoutSession,
+  isCurrentCheckoutSession,
+  markCheckoutSessionPending,
+} from "../store/checkout-session-store";
+import { idleSubmission, submissionReducer, visibleSubmission } from "./checkout-submission-machine";
 
-export function useCreateOrder() {
-  const lock = useRef(false);
-  const [pending, setPending] = useState(false);
-  const [uncertain, setUncertain] = useState(false);
-  const [error, setError] = useState("");
-  async function submit(sessionId: string, input: CreateOrderInput, onSuccess: (order: Order) => void) {
-    if (lock.current || uncertain) return;
-    if (!markPending(sessionId)) { setError("Không thể lưu trạng thái đặt hàng. Vui lòng kiểm tra trình duyệt."); return; }
-    lock.current = true; setPending(true); setError("");
+export function useCreateOrder(sessionId: string | null) {
+  const [state, dispatch] = useReducer(submissionReducer, sessionId, idleSubmission);
+  const activeAttempt = useRef<{ sessionId: string; attemptId: number } | null>(null);
+  const attemptSequence = useRef(0);
+  const visible = visibleSubmission(state, sessionId);
+
+  async function submit(input: CreateOrderInput, onSuccess: (order: Order) => void) {
+    if (!sessionId || visible.status === "uncertain" || activeAttempt.current?.sessionId === sessionId) return;
+    if (!markCheckoutSessionPending(sessionId)) {
+      dispatch({ type: "set-error", sessionId, error: "Không thể lưu trạng thái đặt hàng. Vui lòng kiểm tra trình duyệt." });
+      return;
+    }
+    const attemptId = ++attemptSequence.current;
+    activeAttempt.current = { sessionId, attemptId };
+    dispatch({ type: "start", sessionId, attemptId });
+
+    let order: Order;
     try {
-      const order = await createOrder(input);
-      // A response from an abandoned checkout must never overwrite a newer session.
-      if (isCurrentCheckoutSession(sessionId)) {
-        saveReceipt(order);
-        onSuccess(order);
-      }
-      clearPending(sessionId);
+      order = await createOrder(input);
     } catch (caught) {
-      const unknown = !(caught instanceof CheckoutSubmitError) || caught.uncertain;
-      setUncertain(unknown);
-      if (!unknown) clearPending(sessionId);
-      setError(caught instanceof CheckoutSubmitError ? caught.message : "Chưa xác minh được kết quả tạo đơn. Vui lòng liên hệ cửa hàng.");
-    } finally { lock.current = false; setPending(false); }
+      const uncertain = !(caught instanceof CheckoutSubmitError) || caught.uncertain;
+      if (!uncertain) clearCheckoutSessionPending(sessionId);
+      if (isCurrentCheckoutSession(sessionId)) {
+        dispatch({
+          type: uncertain ? "uncertain" : "failed",
+          sessionId,
+          attemptId,
+          error: caught instanceof CheckoutSubmitError
+            ? caught.message
+            : "Chưa xác minh được kết quả tạo đơn. Vui lòng liên hệ cửa hàng.",
+        });
+      }
+      if (activeAttempt.current?.sessionId === sessionId && activeAttempt.current.attemptId === attemptId) activeAttempt.current = null;
+      return;
+    }
+
+    if (completeCheckoutSession(sessionId, order)) {
+      dispatch({ type: "succeeded", sessionId, attemptId });
+      onSuccess(order);
+    } else {
+      clearCheckoutSessionPending(sessionId);
+    }
+    if (activeAttempt.current?.sessionId === sessionId && activeAttempt.current.attemptId === attemptId) activeAttempt.current = null;
   }
-  return { submit, pending, uncertain, error, setError };
+
+  return {
+    submit,
+    pending: visible.status === "submitting",
+    uncertain: visible.status === "uncertain",
+    error: visible.error,
+    setError: (error: string) => dispatch({ type: "set-error", sessionId, error }),
+  };
 }

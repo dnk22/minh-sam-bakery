@@ -52,7 +52,7 @@ test("product purchase creates an intent but never submits a simulated order", (
   const purchase = readFileSync("src/landing/features/product/components/fixed-price-purchase-experience.tsx", "utf8");
   const adapter = readFileSync("src/landing/features/product/api-adapter.ts", "utf8");
   assert.match(adapter, /checkoutAvailable: catalog\.pricing\.available/);
-  assert.match(purchase, /saveBuyNowIntent/);
+  assert.match(purchase, /beginBuyNowCheckout/);
   assert.doesNotMatch(purchase, /useCheckoutFlow|createOrderCode/);
   assert.doesNotMatch(purchase, /handleAddToCart|THÊM VÀO GIỎ/);
 });

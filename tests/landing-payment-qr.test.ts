@@ -30,7 +30,7 @@ test("checkout preloads payment QR and blocks unavailable transfer before modal"
   const page = readFileSync(root + "components/checkout-page.tsx", "utf8");
   const section = readFileSync(root + "components/checkout-payment-section.tsx", "utf8");
   const modal = readFileSync(root + "components/checkout-transfer-modal.tsx", "utf8");
-  assert.match(controller, /usePaymentQr\(Boolean\(intent\) && !receipt\)/);
+  assert.match(controller, /usePaymentQr\(intent\?\.sessionId \?\? null, !receipt\)/);
   assert.match(controller, /if \(paymentBlocked\)/);
   assert.match(section, /disabled=\{qrStatus !== "ready"\}/);
   assert.match(section, /text-amber-800/);
