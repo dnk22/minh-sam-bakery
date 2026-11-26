@@ -18,7 +18,7 @@ test("payment QR uses public no-store API and fails closed", () => {
   assert.match(server, /path: "\/api\/v1\/public\/p-con\/qr"/);
   assert.match(server, /cache: "no-store"/);
   assert.match(client, /response.status !== 200/);
-  assert.match(modal, /qr.status === "ready" && imageState === "loaded"/);
+  assert.match(modal, /qr.status === "ready" && !pending && !blocked/);
   assert.match(modal, /<PaymentQrUnavailable/);
   assert.match(modal, /<PaymentQrLoading/);
   assert.doesNotMatch(modal, /IllustrativeQr|thử nghiệm/);
@@ -37,4 +37,18 @@ test("checkout preloads payment QR and blocks unavailable transfer before modal"
   assert.match(page, /blocked=\{checkout.blocked \|\| checkout.paymentBlocked\}/);
   assert.match(page, /qr=\{checkout.paymentQr\}/);
   assert.doesNotMatch(modal, /usePaymentQr\(/);
+});
+
+test("image failures stay local and preserve manual bank transfer", () => {
+  const root = "src/landing/features/checkout/";
+  const modal = readFileSync(root + "components/checkout-transfer-modal.tsx", "utf8");
+  const image = readFileSync(root + "components/payment-qr/payment-qr-image.tsx", "utf8");
+  const hook = readFileSync(root + "hooks/use-payment-qr.ts", "utf8");
+  const controller = readFileSync(root + "hooks/use-checkout-controller.ts", "utf8");
+  const page = readFileSync(root + "components/checkout-page.tsx", "utf8");
+  assert.match(modal, /const unavailable = qr.status === "unavailable";/);
+  assert.match(modal, /<PaymentQrDetails config=\{qr.config\}/);
+  assert.match(image, /onError=\{\(\) => setStatus\("failed"\)\}/);
+  assert.match(image, /chuyển khoản thủ công/);
+  assert.doesNotMatch(modal + hook + controller + page, /onQrUnavailable|markQrUnavailable|markUnavailable/);
 });

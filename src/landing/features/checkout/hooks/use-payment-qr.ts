@@ -18,5 +18,5 @@ export function usePaymentQr(enabled: boolean) {
     });
     return () => controller.abort();
   }, [enabled]);
-  return { state, markUnavailable: () => setState({ status: "unavailable" }) };
+  return state;
 }
