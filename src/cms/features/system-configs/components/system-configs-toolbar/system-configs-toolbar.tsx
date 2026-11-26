@@ -14,7 +14,7 @@ export function SystemConfigsToolbar({ filters }: { filters: SystemConfigFilters
   const clearAll = () => { draft.reset({ search: "" }); filters.clearFilters(); };
   
   return <CmsToolbar label="Bộ lọc cấu hình hệ thống" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
-    search={<CmsInput aria-label="Tìm kiếm cấu hình"  controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />}
+    search={<CmsInput aria-label="Tìm kiếm cấu hình" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo khóa hoặc mô tả" type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
     
     
   />;

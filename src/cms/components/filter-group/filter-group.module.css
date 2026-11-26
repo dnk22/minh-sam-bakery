@@ -60,3 +60,5 @@
 @media (prefers-reduced-motion: reduce) {
   .panel[data-state="open"] { animation: none; }
 }
+
+.desktop[data-layout="toolbar"] { align-items: flex-end; }

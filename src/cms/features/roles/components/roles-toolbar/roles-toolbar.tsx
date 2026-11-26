@@ -14,11 +14,7 @@ export function RolesToolbar({ filters }: { filters: RoleFilters }) {
   const clearAll = () => { draft.reset({ search: "" }); filters.clearFilters(); };
   
   return <CmsToolbar label="Bộ lọc vai trò" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
-    search={<CmsInput
-        aria-label="Tìm kiếm vai trò"
-        
-        controlSize="sm"
-        leadingIcon={<Search aria-hidden="true" size={17} />}
+    search={<CmsInput aria-label="Tìm kiếm vai trò" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo tên hoặc mã vai trò" type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
     
     
   />;

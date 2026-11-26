@@ -30,8 +30,8 @@ export function OrdersToolbar({ filters }: { filters: OrderFilters }) {
     filters={<CmsFilterGroup layout="toolbar" activeCount={count} label="Bộ lọc đơn hàng" onClear={clearAdvanced}>
       <CmsToolbarField size="compact" label={<label htmlFor="order-created-from">Từ ngày</label>}><CmsInput id="order-created-from" type="date" controlSize="sm" max={values.createdTo} value={values.createdFrom} onChange={event => draft.set("createdFrom", event.target.value)} /></CmsToolbarField>
       <CmsToolbarField size="compact" label={<label htmlFor="order-created-to">Đến ngày</label>}><CmsInput id="order-created-to" type="date" controlSize="sm" min={values.createdFrom} value={values.createdTo} onChange={event => draft.set("createdTo", event.target.value)} /></CmsToolbarField>
-      <CmsToolbarField size="compact"><CmsInput aria-label="Ngày giao" title="Ngày giao" type="date" controlSize="sm" value={values.deliveryDate ?? ""} onChange={event => draft.set("deliveryDate", event.target.value || undefined)} /></CmsToolbarField>
-      <CmsToolbarField size="compact"><CmsInput aria-label="Khung giờ giao" placeholder="VD: 09:00-11:00" controlSize="sm" value={values.deliveryTime} onChange={event => draft.set("deliveryTime", event.target.value)} /></CmsToolbarField>
+      <CmsToolbarField size="compact" label={<label htmlFor="order-delivery-date">Ngày giao</label>}><CmsInput id="order-delivery-date" aria-label="Ngày giao" title="Ngày giao" type="date" controlSize="sm" value={values.deliveryDate ?? ""} onChange={event => draft.set("deliveryDate", event.target.value || undefined)} /></CmsToolbarField>
+      <CmsToolbarField size="compact" label={<label htmlFor="order-delivery-time">Khung giờ giao</label>}><CmsInput id="order-delivery-time" aria-label="Khung giờ giao" placeholder="VD: 09:00-11:00" controlSize="sm" value={values.deliveryTime} onChange={event => draft.set("deliveryTime", event.target.value)} /></CmsToolbarField>
     </CmsFilterGroup>}
     feedback={!valid ? <p role="alert" style={{ color: "var(--cms-destructive)", margin: 0 }}>Chọn đủ hai ngày, đúng thứ tự và không quá 30 ngày.</p> : null}
   />;

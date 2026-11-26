@@ -28,7 +28,7 @@ export function UsersToolbar({ filters }: { filters: UserFilters }) {
   const advancedCount = countUserAdvancedFilters(draft.values.status, draft.values.roleId);
 
   return <CmsToolbar label="Bộ lọc tài khoản" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
-    search={<CmsInput aria-label="Tìm kiếm tài khoản"  controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />}
+    search={<CmsInput aria-label="Tìm kiếm tài khoản" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo tên hoặc email" type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
     filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc tài khoản" onClear={clearAdvanced}>
         <CmsSelect aria-label="Lọc theo trạng thái" containerClassName={styles.select} controlSize="sm" options={USER_STATUS_FILTER_OPTIONS} value={draft.values.status ?? ""} onChange={(event) => draft.set("status", event.target.value === "ACTIVE" || event.target.value === "LOCKED" ? event.target.value : undefined)} />
         <CmsCombobox aria-label="Lọc theo vai trò" containerClassName={styles.roleSelect} controlSize="sm" disabled={roles.isLoading || Boolean(roles.error)} options={roleOptions} value={draft.values.roleId ?? ""} onValueChange={(value) => draft.set("roleId", value || undefined)} />
