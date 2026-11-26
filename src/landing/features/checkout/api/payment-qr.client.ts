@@ -1,4 +1,4 @@
-import { qrPaymentSchema } from "@/lib/contracts/qr-payment/qr-payment.schema";
+import { qrPaymentSchema } from "../../../../lib/contracts/qr-payment/qr-payment.schema.ts";
 
 export async function getPaymentQr(signal: AbortSignal) {
   const response = await fetch("/api/public/payment-qr", { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(15000)]) });

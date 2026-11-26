@@ -264,7 +264,7 @@ test("catalog presentation splits page composition, navigation and purchase dial
   assert.match(navigate, /scroll: false/);
   assert.match(storefront, /#danh-muc/);
   assert.match(storefront, /CrossCategoryDiscovery/);
-  assert.match(purchaseHook, /saveBuyNowIntent/);
+  assert.match(purchaseHook, /beginBuyNowCheckout/);
   assert.match(purchaseHook, /addItem\(line\)/);
   assert.match(purchaseHook, /variants.length === 1/);
   assert.match(modal, /Dialog.Root/);

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { QuantityStepper } from "@/landing/components/ui/quantity-stepper";
 import { formatVnd } from "@/landing/features/catalog/pricing";
-import { saveCartCheckoutIntent } from "@/landing/features/checkout/store/checkout-intent";
+import { beginCartCheckout } from "@/landing/features/checkout/store/checkout-session-store";
 import { routes } from "@/landing/lib/routes";
 
 import { cartSubtotal, getSelectedCartLines, isAllCartSelected } from "../logic";
@@ -35,7 +35,7 @@ export function CartPage() {
     if (selected.some(item => !item.variantId || item.variantId.startsWith("base-"))) {
       setNavigationError("Có sản phẩm chưa có quy cách đặt hàng hợp lệ. Vui lòng bỏ chọn hoặc chọn lại sản phẩm."); return;
     }
-    if (!saveCartCheckoutIntent(selected)) {
+    if (!beginCartCheckout(selected)) {
       setNavigationError("Không thể lưu thông tin thanh toán. Vui lòng kiểm tra cài đặt trình duyệt.");
       return;
     }

@@ -13,6 +13,8 @@ import { CheckoutFulfillmentSection } from "./checkout-fulfillment-section";
 import { CheckoutOrderSummary } from "./checkout-order-summary";
 import { CheckoutPaymentSection } from "./checkout-payment-section";
 import { useCheckoutController, useCheckoutReady } from "../hooks/use-checkout-controller";
+import { useCheckoutSession } from "../hooks/use-checkout-session";
+import type { CheckoutSessionSnapshot } from "../store/checkout-session-store";
 
 export function CheckoutPage() {
   const ready = useCheckoutReady();
@@ -30,7 +32,13 @@ export function CheckoutPage() {
 }
 
 function HydratedCheckoutPage() {
-  const checkout = useCheckoutController();
+  const session = useCheckoutSession();
+  const sessionKey = session.intent?.sessionId ?? session.receipt?.sessionId ?? "empty";
+  return <CheckoutSessionPage key={sessionKey} session={session} />;
+}
+
+function CheckoutSessionPage({ session }: { session: CheckoutSessionSnapshot }) {
+  const checkout = useCheckoutController(session);
   const router = useRouter();
   if (checkout.receipt) return <CheckoutSuccessModal order={checkout.receipt} onClose={() => { checkout.closeReceipt(); router.replace(checkout.returnTo); }} />;
 

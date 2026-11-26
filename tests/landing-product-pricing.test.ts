@@ -56,7 +56,7 @@ test("buy-now and cart actions use one shared variant selector without relying o
   const actions = readFileSync("src/landing/features/catalog/hooks/use-product-actions.ts", "utf8");
   const cards = readFileSync("src/landing/features/catalog/components/product/product-card.tsx", "utf8");
   assert.match(actions, /variants\.length === 1/);
-  assert.match(actions, /saveBuyNowIntent/);
+  assert.match(actions, /beginBuyNowCheckout/);
   assert.match(actions, /addItem\(line\)/);
   const dialog = readFileSync("src/landing/features/catalog/components/product/product-variant-dialog.tsx", "utf8");
   assert.match(dialog, /Dialog.Root/);

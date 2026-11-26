@@ -48,7 +48,7 @@ test("checkout navigation uses only selected lines and retains cart after naviga
   const store = readFileSync("src/landing/features/cart/store/cart-store.ts", "utf8");
   const header = readFileSync("src/landing/components/layout/landing-header.tsx", "utf8");
   assert.match(component, /getSelectedCartLines\(items\)/);
-  assert.match(component, /saveCartCheckoutIntent\(selected\)/);
+  assert.match(component, /beginCartCheckout\(selected\)/);
   assert.match(component, /selected\.length === 0/);
   assert.match(store, /skipHydration: true/);
   assert.match(header, /Giỏ hàng/);

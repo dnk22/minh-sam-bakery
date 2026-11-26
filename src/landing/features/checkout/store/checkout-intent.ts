@@ -1,8 +1,9 @@
-import { cartOrigin, currentShoppingUrl, safeReturnTo, clearReceiptOrigin } from "./checkout-return.ts";
 import { cartLineKey } from "../../cart/selection.ts";
 import type { CartLine, CheckoutIntent } from "../../cart/types.ts";
+import { safeReturnTo } from "./checkout-return.ts";
+import { CHECKOUT_INTENT_KEY } from "./checkout-storage-keys.ts";
 
-export const CHECKOUT_INTENT_KEY = "minh-sam-checkout-intent-v1";
+export { CHECKOUT_INTENT_KEY } from "./checkout-storage-keys.ts";
 export const LEGACY_CHECKOUT_SESSION = "legacy";
 export type StoredCheckoutIntent = CheckoutIntent & { sessionId: string };
 
@@ -23,26 +24,16 @@ function validCartLine(value: unknown): value is CartLine {
     item.key === cartLineKey(item.productId, item.variantId ?? null);
 }
 
-function writeCheckoutIntent(intent: CheckoutIntent): boolean {
-  if (typeof window === "undefined" || intent.items.length === 0) return false;
+export function writeCheckoutIntent(intent: CheckoutIntent): StoredCheckoutIntent | null {
+  if (typeof window === "undefined" || intent.items.length === 0) return null;
   try {
-    // Each explicit buy-now/cart action creates a distinct checkout session.
     const sessionId = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, "0")).join("");
-    window.sessionStorage.setItem(CHECKOUT_INTENT_KEY, JSON.stringify({ ...intent, sessionId }));
-    window.sessionStorage.removeItem("minh-sam-checkout-receipt-v1");
-    clearReceiptOrigin();
-    return true;
+    const stored = { ...intent, sessionId };
+    window.sessionStorage.setItem(CHECKOUT_INTENT_KEY, JSON.stringify(stored));
+    return stored;
   } catch {
-    return false;
+    return null;
   }
-}
-
-export function saveBuyNowIntent(item: CartLine): boolean {
-  return writeCheckoutIntent({ source: "buy-now", items: [item], returnTo: currentShoppingUrl() ?? undefined });
-}
-
-export function saveCartCheckoutIntent(items: CartLine[]): boolean {
-  return writeCheckoutIntent({ source: "cart", items: items.map((item) => ({ ...item })), returnTo: cartOrigin() ?? undefined });
 }
 
 export function loadCheckoutIntent(): StoredCheckoutIntent | null {
@@ -64,8 +55,6 @@ export function loadCheckoutIntent(): StoredCheckoutIntent | null {
   }
 }
 
-export function clearCheckoutIntent() { try { window.sessionStorage.removeItem(CHECKOUT_INTENT_KEY); } catch {} }
-
-export function isCurrentCheckoutSession(sessionId: string): boolean {
-  return loadCheckoutIntent()?.sessionId === sessionId;
+export function clearStoredCheckoutIntent() {
+  try { window.sessionStorage.removeItem(CHECKOUT_INTENT_KEY); } catch { /* storage unavailable */ }
 }
