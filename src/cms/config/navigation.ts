@@ -11,6 +11,7 @@ import {
   Palette,
   SlidersHorizontal,
   ShoppingBag,
+  QrCode,
   type LucideIcon,
 } from "lucide-react";
 
@@ -68,6 +69,7 @@ export const cmsNavigation: CmsNavGroup[] = [
           { title: "Lịch sử", href: "/cms/orders/history" },
         ],
       },
+      { title: "QR thanh toán", href: "/cms/qr-payment", icon: QrCode },
     ],
   },
   {
