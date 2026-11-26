@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { SessionRefreshModal } from "@/cms/features/auth/components/session-refresh-modal/session-refresh-modal";
 import { CmsPreferencesProvider } from "@/cms/context/cms-preferences";
 import "@/cms/styles/cms.css";
 
@@ -17,7 +18,7 @@ export default function CmsLayout({ children }: { children: ReactNode }) {
           __html: `(function(){try{var t=localStorage.getItem("minhsam-cms-theme");document.documentElement.setAttribute("data-cms-theme",t==="light"||t==="dark"||t==="system"?t:"system")}catch(e){document.documentElement.setAttribute("data-cms-theme","system")}})();`,
         }}
       />
-      <CmsPreferencesProvider>{children}</CmsPreferencesProvider>
+      <CmsPreferencesProvider>{children}<SessionRefreshModal /></CmsPreferencesProvider>
     </>
   );
 }

@@ -1,3 +1,5 @@
+import { changeSessionScope, withSessionLock } from "@/cms/features/auth/session/refresh-coordinator";
+import { resetBrowserRecovery } from "@/cms/features/auth/session/browser-refresh";
 import { cmsApiClient } from "@/cms/lib/api/client";
 import { CmsApiError } from "@/cms/lib/api/errors";
 import type { CmsProfileUser } from "@/cms/features/auth/types";
@@ -22,13 +24,25 @@ export class AuthClientError extends Error {
 
 export const authApi = {
   login: (credentials: LoginCredentials, signal?: AbortSignal) =>
-    authRequest(() => cmsApiClient.post("/auth/login", credentials, { signal }), isLoginResponse),
+    withSessionLock(async () => {
+      const result = await authRequest(() => cmsApiClient.post("/auth/login", credentials, { signal }), isLoginResponse);
+      changeSessionScope();
+      resetBrowserRecovery();
+      return result;
+    }),
   logout: (signal?: AbortSignal) =>
-    authRequest(() => cmsApiClient.post("/auth/logout", {}, { signal }), isLogoutResponse),
+    withSessionLock(async () => {
+      try {
+        const result = await authRequest(() => cmsApiClient.post("/auth/logout", {}, { signal }), isLogoutResponse);
+        if (result.localSessionCleared) { changeSessionScope(); resetBrowserRecovery(); }
+        return result;
+      } catch (error) {
+        if (error instanceof AuthClientError && error.localSessionCleared) { changeSessionScope(); resetBrowserRecovery(); }
+        throw error;
+      }
+    }),
   me: (signal?: AbortSignal) =>
     authRequest(() => cmsApiClient.get("/auth/me", { signal }), isLoginResponse),
-  refresh: (signal?: AbortSignal) =>
-    authRequest(() => cmsApiClient.post("/auth/refresh", {}, { signal }), isRefreshResponse),
 };
 
 async function authRequest<T>(operation: () => Promise<unknown>, validate: (value: unknown) => value is T) {
@@ -59,6 +73,3 @@ function isLogoutResponse(value: unknown): value is { ok: boolean; revoked: bool
     typeof value.localSessionCleared === "boolean";
 }
 
-function isRefreshResponse(value: unknown): value is { ok: true } {
-  return isRecord(value) && value.ok === true;
-}

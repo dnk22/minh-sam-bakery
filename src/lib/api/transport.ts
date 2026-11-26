@@ -64,6 +64,7 @@ export async function requestApiEnvelope<T>(options: BackendRequestOptions<T>): 
       code: payload.code,
       backendMessage: payload.message,
       data: payload.data,
+      retryAfter: response.headers.get("Retry-After") ?? undefined,
     });
   }
   if (payload.code < 200 || payload.code >= 300) {
@@ -72,6 +73,7 @@ export async function requestApiEnvelope<T>(options: BackendRequestOptions<T>): 
       code: payload.code,
       backendMessage: payload.message,
       data: payload.data,
+      retryAfter: response.headers.get("Retry-After") ?? undefined,
     });
   }
   if (!options.validate(payload.data)) {

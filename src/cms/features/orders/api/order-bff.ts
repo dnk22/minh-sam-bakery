@@ -1,22 +1,13 @@
 import "server-only";
 
 import { noStoreJson } from "@/cms/features/auth/api/browser-response";
-import { readCmsSessionCookies } from "@/cms/features/auth/session/cookies";
-import { resolveCmsSession } from "@/cms/features/auth/session/current-session";
+import { requireCmsApiAccess } from "@/cms/features/auth/api/require-cms-api-access";
 import { BackendRequestError } from "@/lib/api/errors";
 
 import { orderErrorMessage } from "../lib/order-errors";
 
-export async function requireOrderAccess(): Promise<{ accessToken: string } | { response: Response }> {
-  const resolution = await resolveCmsSession();
-  if (resolution.status !== "authenticated") {
-    const status = resolution.status === "forbidden" ? 403
-      : resolution.status === "locked" ? 423
-        : resolution.status === "unavailable" ? 503 : 401;
-    return { response: orderError(status) };
-  }
-  const accessToken = (await readCmsSessionCookies()).accessToken;
-  return accessToken ? { accessToken } : { response: orderError(401) };
+export function requireOrderAccess() {
+  return requireCmsApiAccess(orderError);
 }
 
 export function orderError(status: number, error?: unknown) {

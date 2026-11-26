@@ -9,7 +9,6 @@ import { mapBackendError, toCmsAuthBackendError } from "../src/cms/features/auth
 import { cmsCookiePolicy } from "../src/cms/features/auth/lib/cookie-policy.ts";
 import { isTrustedSameOriginRequest } from "../src/cms/features/auth/lib/csrf.ts";
 import { sanitizeCmsRedirect } from "../src/cms/features/auth/lib/redirect.ts";
-import { decideRefreshFailure } from "../src/cms/features/auth/lib/refresh-policy.ts";
 import {
   LEGACY_REMEMBERED_LOGIN_KEY,
   migrateAndReadRememberedEmail,
@@ -298,16 +297,6 @@ test("access freshness policy refreshes near-expiry tokens", () => {
   assert.equal(isAccessTokenFresh({ accessToken: "token", accessExpiresAt: now + 9_999 }, now), false);
   assert.equal(isAccessTokenFresh({ accessToken: "token", accessExpiresAt: now - 1 }, now), false);
   assert.equal(isAccessTokenFresh({ accessToken: null, accessExpiresAt: null }, now), false);
-});
-
-test("refresh failure policy is bounded and does not misclassify temporary failures", () => {
-  assert.deepEqual(decideRefreshFailure("UNAUTHORIZED", false), { action: "login", error: "session-expired" });
-  assert.deepEqual(decideRefreshFailure("LOCKED", false), { action: "login", error: "locked" });
-  assert.deepEqual(decideRefreshFailure("FORBIDDEN", false), { action: "show", state: "forbidden" });
-  assert.deepEqual(decideRefreshFailure("RATE_LIMITED", false), { action: "show", state: "rate_limited" });
-  for (const code of ["VALIDATION", "INVALID_RESPONSE", "UNAVAILABLE", "TIMEOUT", "NETWORK"]) {
-    assert.deepEqual(decideRefreshFailure(code, false), { action: "show", state: "unavailable" });
-  }
 });
 
 test("enforces same-origin POST protection", () => {

@@ -1,4 +1,6 @@
 import { CmsApiError } from "./errors.ts";
+import { assertRecoveryScope, awaitRecovery, browserRefresh, redirectAfterRecovery, refreshVersion, sessionScope } from "../../features/auth/session/browser-refresh.ts";
+import { canReplayAfterUnauthorized, CMS_PREAUTH_REJECTION_HEADER, isProtectedCmsRequest } from "../../features/auth/lib/replay-policy.ts";
 
 type CmsRequestOptions = {
   body?: unknown;
@@ -6,11 +8,11 @@ type CmsRequestOptions = {
   timeoutMs?: number;
 };
 
-async function request<T>(
+async function requestOnce<T>(
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
   path: string,
   options: CmsRequestOptions = {},
-): Promise<T> {
+): Promise<{ data: T } | { error: CmsApiError; rejectedBeforeOperation: boolean }> {
   if (!path.startsWith("/") || path.startsWith("//")) {
     throw new CmsApiError("INVALID_RESPONSE", "Không thể kết nối đến dịch vụ quản trị.");
   }
@@ -41,16 +43,57 @@ async function request<T>(
     clearTimeout(timeoutId);
   }
 
-  if (response.status === 204) return undefined as T;
+  if (response.status === 204) return { data: undefined as T };
 
   let payload: unknown;
   try {
     payload = JSON.parse(await response.text());
   } catch {
+    if (!response.ok) return { error: cmsErrorFromResponse(response.status, null), rejectedBeforeOperation: response.headers.get(CMS_PREAUTH_REJECTION_HEADER) === "1" };
     throw new CmsApiError("INVALID_RESPONSE", "Hệ thống trả về dữ liệu không hợp lệ.", { status: response.status });
   }
-  if (!response.ok) throw cmsErrorFromResponse(response.status, payload);
-  return payload as T;
+  if (!response.ok) return { error: cmsErrorFromResponse(response.status, payload), rejectedBeforeOperation: response.headers.get(CMS_PREAUTH_REJECTION_HEADER) === "1" };
+  return { data: payload as T };
+}
+
+async function request<T>(
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+  path: string,
+  options: CmsRequestOptions = {},
+): Promise<T> {
+  const protectedRequest = typeof window !== "undefined" && isProtectedCmsRequest(path);
+  const scope = sessionScope();
+  if (protectedRequest) {
+    const pending = browserRefresh.pending() ?? (browserRefresh.terminal() ? browserRefresh.refresh(refreshVersion()) : null);
+    if (pending) await awaitRecovery(pending, scope, options.signal);
+  }
+  if (options.signal?.aborted) throw new CmsApiError("NETWORK", "Yêu cầu đã bị hủy.");
+  if (protectedRequest) assertRecoveryScope(scope);
+  const version = refreshVersion();
+  const original = await requestOnce<T>(method, path, options);
+  if (protectedRequest) assertRecoveryScope(scope);
+  if ("data" in original) return original.data;
+  if (!protectedRequest) throw original.error;
+  if (original.error.status === 423) {
+    redirectAfterRecovery({ ok: false, reason: "locked" }, window.location.pathname + window.location.search);
+    throw original.error;
+  }
+  if (original.error.status !== 401 || options.signal?.aborted) throw original.error;
+
+  await awaitRecovery(browserRefresh.refresh(version), scope, options.signal);
+  if (!canReplayAfterUnauthorized(method, original.rejectedBeforeOperation)) {
+    // A Backend 401 after dispatch does not prove a mutation was never applied.
+    throw new CmsApiError("SESSION_RECOVERED_RETRY_REQUIRED", "Phiên đã được khôi phục. Vui lòng kiểm tra dữ liệu trước khi thực hiện lại thao tác.", { status: 401 });
+  }
+  assertRecoveryScope(scope);
+  const replay = await requestOnce<T>(method, path, options);
+  assertRecoveryScope(scope);
+  if ("data" in replay) return replay.data;
+  // Never recursively refresh/replay a request. A second 401 requires login.
+  if (replay.error.status === 401 || replay.error.status === 423) {
+    redirectAfterRecovery({ ok: false, reason: replay.error.status === 423 ? "locked" : "session-expired" }, window.location.pathname + window.location.search);
+  }
+  throw replay.error;
 }
 
 function cmsErrorFromResponse(status: number, payload: unknown) {

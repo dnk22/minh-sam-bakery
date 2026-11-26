@@ -15,8 +15,9 @@ export class BackendRequestError extends Error {
   readonly code?: number;
   readonly backendMessage?: string;
   readonly data?: unknown;
+  readonly retryAfter?: string;
 
-  constructor(kind: BackendErrorKind, options: { status?: number; code?: number; backendMessage?: string; data?: unknown } = {}) {
+  constructor(kind: BackendErrorKind, options: { status?: number; code?: number; backendMessage?: string; data?: unknown; retryAfter?: string } = {}) {
     super(kind);
     this.name = "BackendRequestError";
     this.kind = kind;
@@ -24,5 +25,6 @@ export class BackendRequestError extends Error {
     this.code = options.code;
     this.backendMessage = options.backendMessage;
     this.data = options.data;
+    this.retryAfter = options.retryAfter;
   }
 }
