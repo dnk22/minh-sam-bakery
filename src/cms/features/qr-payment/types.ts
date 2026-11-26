@@ -1,7 +1,1 @@
-export type QrPaymentConfig = {
-  accountNumber: string;
-  accountHolder: string;
-  bankName: string;
-  bankBranch: string;
-  qrImageUrl: string;
-};
+export type { QrPaymentConfig } from "@/lib/contracts/qr-payment/qr-payment.types";
