@@ -1,0 +1,4 @@
+.thumbnail { width: 5rem; }
+.thumbnail > div { min-height: 0; height: 5rem; aspect-ratio: 1; }
+.thumbnail img { width: 100%; height: 100%; object-fit: contain; }
+.account { display: grid; gap: .25rem; overflow-wrap: anywhere; }
