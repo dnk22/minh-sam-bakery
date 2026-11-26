@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 
 import { Check, LoaderCircle, Ban } from "lucide-react";
 
@@ -20,6 +22,7 @@ export function OrderModal({ view, state, onStateChange }: {
   state: OrderModalState;
   onStateChange: (state: OrderModalState) => void;
 }) {
+  const askConfirm = useCmsConfirm();
   const id = state?.id;
   const action = state?.section ?? "detail";
   const detail = useOrderDetail(id);
@@ -34,7 +37,7 @@ export function OrderModal({ view, state, onStateChange }: {
     if (!order || !canPerformOrderAction(view, order.status, nextAction) || mutations.updateStatus.isPending) return;
     const next = targetOrderStatus(nextAction);
     const label = nextAction === "confirm" ? "xác nhận" : "từ chối";
-    if (!window.confirm(`Bạn chắc chắn muốn ${label} đơn ${shortOrderId(order.id)} của ${order.fullName || order.phone}?`)) return;
+    if (!await askConfirm({ title: nextAction === "reject" ? "Từ chối đơn hàng" : "Xác nhận đơn hàng", message: `Bạn chắc chắn muốn ${label} đơn ${shortOrderId(order.id)} của ${order.fullName || order.phone}?`, confirmLabel: nextAction === "reject" ? "Từ chối đơn" : "Xác nhận đơn", destructive: nextAction === "reject" })) return;
     try {
       await mutations.updateStatus.mutateAsync({ id: order.id, status: next });
       onStateChange(null);

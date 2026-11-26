@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 
 import { LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
@@ -31,6 +33,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
   onStateChange: (state: RoleModalState) => void;
   onDelete: (role: Role) => void;
 }) {
+  const askConfirm = useCmsConfirm();
   const mode = state?.mode ?? "detail";
   const roleId = state?.id;
   const detail = useRoleDetail(roleId);
@@ -65,7 +68,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
 
   const isEditing = mode === "create" || mode === "edit";
   const close = () => onStateChange(null);
-  const confirmDiscard = () => !isEditing || (!form.formState.isDirty && !permissionsDirty) || window.confirm("Bỏ các thay đổi chưa lưu?");
+  const confirmDiscard = async () => !mutations.create.isPending && !mutations.update.isPending && !mutations.permissions.isPending && (!isEditing || (!form.formState.isDirty && !permissionsDirty) || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true }));
   const setFormError = (error: unknown, fallback: string) => {
     if (error instanceof CmsApiError) {
       const fields = Object.entries(error.fields ?? {}).filter(([field]) => field in form.getValues());
@@ -99,7 +102,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
 
   const submitPermissions = async () => {
     if (!roleId || !assigned.isSuccess || !catalog.isSuccess || !permissionsDirty || reconciledPermissionState.conflict || mutations.permissions.isPending) return;
-    if (selectedIds.length === 0 && originalPermissionIds.length > 0 && !window.confirm("Thu hồi toàn bộ quyền của vai trò này?")) return;
+    if (selectedIds.length === 0 && originalPermissionIds.length > 0 && !await askConfirm({ title: "Thu hồi quyền", message: "Thu hồi toàn bộ quyền của vai trò này?", confirmLabel: "Thu hồi", destructive: true })) return;
     try {
       await mutations.permissions.mutateAsync({ id: roleId, permissionIds: selectedIds });
       setPermissionState((current) => commitPermissionSelection(current));
@@ -118,7 +121,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
       footer={state ? mode === "detail" && role ? <>
         <CmsButton type="button" variant="outline" onClick={() => onDelete(role)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
         <CmsButton type="button" onClick={() => onStateChange({ mode: "edit", id: role.id })}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton>
-      </> : <CmsButton type="button" variant="outline" disabled={pending || mutations.permissions.isPending} onClick={() => { if (confirmDiscard()) close(); }}>Đóng</CmsButton> : null}
+      </> : <CmsButton type="button" variant="outline" disabled={pending || mutations.permissions.isPending} onClick={async () => { if (await confirmDiscard()) close(); }}>Đóng</CmsButton> : null}
       onBeforeClose={confirmDiscard}
       onOpenChange={(open) => { if (!open) close(); }}
       open={Boolean(state)}

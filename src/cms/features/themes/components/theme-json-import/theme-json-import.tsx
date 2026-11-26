@@ -10,7 +10,7 @@ import styles from "../theme-ui.module.css";
 const MAX_FILE_BYTES = 64 * 1024;
 
 export function ThemeJsonImport({ onImport, disabled = false }: {
-  onImport: (value: ImportedThemeJson) => boolean;
+  onImport: (value: ImportedThemeJson) => boolean | Promise<boolean>;
   disabled?: boolean;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -39,7 +39,7 @@ export function ThemeJsonImport({ onImport, disabled = false }: {
         setError(result.message);
         return;
       }
-      if (!onImport(result.data)) return;
+      if (!await onImport(result.data)) return;
     } catch {
       setError("Không thể đọc file JSON. Vui lòng thử lại.");
     } finally {

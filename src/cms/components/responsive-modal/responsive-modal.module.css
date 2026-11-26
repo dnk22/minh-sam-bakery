@@ -92,3 +92,7 @@
   .overlay,
   .content { animation: none; }
 }
+
+/* A confirmation opened from a drawer must stay above the parent modal. */
+.overlay[data-elevated] { z-index: 200; }
+.content[data-elevated] { z-index: 201; }

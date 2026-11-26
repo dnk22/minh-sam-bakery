@@ -2,7 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { useId, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 
 import { useCmsPreferences } from "@/cms/context/cms-preferences";
 import { cn } from "@/cms/lib/cn";
@@ -13,7 +13,7 @@ export type ResponsiveModalProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onBeforeClose?: () => boolean;
+  onBeforeClose?: () => boolean | Promise<boolean>;
   title: ReactNode;
   description?: ReactNode;
   trigger?: ReactNode;
@@ -22,6 +22,7 @@ export type ResponsiveModalProps = {
   closeLabel?: string;
   className?: string;
   variant?: "default" | "confirm";
+  elevated?: boolean;
 };
 
 export function ResponsiveModal({
@@ -37,14 +38,20 @@ export function ResponsiveModal({
   closeLabel = "Đóng",
   className,
   variant = "default",
+  elevated = false,
 }: ResponsiveModalProps) {
   const { direction, theme } = useCmsPreferences();
   const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
   const resolvedOpen = open ?? internalOpen;
   const descriptionId = useId();
-  const canClose = () => onBeforeClose?.() !== false;
-  const requestOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen && !canClose()) return;
+  const closing = useRef(false);
+  const requestOpenChange = async (nextOpen: boolean) => {
+    if (!nextOpen) {
+      if (closing.current) return;
+      closing.current = true;
+      try { if (await onBeforeClose?.() === false) return; }
+      finally { closing.current = false; }
+    }
     if (open === undefined) setInternalOpen(nextOpen);
     onOpenChange?.(nextOpen);
   };
@@ -53,11 +60,12 @@ export function ResponsiveModal({
     <Dialog.Root open={resolvedOpen} onOpenChange={requestOpenChange}>
       {trigger ? <Dialog.Trigger asChild>{trigger}</Dialog.Trigger> : null}
       <Dialog.Portal>
-        <Dialog.Overlay className={cn("cms-portal", styles.overlay)} data-cms-theme={theme} />
+        <Dialog.Overlay className={cn("cms-portal", styles.overlay)} data-cms-theme={theme} data-elevated={elevated || undefined} />
         <Dialog.Content
           className={cn("cms-portal", styles.content, className)}
           data-cms-theme={theme}
           data-variant={variant}
+          data-elevated={elevated || undefined}
           dir={direction}
           aria-describedby={description ? descriptionId : undefined}
         >
