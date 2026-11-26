@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 
 import { Copy, Eye, LoaderCircle, Pencil, Power, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -31,6 +33,7 @@ export function ThemeModal({ state, onStateChange, onDelete, onActivate }: {
   onDelete: (theme: CmsTheme) => void;
   onActivate: (theme: CmsTheme) => void;
 }) {
+  const askConfirm = useCmsConfirm();
   const mode = state?.mode;
   const id = state && "id" in state ? state.id : undefined;
   const detail = useThemeDetail(id);
@@ -42,7 +45,7 @@ export function ThemeModal({ state, onStateChange, onDelete, onActivate }: {
   const pending = mutations.create.isPending || mutations.update.isPending;
   const onInvalid = useFormValidationFeedback<ThemeFormValues>({ formId: FORM_ID });
   useUnsavedChangesWarning(Boolean(state && isEditing && form.formState.isDirty));
-  const confirmDiscard = () => !isEditing || !form.formState.isDirty || window.confirm("Bỏ các thay đổi chưa lưu?");
+  const confirmDiscard = async () => !isEditing || !form.formState.isDirty || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true });
   const close = () => { setFailure(null); onStateChange(null); };
 
   const handleBackendError = (error: unknown) => {
@@ -88,9 +91,9 @@ export function ThemeModal({ state, onStateChange, onDelete, onActivate }: {
   const canEdit = theme && !theme.isActive && configValid;
   const canDuplicate = theme && configValid;
 
-  const importJson = (data: ImportedThemeJson) => {
+  const importJson = async (data: ImportedThemeJson) => {
     // Import overwrites current fields only after explicit confirmation.
-    if (form.formState.isDirty && !window.confirm("Import sẽ thay thế các màu/font đang nhập. Tiếp tục?")) return false;
+    if (form.formState.isDirty && !await askConfirm({ title: "Import theme", message: "Import sẽ thay thế các màu/font đang nhập. Tiếp tục?", confirmLabel: "Import" })) return false;
     if (data.metadata) {
       // Prevent name-to-code auto-generation from overwriting the imported code.
       markCodeManual();
@@ -109,12 +112,12 @@ export function ThemeModal({ state, onStateChange, onDelete, onActivate }: {
     <ResponsiveModal
       open={Boolean(state)}
       onOpenChange={(open) => { if (!open && !pending) close(); }}
-      onBeforeClose={() => !pending && confirmDiscard()}
+      onBeforeClose={async () => !pending && await confirmDiscard()}
       className={styles.modal}
       title={title}
       description={isEditing ? "Chọn 14 core colors và 2 font, hoặc import JSON. Lưu theme ở trạng thái nháp." : "Thông tin theme hiện tại từ Backend."}
       footer={!state ? null : isEditing ? <>
-        <CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) close(); }}>Hủy</CmsButton>
+        <CmsButton type="button" variant="outline" disabled={pending} onClick={async () => { if (await confirmDiscard()) close(); }}>Hủy</CmsButton>
         <CmsButton type="submit" form={FORM_ID} disabled={pending || Boolean(protectedEdit || unsupported || (id && !theme))}>
           {pending ? <LoaderCircle aria-hidden="true" size={16} className={styles.spin} /> : null}
           Lưu theme nháp

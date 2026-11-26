@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 
 import { KeyRound, LoaderCircle, Lock, Pencil, Trash2, Unlock } from "lucide-react";
 import { useState } from "react";
@@ -29,6 +31,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   onStateChange: (state: UserModalState) => void;
   onAction: (user: CmsUser, action: UserAction) => void;
 }) {
+  const askConfirm = useCmsConfirm();
   const mode = state?.mode ?? "detail";
   const detail = useUserDetail(state?.id);
   const user = detail.data;
@@ -46,7 +49,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   useUnsavedChangesWarning((isEditing && form.formState.isDirty) || roleDirty);
   const pending = mutations.create.isPending || mutations.update.isPending;
 
-  const confirmDiscard = () => (!isEditing || !form.formState.isDirty) && !roleDirty || window.confirm("Bỏ các thay đổi chưa lưu?");
+  const confirmDiscard = async () => (!isEditing || !form.formState.isDirty) && !roleDirty || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true });
   const close = () => onStateChange(null);
   const setFormError = (error: unknown, fallback: string) => {
     if (error instanceof CmsApiError) {
@@ -78,7 +81,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   const submitRole = async () => {
     if (!user || !selectedRole || !roleDirty || mutations.assignRole.isPending) return;
     const selfWarning = user.id === currentUserId ? " Đây là tài khoản bạn đang sử dụng; quyền truy cập hiện tại có thể thay đổi ngay." : "";
-    if (!window.confirm(`Gán vai trò “${selectedRole.name} (${selectedRole.code})” cho ${user.fullName}?${selfWarning}`)) return;
+    if (!await askConfirm({ title: "Gán vai trò", message: `Gán vai trò “${selectedRole.name} (${selectedRole.code})” cho ${user.fullName}?${selfWarning}`, confirmLabel: "Gán vai trò" })) return;
     try {
       await mutations.assignRole.mutateAsync({ id: user.id, roleId: selectedRole.id });
       onStateChange({ mode: "detail", id: user.id });
@@ -92,8 +95,8 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
     className={styles.modal}
     description={manageRole ? "Chọn vai trò và quyền truy cập mới cho tài khoản." : mode === "detail" ? "Thông tin hiện tại của tài khoản." : "Mật khẩu không được hiển thị lại sau khi lưu."}
     footer={state ? mode === "detail" && user && !manageRole ? <DetailActions user={user} currentUserId={currentUserId} onEdit={() => onStateChange({ mode: "edit", id: user.id })} onRole={() => onStateChange({ mode: "detail", id: user.id, section: "role" })} onAction={onAction} />
-      : <CmsButton type="button" variant="outline" disabled={pending || mutations.assignRole.isPending} onClick={() => {
-        if (!confirmDiscard()) return;
+      : <CmsButton type="button" variant="outline" disabled={pending || mutations.assignRole.isPending} onClick={async () => {
+        if (!await confirmDiscard()) return;
         if (manageRole && user) onStateChange({ mode: "detail", id: user.id });
         else close();
       }}>{manageRole ? "Quay lại" : "Đóng"}</CmsButton> : null}

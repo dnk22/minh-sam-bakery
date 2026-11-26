@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { useRef } from "react";
 import { articleDocumentHasContent, parseArticleContent, serializeArticleDocument } from "@/article/html/article-html";
@@ -17,6 +19,7 @@ import { LayoutSelector } from "../layout-selector/layout-selector";
 import { inspectEditorCompatibility } from "../../lib/post-html";
 import styles from "./post-fields.module.css";
 export function PostFields({ form, post, onUploadPendingChange }: { form: UseFormReturn<PostFormValues>; post?: Post; onUploadPendingChange: (pending: boolean) => void }) {
+  const askConfirm = useCmsConfirm();
   const status = getPostStatusPresentation(post?.status ?? "DRAFT");
   const pendingSources = useRef(new Set<string>());
   const setPending = (source: string, pending: boolean) => { if (pending) pendingSources.current.add(source); else pendingSources.current.delete(source); onUploadPendingChange(pendingSources.current.size > 0); };
@@ -27,9 +30,9 @@ export function PostFields({ form, post, onUploadPendingChange }: { form: UseFor
       <CmsFormField htmlFor="post-excerpt" label="Tóm tắt" error={form.formState.errors.excerpt?.message}><CmsTextarea id="post-excerpt" rows={4} {...form.register("excerpt")} /></CmsFormField>
       <Controller control={form.control} name="content" render={({ field }) => {
         const parsed = parseArticleContent(field.value); const legacy = parsed.status === "legacy" ? inspectEditorCompatibility(field.value) : null;
-        const chooseLayout = (key: ArticleLayoutKey) => {
+        const chooseLayout = async (key: ArticleLayoutKey) => {
           if (parsed.status === "supported" && parsed.document.key === key) return;
-          if (parsed.status === "supported" && articleDocumentHasContent(parsed.document) && !window.confirm("Đổi layout sẽ tạo nội dung trống mới và bỏ các slot hiện tại. Tiếp tục?")) return;
+          if (parsed.status === "supported" && articleDocumentHasContent(parsed.document) && !await askConfirm({ title: "Đổi layout bài viết", message: "Đổi layout sẽ tạo nội dung trống mới và bỏ các slot hiện tại. Tiếp tục?", confirmLabel: "Đổi layout", destructive: true })) return;
           field.onChange(serializeArticleDocument(createArticleDocument(key)));
         };
         return <><>{!post && parsed.status === "supported" ? <LayoutSelector value={parsed.document.key} onChange={chooseLayout} /> : null}</><CmsFormField fieldName="content" label="Nội dung" required error={form.formState.errors.content?.message} description={parsed.status === "supported" ? "Soạn nội dung theo bố cục đã chọn." : parsed.reason}>

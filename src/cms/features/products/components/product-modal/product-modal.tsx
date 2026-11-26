@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 
 import { LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -24,6 +26,7 @@ import { ProductFields } from "../product-fields/product-fields";
 import styles from "./product-modal.module.css";
 
 export function ProductModal({ state, onStateChange, onDelete }: { state: ProductModalState; onStateChange: (state: ProductModalState) => void; onDelete: (product: Product) => void }) {
+  const askConfirm = useCmsConfirm();
   const mode = state?.mode ?? "detail";
   const id = state && "id" in state ? state.id : undefined;
   const detail = useProductDetail(id);
@@ -54,7 +57,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   }, [product, treeQuery.data, treeQuery.error, treeQuery.isLoading]);
   const categoryIssue = treeQuery.error instanceof Error ? treeQuery.error.message : treeQuery.data?.reason;
   const close = () => onStateChange(null);
-  const confirmDiscard = () => !pending && (!isEditing || (!form.formState.isDirty && !uploadPending) || window.confirm("Bỏ các thay đổi hoặc ảnh đang chờ upload?"));
+  const confirmDiscard = async () => !pending && (!isEditing || (!form.formState.isDirty && !uploadPending) || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi hoặc ảnh đang chờ upload?", confirmLabel: "Bỏ thay đổi", destructive: true }));
   const setBackendError = (error: unknown) => {
     if (error instanceof CmsApiError) {
       const fields = Object.entries(error.fields ?? {});
@@ -94,7 +97,7 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
   }, onInvalid);
   const title = mode === "create" ? "Thêm sản phẩm" : mode === "edit" ? "Chỉnh sửa sản phẩm" : "Chi tiết sản phẩm";
   const footer = !state ? null : isEditing ? <>
-    <CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) close(); }}>Hủy</CmsButton>
+    <CmsButton type="button" variant="outline" disabled={pending} onClick={async () => { if (await confirmDiscard()) close(); }}>Hủy</CmsButton>
     <CmsButton type="submit" form="product-form" disabled={pending || uploadPending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu sản phẩm</CmsButton>
   </> : product ? <>
     <CmsButton type="button" variant="outline" onClick={() => onDelete(product)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>

@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 
 import { LoaderCircle, Pencil, Trash2 } from "lucide-react";
 
@@ -22,6 +24,7 @@ import styles from "./system-config-modal.module.css";
 const FORM_ID = "system-config-form";
 
 export function SystemConfigModal({ state, onStateChange, onDelete }: { state: SystemConfigModalState; onStateChange: (state: SystemConfigModalState) => void; onDelete: (config: SystemConfig) => void }) {
+  const askConfirm = useCmsConfirm();
   const mode = state?.mode ?? "detail";
   const detail = useSystemConfigDetail(state && "id" in state ? state.id : undefined);
   const config = detail.data;
@@ -33,7 +36,7 @@ export function SystemConfigModal({ state, onStateChange, onDelete }: { state: S
   useUnsavedChangesWarning(isEditing && form.formState.isDirty);
 
   const close = () => onStateChange(null);
-  const confirmDiscard = () => !isEditing || !form.formState.isDirty || window.confirm("Bỏ các thay đổi chưa lưu?");
+  const confirmDiscard = async () => !isEditing || !form.formState.isDirty || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true });
   const setBackendError = (error: unknown) => {
     if (error instanceof CmsApiError) {
       const fields = Object.entries(error.fields ?? {}).filter(([field]) => field in form.getValues());
@@ -58,7 +61,7 @@ export function SystemConfigModal({ state, onStateChange, onDelete }: { state: S
   const title = mode === "create" ? "Thêm cấu hình" : mode === "edit" ? "Chỉnh sửa cấu hình" : "Chi tiết cấu hình";
   return <ResponsiveModal open={Boolean(state)} onOpenChange={(open) => { if (!open) close(); }} onBeforeClose={confirmDiscard} title={title}
     description={mode === "detail" ? "Giá trị đầy đủ đang lưu trên hệ thống." : "Nhập giá trị cấu hình dưới dạng văn bản."} className={styles.modal}
-    footer={state ? isEditing ? <><CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) close(); }}>Hủy</CmsButton>
+    footer={state ? isEditing ? <><CmsButton type="button" variant="outline" disabled={pending} onClick={async () => { if (await confirmDiscard()) close(); }}>Hủy</CmsButton>
       <CmsButton type="submit" form={FORM_ID} disabled={pending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu cấu hình</CmsButton></>
       : config ? <><CmsButton type="button" variant="outline" onClick={() => onDelete(config)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>
         <CmsButton type="button" onClick={() => onStateChange({ mode: "edit", id: config.id })}><Pencil aria-hidden="true" size={16} /> Chỉnh sửa</CmsButton></> : null : null}>

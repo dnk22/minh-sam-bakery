@@ -1,4 +1,6 @@
 "use client";
+import { useCmsConfirm } from "@/cms/context/cms-confirm";
+
 
 import { useRef, useState, type FormEvent } from "react";
 import { LoaderCircle } from "lucide-react";
@@ -22,6 +24,7 @@ const FORM_ID = "qr-payment-form";
 export function QrPaymentModal({ config, onClose, onSaved, onConflict }: {
   config?: SystemConfig; onClose: () => void; onSaved: () => void; onConflict: () => void;
 }) {
+  const askConfirm = useCmsConfirm();
   const { form, uploadPending, setUploadPending } = useQrPaymentForm(config);
   const mutations = useSystemConfigMutations();
   const submitting = useRef(false);
@@ -30,7 +33,7 @@ export function QrPaymentModal({ config, onClose, onSaved, onConflict }: {
   const onInvalid = useFormValidationFeedback<QrPaymentConfig>({ formId: FORM_ID });
   useUnsavedChangesWarning(form.formState.isDirty || uploadPending);
   const invalidStored = config && !qrPaymentSchema.safeParse(readQrPaymentValue(config.value)).success;
-  const confirmDiscard = () => !pending && !submitting.current && ((!form.formState.isDirty && !uploadPending) || window.confirm("Bỏ các thay đổi hoặc ảnh đang chờ upload?"));
+  const confirmDiscard = async () => !pending && !submitting.current && ((!form.formState.isDirty && !uploadPending) || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi hoặc ảnh đang chờ upload?", confirmLabel: "Bỏ thay đổi", destructive: true }));
 
   const save = async (values: QrPaymentConfig) => {
     if (submitting.current || pending) return;
@@ -64,7 +67,7 @@ export function QrPaymentModal({ config, onClose, onSaved, onConflict }: {
   return <ResponsiveModal open onOpenChange={open => { if (!open) onClose(); }} onBeforeClose={confirmDiscard}
     title={config ? "Chỉnh sửa QR thanh toán" : "Thêm QR thanh toán"}
     description="Thông tin chuyển khoản sẽ được sử dụng trên storefront."
-    footer={<><CmsButton type="button" variant="outline" disabled={pending} onClick={() => { if (confirmDiscard()) onClose(); }}>Hủy</CmsButton>
+    footer={<><CmsButton type="button" variant="outline" disabled={pending} onClick={async () => { if (await confirmDiscard()) onClose(); }}>Hủy</CmsButton>
       <CmsButton type="submit" form={FORM_ID} disabled={pending || uploadPending}>{pending ? <LoaderCircle aria-hidden="true" size={16} className={styles.spin} /> : null}Lưu thông tin</CmsButton></>}>
     <form id={FORM_ID} className={styles.form} noValidate onSubmit={submit} onChange={() => form.clearErrors("root.server")}>
       {invalidStored ? <p className={styles.alert} role="alert">Dữ liệu hiện tại không hợp lệ. Kiểm tra và nhập lại thông tin trước khi lưu.</p> : null}
