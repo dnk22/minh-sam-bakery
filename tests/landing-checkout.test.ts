@@ -134,3 +134,46 @@ test("both cart links capture the source and checkout preserves the destination 
   assert.match(controller,/saveReceiptOrigin\(intent.returnTo\)/);
   assert.match(controller,/savedIntent\?\.returnTo \?\? receiptOrigin\(\)/);
 });
+
+test("pending lock is scoped to the checkout session, including legacy sessions", async () => {
+  const { CHECKOUT_INTENT_KEY, loadCheckoutIntent, saveBuyNowIntent, saveCartCheckoutIntent, isCurrentCheckoutSession } = await import("../src/landing/features/checkout/store/checkout-intent.ts");
+  const { markPending, hasPending, clearPending } = await import("../src/landing/features/checkout/store/checkout-receipt.ts");
+  const data = new Map<string, string>();
+  const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value); }, removeItem: (key: string) => { data.delete(key); } };
+  const oldWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const oldStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { sessionStorage: storage, location: { pathname: "/", search: "", hash: "" } } });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: storage });
+  const line = { key: '["p","v"]', productId: "p", variantId: "v", quantity: 1, categorySlug: "cake", productSlug: "cake", productName: "Bánh", productImage: "", productImageAlt: "", variantLabel: "L", availableVariants: [], originalPrice: 100, effectivePrice: 90, selected: true };
+  try {
+    storage.setItem(CHECKOUT_INTENT_KEY, JSON.stringify({ source: "buy-now", items: [line] }));
+    storage.setItem("minh-sam-checkout-submit-pending-v1", "1");
+    const legacy = loadCheckoutIntent()!.sessionId;
+    assert.equal(hasPending(legacy), true);
+    assert.equal(saveBuyNowIntent(line), true);
+    const first = loadCheckoutIntent()!.sessionId;
+    assert.equal(hasPending(first), false);
+    assert.equal(markPending(first), true);
+    assert.equal(hasPending(loadCheckoutIntent()!.sessionId), true);
+    assert.equal(markPending(first), false);
+    assert.equal(saveBuyNowIntent(line), true);
+    const second = loadCheckoutIntent()!.sessionId;
+    assert.notEqual(second, first);
+    assert.equal(hasPending(second), false);
+    assert.equal(isCurrentCheckoutSession(first), false);
+    assert.equal(markPending(first), false);
+    assert.equal(markPending(second), true);
+    clearPending(first);
+    assert.equal(hasPending(second), true);
+    assert.equal(saveCartCheckoutIntent([line]), true);
+    const third = loadCheckoutIntent()!.sessionId;
+    assert.notEqual(third, second);
+    assert.equal(hasPending(third), false);
+    assert.equal(markPending(third), true);
+    clearPending(third);
+    assert.equal(hasPending(third), false);
+  } finally {
+    if (oldWindow) Object.defineProperty(globalThis, "window", oldWindow); else Reflect.deleteProperty(globalThis, "window");
+    if (oldStorage) Object.defineProperty(globalThis, "sessionStorage", oldStorage); else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
