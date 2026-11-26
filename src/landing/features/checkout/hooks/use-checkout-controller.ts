@@ -10,10 +10,9 @@ import { usePaymentQr } from "./use-payment-qr";
 import { useCreateOrder } from "./use-create-order";
 import { checkoutReturnTo, receiptOrigin, saveReceiptOrigin, clearReceiptOrigin, clearCartOrigin } from "../store/checkout-return";
 import { readReceipt, clearReceipt, hasPending } from "../store/checkout-receipt";
-import type { CheckoutIntent } from "@/landing/features/cart/types";
 
 import { readCheckoutDraft, persistCheckoutDraft, clearCheckoutDraft } from "../store/checkout-draft";
-import { loadCheckoutIntent, clearCheckoutIntent } from "../store/checkout-intent";
+import { loadCheckoutIntent, clearCheckoutIntent, isCurrentCheckoutSession, type StoredCheckoutIntent } from "../store/checkout-intent";
 import type { CheckoutDraft, CheckoutErrors, CheckoutField, FulfillmentMethod } from "../types";
 import { initialCheckoutDraft, localCalendarDate, normalizeCheckoutDraft, validateCheckoutDraft } from "../validation";
 
@@ -34,7 +33,7 @@ function readInitialSession() {
     intent: savedReceipt ? null : savedIntent,
     receipt: savedReceipt,
     returnTo: checkoutReturnTo(savedIntent?.returnTo ?? receiptOrigin()),
-    blocked: hasPending(),
+    blocked: Boolean(savedIntent && hasPending(savedIntent.sessionId)),
     draft: savedReceipt ? initialCheckoutDraft() : readCheckoutDraft() ?? initialCheckoutDraft(),
     today: localCalendarDate(),
   };
@@ -43,7 +42,7 @@ function readInitialSession() {
 /** Client-only checkout orchestration, mounted after hydration. */
 export function useCheckoutController() {
   const [initial] = useState(readInitialSession);
-  const [intent, setIntent] = useState<CheckoutIntent | null>(initial.intent);
+  const [intent, setIntent] = useState<StoredCheckoutIntent | null>(initial.intent);
   const [draft, setDraft] = useState<CheckoutDraft>(initial.draft);
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [returnTo] = useState(initial.returnTo);
@@ -68,7 +67,7 @@ export function useCheckoutController() {
   // Persist after React has committed the state, not from inside a state updater.
   // This hook mounts only after hydration, with the restored draft.
   useEffect(() => {
-    if (!intent || receipt) return;
+    if (!intent || receipt || !isCurrentCheckoutSession(intent.sessionId)) return;
     persistCheckoutDraft({ ...draft, paymentMethod: effectivePaymentMethod });
   }, [draft, intent, receipt, effectivePaymentMethod]);
 
@@ -121,7 +120,7 @@ export function useCheckoutController() {
 
   async function submit(input: CreateOrderInput) {
     if (!intent || (intent.source === "cart" && !cartHydrated)) return;
-    await submission.submit(input, order => {
+    await submission.submit(intent.sessionId, input, order => {
       if (intent.source === "cart") {
         useCartStore.getState().consumePurchasedItems(intent.items);
       }
@@ -139,7 +138,7 @@ export function useCheckoutController() {
     receipt, transferInput, returnTo,
     pending: submission.pending,
     blocked: blocked || submission.uncertain || Boolean(intent?.source === "cart" && !cartHydrated),
-    submitError: submission.error || (blocked ? "Chưa xác minh được lần đặt hàng trước. Vui lòng liên hệ cửa hàng trước khi đặt lại." : ""),
+    submitError: submission.error || (blocked ? "Chưa xác minh được lần đặt hàng này. Vui lòng kiểm tra với cửa hàng trước khi bắt đầu đơn hàng mới." : ""),
     closeTransfer: () => { if (!submission.pending) setTransferInput(null); },
     confirmTransfer: () => { if (transferInput && !blocked && qrReady) void submit(transferInput); },
     closeReceipt: () => { clearReceipt(); clearReceiptOrigin(); setReceipt(null); },
