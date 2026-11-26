@@ -9,7 +9,7 @@ test("shared Landing shell suspends before touching backend data", () => {
   const layout = read(root + "layout.tsx");
   assert.match(layout, /<Suspense fallback=\{<LandingShellSkeleton \/>\}>/);
   assert.match(layout, /<LandingRuntimeLayout>\{children\}<\/LandingRuntimeLayout>/);
-  assert.match(layout, /async function LandingRuntimeLayout[^]*?await connection\(\);\s*const \[categories, landingTheme\]/);
+  assert.match(layout, /async function LandingRuntimeLayout[^]*?await connection\(\);\s*const landingTheme/);
   assert.match(layout, /getCatalogCategories\(\)\.catch/);
   assert.match(layout, /getActiveLandingTheme\(\)/);
 });

@@ -29,6 +29,7 @@ export function HeroSection({ banners = [] }: { banners?: LandingBanner[] }) {
       <Reveal
         className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between pt-0 lg:pt-6"
         delay={0.02}
+        enterOnMount
         y={12}
       >
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
@@ -40,26 +41,26 @@ export function HeroSection({ banners = [] }: { banners?: LandingBanner[] }) {
       </Reveal>
       <div className="relative z-10 mx-auto my-auto grid w-full max-w-7xl grid-cols-1 gap-6 py-6 sm:py-8 lg:grid-cols-12 lg:gap-8 lg:py-12">
         <div className="flex flex-col justify-center lg:col-span-8">
-          <Reveal delay={0.08} y={16}>
+          <Reveal delay={0.08} enterOnMount y={16}>
             <div className="mb-3 inline-flex max-w-full items-center gap-2 sm:mb-4">
               <span className="rounded lg:bg-primary-container/80 px-2.5 py-1 font-label-eyebrow text-[10px] uppercase tracking-[0.2em] text-secondary-fixed sm:px-3 sm:text-label-eyebrow sm:tracking-[0.3em]">
                 Minh Sâm Bakery • Thương hiệu bánh thủ công Hà Nội
               </span>
             </div>
           </Reveal>
-          <Reveal delay={0.14} y={18}>
+          <Reveal delay={0.14} enterOnMount y={18}>
             <h1 className="mb-4 max-w-3xl text-pretty font-display-hero text-[clamp(1.95rem,8.5vw,2.625rem)] leading-[1.14] font-normal text-secondary-fixed sm:mb-5 sm:text-[clamp(2.25rem,7vw,3rem)] md:text-[48px] lg:mb-6 lg:text-display-hero lg:leading-[1.12]">
               Tinh hoa bánh Việt cho những khoảnh khắc hôm nay.
             </h1>
           </Reveal>
-          <Reveal delay={0.21} y={18}>
+          <Reveal delay={0.21} enterOnMount y={18}>
             <p className="mb-6 max-w-xl font-body-md text-body-md leading-[22px] text-secondary-fixed-dim/90 md:mb-8 md:font-body-lg md:text-body-lg md:leading-relaxed lg:mb-10">
               Từ những hương vị truyền thống đến những dòng bánh mới cho nhịp
               sống hiện đại, gìn giữ trọn vẹn tinh thần thủ công Hà Thành qua
               từng thớ bột, khuôn gỗ và tâm huyết người thợ.
             </p>
           </Reveal>
-          <Reveal delay={0.28} y={18}>
+          <Reveal delay={0.28} enterOnMount y={18}>
             <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-5">
               <a
                 className="inline-flex min-h-11 w-full items-center justify-center rounded bg-secondary-fixed px-6 py-3 font-label-ui text-label-ui uppercase tracking-wider text-on-secondary-fixed shadow-lg shadow-black/30 transition-all duration-300 hover:bg-secondary-fixed-dim sm:w-auto lg:px-8 lg:py-4"
@@ -77,7 +78,7 @@ export function HeroSection({ banners = [] }: { banners?: LandingBanner[] }) {
           </Reveal>
         </div>
         {/* <div className="hidden lg:flex lg:col-span-4 flex-col justify-end items-end text-right">
-          <Reveal className="max-w-xs" delay={0.25} x={20} y={0}>
+          <Reveal className="max-w-xs" delay={0.25} enterOnMount x={20} y={0}>
             <div className="p-6 bg-primary-container/50 backdrop-blur-md rounded max-w-xs shadow-xl">
               <span className="block font-label-eyebrow text-label-eyebrow uppercase text-secondary-fixed-dim tracking-[0.2em] mb-2">
                 Bộ Sưu Tập Giới Hạn
@@ -96,6 +97,7 @@ export function HeroSection({ banners = [] }: { banners?: LandingBanner[] }) {
       <Reveal
         className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between gap-4 pt-2 sm:pt-3 lg:pt-4"
         delay={0.36}
+        enterOnMount
         y={12}
       >
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">

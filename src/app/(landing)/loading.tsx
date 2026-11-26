@@ -1,3 +1,1 @@
-import { HomeSkeleton } from "@/landing/components/skeletons/landing-skeletons";
-
-export default function Loading() { return <HomeSkeleton />; }
+export { LandingRouteSkeleton as default } from "@/landing/components/skeletons/landing-shell-skeleton";

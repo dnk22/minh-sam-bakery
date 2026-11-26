@@ -1,3 +1,2 @@
-import { HomeSkeleton } from "@/landing/components/skeletons/landing-skeletons";
-
-export default function Loading() { return <HomeSkeleton />; }
+import { AboutSkeleton } from "@/landing/components/skeletons/landing-skeletons";
+export default AboutSkeleton;

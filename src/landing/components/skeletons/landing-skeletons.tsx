@@ -35,3 +35,7 @@ export function FormSkeleton({ cart = false }: { cart?: boolean }) {
 export function HomeSkeleton() {
   return <main aria-busy="true" aria-label="Đang tải trang chủ" className="bg-surface pt-[var(--landing-header-height)]"><HeroSkeleton /><HomeCategoriesSkeleton /></main>;
 }
+
+export function AboutSkeleton() {
+  return <main aria-busy="true" aria-label="Đang tải giới thiệu" className="min-h-screen bg-surface pt-[var(--landing-header-height)]"><HeroSkeleton /><section className="mx-auto max-w-7xl space-y-5 px-gutter py-space-xl"><Skeleton className="h-10 w-2/3" /><Skeleton className="h-24 w-full" /></section></main>;
+}
