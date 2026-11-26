@@ -330,11 +330,27 @@ test("category updates expire public cache and homepage uses responsive minimum 
   assert.match(section, /lg:auto-rows-\[minmax\(300px,1fr\)\]/);
 });
 
-test("homepage category section links to unfiltered global search above the category grid", () => {
-  const section = readFileSync("src/landing/components/sections/product-categories-section.tsx", "utf8");
-  const header = section.slice(0, section.indexOf("{loadFailed ?"));
-  assert.match(header, /href=\{routes\.search\}\s*>\s*Xem tất cả/);
-  assert.match(header, /justify-self-end/);
-  assert.equal((section.match(/href=\{routes\.search\}/g) ?? []).length, 1);
+test("category listing links to unfiltered search next to the product count, not the homepage header", () => {
+  const home = readFileSync("src/landing/components/sections/product-categories-section.tsx", "utf8");
+  const header = home.slice(0, home.indexOf("{loadFailed ?"));
+  assert.doesNotMatch(header, /href=\{routes\.search\}/);
+  assert.match(home, /href=\{routes\.search\}>Xem toàn bộ menu bánh/);
+  const toolbar = readFileSync("src/landing/features/catalog/components/listing/catalog-toolbar.tsx", "utf8");
+  assert.match(toolbar, /flex min-w-0 items-center justify-between gap-2/);
+  assert.match(toolbar, /Hiển thị \{currentCount\} trên \{totalCount\} sản phẩm phù hợp[^]*?href=\{routes\.search\}\s*>\s*Xem tất cả/);
   assert.match(readFileSync("src/landing/lib/routes.ts", "utf8"), /search: "\/tim-kiem"/);
+});
+
+test("shared search submit is icon-only on mobile with an accessible name", () => {
+  const form = readFileSync("src/landing/components/ui/search-form.tsx", "utf8");
+  assert.equal((form.match(/aria-label="Tìm kiếm"/g) ?? []).length, 2);
+  assert.equal((form.match(/className="hidden md:inline">Tìm kiếm/g) ?? []).length, 2);
+  assert.equal((form.match(/<Search aria-hidden="true" className="size-5 md:hidden"/g) ?? []).length, 2);
+});
+
+test("cross-category discovery uses a single responsive gutter matching the category listing", () => {
+  const discovery = readFileSync("src/landing/features/catalog/components/discovery/cross-category-discovery.tsx", "utf8");
+  assert.match(discovery, /<section className="w-full bg-surface-container-low">/);
+  assert.match(discovery, /mx-auto w-full max-w-\[1360px\] px-gutter py-space-xl lg:px-gutter-desktop/);
+  assert.equal((discovery.match(/\bpx-gutter\b(?!-)/g) ?? []).length, 1);
 });

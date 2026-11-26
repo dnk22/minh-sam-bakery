@@ -28,7 +28,7 @@ export function SearchForm({
       aria-label={ariaLabel}
       className={
         compact
-          ? "w-full rounded bg-surface-container-lowest py-space-sm pr-28 pl-12 font-body-md text-body-md text-on-surface shadow-inner placeholder:text-outline focus:bg-surface-bright focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+          ? "w-full rounded bg-surface-container-lowest py-space-sm pr-12 pl-12 md:pr-28 font-body-md text-body-md text-on-surface shadow-inner placeholder:text-outline focus:bg-surface-bright focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           : "min-w-0 w-full bg-transparent px-space-sm py-3.5 font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none [&::-webkit-search-cancel-button]:hidden"
       }
       maxLength={100}
@@ -57,10 +57,12 @@ export function SearchForm({
         />
         {input}
         <button
-          className="absolute right-1 rounded bg-primary px-space-md py-1.5 font-label-ui text-label-ui text-secondary-fixed transition-colors hover:bg-primary-container"
+          aria-label="Tìm kiếm"
+          className="absolute right-1 inline-flex min-h-10 min-w-10 items-center justify-center rounded bg-primary px-2 py-1.5 font-label-ui text-label-ui text-secondary-fixed transition-colors hover:bg-primary-container md:px-space-md"
           type="submit"
         >
-          Tìm kiếm
+          <Search aria-hidden="true" className="size-5 md:hidden" />
+          <span className="hidden md:inline">Tìm kiếm</span>
         </button>
       </form>
     );
@@ -71,7 +73,7 @@ export function SearchForm({
     >
       <Search
         aria-hidden="true"
-        className="ml-space-md size-[22px] shrink-0 text-outline"
+        className="ml-3 hidden size-[22px] shrink-0 text-outline md:block"
       />
       {input}
       {draft.length > 0 && (
@@ -89,11 +91,13 @@ export function SearchForm({
         </button>
       )}
       <button
-        className="flex shrink-0 items-center rounded-lg gap-space-xs bg-primary px-space-lg py-3.5 font-label-ui text-label-ui text-on-primary transition-colors hover:bg-primary-container"
+        aria-label="Tìm kiếm"
+        className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg gap-space-xs bg-primary px-3 py-3.5 font-label-ui text-label-ui text-on-primary transition-colors hover:bg-primary-container md:px-space-lg"
         type="submit"
       >
-        <span>Tìm kiếm</span>
-        <ArrowRight className="size-4" />
+        <Search aria-hidden="true" className="size-5 md:hidden" />
+        <span className="hidden md:inline">Tìm kiếm</span>
+        <ArrowRight aria-hidden="true" className="hidden size-4 md:block" />
       </button>
     </form>
   );

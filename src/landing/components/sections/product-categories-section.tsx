@@ -17,18 +17,17 @@ export function ProductCategoriesSection({ categories, loadFailed = false }: { c
   return (
     <section className="flex w-full flex-col bg-surface px-6 py-16 text-on-surface md:px-12 lg:min-h-[calc(100vh-var(--landing-header-height))] lg:px-20" id="danh-muc">
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
-        <Reveal className="mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 md:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] md:gap-x-6">
-          <span className="font-label-eyebrow text-[10px] leading-4 font-semibold tracking-[0.18em] text-secondary uppercase md:text-label-eyebrow md:tracking-[0.22em] lg:tracking-[0.25em]">Danh mục tiêu biểu</span>
-          <Link
-            className="group inline-flex min-h-11 shrink-0 items-center justify-self-end gap-1.5 whitespace-nowrap rounded px-2 font-label-ui text-[12px] leading-[18px] font-medium text-primary transition-colors hover:text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:text-label-ui"
-            href={routes.search}
-          >
-            Xem tất cả
-            <ArrowRight aria-hidden="true" className="size-4 shrink-0 transition-transform motion-safe:group-hover:translate-x-1" />
-          </Link>
-          <h2 className="col-span-2 min-w-0 font-headline-lg text-[29px] leading-[1.25] font-medium text-primary md:col-span-1 md:text-[34px] md:leading-[1.3] lg:text-headline-lg">Khám phá các dòng bánh Minh Sâm</h2>
-          <p className="col-span-2 min-w-0 font-body-md text-[14px] leading-[1.6] text-on-surface-variant md:col-span-1 md:self-end md:text-[15px] md:leading-6 lg:text-body-md">Từ những hương vị truyền thống đến những dòng bánh mới cho nhịp sống hôm nay, gói trọn tinh tế ẩm thực đất kinh kỳ.</p>
-        </Reveal>
+        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <Reveal>
+            <div>
+              <span className="mb-2 block font-label-eyebrow text-[10px] leading-4 font-semibold tracking-[0.18em] text-secondary uppercase md:text-label-eyebrow md:tracking-[0.22em] lg:tracking-[0.25em]">Danh mục tiêu biểu</span>
+              <h2 className="font-headline-lg text-[29px] leading-[1.25] font-medium text-primary md:text-[34px] md:leading-[1.3] lg:text-headline-lg">Khám phá các dòng bánh Minh Sâm</h2>
+            </div>
+          </Reveal>
+          <Reveal className="max-w-md" delay={0.08}>
+            <p className="font-body-md text-[14px] leading-[1.6] text-on-surface-variant md:text-[15px] md:leading-6 lg:text-body-md">Từ những hương vị truyền thống đến những dòng bánh mới cho nhịp sống hôm nay, gói trọn tinh tế ẩm thực đất kinh kỳ.</p>
+          </Reveal>
+        </div>
 
         {loadFailed ? (
           <Reveal y={12}>
@@ -63,6 +62,7 @@ export function ProductCategoriesSection({ categories, loadFailed = false }: { c
           <span className="h-[1px] w-8 bg-outline-variant" />
           <span className="font-label-eyebrow text-[10px] leading-4 font-semibold tracking-[0.14em] uppercase md:text-label-eyebrow lg:tracking-[0.18em]">Danh Mục Sản Phẩm</span>
         </div>
+        <Link className="font-label-ui text-[12px] leading-[18px] font-medium tracking-[0.06em] text-primary uppercase transition-colors hover:text-secondary md:text-label-ui md:tracking-wider" href={routes.search}>Xem toàn bộ menu bánh →</Link>
       </Reveal>
     </section>
   );
