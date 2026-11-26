@@ -54,3 +54,9 @@ test("checkout navigation uses only selected lines and retains cart after naviga
   assert.match(header, /Giỏ hàng/);
   assert.match(header, /cartCount/);
 });
+
+test("header cart badge counts lines, not quantities or selection", () => {
+  const header = readFileSync("src/landing/components/layout/landing-header.tsx", "utf8");
+  assert.match(header, /const cartCount = useCartStore\(\(state\) => state\.items\.length\)/);
+  assert.equal((header.match(/cartCount > 99 \? "99\+" : cartCount/g) ?? []).length, 2);
+});
