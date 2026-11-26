@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { LandingDataUnavailable } from "@/landing/components/ui/landing-data-unavailable";
 import { getCatalogProduct, getRelatedCatalogProducts } from "@/landing/features/catalog/repository";
 import { adaptApiProductDetail } from "@/landing/features/product/api-adapter";
 import { FixedPriceProductPage } from "@/landing/features/product/components/fixed-price-product-page";
@@ -16,7 +17,10 @@ export const instant = false;
 export async function generateMetadata({ params }: ProductRouteProps): Promise<Metadata> {
   await connection();
   const { categorySlug, productSlug } = await params;
-  const product = await loadProductDetail(categorySlug, productSlug, false);
+  const product = await loadProductDetail(categorySlug, productSlug, false).catch((error: unknown) => {
+    if (!(error instanceof ApiClientError)) throw error;
+    return undefined;
+  });
   if (!product) return {};
   const title = `${product.catalog.name} | Minh Sâm Bakery`;
   const description = product.catalog.description;
@@ -37,7 +41,13 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
 export default async function ProductRoute({ params }: ProductRouteProps) {
   await connection();
   const { categorySlug, productSlug } = await params;
-  const product = await loadProductDetail(categorySlug, productSlug, true);
+  let product: FixedPriceProductDetail | undefined;
+  try {
+    product = await loadProductDetail(categorySlug, productSlug, true);
+  } catch (error) {
+    if (!(error instanceof ApiClientError)) throw error;
+    return <LandingDataUnavailable title="Chưa thể tải sản phẩm" />;
+  }
   if (!product) notFound();
   return <FixedPriceProductPage product={product} />;
 }

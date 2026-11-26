@@ -2,6 +2,8 @@ import { connection } from "next/server";
 import { redirect } from "next/navigation";
 
 import { getCatalogCategories } from "@/landing/features/catalog/repository";
+import { LandingDataUnavailable } from "@/landing/components/ui/landing-data-unavailable";
+import { loadCatalogPageOnce } from "@/landing/features/catalog/page-policy";
 import { reportCatalogError } from "@/landing/features/catalog/diagnostics";
 import { routes } from "@/landing/lib/routes";
 
@@ -10,10 +12,10 @@ export const instant = false;
 
 export default async function CategoriesIndexRoute() {
   await connection();
-  const categories = await getCatalogCategories().catch((error) => {
-    reportCatalogError("categories", "/api/v1/public/categories", error);
-    throw error;
-  });
+  const categories = await loadCatalogPageOnce(getCatalogCategories, (error) =>
+    reportCatalogError("categories", "/api/v1/public/categories", error),
+  );
+  if (categories === null) return <LandingDataUnavailable title="Chưa thể tải danh mục" />;
   const firstCategory = categories[0];
   if (firstCategory) redirect(routes.category(firstCategory.slug));
 

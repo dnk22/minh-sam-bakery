@@ -2,6 +2,8 @@ import { connection } from "next/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { LandingDataUnavailable } from "@/landing/components/ui/landing-data-unavailable";
+import { reportCatalogError } from "@/landing/features/catalog/diagnostics";
 import { getCatalogCategories } from "@/landing/features/catalog/repository";
 import { catalogRedirectPage, loadCatalogPageOnce } from "@/landing/features/catalog/page-policy";
 import { GlobalSearchPage } from "@/landing/features/search/search-page";
@@ -32,7 +34,14 @@ type SearchPageProps = {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   await connection();
-  const [raw, categories] = await Promise.all([searchParams, getCatalogCategories()]);
+  const [raw, categories] = await Promise.all([
+    searchParams,
+    loadCatalogPageOnce(getCatalogCategories, (error) =>
+      reportCatalogError("categories", "/api/v1/public/categories", error),
+    ),
+  ]);
+  // Do not clear the user's category filter if the backend is unavailable.
+  if (categories === null) return <LandingDataUnavailable title="Chưa thể mở trang tìm kiếm" />;
   const parsed = parseSearchQuery(raw);
   const query = parsed.category && !categories.some((category) => category.slug === parsed.category)
     ? { ...parsed, category: null }
