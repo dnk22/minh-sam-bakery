@@ -7,16 +7,18 @@ const read = (path: string) => readFileSync(path, "utf8");
 
 test("shared Landing shell suspends before touching backend data", () => {
   const layout = read(root + "layout.tsx");
-  assert.match(layout, /<Suspense fallback=\{<LandingShellLoading \/>\}>/);
+  assert.match(layout, /<Suspense fallback=\{<LandingShellSkeleton \/>\}>/);
   assert.match(layout, /<LandingRuntimeLayout>\{children\}<\/LandingRuntimeLayout>/);
-  assert.match(layout, /async function LandingRuntimeLayout[^]*?await connection\(\);\s*const \[categories, landingTheme\]/);
+  assert.match(layout, /async function LandingRuntimeLayout[^]*?await connection\(\);\s*const landingTheme/);
   assert.match(layout, /getCatalogCategories\(\)\.catch/);
   assert.match(layout, /getActiveLandingTheme\(\)/);
 });
 
 test("public pages and dynamic metadata wait for a real request before backend access", () => {
   for (const [path, fn] of [
-    ["page.tsx", "HomePage"],
+    ["page.tsx", "RuntimeHero"],
+    ["page.tsx", "RuntimeCategories"],
+    ["page.tsx", "RuntimeGifting"],
     ["ve-minh-sam/page.tsx", "AboutRoute"],
     ["danh-muc/page.tsx", "CategoriesIndexRoute"],
     ["danh-muc/[categorySlug]/page.tsx", "CategoryRoute"],
