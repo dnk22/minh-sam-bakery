@@ -22,6 +22,7 @@ export type ResponsiveModalProps = {
   closeLabel?: string;
   className?: string;
   variant?: "default" | "confirm";
+  elevated?: boolean;
 };
 
 export function ResponsiveModal({
@@ -37,6 +38,7 @@ export function ResponsiveModal({
   closeLabel = "Đóng",
   className,
   variant = "default",
+  elevated = false,
 }: ResponsiveModalProps) {
   const { direction, theme } = useCmsPreferences();
   const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
@@ -58,11 +60,12 @@ export function ResponsiveModal({
     <Dialog.Root open={resolvedOpen} onOpenChange={requestOpenChange}>
       {trigger ? <Dialog.Trigger asChild>{trigger}</Dialog.Trigger> : null}
       <Dialog.Portal>
-        <Dialog.Overlay className={cn("cms-portal", styles.overlay)} data-cms-theme={theme} />
+        <Dialog.Overlay className={cn("cms-portal", styles.overlay)} data-cms-theme={theme} data-elevated={elevated || undefined} />
         <Dialog.Content
           className={cn("cms-portal", styles.content, className)}
           data-cms-theme={theme}
           data-variant={variant}
+          data-elevated={elevated || undefined}
           dir={direction}
           aria-describedby={description ? descriptionId : undefined}
         >

@@ -36,7 +36,7 @@ export function SystemConfigModal({ state, onStateChange, onDelete }: { state: S
   useUnsavedChangesWarning(isEditing && form.formState.isDirty);
 
   const close = () => onStateChange(null);
-  const confirmDiscard = async () => !isEditing || !form.formState.isDirty || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true });
+  const confirmDiscard = async () => !pending && (!isEditing || !form.formState.isDirty || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true }));
   const setBackendError = (error: unknown) => {
     if (error instanceof CmsApiError) {
       const fields = Object.entries(error.fields ?? {}).filter(([field]) => field in form.getValues());

@@ -32,7 +32,7 @@ export function CmsConfirmProvider({ children }: { children: ReactNode }) {
     current.current = null;
   }, []);
   return <ConfirmContext value={ask}>{children}
-    {request ? <ResponsiveModal open variant="confirm" title={request.title ?? "Xác nhận thao tác"}
+    {request ? <ResponsiveModal open elevated variant="confirm" title={request.title ?? "Xác nhận thao tác"}
       onOpenChange={(open) => { if (!open) finish(false); }}
       footer={<><CmsButton type="button" variant="outline" autoFocus onClick={() => finish(false)}>Hủy</CmsButton>
         <CmsButton type="button" variant={request.destructive ? "destructive" : "default"} onClick={() => finish(true)}>{request.confirmLabel ?? "Xác nhận"}</CmsButton></>}>

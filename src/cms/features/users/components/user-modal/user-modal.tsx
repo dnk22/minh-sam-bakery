@@ -49,7 +49,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
   useUnsavedChangesWarning((isEditing && form.formState.isDirty) || roleDirty);
   const pending = mutations.create.isPending || mutations.update.isPending;
 
-  const confirmDiscard = async () => (!isEditing || !form.formState.isDirty) && !roleDirty || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true });
+  const confirmDiscard = async () => !pending && !mutations.assignRole.isPending && (((!isEditing || !form.formState.isDirty) && !roleDirty) || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true }));
   const close = () => onStateChange(null);
   const setFormError = (error: unknown, fallback: string) => {
     if (error instanceof CmsApiError) {

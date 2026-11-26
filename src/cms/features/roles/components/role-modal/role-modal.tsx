@@ -68,7 +68,7 @@ export function RoleModal({ state, onStateChange, onDelete }: {
 
   const isEditing = mode === "create" || mode === "edit";
   const close = () => onStateChange(null);
-  const confirmDiscard = async () => !isEditing || (!form.formState.isDirty && !permissionsDirty) || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true });
+  const confirmDiscard = async () => !mutations.create.isPending && !mutations.update.isPending && !mutations.permissions.isPending && (!isEditing || (!form.formState.isDirty && !permissionsDirty) || await askConfirm({ title: "Bỏ thay đổi?", message: "Bỏ các thay đổi chưa lưu?", confirmLabel: "Bỏ thay đổi", destructive: true }));
   const setFormError = (error: unknown, fallback: string) => {
     if (error instanceof CmsApiError) {
       const fields = Object.entries(error.fields ?? {}).filter(([field]) => field in form.getValues());
