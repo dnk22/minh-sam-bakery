@@ -37,7 +37,7 @@ export function ProductsToolbar({ filters }: { filters: ProductFilters }) {
   return <CmsToolbar
     label="Bộ lọc sản phẩm"
     search={<CmsInput aria-label="Tìm kiếm sản phẩm" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />}  onChange={(event) => draft.set("search", event.target.value)}  placeholder="Tìm theo tên hoặc SKU" type="search" value={draft.values.search} />}
-    filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc sản phẩm" onClear={clearAdvanced}>
+    filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc sản phẩm" onClear={clearAdvanced} onApply={apply}>
         <CmsToolbarField><CmsSelect aria-label="Lọc theo trạng thái" controlSize="sm" options={PRODUCT_STATUS_FILTER_OPTIONS} value={draft.values.status ?? ""} onChange={(event) => draft.set("status", (event.target.value || undefined) as ProductStatus | undefined)} /></CmsToolbarField>
         <CmsToolbarField size="wide"><CmsCombobox aria-label="Lọc theo danh mục" controlSize="sm" disabled={categories.isLoading || Boolean(reason)} options={categoryOptions} value={draft.values.categoryId ?? ""} onValueChange={(value) => draft.set("categoryId", value || undefined)} /></CmsToolbarField>
         <CmsToolbarField size="compact"><CmsSelect aria-label="Lọc sản phẩm nổi bật" controlSize="sm" options={BOOLEAN_FILTER_OPTIONS.map((option) => ({ ...option, label: option.value === "" ? "Nổi bật: Tất cả" : `Nổi bật: ${option.label}` }))} value={draft.values.isFeatured === undefined ? "" : String(draft.values.isFeatured)} onChange={(event) => draft.set("isFeatured", parseBoolean(event.target.value))} /></CmsToolbarField>

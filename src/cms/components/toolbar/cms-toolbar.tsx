@@ -1,3 +1,5 @@
+"use client";
+
 import { X } from "lucide-react";
 import { CmsButton } from "@/cms/components/ui/button";
 import { CmsToolbarSearchButton } from "./cms-toolbar-search-button";

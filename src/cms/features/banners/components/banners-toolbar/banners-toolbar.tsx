@@ -29,7 +29,7 @@ export function BannersToolbar({ filters }: { filters: BannerFilters }) {
             Number(draft.values.isActive !== undefined)
           }
           label="Bộ lọc banner"
-          onClear={clearAdvanced}
+          onClear={clearAdvanced} onApply={apply}
         >
           <CmsSelect
             aria-label="Lọc theo vị trí"

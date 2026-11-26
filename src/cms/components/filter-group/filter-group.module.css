@@ -62,3 +62,5 @@
 }
 
 .desktop[data-layout="toolbar"] { align-items: flex-end; }
+
+.footer { gap: 0.5rem; }

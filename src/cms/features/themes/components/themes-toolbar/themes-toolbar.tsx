@@ -21,7 +21,7 @@ export function ThemesToolbar({ filters }: { filters: ThemeFilters }) {
     filters={<CmsFilterGroup layout="toolbar"
         activeCount={Number(draft.values.isActive !== undefined)}
         label="Bộ lọc giao diện website"
-        onClear={clearAdvanced}
+        onClear={clearAdvanced} onApply={apply}
       >
         <CmsSelect
           aria-label="Lọc theo trạng thái theme"

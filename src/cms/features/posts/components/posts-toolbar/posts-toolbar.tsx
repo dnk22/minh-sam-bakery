@@ -17,7 +17,7 @@ export function PostsToolbar({ filters }: { filters: PostFilters }) {
   const clearAdvanced = () => { const next = { search: filters.search, status: undefined, showOnLanding: undefined }; draft.reset(next); filters.applyFilters(next); }; const count = countPostAdvancedFilters(draft.values);
   return <CmsToolbar label="Bộ lọc bài viết" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
     search={<CmsInput aria-label="Tìm kiếm bài viết" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo tiêu đề" type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
-    filters={<CmsFilterGroup layout="toolbar" activeCount={count} label="Bộ lọc bài viết" onClear={clearAdvanced}>
+    filters={<CmsFilterGroup layout="toolbar" activeCount={count} label="Bộ lọc bài viết" onClear={clearAdvanced} onApply={apply}>
       <CmsSelect aria-label="Lọc theo trạng thái" containerClassName={styles.select} controlSize="sm" options={POST_STATUS_OPTIONS} value={draft.values.status ?? ""} onChange={(event) => draft.set("status", (event.target.value || undefined) as PostStatus | undefined)} />
       <CmsSelect aria-label="Lọc hiển thị trên trang chủ" containerClassName={styles.select} controlSize="sm" options={POST_LANDING_OPTIONS} value={draft.values.showOnLanding === undefined ? "" : String(draft.values.showOnLanding)} onChange={(event) => draft.set("showOnLanding", parsePostBoolean(event.target.value))} />
     </CmsFilterGroup>}
