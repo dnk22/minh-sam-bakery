@@ -34,7 +34,7 @@ export function Reveal({
       animate={enterOnMount ? visibleState : undefined}
       className={className ? `motion-reveal ${className}` : "motion-reveal"}
       data-motion-reveal=""
-      initial={enterOnMount ? false : { opacity: 0, scale, x, y }}
+      initial={{ opacity: 0, scale, x, y }}
       transition={{
         delay: shouldReduceMotion ? 0 : delay,
         duration: shouldReduceMotion ? 0 : duration,
