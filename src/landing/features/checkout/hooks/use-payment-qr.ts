@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import type { QrPaymentConfig } from "@/lib/contracts/qr-payment/qr-payment.types";
 import { getPaymentQr } from "../api/payment-qr.client";
 
-type PaymentQrState = { status: "loading" | "unavailable" } | { status: "ready"; config: QrPaymentConfig };
+export type PaymentQrState = { status: "loading" | "unavailable" } | { status: "ready"; config: QrPaymentConfig };
 
-export function usePaymentQr() {
+export function usePaymentQr(enabled: boolean) {
   const [state, setState] = useState<PaymentQrState>({ status: "loading" });
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     void getPaymentQr(controller.signal).then(config => {
       if (!controller.signal.aborted) setState({ status: "ready", config });
@@ -16,6 +17,6 @@ export function usePaymentQr() {
       if (!controller.signal.aborted) setState({ status: "unavailable" });
     });
     return () => controller.abort();
-  }, []);
-  return state;
+  }, [enabled]);
+  return { state, markUnavailable: () => setState({ status: "unavailable" }) };
 }

@@ -3,17 +3,17 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { formatVnd } from "@/landing/features/catalog/pricing";
-import { usePaymentQr } from "../hooks/use-payment-qr";
+import type { PaymentQrState } from "../hooks/use-payment-qr";
 import { CheckoutDialog } from "./checkout-dialog";
 import { PaymentQrLoading } from "./payment-qr/payment-qr-loading";
 import { PaymentQrUnavailable } from "./payment-qr/payment-qr-unavailable";
 import { PaymentQrImage } from "./payment-qr/payment-qr-image";
 import { PaymentQrDetails } from "./payment-qr/payment-qr-details";
 
-export function CheckoutTransferModal({ total, pending, blocked, error, onClose, onConfirm }: {
+export function CheckoutTransferModal({ qr, onQrUnavailable, total, pending, blocked, error, onClose, onConfirm }: {
+  qr: PaymentQrState; onQrUnavailable: () => void;
   total: number; pending: boolean; blocked: boolean; error: string; onClose: () => void; onConfirm: () => void;
 }) {
-  const qr = usePaymentQr();
   const [imageState, setImageState] = useState<"loading" | "loaded" | "failed">("loading");
   const unavailable = qr.status === "unavailable" || imageState === "failed";
   const canConfirm = qr.status === "ready" && imageState === "loaded" && !pending && !blocked;
@@ -22,7 +22,7 @@ export function CheckoutTransferModal({ total, pending, blocked, error, onClose,
       {qr.status === "loading" ? <PaymentQrLoading /> : qr.status === "ready" ? <section className="mt-space-md space-y-3 rounded-xl bg-surface-container-low p-4">
         <div className="flex justify-between gap-3"><span>Tạm tính tiền bánh</span><strong className="font-price-serif text-primary">{formatVnd(total)}</strong></div>
         <div className="flex flex-col items-center gap-2 rounded-xl bg-surface-container-lowest p-3">
-          <PaymentQrImage url={qr.config.qrImageUrl} loaded={imageState === "loaded"} onLoad={() => setImageState("loaded")} onError={() => setImageState("failed")} />
+          <PaymentQrImage url={qr.config.qrImageUrl} loaded={imageState === "loaded"} onLoad={() => setImageState("loaded")} onError={() => { setImageState("failed"); onQrUnavailable(); }} />
           <p className="text-center font-body-sm text-on-surface-variant">Quét mã QR bằng ứng dụng ngân hàng.</p>
         </div>
         <PaymentQrDetails config={qr.config} />

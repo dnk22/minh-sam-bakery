@@ -1,9 +1,11 @@
-import { CreditCard, Store } from "lucide-react";
+import { CreditCard, Store, AlertCircle, LoaderCircle } from "lucide-react";
 import type { ReactNode } from "react";
 
+import type { PaymentQrState } from "../hooks/use-payment-qr";
 import type { CheckoutDraft, CheckoutErrors, PaymentMethod } from "../types";
 
-export function CheckoutPaymentSection({ draft, errors, onUpdate }: {
+export function CheckoutPaymentSection({ draft, errors, onUpdate, qrStatus }: {
+  qrStatus: PaymentQrState["status"];
   draft: CheckoutDraft;
   errors: CheckoutErrors;
   onUpdate: (patch: Partial<CheckoutDraft>) => void;
@@ -18,15 +20,16 @@ export function CheckoutPaymentSection({ draft, errors, onUpdate }: {
         <legend className="sr-only">Chọn phương thức thanh toán</legend>
         <PaymentOption
           value="BANK_TRANSFER"
-          checked={draft.paymentMethod === "BANK_TRANSFER"}
+          checked={qrStatus === "ready" && draft.paymentMethod === "BANK_TRANSFER"}
+          disabled={qrStatus !== "ready"}
           onChange={(paymentMethod) => onUpdate({ paymentMethod })}
           icon={<CreditCard className="size-5" />}
           label="Chuyển khoản ngân hàng"
-          note="Hiển thị QR trước khi xác nhận đặt hàng"
+          note={qrStatus === "ready" ? "Hiển thị QR trước khi xác nhận đặt hàng" : undefined}
         />
         <PaymentOption
           value="AT_STORE"
-          checked={draft.paymentMethod === "AT_STORE"}
+          checked={!isDelivery && draft.paymentMethod === "AT_STORE"}
           disabled={isDelivery}
           onChange={(paymentMethod) => onUpdate({ paymentMethod })}
           icon={<Store className="size-5" />}
@@ -34,6 +37,8 @@ export function CheckoutPaymentSection({ draft, errors, onUpdate }: {
           note={isDelivery ? "Chỉ áp dụng khi nhận bánh tại cửa hàng" : "Thanh toán khi đến nhận bánh"}
         />
       </fieldset>
+      {qrStatus === "loading" ? <p role="status" className="mt-3 flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant"><LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />Đang kiểm tra phương thức chuyển khoản...</p> : null}
+      {qrStatus === "unavailable" ? <p role="status" className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 font-body-sm text-body-sm text-amber-800"><AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0" /><span>Phương thức chuyển khoản ngân hàng hiện chưa có sẵn. {isDelivery ? "Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." : "Bạn có thể thanh toán tại cửa hàng."}</span></p> : null}
       {errors.paymentMethod ? (
         <p className="mt-2 font-body-sm text-error" role="alert">{errors.paymentMethod}</p>
       ) : null}
@@ -48,7 +53,7 @@ function PaymentOption({ value, checked, disabled, onChange, icon, label, note }
   onChange: (paymentMethod: PaymentMethod) => void;
   icon: ReactNode;
   label: string;
-  note: string;
+  note?: string;
 }) {
   return (
     <label className={`flex cursor-pointer items-start gap-space-sm rounded-lg border p-space-md ${checked ? "border-primary bg-surface-container-low" : "border-outline-variant bg-surface"} ${disabled ? "cursor-not-allowed opacity-50" : ""}`}>
@@ -64,7 +69,7 @@ function PaymentOption({ value, checked, disabled, onChange, icon, label, note }
       <span className="text-secondary">{icon}</span>
       <span>
         <strong className="block font-label-ui text-label-ui text-primary">{label}</strong>
-        <small className="mt-1 block font-body-sm text-body-sm text-on-surface-variant">{note}</small>
+        {note ? <small className="mt-1 block font-body-sm text-body-sm text-on-surface-variant">{note}</small> : null}
       </span>
     </label>
   );

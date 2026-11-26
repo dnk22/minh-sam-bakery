@@ -23,3 +23,18 @@ test("payment QR uses public no-store API and fails closed", () => {
   assert.match(modal, /<PaymentQrLoading/);
   assert.doesNotMatch(modal, /IllustrativeQr|thử nghiệm/);
 });
+
+test("checkout preloads payment QR and blocks unavailable transfer before modal", () => {
+  const root = "src/landing/features/checkout/";
+  const controller = readFileSync(root + "hooks/use-checkout-controller.ts", "utf8");
+  const page = readFileSync(root + "components/checkout-page.tsx", "utf8");
+  const section = readFileSync(root + "components/checkout-payment-section.tsx", "utf8");
+  const modal = readFileSync(root + "components/checkout-transfer-modal.tsx", "utf8");
+  assert.match(controller, /usePaymentQr\(Boolean\(intent\) && !receipt\)/);
+  assert.match(controller, /if \(paymentBlocked\)/);
+  assert.match(section, /disabled=\{qrStatus !== "ready"\}/);
+  assert.match(section, /text-amber-800/);
+  assert.match(page, /blocked=\{checkout.blocked \|\| checkout.paymentBlocked\}/);
+  assert.match(page, /qr=\{checkout.paymentQr\}/);
+  assert.doesNotMatch(modal, /usePaymentQr\(/);
+});

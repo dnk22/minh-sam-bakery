@@ -87,6 +87,7 @@ function HydratedCheckoutPage() {
               onFulfillmentChange={checkout.chooseFulfillment}
             />
             <CheckoutPaymentSection
+              qrStatus={checkout.paymentQr.status}
               draft={checkout.draft}
               errors={checkout.errors}
               onUpdate={checkout.updateDraft}
@@ -96,11 +97,11 @@ function HydratedCheckoutPage() {
             intent={checkout.intent}
             isDelivery={checkout.draft.fulfillmentMethod === "delivery"}
             pending={checkout.pending}
-            blocked={checkout.blocked}
+            blocked={checkout.blocked || checkout.paymentBlocked}
             error={checkout.submitError}
           />
         </form>
-        {checkout.transferInput && <CheckoutTransferModal total={checkout.intent.items.reduce((sum, item) => sum + item.effectivePrice * item.quantity, 0)} pending={checkout.pending} blocked={checkout.blocked} error={checkout.submitError} onClose={checkout.closeTransfer} onConfirm={checkout.confirmTransfer} />}
+        {checkout.transferInput && <CheckoutTransferModal qr={checkout.paymentQr} onQrUnavailable={checkout.markQrUnavailable} total={checkout.intent.items.reduce((sum, item) => sum + item.effectivePrice * item.quantity, 0)} pending={checkout.pending} blocked={checkout.blocked} error={checkout.submitError} onClose={checkout.closeTransfer} onConfirm={checkout.confirmTransfer} />}
       </section>
     </main>
   );
