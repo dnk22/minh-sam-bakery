@@ -6,6 +6,7 @@ import { useCartHydrated } from "@/landing/features/cart/components/cart-hydrati
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
 import type { Order, CreateOrderInput } from "@/lib/contracts/order/order.types";
 import { buildOrderRequest } from "../utils/order-request-mapper";
+import { usePaymentQr } from "./use-payment-qr";
 import { useCreateOrder } from "./use-create-order";
 import { checkoutReturnTo, receiptOrigin, saveReceiptOrigin, clearReceiptOrigin, clearCartOrigin } from "../store/checkout-return";
 import { readReceipt, clearReceipt, hasPending } from "../store/checkout-receipt";
@@ -50,6 +51,13 @@ export function useCheckoutController() {
   const [transferInput, setTransferInput] = useState<CreateOrderInput | null>(null);
   const [blocked] = useState(initial.blocked);
   const submission = useCreateOrder();
+  const paymentQr = usePaymentQr(Boolean(intent) && !receipt);
+  const qrReady = paymentQr.state.status === "ready";
+  // A restored transfer draft must not stay selected when QR is unavailable.
+  const effectivePaymentMethod = draft.fulfillmentMethod === "delivery" && qrReady ? "BANK_TRANSFER"
+    : draft.fulfillmentMethod === "pickup" && paymentQr.state.status === "unavailable" ? "AT_STORE" : draft.paymentMethod;
+  const effectiveDraft = { ...draft, paymentMethod: effectivePaymentMethod };
+  const paymentBlocked = !qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery");
   const cartHydrated = useCartHydrated();
   const today = initial.today;
 
@@ -61,10 +69,11 @@ export function useCheckoutController() {
   // This hook mounts only after hydration, with the restored draft.
   useEffect(() => {
     if (!intent || receipt) return;
-    persistCheckoutDraft(draft);
-  }, [draft, intent, receipt]);
+    persistCheckoutDraft({ ...draft, paymentMethod: effectivePaymentMethod });
+  }, [draft, intent, receipt, effectivePaymentMethod]);
 
   const updateDraft = (patch: Partial<CheckoutDraft>) => {
+    if (patch.paymentMethod === "BANK_TRANSFER" && !qrReady && patch.fulfillmentMethod === undefined) return;
     setDraft((current) => ({ ...current, ...patch }));
     submission.setError("");
     setErrors((current) => {
@@ -82,16 +91,19 @@ export function useCheckoutController() {
   const chooseFulfillment = (fulfillmentMethod: FulfillmentMethod) => {
     updateDraft({
       fulfillmentMethod,
-      paymentMethod: fulfillmentMethod === "delivery" && draft.paymentMethod === "AT_STORE"
-        ? "BANK_TRANSFER" : draft.paymentMethod,
+      paymentMethod: fulfillmentMethod === "delivery" ? "BANK_TRANSFER" : !qrReady ? "AT_STORE" : effectiveDraft.paymentMethod,
     });
   };
 
   const checkInformation = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const normalized = normalizeCheckoutDraft(draft);
+    const normalized = normalizeCheckoutDraft(effectiveDraft);
     const result = validateCheckoutDraft(normalized);
     setDraft(normalized);
+    if (paymentBlocked) {
+      setErrors({ ...result.errors, paymentMethod: paymentQr.state.status === "loading" ? "Đang kiểm tra phương thức chuyển khoản." : "Chuyển khoản ngân hàng chưa có sẵn. Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." });
+      return;
+    }
     setErrors(result.errors);
 
     if (result.firstInvalidField) {
@@ -129,10 +141,13 @@ export function useCheckoutController() {
     blocked: blocked || submission.uncertain || Boolean(intent?.source === "cart" && !cartHydrated),
     submitError: submission.error || (blocked ? "Chưa xác minh được lần đặt hàng trước. Vui lòng liên hệ cửa hàng trước khi đặt lại." : ""),
     closeTransfer: () => { if (!submission.pending) setTransferInput(null); },
-    confirmTransfer: () => { if (transferInput && !blocked) void submit(transferInput); },
+    confirmTransfer: () => { if (transferInput && !blocked && qrReady) void submit(transferInput); },
     closeReceipt: () => { clearReceipt(); clearReceiptOrigin(); setReceipt(null); },
     intent,
-    draft,
+    draft: effectiveDraft,
+    paymentQr: paymentQr.state,
+    paymentBlocked,
+    markQrUnavailable: paymentQr.markUnavailable,
     errors,
     today,
     updateDraft,
