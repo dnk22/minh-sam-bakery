@@ -2,20 +2,13 @@ import "server-only";
 
 import { BackendRequestError } from "@/lib/api/errors";
 import { noStoreJson } from "@/cms/features/auth/api/browser-response";
-import { resolveCmsSession } from "@/cms/features/auth/session/current-session";
-import { readCmsSessionCookies } from "@/cms/features/auth/session/cookies";
+import { requireCmsApiAccess } from "@/cms/features/auth/api/require-cms-api-access";
 
 import { backendFieldErrors } from "../lib/category-data";
 import { categoryErrorMessage } from "../lib/category-errors";
 
-export async function requireCategoryAccess(): Promise<{ accessToken: string } | { response: Response }> {
-  const resolution = await resolveCmsSession();
-  if (resolution.status !== "authenticated") {
-    const status = resolution.status === "forbidden" ? 403 : resolution.status === "locked" ? 423 : resolution.status === "unavailable" ? 503 : 401;
-    return { response: categoryError(status) };
-  }
-  const accessToken = (await readCmsSessionCookies()).accessToken;
-  return accessToken ? { accessToken } : { response: categoryError(401) };
+export function requireCategoryAccess() {
+  return requireCmsApiAccess(categoryError);
 }
 
 export function categoryError(status: number, error?: unknown, fallback?: string, operation: "general" | "delete" = "general") {

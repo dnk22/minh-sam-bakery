@@ -1,21 +1,12 @@
 import "server-only";
 
 import { noStoreJson } from "@/cms/features/auth/api/browser-response";
-import { readCmsSessionCookies } from "@/cms/features/auth/session/cookies";
-import { resolveCmsSession } from "@/cms/features/auth/session/current-session";
+import { requireCmsApiAccess } from "@/cms/features/auth/api/require-cms-api-access";
 import { BackendRequestError } from "@/lib/api/errors";
 import { backendThemeFieldErrors } from "../lib/theme-data";
 
-export async function requireThemeAccess(): Promise<{ accessToken: string } | { response: Response }> {
-  const session = await resolveCmsSession();
-  if (session.status !== "authenticated") {
-    const status = session.status === "forbidden" ? 403
-      : session.status === "locked" ? 423
-      : session.status === "unavailable" ? 503 : 401;
-    return { response: themeError(status) };
-  }
-  const accessToken = (await readCmsSessionCookies()).accessToken;
-  return accessToken ? { accessToken } : { response: themeError(401) };
+export function requireThemeAccess() {
+  return requireCmsApiAccess(themeError);
 }
 
 export function themeError(status: number, error?: unknown, override?: string) {

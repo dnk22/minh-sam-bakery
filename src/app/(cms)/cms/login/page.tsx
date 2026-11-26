@@ -10,6 +10,7 @@ const errorMessages: Record<string, string> = {
   locked: "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.",
   "session-expired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
   forbidden: "Tài khoản không có quyền truy cập CMS.",
+  "session-recovery-failed": "Không thể khôi phục phiên đăng nhập. Vui lòng đăng nhập lại.",
 };
 
 const notices: Record<string, string> = {
@@ -20,13 +21,17 @@ const notices: Record<string, string> = {
 export default async function CmsLoginPage({ searchParams }: PageProps<"/cms/login">) {
   const params = await searchParams;
   const redirectTo = sanitizeCmsRedirect(params.redirect);
+  const errorKey = typeof params.error === "string" ? params.error : "";
+  // Explicit recovery failures must not trigger login → refresh → login loops.
+  if (["session-recovery-failed", "session-expired", "locked", "forbidden"].includes(errorKey)) {
+    return <CmsLoginScreen message={errorMessages[errorKey]} redirectTo={redirectTo} />;
+  }
   const session = await resolveCmsSession();
   if (session.status === "authenticated") redirect(redirectTo);
   if (session.status === "needs_refresh") {
     redirect(`/cms/session-refresh?redirect=${encodeURIComponent(redirectTo)}`);
   }
 
-  const errorKey = typeof params.error === "string" ? params.error : "";
   const noticeKey = typeof params.notice === "string" ? params.notice : "";
   const sessionMessage = session.status === "locked"
     ? errorMessages.locked
