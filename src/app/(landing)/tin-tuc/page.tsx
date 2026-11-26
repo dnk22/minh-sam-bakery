@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 type JournalRouteProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 async function JournalContent({ searchParams }: JournalRouteProps) {
+  await connection();
   const query = parseJournalSearchParams(await searchParams);
   let data = null;
   let failed = false;

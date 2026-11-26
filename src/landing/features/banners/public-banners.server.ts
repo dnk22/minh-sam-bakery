@@ -16,27 +16,22 @@ import {
 } from "./banner-data";
 
 export async function getPublicLandingBanners(position: BannerPosition) {
-  let response;
-  try {
-    response = await backendRequest({
-      path: "/api/v1/public/banners",
-      query: { position },
-      cache: "force-cache",
-      next: {
-        revalidate: LANDING_BANNERS_REVALIDATE_SECONDS,
-        tags: [...landingBannerCacheTags(position)],
-      },
-      validate: isBannerResponseArray,
-    });
-  } catch (error) {
-    await connection();
-    throw error;
-  }
+  // The fetch must start only after a real request; keep the existing data cache.
+  await connection();
+  const response = await backendRequest({
+    path: "/api/v1/public/banners",
+    query: { position },
+    cache: "force-cache",
+    next: {
+      revalidate: LANDING_BANNERS_REVALIDATE_SECONDS,
+      tags: [...landingBannerCacheTags(position)],
+    },
+    validate: isBannerResponseArray,
+  });
   const baseUrl = backendBaseUrl();
   const normalized = response.data.flatMap((item) => {
     const banner = normalizeLandingBanner(item, baseUrl, position);
     return banner ? [banner] : [];
   });
-  await connection();
   return selectLandingBanners(normalized);
 }

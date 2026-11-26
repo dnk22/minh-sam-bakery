@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -30,6 +31,7 @@ type SearchPageProps = {
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
+  await connection();
   const [raw, categories] = await Promise.all([searchParams, getCatalogCategories()]);
   const parsed = parseSearchQuery(raw);
   const query = parsed.category && !categories.some((category) => category.slug === parsed.category)

@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 
 import { AboutPage } from "@/landing/features/about/components/about-page";
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 export const instant = false;
 
 export default async function AboutRoute() {
+  await connection();
   const banners = await getPublicLandingBanners("about_hero").catch(() => []);
   return <AboutPage heroBanners={banners} />;
 }

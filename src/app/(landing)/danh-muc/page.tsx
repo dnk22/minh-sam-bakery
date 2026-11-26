@@ -1,10 +1,15 @@
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 
 import { getCatalogCategories } from "@/landing/features/catalog/repository";
 import { reportCatalogError } from "@/landing/features/catalog/diagnostics";
 import { routes } from "@/landing/lib/routes";
 
+// The redirect depends on the current catalog, not the build-time first category.
+export const instant = false;
+
 export default async function CategoriesIndexRoute() {
+  await connection();
   const categories = await getCatalogCategories().catch((error) => {
     reportCatalogError("categories", "/api/v1/public/categories", error);
     throw error;

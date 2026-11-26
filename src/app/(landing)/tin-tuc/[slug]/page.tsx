@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -17,6 +18,7 @@ async function loadPublicArticle(slug: string) {
 }
 
 export async function generateMetadata({ params }: ArticleRouteProps): Promise<Metadata> {
+  await connection();
   const { slug } = await params;
   const article = await loadPublicArticle(slug);
   if (!article || article.status !== "PUBLISHED") notFound();
@@ -32,6 +34,7 @@ export async function generateMetadata({ params }: ArticleRouteProps): Promise<M
 }
 
 async function ArticleContent({ params }: ArticleRouteProps) {
+  await connection();
   const { slug } = await params;
   const article = await loadPublicArticle(slug);
   if (!article || article.status !== "PUBLISHED") notFound();

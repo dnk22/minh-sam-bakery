@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -13,6 +14,7 @@ type ProductRouteProps = { params: Promise<{ categorySlug: string; productSlug: 
 export const instant = false;
 
 export async function generateMetadata({ params }: ProductRouteProps): Promise<Metadata> {
+  await connection();
   const { categorySlug, productSlug } = await params;
   const product = await loadProductDetail(categorySlug, productSlug, false);
   if (!product) return {};
@@ -33,6 +35,7 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
 }
 
 export default async function ProductRoute({ params }: ProductRouteProps) {
+  await connection();
   const { categorySlug, productSlug } = await params;
   const product = await loadProductDetail(categorySlug, productSlug, true);
   if (!product) notFound();

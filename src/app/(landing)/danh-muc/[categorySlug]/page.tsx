@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
@@ -16,6 +17,7 @@ type CategoryRouteProps = {
 export const instant = false;
 
 export async function generateMetadata({ params }: CategoryRouteProps): Promise<Metadata> {
+  await connection();
   const { categorySlug } = await params;
   const category = await getCatalogCategory(categorySlug).catch((error) => {
     reportCatalogError("categories", "/api/v1/public/categories", error);
@@ -33,6 +35,7 @@ export async function generateMetadata({ params }: CategoryRouteProps): Promise<
 }
 
 export default async function CategoryRoute({ params, searchParams }: CategoryRouteProps) {
+  await connection();
   const [{ categorySlug }, rawSearchParams] = await Promise.all([params, searchParams]);
   const categories = await getCatalogCategories().catch((error) => {
     reportCatalogError("categories", "/api/v1/public/categories", error);

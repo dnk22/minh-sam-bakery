@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { CraftsmanshipSection } from "@/landing/components/sections/craftsmanship-section";
 import { FinalCtaSection } from "@/landing/components/sections/final-cta-section";
 import { GiftingSection } from "@/landing/components/sections/gifting-section";
@@ -11,6 +12,7 @@ import { getPublicLandingBanners } from "@/landing/features/banners/public-banne
 export const instant = false;
 
 export default async function HomePage() {
+  await connection();
   const [categoriesResult, heroBannersResult, giftingBannersResult] = await Promise.allSettled([
     getCatalogCategories(),
     getPublicLandingBanners("home_hero"),
