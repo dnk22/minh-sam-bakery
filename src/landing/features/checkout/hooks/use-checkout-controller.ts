@@ -54,9 +54,10 @@ export function useCheckoutController() {
   const paymentQr = usePaymentQr(Boolean(intent) && !receipt);
   const qrReady = paymentQr.state.status === "ready";
   // A restored transfer draft must not stay selected when QR is unavailable.
-  const effectiveDraft = draft.paymentMethod === "BANK_TRANSFER" && paymentQr.state.status === "unavailable" && draft.fulfillmentMethod === "pickup"
-    ? { ...draft, paymentMethod: "AT_STORE" as const } : draft;
-  const paymentBlocked = effectiveDraft.paymentMethod === "BANK_TRANSFER" && !qrReady || effectiveDraft.fulfillmentMethod === "delivery" && !qrReady;
+  const effectivePaymentMethod = draft.fulfillmentMethod === "delivery" && qrReady ? "BANK_TRANSFER"
+    : draft.fulfillmentMethod === "pickup" && paymentQr.state.status === "unavailable" ? "AT_STORE" : draft.paymentMethod;
+  const effectiveDraft = { ...draft, paymentMethod: effectivePaymentMethod };
+  const paymentBlocked = !qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery");
   const cartHydrated = useCartHydrated();
   const today = initial.today;
 
@@ -68,11 +69,11 @@ export function useCheckoutController() {
   // This hook mounts only after hydration, with the restored draft.
   useEffect(() => {
     if (!intent || receipt) return;
-    persistCheckoutDraft(draft.paymentMethod === "BANK_TRANSFER" && paymentQr.state.status === "unavailable" && draft.fulfillmentMethod === "pickup" ? { ...draft, paymentMethod: "AT_STORE" } : draft);
-  }, [draft, intent, receipt, paymentQr.state.status]);
+    persistCheckoutDraft({ ...draft, paymentMethod: effectivePaymentMethod });
+  }, [draft, intent, receipt, effectivePaymentMethod]);
 
   const updateDraft = (patch: Partial<CheckoutDraft>) => {
-    if (patch.paymentMethod === "BANK_TRANSFER" && !qrReady) return;
+    if (patch.paymentMethod === "BANK_TRANSFER" && !qrReady && patch.fulfillmentMethod === undefined) return;
     setDraft((current) => ({ ...current, ...patch }));
     submission.setError("");
     setErrors((current) => {
@@ -90,7 +91,7 @@ export function useCheckoutController() {
   const chooseFulfillment = (fulfillmentMethod: FulfillmentMethod) => {
     updateDraft({
       fulfillmentMethod,
-      paymentMethod: fulfillmentMethod === "delivery" && qrReady ? "BANK_TRANSFER" : fulfillmentMethod === "pickup" && !qrReady ? "AT_STORE" : effectiveDraft.paymentMethod,
+      paymentMethod: fulfillmentMethod === "delivery" ? "BANK_TRANSFER" : !qrReady ? "AT_STORE" : effectiveDraft.paymentMethod,
     });
   };
 
