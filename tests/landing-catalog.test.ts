@@ -304,7 +304,7 @@ test("shared quantity stepper serves Catalog, Product and Cart without domain de
 });
 
 test("homepage caps the ordered catalog at six without truncating shared navigation data", async () => {
-  const { selectHomeCategories } = await import("../src/landing/components/sections/category-showcase-policy.ts");
+  const { selectHomeCategories } = await import("../src/landing/components/sections/product-categories/category-showcase-policy.ts");
   const items = Array.from({ length: 9 }, (_, index) => ({ slug: String(index) }));
   assert.deepEqual(selectHomeCategories(items), items.slice(0, 6));
   assert.equal(items.length, 9);
@@ -324,17 +324,19 @@ test("public category image URLs support backend relative paths and external CDN
 });
 test("category updates expire public cache and homepage uses responsive minimum heights", () => {
   const cache = readFileSync("src/cms/features/categories/api/category-cache.ts", "utf8");
-  const section = readFileSync("src/landing/components/sections/product-categories-section.tsx", "utf8");
+  const section = readFileSync("src/landing/components/sections/product-categories/product-categories-section.tsx", "utf8");
   assert.match(cache, /revalidateTag\("catalog-categories", \{ expire: 0 \}\)/);
   assert.match(section, /selectHomeCategories\(categories\)/);
-  assert.match(section, /lg:auto-rows-\[minmax\(300px,1fr\)\]/);
+  assert.match(readFileSync("src/landing/components/sections/product-categories/category-grid.tsx", "utf8"), /lg:auto-rows-\[minmax\(300px,1fr\)\]/);
 });
 
 test("category listing links to unfiltered search next to the product count, not the homepage header", () => {
-  const home = readFileSync("src/landing/components/sections/product-categories-section.tsx", "utf8");
-  const header = home.slice(0, home.indexOf("{loadFailed ?"));
+  const home = readFileSync("src/landing/components/sections/product-categories/product-categories-section.tsx", "utf8");
+  const header = readFileSync("src/landing/components/sections/product-categories/category-section-heading.tsx", "utf8");
+  const footer = readFileSync("src/landing/components/sections/product-categories/category-section-footer.tsx", "utf8");
   assert.doesNotMatch(header, /href=\{routes\.search\}/);
-  assert.match(home, /href=\{routes\.search\}>Xem toàn bộ menu bánh/);
+  assert.match(home, /<CategorySectionFooter \/>/);
+  assert.match(footer, /href=\{routes\.search\}>Xem toàn bộ menu bánh/);
   const toolbar = readFileSync("src/landing/features/catalog/components/listing/catalog-toolbar.tsx", "utf8");
   assert.match(toolbar, /flex min-w-0 items-center justify-between gap-2/);
   assert.match(toolbar, /Hiển thị \{currentCount\} trên \{totalCount\} sản phẩm phù hợp[^]*?href=\{routes\.search\}\s*>\s*Xem tất cả/);
@@ -353,4 +355,32 @@ test("cross-category discovery uses a single responsive gutter matching the cate
   assert.match(discovery, /<section className="w-full bg-surface-container-low">/);
   assert.match(discovery, /mx-auto w-full max-w-\[1360px\] px-gutter py-space-xl lg:px-gutter-desktop/);
   assert.equal((discovery.match(/\bpx-gutter\b(?!-)/g) ?? []).length, 1);
+});
+
+test("homepage category module has equal mobile tracks, full descriptions and staggered reveal", () => {
+  const dir = "src/landing/components/sections/product-categories/";
+  const grid = readFileSync(dir + "category-grid.tsx", "utf8");
+  const card = readFileSync(dir + "category-card.tsx", "utf8");
+  const footer = readFileSync(dir + "category-section-footer.tsx", "utf8");
+  assert.match(grid, /grid-cols-2 auto-rows-\[minmax\(190px,1fr\)\]/);
+  assert.match(grid, /lg:grid-cols-12/);
+  assert.match(grid, /<StaggerReveal/);
+  assert.match(grid, /stagger=\{0\.06\}/);
+  assert.match(grid, /y=\{14\}/);
+  assert.match(card, /\{category\.name\}/);
+  assert.match(card, /\{category\.description\}/);
+  assert.doesNotMatch(card, /padStart|Danh mục Minh Sâm|line-clamp|truncate/);
+  assert.match(footer, /flex-nowrap items-center justify-between/);
+});
+
+test("category bento spans only affect tablet and desktop", async () => {
+  const { categoryLayout } = await import("../src/landing/components/sections/product-categories/category-bento-layout.ts");
+  for (let count = 1; count <= 6; count++) {
+    for (let index = 0; index < count; index++) {
+      const layout = categoryLayout(index, count);
+      assert.doesNotMatch(layout, /(?:^|\s)col-span-/);
+      assert.match(layout, /md:col-span-/);
+      assert.match(layout, /lg:col-span-/);
+    }
+  }
 });

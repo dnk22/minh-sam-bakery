@@ -3,8 +3,8 @@ import { CraftsmanshipSection } from "@/landing/components/sections/craftsmanshi
 import { FinalCtaSection } from "@/landing/components/sections/final-cta-section";
 import { GiftingSection } from "@/landing/components/sections/gifting-section";
 import { HeroSection } from "@/landing/components/sections/hero-section";
-import { selectHomeCategories } from "@/landing/components/sections/category-showcase-policy";
-import { ProductCategoriesSection } from "@/landing/components/sections/product-categories-section";
+import { selectHomeCategories } from "@/landing/components/sections/product-categories/category-showcase-policy";
+import { ProductCategoriesSection } from "@/landing/components/sections/product-categories/product-categories-section";
 import { TrainingTransferSection } from "@/landing/components/sections/training-transfer-section";
 import { getCatalogCategories } from "@/landing/features/catalog/repository";
 import { getPublicLandingBanners } from "@/landing/features/banners/public-banners.server";
