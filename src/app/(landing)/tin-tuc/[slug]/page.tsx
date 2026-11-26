@@ -2,7 +2,6 @@ import { connection } from "next/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { JournalSkeleton } from "@/landing/components/skeletons/landing-skeletons";
 import { LandingDataUnavailable } from "@/landing/components/ui/landing-data-unavailable";
 import { ArticleDetailPage } from "@/landing/features/journal/article-detail-page";
 import { getPublicPost, getRelatedPublicPosts } from "@/landing/features/journal/api";
@@ -56,6 +55,10 @@ async function ArticleContent({ params }: ArticleRouteProps) {
   return <ArticleDetailPage article={article} related={related} />;
 }
 
+function ArticleLoading() {
+  return <main className="min-h-[70vh] animate-pulse bg-surface pt-[var(--landing-header-height)]"><div className="mx-auto max-w-[1100px] px-margin py-16"><div className="mx-auto h-12 w-3/4 rounded bg-surface-container" /><div className="mt-10 h-96 rounded-xl bg-surface-container-low" /></div></main>;
+}
+
 export default function ArticleRoute({ params }: ArticleRouteProps) {
-  return <Suspense fallback={<JournalSkeleton detail />}><ArticleContent params={params} /></Suspense>;
+  return <Suspense fallback={<ArticleLoading />}><ArticleContent params={params} /></Suspense>;
 }

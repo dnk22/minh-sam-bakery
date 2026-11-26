@@ -1,10 +1,9 @@
 import { connection } from "next/server";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { JournalSkeleton } from "@/landing/components/skeletons/landing-skeletons";
 import { redirect } from "next/navigation";
 import { getPublicPosts } from "@/landing/features/journal/api";
-import { JournalListingPage } from "@/landing/features/journal/journal-listing-page";
+import { JournalListingPage, JournalLoadingState } from "@/landing/features/journal/journal-listing-page";
 import { buildJournalPageHref, parseJournalSearchParams } from "@/landing/features/journal/query";
 
 export const metadata: Metadata = {
@@ -25,5 +24,5 @@ async function JournalContent({ searchParams }: JournalRouteProps) {
 }
 
 export default function JournalRoute({ searchParams }: JournalRouteProps) {
-  return <Suspense fallback={<JournalSkeleton />}><JournalContent searchParams={searchParams} /></Suspense>;
+  return <Suspense fallback={<JournalLoadingState />}><JournalContent searchParams={searchParams} /></Suspense>;
 }
