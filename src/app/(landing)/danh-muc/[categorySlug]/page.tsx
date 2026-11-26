@@ -1,6 +1,8 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
+import { LandingDataUnavailable } from "@/landing/components/ui/landing-data-unavailable";
 import { isCatalogQueryCanonical, catalogQueryToSearchParams, parseCatalogQuery, type RawSearchParams } from "@/landing/features/catalog/query";
 import { getCatalogCategories, getCatalogCategory, getCatalogPage, getCrossCategoryProducts } from "@/landing/features/catalog/repository";
 import { reportCatalogError } from "@/landing/features/catalog/diagnostics";
@@ -16,11 +18,12 @@ type CategoryRouteProps = {
 export const instant = false;
 
 export async function generateMetadata({ params }: CategoryRouteProps): Promise<Metadata> {
+  await connection();
   const { categorySlug } = await params;
-  const category = await getCatalogCategory(categorySlug).catch((error) => {
-    reportCatalogError("categories", "/api/v1/public/categories", error);
-    throw error;
-  });
+  const category = await loadCatalogPageOnce(
+    () => getCatalogCategory(categorySlug),
+    (error) => reportCatalogError("categories", "/api/v1/public/categories", error),
+  );
   if (!category) return {};
   const title = category.seoTitle || `${category.name} | Minh Sâm Bakery`;
   const description = category.seoDescription || category.description || `Khám phá ${category.name} tại Minh Sâm Bakery.`;
@@ -33,11 +36,12 @@ export async function generateMetadata({ params }: CategoryRouteProps): Promise<
 }
 
 export default async function CategoryRoute({ params, searchParams }: CategoryRouteProps) {
+  await connection();
   const [{ categorySlug }, rawSearchParams] = await Promise.all([params, searchParams]);
-  const categories = await getCatalogCategories().catch((error) => {
-    reportCatalogError("categories", "/api/v1/public/categories", error);
-    throw error;
-  });
+  const categories = await loadCatalogPageOnce(getCatalogCategories, (error) =>
+    reportCatalogError("categories", "/api/v1/public/categories", error),
+  );
+  if (categories === null) return <LandingDataUnavailable title="Chưa thể tải danh mục" />;
   const category = await getCatalogCategory(categorySlug, categories);
   if (!category) notFound();
 

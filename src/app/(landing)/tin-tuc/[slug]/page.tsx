@@ -1,6 +1,8 @@
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { LandingDataUnavailable } from "@/landing/components/ui/landing-data-unavailable";
 import { ArticleDetailPage } from "@/landing/features/journal/article-detail-page";
 import { getPublicPost, getRelatedPublicPosts } from "@/landing/features/journal/api";
 import { journalSeoValues } from "@/landing/features/journal/seo";
@@ -17,8 +19,15 @@ async function loadPublicArticle(slug: string) {
 }
 
 export async function generateMetadata({ params }: ArticleRouteProps): Promise<Metadata> {
+  await connection();
   const { slug } = await params;
-  const article = await loadPublicArticle(slug);
+  let article: Awaited<ReturnType<typeof loadPublicArticle>>;
+  try {
+    article = await loadPublicArticle(slug);
+  } catch (error) {
+    if (!(error instanceof ApiClientError)) throw error;
+    return {};
+  }
   if (!article || article.status !== "PUBLISHED") notFound();
   const seo = journalSeoValues(article);
   const image = article.thumbnailUrl ? [{ url: article.thumbnailUrl, alt: article.title }] : undefined;
@@ -32,8 +41,15 @@ export async function generateMetadata({ params }: ArticleRouteProps): Promise<M
 }
 
 async function ArticleContent({ params }: ArticleRouteProps) {
+  await connection();
   const { slug } = await params;
-  const article = await loadPublicArticle(slug);
+  let article: Awaited<ReturnType<typeof loadPublicArticle>>;
+  try {
+    article = await loadPublicArticle(slug);
+  } catch (error) {
+    if (!(error instanceof ApiClientError)) throw error;
+    return <LandingDataUnavailable title="Chưa thể mở bài viết" />;
+  }
   if (!article || article.status !== "PUBLISHED") notFound();
   const related = await getRelatedPublicPosts(article.slug, 3).catch(() => []);
   return <ArticleDetailPage article={article} related={related} />;
