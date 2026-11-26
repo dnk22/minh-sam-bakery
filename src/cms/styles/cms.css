@@ -183,11 +183,47 @@ body:has(.cms-root) {
   height: 6px;
 }
 
-.cms-root button:not(:disabled),
-.cms-root [role="button"]:not([aria-disabled="true"]),
-.cms-portal button:not(:disabled),
-.cms-portal [role="button"]:not([aria-disabled="true"]) {
+/* Scope interaction affordances to CMS, including portalled Radix controls.
+   Keep text inputs and non-interactive content on their native cursors. */
+:where(.cms-root, .cms-portal) :is(
+  button,
+  a[href],
+  select,
+  summary,
+  input:is([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="file"], [type="color"]),
+  [role="button"],
+  [role="link"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="option"],
+  [role="tab"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="switch"],
+  label:has(input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled))
+):not(:disabled):not([aria-disabled="true"]):not([data-disabled]) {
   cursor: pointer;
+}
+
+:where(.cms-root, .cms-portal) :is(
+  button,
+  a[href],
+  select,
+  input:is([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="file"], [type="color"]),
+  [role="button"],
+  [role="link"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="option"],
+  [role="tab"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="switch"],
+  label:has(input:is([type="checkbox"], [type="radio"], [type="file"]):disabled)
+):is(:disabled, [aria-disabled="true"], [data-disabled], label:has(input:disabled)) {
+  cursor: not-allowed;
 }
 
 .cms-shell {
@@ -600,9 +636,9 @@ body:has(.cms-root) {
 
 .cms-main {
   width: 100%;
-  max-width: 80rem;
+  max-width: none;
   margin-inline: auto;
-  padding: 1.25rem;
+  padding: 24px;
 }
 .cms-main--fluid {
   max-width: none;
@@ -1270,9 +1306,6 @@ body:has(.cms-root) {
   }
   .cms-header-context .cms-breadcrumb-item:not(:last-child) {
     display: none;
-  }
-  .cms-main {
-    padding: 1rem;
   }
   .cms-main--fixed {
     height: calc(100dvh - 4rem);
