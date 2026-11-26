@@ -11,8 +11,8 @@ export function CrossCategoryDiscovery({ products }: { products: CatalogProduct[
     .slice(0, 3);
 
   return (
-    <section className="w-full bg-surface-container-low px-gutter py-space-xl lg:px-gutter-desktop">
-      <div className="mx-auto max-w-[1360px] px-gutter lg:px-gutter-desktop">
+    <section className="w-full bg-surface-container-low">
+      <div className="mx-auto w-full max-w-[1360px] px-gutter py-space-xl lg:px-gutter-desktop">
         <div className="mb-space-lg">
           <h2 className="font-headline-lg text-headline-md text-primary lg:text-headline-lg">
             Khám phá thêm hương vị
