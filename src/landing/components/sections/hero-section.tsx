@@ -26,25 +26,12 @@ export function HeroSection({ banners = [] }: { banners?: LandingBanner[] }) {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-transparent" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary via-transparent to-primary/60" />
       </div>
-      <Reveal
-        className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between pt-0 lg:pt-6"
-        delay={0.02}
-        enterOnMount
-        y={12}
-      >
-        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-          <span className="size-2 shrink-0 rounded-full bg-secondary-fixed" />
-          <span className="font-label-eyebrow text-[10px] uppercase tracking-[0.2em] text-secondary-fixed-dim sm:text-label-eyebrow sm:tracking-[0.25em]">
-            Hà Nội • Hương vị di sản
-          </span>
-        </div>
-      </Reveal>
       <div className="relative z-10 mx-auto my-auto grid w-full max-w-7xl grid-cols-1 gap-6 py-6 sm:py-8 lg:grid-cols-12 lg:gap-8 lg:py-12">
         <div className="flex flex-col justify-center lg:col-span-8">
           <Reveal delay={0.08} enterOnMount y={16}>
             <div className="mb-3 inline-flex max-w-full items-center gap-2 sm:mb-4">
-              <span className="rounded lg:bg-primary-container/80 px-2.5 py-1 font-label-eyebrow text-[10px] uppercase tracking-[0.2em] text-secondary-fixed sm:px-3 sm:text-label-eyebrow sm:tracking-[0.3em]">
-                Minh Sâm Bakery • Thương hiệu bánh thủ công Hà Nội
+              <span className="rounded lg:bg-primary-container/80 px-2.5 py-1 font-label-eyebrow text-[12px] uppercase tracking-[0.2em] text-secondary-fixed sm:px-3 sm:text-label-eyebrow sm:tracking-[0.3em]">
+                Minh Sâm Bakery
               </span>
             </div>
           </Reveal>

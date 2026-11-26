@@ -31,7 +31,7 @@ export function SearchResultsToolbar({
     <div className="mb-space-lg flex flex-col justify-between gap-space-md rounded-xl bg-surface-container-lowest p-space-md shadow-sm md:flex-row md:items-center">
       <div className="flex min-w-0 flex-col gap-space-sm">
         <span className="font-body-md text-body-md font-semibold text-primary">
-          Hiển thị {currentCount} trên {totalCount} sản phẩm phù hợp
+          Hiển thị {currentCount} trên {totalCount} sản phẩm
         </span>
         {chips.length > 0 && (
           <div className="flex flex-wrap items-center gap-space-xs">

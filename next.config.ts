@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  allowedDevOrigins: ['192.154.19.102'],
   turbopack: {
     rules: {
       // Tailwind is authored only in the app-level global stylesheet. Running

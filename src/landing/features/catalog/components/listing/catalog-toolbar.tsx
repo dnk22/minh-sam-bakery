@@ -29,7 +29,7 @@ export function CatalogToolbar({
     <div className="mb-space-lg flex flex-col gap-space-xs rounded-xl bg-surface-container-lowest p-3 shadow-sm sm:p-space-md">
       <div className="flex min-w-0 items-center justify-between gap-2">
         <span className="min-w-0 font-body-md text-sm font-semibold text-primary sm:text-body-md">
-          Hiển thị {currentCount} trên {totalCount} sản phẩm phù hợp
+          {currentCount !== totalCount && currentCount !== 0 && `Hiển thị ${currentCount} trên ${totalCount} sản phẩm`}
         </span>
         <Link
           className="group inline-flex min-h-11 shrink-0 items-center gap-1 whitespace-nowrap rounded font-label-ui text-xs font-medium text-primary transition-colors hover:text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:gap-2 sm:text-label-ui"
