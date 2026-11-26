@@ -329,3 +329,12 @@ test("category updates expire public cache and homepage uses responsive minimum 
   assert.match(section, /selectHomeCategories\(categories\)/);
   assert.match(section, /lg:auto-rows-\[minmax\(300px,1fr\)\]/);
 });
+
+test("homepage category section links to unfiltered global search above the category grid", () => {
+  const section = readFileSync("src/landing/components/sections/product-categories-section.tsx", "utf8");
+  const header = section.slice(0, section.indexOf("{loadFailed ?"));
+  assert.match(header, /href=\{routes\.search\}\s*>\s*Xem tất cả/);
+  assert.match(header, /justify-self-end/);
+  assert.equal((section.match(/href=\{routes\.search\}/g) ?? []).length, 1);
+  assert.match(readFileSync("src/landing/lib/routes.ts", "utf8"), /search: "\/tim-kiem"/);
+});
