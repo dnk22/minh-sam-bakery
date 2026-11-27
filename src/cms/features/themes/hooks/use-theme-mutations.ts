@@ -1,5 +1,7 @@
 "use client";
 
+import { blockingMutationOptions } from "@/cms/lib/blocking-mutation-options";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { notify } from "@/cms/lib/notifications";
@@ -16,17 +18,17 @@ export function useThemeMutations() {
     ]);
   };
   return {
-    create: useMutation({ meta: { pageLoading: true },
+    create: useMutation({ ...blockingMutationOptions,
       mutationFn: createTheme,
       onSuccess: async (theme) => { await refresh(theme.id); notify.success("Đã tạo theme nháp."); },
       onError: () => notify.error("Không thể tạo theme. Vui lòng kiểm tra thông tin."),
     }),
-    update: useMutation({ meta: { pageLoading: true },
+    update: useMutation({ ...blockingMutationOptions,
       mutationFn: ({ id, input }: { id: string; input: ThemePatchInput }) => updateTheme(id, input),
       onSuccess: async (theme) => { await refresh(theme.id); notify.success("Đã cập nhật theme."); },
       onError: () => notify.error("Không thể cập nhật theme."),
     }),
-    remove: useMutation({ meta: { pageLoading: true },
+    remove: useMutation({ ...blockingMutationOptions,
       mutationFn: deleteTheme,
       onSuccess: async (result) => { await refresh(result.id); notify.success("Đã xóa theme."); },
       onError: () => notify.error("Không thể xóa theme."),

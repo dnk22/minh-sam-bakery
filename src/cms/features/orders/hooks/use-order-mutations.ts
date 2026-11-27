@@ -1,5 +1,7 @@
 "use client";
 
+import { blockingMutationOptions } from "@/cms/lib/blocking-mutation-options";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { notify } from "@/cms/lib/notifications";
@@ -11,7 +13,7 @@ import type { UpdateOrderStatusInput } from "../types";
 export function useOrderMutations() {
   const client = useQueryClient();
   return {
-    updateStatus: useMutation({ meta: { pageLoading: true },
+    updateStatus: useMutation({ ...blockingMutationOptions,
       mutationFn: ({ id, status }: { id: string; status: UpdateOrderStatusInput["status"] }) => updateOrderStatus(id, { status }),
       onSuccess: async (order) => {
         client.setQueryData(orderQueryKeys.detail(order.id), order);

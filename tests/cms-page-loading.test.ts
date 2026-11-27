@@ -7,10 +7,13 @@ const read = (path: string) => readFileSync(path, "utf8");
 test("CMS blocking mutation opt-in excludes notifications and queries", () => {
   for (const [name, hook] of [["users","user-mutations"],["roles","role-mutations"],["posts","post-mutations"],["themes","theme-mutations"],["themes","theme-activation"],["orders","order-mutations"],["banners","banner-mutations"],["products","product-mutations"],["categories","category-mutations"],["system-configs","system-config-mutations"]]) {
     const source = read(`src/cms/features/${name}/hooks/use-${hook}.ts`);
-    assert.ok(source.includes("meta: { pageLoading: true }"), hook);
-    assert.equal((source.match(/useMutation\(\{/g) ?? []).length, (source.match(/meta: \{ pageLoading: true \}/g) ?? []).length, hook);
+    assert.ok(source.includes("...blockingMutationOptions"), hook);
+    assert.equal((source.match(/useMutation\(\{/g) ?? []).length, (source.match(/\.\.\.blockingMutationOptions/g) ?? []).length, hook);
   }
-  assert.doesNotMatch(read("src/cms/features/notification-center/hooks/use-notification-mutations.ts"), /pageLoading/);
+  assert.doesNotMatch(read("src/cms/features/notification-center/hooks/use-notification-mutations.ts"), /pageLoading|blockingMutationOptions/);
+  const policy = read("src/cms/lib/blocking-mutation-options.ts");
+  assert.match(policy, /meta: \{ pageLoading: true \}/);
+  assert.match(policy, /networkMode: "always"/);
   assert.match(read("src/cms/providers/cms-mutation-loading.tsx"), /mutation.state.status === "pending"/);
 });
 
