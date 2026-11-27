@@ -20,7 +20,7 @@ import styles from "./products-toolbar.module.css";
 
 const parseBoolean = (value: string) => value === "true" ? true : value === "false" ? false : undefined;
 
-export function ProductsToolbar({ filters }: { filters: ProductFilters }) {
+export function ProductsToolbar({ filters, fetching }: { filters: ProductFilters; fetching?: boolean }) {
   const draft = useToolbarDraft({ search: filters.search, status: filters.status, categoryId: filters.categoryId, isFeatured: filters.isFeatured, isBestSeller: filters.isBestSeller });
   const apply = () => filters.applyFilters(draft.values);
   const clearAll = () => { draft.reset({ search: "", status: undefined, categoryId: undefined, isFeatured: undefined, isBestSeller: undefined }); filters.clearFilters(); };
@@ -34,7 +34,7 @@ export function ProductsToolbar({ filters }: { filters: ProductFilters }) {
   ];
   const advancedCount = countProductAdvancedFilters(draft.values);
 
-  return <CmsToolbar
+  return <CmsToolbar fetching={fetching}
     label="Bộ lọc sản phẩm"
     search={<CmsInput aria-label="Tìm kiếm sản phẩm" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />}  onChange={(event) => draft.set("search", event.target.value)}  placeholder="Tìm theo tên hoặc SKU" type="search" value={draft.values.search} />}
     filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc sản phẩm" onClear={clearAdvanced} onApply={apply}>

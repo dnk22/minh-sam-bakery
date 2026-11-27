@@ -62,7 +62,7 @@ export function CategoriesPage() {
           <Plus aria-hidden="true" size={17} /> Thêm danh mục
         </CmsButton>
       </header>
-      <CategoriesToolbar filters={filters} />
+      <CategoriesToolbar filters={filters} fetching={listQuery.isFetching} />
       <CategoriesCollection
         filters={filters}
         listQuery={listQuery}

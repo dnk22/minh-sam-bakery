@@ -1,5 +1,6 @@
 "use client";
 
+import { withPageLoading } from "@/shared/stores/page-loading.store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 
@@ -15,7 +16,7 @@ export function useLogout() {
     setPending(true);
     setError(null);
     try {
-      const result = await authApi.logout();
+      const result = await withPageLoading(() => authApi.logout());
       if (result.localSessionCleared) {
         queryClient.clear();
         window.location.replace(result.revoked ? "/cms/login?notice=logout" : "/cms/login?notice=logout-local");

@@ -1,5 +1,7 @@
 "use client";
 
+import { blockingMutationOptions } from "@/cms/lib/blocking-mutation-options";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { notify } from "@/cms/lib/notifications";
@@ -15,8 +17,8 @@ export function useSystemConfigMutations() {
     id ? client.invalidateQueries({ queryKey: systemConfigQueryKeys.detail(id) }) : Promise.resolve(),
   ]);
   return {
-    create: useMutation({ mutationFn: (input: CreateSystemConfigInput) => createSystemConfig(input), onSuccess: async (config) => { await invalidate(config.id); notify.success("Đã thêm cấu hình hệ thống.", "system-config-save"); }, onError: () => notify.error("Không thể thêm cấu hình. Vui lòng thử lại.", "system-config-save") }),
-    update: useMutation({ mutationFn: ({ id, input }: { id: string; input: UpdateSystemConfigInput }) => updateSystemConfig(id, input), onSuccess: async (config) => { await invalidate(config.id); notify.success("Đã cập nhật cấu hình hệ thống.", "system-config-save"); }, onError: () => notify.error("Không thể cập nhật cấu hình. Vui lòng thử lại.", "system-config-save") }),
-    remove: useMutation({ mutationFn: deleteSystemConfig, onSuccess: async (result) => { await invalidate(result.id); client.removeQueries({ queryKey: systemConfigQueryKeys.detail(result.id) }); notify.success("Đã xóa cấu hình hệ thống.", "system-config-delete"); }, onError: () => notify.error("Không thể xóa cấu hình. Vui lòng thử lại.", "system-config-delete") }),
+    create: useMutation({ ...blockingMutationOptions, mutationFn: (input: CreateSystemConfigInput) => createSystemConfig(input), onSuccess: async (config) => { await invalidate(config.id); notify.success("Đã thêm cấu hình hệ thống.", "system-config-save"); }, onError: () => notify.error("Không thể thêm cấu hình. Vui lòng thử lại.", "system-config-save") }),
+    update: useMutation({ ...blockingMutationOptions, mutationFn: ({ id, input }: { id: string; input: UpdateSystemConfigInput }) => updateSystemConfig(id, input), onSuccess: async (config) => { await invalidate(config.id); notify.success("Đã cập nhật cấu hình hệ thống.", "system-config-save"); }, onError: () => notify.error("Không thể cập nhật cấu hình. Vui lòng thử lại.", "system-config-save") }),
+    remove: useMutation({ ...blockingMutationOptions, mutationFn: deleteSystemConfig, onSuccess: async (result) => { await invalidate(result.id); client.removeQueries({ queryKey: systemConfigQueryKeys.detail(result.id) }); notify.success("Đã xóa cấu hình hệ thống.", "system-config-delete"); }, onError: () => notify.error("Không thể xóa cấu hình. Vui lòng thử lại.", "system-config-delete") }),
   };
 }

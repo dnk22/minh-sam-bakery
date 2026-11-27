@@ -43,13 +43,13 @@ export function ThemesCollection({ filters, listQuery, onDetail, onDuplicate, on
             {item.isActive ? "Đang hoạt động" : themeConfigStatus(item).valid ? "Nháp" : "Legacy / lỗi"}
           </CmsBadge>
         </span>}
-      loading={listQuery.isLoading}
+      loading={listQuery.isLoading || (listQuery.isFetching && listQuery.isPlaceholderData)}
       error={listQuery.error?.message}
       onRetry={() => listQuery.refetch()}
       isFiltered={filters.isFiltered}
       emptyState="Chưa có theme. Hãy tạo một giao diện nháp đầu tiên."
       filteredEmptyState="Không tìm thấy giao diện phù hợp."
-      pagination={data ? { meta: data.pagination, onPageChange: filters.setPage } : undefined}
+      pagination={data && !listQuery.isPlaceholderData ? { meta: data.pagination, onPageChange: filters.setPage } : undefined}
     />
   );
 }

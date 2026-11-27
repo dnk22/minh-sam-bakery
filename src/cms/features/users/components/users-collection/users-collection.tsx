@@ -27,10 +27,10 @@ export function UsersCollection({ filters, listQuery, ...actions }: UserActionHa
     getItemLabel={(item) => `Xem tài khoản ${item.fullName}`}
     getRowId={(item) => item.id}
     isFiltered={filters.isFiltered}
-    loading={listQuery.isLoading}
+    loading={listQuery.isLoading || (listQuery.isFetching && listQuery.isPlaceholderData)}
     onItemClick={actions.onDetail}
     onRetry={() => listQuery.refetch()}
-    pagination={list ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
+    pagination={list && !listQuery.isPlaceholderData ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
     renderAccessory={(item) => { const status = getUserStatusPresentation(item.status); return <CmsBadge variant={status.variant}>{status.label}</CmsBadge>; }}
     renderItem={(item) => <UserListItem user={item} />}
   />;

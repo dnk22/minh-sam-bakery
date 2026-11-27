@@ -1,6 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CmsMutationLoading } from "./cms-mutation-loading";
 import { CmsApiError } from "@/cms/lib/api/errors";
 import { useState, type ReactNode } from "react";
 
@@ -20,5 +21,5 @@ export function CmsQueryProvider({ children }: { children: ReactNode }) {
       }),
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return <QueryClientProvider client={queryClient}><CmsMutationLoading />{children}</QueryClientProvider>;
 }

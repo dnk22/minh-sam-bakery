@@ -34,7 +34,7 @@ export function UsersPage() {
       <div><h1>Tài khoản</h1><p>Quản lý tài khoản CMS, vai trò và trạng thái truy cập.</p></div>
       <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm tài khoản</CmsButton>
     </header>
-    <UsersToolbar filters={filters} />
+    <UsersToolbar filters={filters} fetching={listQuery.isFetching} />
     <UsersCollection filters={filters} listQuery={listQuery} {...collectionActions} />
     <UserModal state={modal} currentUserId={currentUserId} onStateChange={setModal} onAction={openAction} />
     <UserActionDialog

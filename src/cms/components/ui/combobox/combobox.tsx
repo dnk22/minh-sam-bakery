@@ -4,6 +4,7 @@ import { Check, ChevronDown, Search } from "lucide-react";
 import { useId, useRef, useState, type ComponentPropsWithRef } from "react";
 import { useController, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 
+import { useToolbarPending } from "@/cms/components/toolbar/toolbar-pending-context";
 import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
 import { CmsPopover, CmsPopoverContent, CmsPopoverTrigger } from "@/cms/components/ui/popover";
 import { filterSelectOptions } from "@/cms/components/ui/select/select-options";
@@ -32,7 +33,7 @@ export function CmsCombobox({
   className,
   containerClassName,
   controlSize = "default",
-  disabled,
+  disabled: disabledProp,
   emptyMessage = "Không tìm thấy kết quả",
   id,
   invalid,
@@ -45,6 +46,8 @@ export function CmsCombobox({
   value,
   ...triggerProps
 }: CmsComboboxProps) {
+  const { pending } = useToolbarPending();
+  const disabled = disabledProp || pending;
   const field = useCmsFormFieldControl({ id, describedBy, invalid, ariaInvalid });
   const generatedId = useId();
   const listId = `${field.controlId ?? generatedId}-options`;
@@ -55,10 +58,12 @@ export function CmsCombobox({
   const matches = filterSelectOptions(options, search);
   const chosen = options.find((option) => option.value === value);
   const pick = (next: string) => {
+    if (disabled) return;
     if (next !== value) onValueChange(next);
     setOpen(false);
   };
   const onOpenChange = (next: boolean) => {
+    if (disabled && next) return;
     setOpen(next);
     if (next) { setSearch(""); setActiveIndex(Math.max(0, options.findIndex((option) => !option.disabled))); }
   };
@@ -72,7 +77,7 @@ export function CmsCombobox({
   };
 
   return (
-    <CmsPopover open={open} onOpenChange={onOpenChange}>
+    <CmsPopover open={!disabled && open} onOpenChange={onOpenChange}>
       <span className={cn(styles.root, containerClassName)} data-size={controlSize} data-invalid={field.invalid || undefined}>
         {name ? <input name={name} type="hidden" value={value} disabled={disabled} /> : null}
         <CmsPopoverTrigger asChild>
@@ -80,7 +85,7 @@ export function CmsCombobox({
             {...triggerProps}
             aria-controls={listId}
             aria-describedby={field.describedBy}
-            aria-expanded={open}
+            aria-expanded={!disabled && open}
             aria-invalid={field.invalid || undefined}
             aria-label={ariaLabel}
             aria-required={required || undefined}
@@ -113,7 +118,7 @@ export function CmsCombobox({
               ref={inputRef}
               role="combobox"
               aria-controls={listId}
-              aria-expanded={open}
+              aria-expanded={!disabled && open}
               value={search}
             />
           </div>

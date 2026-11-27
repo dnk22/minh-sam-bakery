@@ -44,7 +44,7 @@ export function ThemesPage() {
           <Plus aria-hidden="true" size={17} /> Thêm theme
         </CmsButton>
       </header>
-      <ThemesToolbar filters={filters} />
+      <ThemesToolbar filters={filters} fetching={query.isFetching} />
       <ThemesCollection filters={filters} listQuery={query} onDetail={onDetail} onDuplicate={onDuplicate} onDelete={setDeleteTarget} onActivate={onActivate} />
       <p className={styles.note}>Có thể xem trước Landing và kích hoạt theme tại đây. Theme đang hoạt động không thể chỉnh sửa trực tiếp.</p>
       <ThemeModal state={modal} onStateChange={setModal} onDelete={setDeleteTarget} onActivate={onActivate} />

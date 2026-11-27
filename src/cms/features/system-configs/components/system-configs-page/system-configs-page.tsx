@@ -29,7 +29,7 @@ export function SystemConfigsPage() {
         <div><h1>Cấu hình hệ thống</h1><p>Quản lý các giá trị cấu hình dùng chung của hệ thống.</p></div>
         <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm cấu hình</CmsButton>
       </header>
-      <SystemConfigsToolbar filters={filters} />
+      <SystemConfigsToolbar filters={filters} fetching={listQuery.isFetching} />
       <SystemConfigsCollection filters={filters} listQuery={listQuery} onDetail={openDetail} onDelete={setDeleteTarget} />
       <SystemConfigModal state={modal} onStateChange={setModal} onDelete={setDeleteTarget} />
       <SystemConfigDeleteDialog config={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={() => {

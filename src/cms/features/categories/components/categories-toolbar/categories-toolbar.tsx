@@ -19,14 +19,14 @@ const CATEGORY_VIEW_OPTIONS = [
   { value: "tree", label: "Dạng cây", icon: <TreePine aria-hidden="true" size={16} /> },
 ] as const;
 
-export function CategoriesToolbar({ filters }: { filters: CategoryFilters }) {
+export function CategoriesToolbar({ filters, fetching }: { filters: CategoryFilters; fetching?: boolean }) {
   const draft = useToolbarDraft({ search: filters.search, status: filters.status });
   const apply = () => filters.applyFilters(draft.values);
   const clearAll = () => { draft.reset({ search: "", status: undefined }); filters.clearFilters(); };
   const clearAdvanced = () => { const next = { search: filters.search, status: undefined }; draft.reset(next); filters.applyFilters(next); };
   const advancedCount = countCategoryAdvancedFilters(draft.values.status);
 
-  return <CmsToolbar
+  return <CmsToolbar fetching={fetching}
     label="Bộ lọc danh mục"
     search={<CmsInput aria-label="Tìm kiếm danh mục" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />}  onChange={(event) => draft.set("search", event.target.value)}  placeholder="Tìm theo tên hoặc slug" type="search" value={draft.values.search} />}
     filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc danh mục" onClear={clearAdvanced} onApply={apply}>

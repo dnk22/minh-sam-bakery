@@ -33,10 +33,10 @@ export function OrdersCollection({ view, filters, listQuery, onDetail, onAction 
     getItemLabel={(item) => `Xem đơn hàng ${item.id}`}
     getRowId={(item) => item.id}
     isFiltered={filters.isFiltered}
-    loading={listQuery.isLoading}
+    loading={listQuery.isLoading || (listQuery.isFetching && listQuery.isPlaceholderData)}
     onItemClick={onDetail}
     onRetry={() => listQuery.refetch()}
-    pagination={list ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
+    pagination={list && !listQuery.isPlaceholderData ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
     renderAccessory={(item) => { const status = getOrderStatusPresentation(item.status); return <CmsBadge variant={status.variant}>{status.label}</CmsBadge>; }}
     renderItem={(item) => <OrderListItem order={item} />}
   />;

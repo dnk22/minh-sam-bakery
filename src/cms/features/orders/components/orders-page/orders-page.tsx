@@ -74,7 +74,7 @@ export function OrdersPage({ view }: { view: OrderView }) {
         <RefreshCw aria-hidden="true" size={17} /> {listQuery.isFetching ? "Đang tải…" : "Làm mới"}
       </CmsButton>
     </header>
-    <OrdersToolbar filters={filters} />
+    <OrdersToolbar filters={filters} fetching={listQuery.isFetching} />
     <OrdersCollection view={view} filters={filters} listQuery={listQuery} onDetail={openDetail} onAction={openAction} />
     <OrderModal key={modal?.id ?? "closed"} view={view} state={modal} onStateChange={changeModal} />
   </CmsMain>;

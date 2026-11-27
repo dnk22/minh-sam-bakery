@@ -11,12 +11,12 @@ import { THEME_STATUS_OPTIONS } from "../../constants";
 import type { ThemeFilters } from "../../hooks/use-theme-filters";
 import styles from "./themes-toolbar.module.css";
 
-export function ThemesToolbar({ filters }: { filters: ThemeFilters }) {
+export function ThemesToolbar({ filters, fetching }: { filters: ThemeFilters; fetching?: boolean }) {
   const draft = useToolbarDraft({ search: filters.search, isActive: filters.isActive });
   const apply = () => filters.applyFilters(draft.values);
   const clearAll = () => { draft.reset({ search: "", isActive: undefined }); filters.clear(); };
   const clearAdvanced = () => { const next = { search: filters.search, isActive: undefined }; draft.reset(next); filters.applyFilters(next); };
-  return <CmsToolbar label="Bộ lọc giao diện website" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
+  return <CmsToolbar fetching={fetching} label="Bộ lọc giao diện website" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
     search={<CmsInput aria-label="Tìm theo tên hoặc mã theme" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm tên hoặc mã theme..." type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
     filters={<CmsFilterGroup layout="toolbar"
         activeCount={Number(draft.values.isActive !== undefined)}

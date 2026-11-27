@@ -15,7 +15,7 @@ import type { UserFilters } from "../../hooks/use-user-filters";
 import { countUserAdvancedFilters } from "../../lib/user-filter-data";
 import styles from "./users-toolbar.module.css";
 
-export function UsersToolbar({ filters }: { filters: UserFilters }) {
+export function UsersToolbar({ filters, fetching }: { filters: UserFilters; fetching?: boolean }) {
   const draft = useToolbarDraft({ search: filters.search, status: filters.status, roleId: filters.roleId });
   const apply = () => filters.applyFilters(draft.values);
   const clearAll = () => { draft.reset({ search: "", status: undefined, roleId: undefined }); filters.clearFilters(); };
@@ -27,7 +27,7 @@ export function UsersToolbar({ filters }: { filters: UserFilters }) {
   ];
   const advancedCount = countUserAdvancedFilters(draft.values.status, draft.values.roleId);
 
-  return <CmsToolbar label="Bộ lọc tài khoản" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
+  return <CmsToolbar fetching={fetching} label="Bộ lọc tài khoản" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
     search={<CmsInput aria-label="Tìm kiếm tài khoản" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo tên hoặc email" type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
     filters={<CmsFilterGroup layout="toolbar" activeCount={advancedCount} label="Bộ lọc tài khoản" onClear={clearAdvanced} onApply={apply}>
         <CmsSelect aria-label="Lọc theo trạng thái" containerClassName={styles.select} controlSize="sm" options={USER_STATUS_FILTER_OPTIONS} value={draft.values.status ?? ""} onChange={(event) => draft.set("status", event.target.value === "ACTIVE" || event.target.value === "LOCKED" ? event.target.value : undefined)} />

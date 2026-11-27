@@ -1,4 +1,5 @@
 "use client";
+import { pageLoading } from "@/shared/stores/page-loading.store";
 import { useCmsConfirm } from "@/cms/context/cms-confirm";
 
 
@@ -44,6 +45,7 @@ export function QrPaymentModal({ config, onClose, onSaved, onConflict }: {
     }
     submitting.current = true;
     setChecking(true);
+    const releaseLoading = pageLoading.begin();
     try {
       const matches = await fetchQrPayment();
       if ((!config && matches.length !== 0) || (config && (matches.length !== 1 || matches[0].id !== config.id || matches[0].updatedAt !== config.updatedAt || matches[0].value !== config.value))) {
@@ -60,7 +62,7 @@ export function QrPaymentModal({ config, onClose, onSaved, onConflict }: {
         onConflict();
         form.setError("root.server", { message: "Cấu hình đã tồn tại hoặc vừa thay đổi. Hãy mở lại biểu mẫu." });
       } else form.setError("root.server", { message: error instanceof Error ? error.message : "Không thể lưu thông tin QR." });
-    } finally { submitting.current = false; setChecking(false); }
+    } finally { releaseLoading(); submitting.current = false; setChecking(false); }
   };
   const submit = (event: FormEvent<HTMLFormElement>) => { void form.handleSubmit(save, onInvalid)(event); };
 

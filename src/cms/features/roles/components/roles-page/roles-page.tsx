@@ -30,7 +30,7 @@ export function RolesPage() {
         <div><h1>Vai trò &amp; phân quyền</h1><p>Quản lý vai trò và quyền truy cập của tài khoản quản trị.</p></div>
         <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm vai trò</CmsButton>
       </header>
-      <RolesToolbar filters={filters} />
+      <RolesToolbar filters={filters} fetching={listQuery.isFetching} />
       <RolesCollection filters={filters} listQuery={listQuery} onDetail={openDetail} onDelete={setDeleteTarget} />
       <RoleModal state={modal} onStateChange={setModal} onDelete={setDeleteTarget} />
       <RoleDeleteDialog
