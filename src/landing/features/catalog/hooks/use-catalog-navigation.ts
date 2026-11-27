@@ -1,5 +1,6 @@
 "use client";
 
+import { useListNavigation } from "@/landing/hooks/use-list-navigation";
 import { useRouter } from "next/navigation";
 
 import { catalogQueryToSearchParams, updateCatalogQuery, type CatalogQuery } from "../query";
@@ -7,15 +8,18 @@ import { catalogQueryToSearchParams, updateCatalogQuery, type CatalogQuery } fro
 /** URL is the authoritative state for category search and pagination. */
 export function useCatalogNavigation(basePath: string, query: CatalogQuery, anchor = "") {
   const router = useRouter();
+  const { pending, run } = useListNavigation();
 
   const navigate = (next: CatalogQuery) => {
     const params = catalogQueryToSearchParams(next);
-    router.push(`${basePath}${params.size ? `?${params}` : ""}${anchor}`, { scroll: false });
+    if (params.toString() === catalogQueryToSearchParams(query).toString()) return;
+    run(() => router.push(`${basePath}${params.size ? `?${params}` : ""}${anchor}`, { scroll: false }));
   };
 
   return {
+    pending,
     change: (patch: Partial<CatalogQuery>) => navigate(updateCatalogQuery(query, patch)),
     reset: () => navigate({ q: "", page: 1 }),
-    retry: () => router.refresh(),
+    retry: () => run(() => router.refresh()),
   };
 }

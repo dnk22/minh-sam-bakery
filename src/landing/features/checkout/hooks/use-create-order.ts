@@ -1,4 +1,5 @@
 "use client";
+import { withPageLoading } from "@/shared/stores/page-loading.store";
 import { useReducer, useRef } from "react";
 import type { CreateOrderInput, Order } from "@/lib/contracts/order/order.types";
 import { createOrder, CheckoutSubmitError } from "../api/checkout.client";
@@ -28,7 +29,7 @@ export function useCreateOrder(sessionId: string | null) {
 
     let order: Order;
     try {
-      order = await createOrder(input);
+      order = await withPageLoading(() => createOrder(input));
     } catch (caught) {
       const uncertain = !(caught instanceof CheckoutSubmitError) || caught.uncertain;
       if (!uncertain) clearCheckoutSessionPending(sessionId);

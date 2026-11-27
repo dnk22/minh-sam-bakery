@@ -49,7 +49,7 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
   const effectivePaymentMethod = draft.fulfillmentMethod === "delivery" && qrReady ? "BANK_TRANSFER"
     : draft.fulfillmentMethod === "pickup" && paymentQr.status === "unavailable" ? "AT_STORE" : draft.paymentMethod;
   const effectiveDraft = { ...draft, paymentMethod: effectivePaymentMethod };
-  const paymentBlocked = !qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery");
+  const paymentBlocked = paymentQr.status === "loading" || (!qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery"));
   const cartHydrated = useCartHydrated();
   const today = localCalendarDate();
 
@@ -104,8 +104,9 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
     const normalized = normalizeCheckoutDraft(effectiveDraft);
     const result = validateCheckoutDraft(normalized);
     setDraft(normalized);
+    if (paymentQr.status === "loading") return;
     if (paymentBlocked) {
-      setErrors({ ...result.errors, paymentMethod: paymentQr.status === "loading" ? "Đang kiểm tra phương thức chuyển khoản." : "Chuyển khoản ngân hàng chưa có sẵn. Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." });
+      setErrors({ ...result.errors, paymentMethod: "Chuyển khoản ngân hàng chưa có sẵn. Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." });
       return;
     }
     setErrors(result.errors);

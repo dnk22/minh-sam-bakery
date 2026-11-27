@@ -13,9 +13,10 @@ import { SearchFilterPanel, type SearchFilterActions } from "./search-filter-pan
 type SearchFilterDrawerProps = SearchFilterActions & {
   categories: CatalogCategory[];
   query: SearchQuery;
+  pending?: boolean;
 };
 
-export function SearchFilterDrawer({ categories, query, onChange, onReset }: SearchFilterDrawerProps) {
+export function SearchFilterDrawer({ categories, query, onChange, onReset, pending = false }: SearchFilterDrawerProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const portalContainer = useLandingPortalContainer();
 
@@ -31,10 +32,11 @@ export function SearchFilterDrawer({ categories, query, onChange, onReset }: Sea
 
   return (
     <div className="mb-space-md flex justify-end lg:hidden">
-      <Dialog.Root open={filtersOpen} onOpenChange={setFiltersOpen}>
+      <Dialog.Root open={filtersOpen && !pending} onOpenChange={open => { if (!pending || !open) setFiltersOpen(open); }}>
         <Dialog.Trigger asChild>
           <button
             className="inline-flex min-h-11 items-center justify-end gap-space-sm rounded-lg bg-surface-container-lowest px-space-md py-2 font-label-ui text-label-ui text-primary shadow-sm"
+            disabled={pending}
             type="button"
           >
             <SlidersHorizontal className="size-5" aria-hidden="true" />

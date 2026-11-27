@@ -21,7 +21,7 @@ type SearchPageProps = {
 };
 
 export function GlobalSearchPage({ categories, query, results }: SearchPageProps) {
-  const { change, reset, retry } = useSearchNavigation(query);
+  const { change, reset, retry, pending } = useSearchNavigation(query);
   const matchedCategories = query.q ? results?.matchedCategories ?? [] : [];
 
   return (
@@ -44,6 +44,7 @@ export function GlobalSearchPage({ categories, query, results }: SearchPageProps
             ariaLabel="Tìm kiếm sản phẩm và danh mục"
             placeholder="Tìm bánh, hộp quà..."
             value={query.q}
+            pending={pending}
             onSearch={(q) => change({ q })}
           />
         </div>
@@ -52,6 +53,7 @@ export function GlobalSearchPage({ categories, query, results }: SearchPageProps
 
         <div className="flex flex-col items-start gap-gutter-desktop lg:flex-row">
           <aside aria-label="Bộ lọc sản phẩm" className="hidden w-72 shrink-0 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm lg:sticky lg:top-28 lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+            <div inert={pending}>
             <SearchFilterPanel
               categories={categories}
               query={query}
@@ -59,13 +61,15 @@ export function GlobalSearchPage({ categories, query, results }: SearchPageProps
               onReset={reset}
               radioPrefix="desktop"
             />
+            </div>
           </aside>
           <div className="w-full min-w-0 flex-1">
-            <SearchFilterDrawer categories={categories} query={query} onChange={change} onReset={reset} />
+            <SearchFilterDrawer categories={categories} query={query} onChange={change} onReset={reset} pending={pending} />
             <SearchResults
               categories={categories}
               query={query}
               results={results}
+              pending={pending}
               onChange={change}
               onReset={reset}
               onRetry={retry}
