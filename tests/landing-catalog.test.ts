@@ -182,9 +182,9 @@ test("header active-state helpers match only category-driven routes", () => {
   assert.equal(categorySlugFromPathname("/danh-muc/banh-kem/vani"), "banh-kem");
 });
 
-test("related-other products are bounded, deduplicated and exclude the active category", () => {
+test("related-other products preserve all eligible results, deduplicate and exclude the active category", () => {
   const candidates = [catalogProduct("one", "banh-mi"), catalogProduct("duplicate", "banh-mi"), catalogProduct("duplicate", "banh-ngot"), catalogProduct("excluded", "banh-kem"), catalogProduct("two", "banh-ngot"), catalogProduct("three", "qua-tang"), catalogProduct("four", "banh-mi")];
-  assert.deepEqual(normalizeCrossCategoryProducts(candidates, "banh-kem", 4).map(({ id }) => id), ["one", "duplicate", "two", "three"]);
+  assert.deepEqual(normalizeCrossCategoryProducts(candidates, "banh-kem").map(({ id }) => id), ["one", "duplicate", "two", "three", "four"]);
 });
 
 test("filesystem exposes only category-driven public catalog routes", () => {
@@ -383,4 +383,12 @@ test("category bento spans only affect tablet and desktop", async () => {
       assert.match(layout, /lg:col-span-/);
     }
   }
+});
+
+test("discovery renders all ten backend recommendations using the shared product grid", () => {
+  const candidates = Array.from({ length: 10 }, (_, index) => catalogProduct(String(index), "banh-mi"));
+  assert.deepEqual(normalizeCrossCategoryProducts(candidates, "banh-kem"), candidates);
+  const discovery = readFileSync("src/landing/features/catalog/components/discovery/cross-category-discovery.tsx", "utf8");
+  assert.match(discovery, /<ProductListGrid products=\{products\} pending=\{false\} \/>/);
+  assert.doesNotMatch(discovery, /\.slice\(/);
 });
