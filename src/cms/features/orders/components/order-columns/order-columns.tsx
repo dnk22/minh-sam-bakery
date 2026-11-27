@@ -1,11 +1,11 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Ban, Check } from "lucide-react";
+import { Ban, Check, CircleCheck } from "lucide-react";
 
 import { CmsRowActions, type CmsRowAction } from "@/cms/components/row-actions/row-actions";
 import { CmsBadge } from "@/cms/components/ui/badge/badge";
 
 import { getOrderPaymentLabel, getOrderStatusPresentation } from "../../constants";
-import { canPerformOrderAction } from "../../lib/order-views";
+import { canPerformOrderAction, ORDER_ACTION_CONFIG } from "../../lib/order-views";
 import { formatCalendarDate, formatOrderDateTime, formatVnd, shortOrderId } from "../../lib/order-format";
 import type { Order, OrderAction, OrderView } from "../../types";
 import styles from "./order-columns.module.css";
@@ -50,11 +50,15 @@ export function createOrderColumns(
         const order = row.original;
         const actions: CmsRowAction[] = [];
         if (canPerformOrderAction(view, order.status, "confirm")) {
-          actions.push({ key: "confirm", label: "Xác nhận", icon: <Check aria-hidden="true" size={15} />,
+          actions.push({ key: "confirm", label: ORDER_ACTION_CONFIG.confirm.label, icon: <Check aria-hidden="true" size={15} />,
             onSelect: () => onAction(order, "confirm") });
         }
+        if (canPerformOrderAction(view, order.status, "complete")) {
+          actions.push({ key: "complete", label: ORDER_ACTION_CONFIG.complete.label, icon: <CircleCheck aria-hidden="true" size={15} />,
+            onSelect: () => onAction(order, "complete") });
+        }
         if (canPerformOrderAction(view, order.status, "reject")) {
-          actions.push({ key: "reject", label: "Từ chối", destructive: true, separatorBefore: actions.length > 0,
+          actions.push({ key: "reject", label: ORDER_ACTION_CONFIG.reject.label, destructive: true, separatorBefore: actions.length > 0,
             icon: <Ban aria-hidden="true" size={15} />, onSelect: () => onAction(order, "reject") });
         }
         return <CmsRowActions actions={actions} moreLabel={`Thao tác đơn ${order.id}`}

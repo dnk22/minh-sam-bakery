@@ -45,10 +45,11 @@ test("validates paginated order lists without coercing pagination", () => {
   assert.equal(isOrderList({ items: [order], pagination: { page: 1, limit: "20", total: 1, totalPages: 1 } }), false);
 });
 
-test("manual CMS status updates only support confirmation and rejection", () => {
+test("manual CMS status updates support confirmation, rejection and completion", () => {
   assert.deepEqual(updateOrderStatusSchema.parse({ status: "CONFIRMED" }), { status: "CONFIRMED" });
   assert.deepEqual(updateOrderStatusSchema.parse({ status: "REJECTED" }), { status: "REJECTED" });
-  for (const status of ["PENDING_CONFIRMATION", "NEED_CALLBACK", "COMPLETED", "UNKNOWN"]) {
+  assert.deepEqual(updateOrderStatusSchema.parse({ status: "COMPLETED" }), { status: "COMPLETED" });
+  for (const status of ["PENDING_CONFIRMATION", "NEED_CALLBACK", "UNKNOWN"]) {
     assert.equal(updateOrderStatusSchema.safeParse({ status }).success, false);
   }
   assert.equal(updateOrderStatusSchema.safeParse({ status: "CONFIRMED", note: "extra" }).success, false);
@@ -69,6 +70,11 @@ test("maps every order submenu to its documented endpoint and fixed statuses", (
   assert.equal(canPerformOrderAction("history", "COMPLETED", "detail"), true);
   assert.equal(targetOrderStatus("confirm"), "CONFIRMED");
   assert.equal(targetOrderStatus("reject"), "REJECTED");
+  assert.equal(targetOrderStatus("complete"), "COMPLETED");
+  assert.deepEqual(ORDER_VIEW_CONFIG.delivery.actions, ["detail", "complete", "reject"]);
+  assert.equal(canPerformOrderAction("delivery", "CONFIRMED", "complete"), true);
+  for (const view of ["pending", "completed", "history"] as const) assert.equal(canPerformOrderAction(view, "CONFIRMED", "complete"), false);
+  for (const status of ["PENDING_CONFIRMATION", "NEED_CALLBACK", "REJECTED", "COMPLETED"] as const) assert.equal(canPerformOrderAction("delivery", status, "complete"), false);
 });
 
 test("default order range uses Vietnam calendar dates and spans 30 day boundaries", () => {
