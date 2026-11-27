@@ -1,3 +1,5 @@
+import { PRODUCT_PAGE_SIZE } from "../../lib/product-pagination.ts";
+
 export type CategoryProductsParameters = {
   page?: number;
   limit?: number;
@@ -10,7 +12,7 @@ export function categoryProductsEndpoint(
 ) {
   const query = new URLSearchParams();
   query.set("page", String(parameters.page ?? 1));
-  query.set("limit", String(parameters.limit ?? 9));
+  query.set("limit", String(parameters.limit ?? PRODUCT_PAGE_SIZE));
   if (parameters.search) query.set("search", parameters.search);
   return `/api/v1/public/categories/${encodeURIComponent(categorySlug)}/products?${query}`;
 }

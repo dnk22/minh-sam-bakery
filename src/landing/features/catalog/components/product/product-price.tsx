@@ -2,11 +2,11 @@ import { formatVnd } from "../../pricing";
 import type { CatalogPricing } from "../../types";
 
 export function ProductPrice({
-  pricing, compact = false,
-}: { pricing: CatalogPricing; compact?: boolean }) {
+  pricing, compact = false, responsiveCompact = false,
+}: { pricing: CatalogPricing; compact?: boolean; responsiveCompact?: boolean }) {
   return (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1" aria-label="Giá sản phẩm">
-      <span className={`font-price-serif font-bold ${compact ? "text-[16px]" : "text-[20px]"} text-primary`}>
+      <span className={`break-words font-price-serif font-bold ${compact ? "text-[16px]" : responsiveCompact ? "text-[16px] sm:text-[20px]" : "text-[20px]"} text-primary`}>
         {pricing.isFrom ? "Từ " : ""}{formatVnd(pricing.effectivePrice)}
       </span>
       {pricing.hasDiscount ? (

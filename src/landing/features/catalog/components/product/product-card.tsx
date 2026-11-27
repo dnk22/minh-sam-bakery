@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SafeImage } from "@/landing/components/ui/safe-image";
 import { routes } from "@/landing/lib/routes";
 
+import { PRODUCT_CARD_BODY_CLASS, PRODUCT_CARD_ACTIONS_CLASS } from "./product-card-layout";
 import { ProductActions } from "./product-actions";
 import { ProductPrice } from "./product-price";
 import type { CatalogProduct } from "../../types";
@@ -29,19 +30,19 @@ export function ProductCard({ product, imageAspect = "landscape" }: {
           src={product.image}
         />
         {product.badge ? (
-          <span className={`absolute top-3 left-3 rounded px-2 py-0.5 font-label-eyebrow text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>
+          <span className={`absolute top-2 left-2 max-w-[calc(100%-1rem)] rounded px-1.5 py-0.5 font-label-eyebrow text-[10px] sm:top-3 sm:left-3 sm:px-2 sm:text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>
             {product.badge}
           </span>
         ) : null}
       </div>
-      <div className="flex flex-1 flex-col justify-between p-space-md">
+      <div className={PRODUCT_CARD_BODY_CLASS}>
         <div>
-          <h3 className="mb-1 font-headline-sm text-headline-sm text-primary transition-colors group-hover:text-primary-container">{product.name}</h3>
-          <p className="mb-space-sm line-clamp-2 font-body-md text-body-md text-on-surface-variant">{product.description}</p>
+          <h3 className="mb-1 line-clamp-2 break-words font-headline-sm text-[16px] leading-snug sm:text-headline-sm text-primary transition-colors group-hover:text-primary-container">{product.name}</h3>
+          <p className="mb-2 line-clamp-2 break-words font-body-md text-[12px] leading-snug sm:mb-space-sm sm:text-body-md text-on-surface-variant">{product.description}</p>
         </div>
-        <div className="mt-space-xs flex flex-col gap-space-sm pt-space-sm">
-          <ProductPrice pricing={product.pricing} />
-          <ProductActions product={product} />
+        <div className={PRODUCT_CARD_ACTIONS_CLASS}>
+          <ProductPrice pricing={product.pricing} responsiveCompact />
+          <ProductActions product={product} responsiveCompact />
         </div>
       </div>
     </article>

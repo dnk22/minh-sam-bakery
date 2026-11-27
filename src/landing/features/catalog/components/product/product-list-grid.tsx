@@ -1,5 +1,6 @@
 "use client";
 
+import { PRODUCT_GRID_CLASS } from "./product-card-layout";
 import type { CatalogProduct } from "../../types";
 import { ProductCard } from "./product-card";
 import { ProductCardSkeleton, ProductGridSkeleton } from "./product-card-skeleton";
@@ -8,7 +9,7 @@ export function ProductListGrid({ products, pending }: { products: CatalogProduc
   if (!products.length) return pending ? <ProductGridSkeleton /> : null;
 
   return (
-    <div aria-busy={pending} aria-label="Danh sách sản phẩm" className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">
+    <div aria-busy={pending} aria-label="Danh sách sản phẩm" className={PRODUCT_GRID_CLASS}>
       {products.map(product => (
         <div key={product.id} className="relative min-w-0">
           <div className={pending ? "invisible h-full" : "h-full"} inert={pending} aria-hidden={pending || undefined}>
