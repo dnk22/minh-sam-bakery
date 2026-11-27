@@ -30,7 +30,7 @@ export function ProductCard({ product, imageAspect = "landscape" }: {
           src={product.image}
         />
         {product.badge ? (
-          <span className={`absolute top-2 left-2 max-w-[calc(100%-1rem)] rounded px-1.5 py-0.5 font-label-eyebrow text-[10px] sm:top-3 sm:left-3 sm:px-2 sm:text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>
+          <span className={`absolute top-2 left-2 max-w-[calc(100%_-_1rem)] rounded px-1.5 py-0.5 font-label-eyebrow text-[10px] sm:top-3 sm:left-3 sm:px-2 sm:text-label-eyebrow uppercase shadow-sm ${product.badgeClassName}`}>
             {product.badge}
           </span>
         ) : null}

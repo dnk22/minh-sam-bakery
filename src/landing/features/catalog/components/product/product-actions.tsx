@@ -16,7 +16,7 @@ export function ProductActions({ product, compact = false, responsiveCompact = f
     <div className="relative z-20 w-full">
       <div className={`flex items-stretch ${responsiveCompact ? "gap-1.5 sm:gap-space-xs" : "gap-space-xs"}`}>
         <button
-          className={`flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-lg bg-primary px-2 font-label-ui font-semibold uppercase text-on-primary transition-colors hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-50 ${compact ? "text-[11px] tracking-wider" : responsiveCompact ? "px-1 text-[11px] leading-tight tracking-normal break-words sm:px-2 sm:text-label-ui sm:tracking-wider" : "text-label-ui tracking-wider"}`}
+          className={`flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-lg bg-primary font-label-ui font-semibold uppercase text-on-primary transition-colors hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-50 ${compact ? "px-2 text-[11px] tracking-wider" : responsiveCompact ? "px-1 text-[11px] leading-tight tracking-normal break-words sm:px-2 sm:text-label-ui sm:tracking-wider" : "px-2 text-label-ui tracking-wider"}`}
           disabled={!product.pricing.available}
           onClick={() => start("buy-now")}
           type="button"

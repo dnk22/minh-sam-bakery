@@ -65,7 +65,7 @@ test("category products API sends encoded slug and documented server-side parame
   });
   assert.equal(requestedUrl, `https://backend.test${endpoint}`);
   assert.deepEqual(response.data.pagination, data.pagination);
-  assert.equal(categoryProductsEndpoint("banh-kem"), "/api/v1/public/categories/banh-kem/products?page=1&limit=9");
+  assert.equal(categoryProductsEndpoint("banh-kem"), "/api/v1/public/categories/banh-kem/products?page=1&limit=12");
 });
 
 test("category products API distinguishes HTTP, timeout and invalid DTO failures", async () => {
@@ -132,8 +132,8 @@ test("category URL state keeps only normalized q and page", () => {
   assert.equal(catalogQueryToSearchParams(query).toString(), "q=vani+b%C6%A1&page=2");
   assert.equal(isCatalogQueryCanonical(legacy, query), false);
   assert.equal(isCatalogQueryCanonical({ q: "vani bơ", page: "2" }, query), true);
-  assert.deepEqual(categoryProductsRequest(query), { page: 2, limit: 9, search: "vani bơ" });
-  assert.deepEqual(categoryProductsRequest({ q: "", page: 1 }), { page: 1, limit: 9 });
+  assert.deepEqual(categoryProductsRequest(query), { page: 2, limit: 12, search: "vani bơ" });
+  assert.deepEqual(categoryProductsRequest({ q: "", page: 1 }), { page: 1, limit: 12 });
 });
 
 test("search changes reset pagination while page navigation preserves search", () => {
