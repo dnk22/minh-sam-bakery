@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 
 import { Pagination } from "@/landing/components/ui/pagination";
 import { ProductGridSkeleton } from "@/landing/features/catalog/components/product/product-card-skeleton";
-import { ProductCard } from "@/landing/features/catalog/components/product/product-card";
+import { ProductListGrid } from "@/landing/features/catalog/components/product/product-list-grid";
 import type { CatalogCategory } from "@/landing/features/catalog/types";
 
 import type { SearchQuery } from "../query";
@@ -41,19 +41,17 @@ export function SearchResults({
   return (
     <>
       <div inert={pending}>
-      <SearchResultsToolbar
-        query={query}
-        categories={categories}
-        currentCount={products.length}
-        totalCount={pagination.total}
-        onChange={onChange}
-        onReset={onReset}
-      />
+        <SearchResultsToolbar
+          query={query}
+          categories={categories}
+          currentCount={products.length}
+          totalCount={pagination.total}
+          onChange={onChange}
+          onReset={onReset}
+        />
       </div>
-      {pending ? <ProductGridSkeleton count={products.length || 9} /> : products.length ? (
-        <div aria-label="Sản phẩm tìm thấy" className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">
-          {products.map((product) => <ProductCard key={product.id} product={product} />)}
-        </div>
+      {pending || products.length ? (
+        <ProductListGrid products={products} pending={pending} />
       ) : (
         <SearchEmptyState hasFilters={hasFilters} onReset={onReset} />
       )}

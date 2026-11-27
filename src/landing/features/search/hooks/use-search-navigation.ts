@@ -18,6 +18,7 @@ export function useSearchNavigation(query: SearchQuery) {
 
   const navigate = (next: SearchQuery) => {
     const params = searchQueryToSearchParams(next);
+    if (params.toString() === searchQueryToSearchParams(query).toString()) return;
     run(() => router.push(routes.search + (params.size ? "?" + params.toString() : ""), {
       scroll: false,
     }));

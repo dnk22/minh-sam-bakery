@@ -1,13 +1,20 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 
-/** React owns the lifetime of the server navigation, including interruption. */
+/** Track explicit list updates until React finishes or interrupts the transition. */
 export function useListNavigation() {
   const [pending, startTransition] = useTransition();
+  const locked = useRef(false);
+
+  useEffect(() => {
+    if (!pending) locked.current = false;
+  }, [pending]);
 
   function run(action: () => void) {
-    if (!pending) startTransition(action);
+    if (pending || locked.current) return;
+    locked.current = true;
+    startTransition(action);
   }
 
   return { pending, run };

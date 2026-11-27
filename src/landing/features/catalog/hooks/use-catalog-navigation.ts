@@ -12,6 +12,7 @@ export function useCatalogNavigation(basePath: string, query: CatalogQuery, anch
 
   const navigate = (next: CatalogQuery) => {
     const params = catalogQueryToSearchParams(next);
+    if (params.toString() === catalogQueryToSearchParams(query).toString()) return;
     run(() => router.push(`${basePath}${params.size ? `?${params}` : ""}${anchor}`, { scroll: false }));
   };
 

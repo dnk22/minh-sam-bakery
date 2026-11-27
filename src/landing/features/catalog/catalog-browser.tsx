@@ -3,7 +3,7 @@
 import { CatalogToolbar } from "./catalog-controls";
 import { CatalogEmptyState, CatalogErrorState } from "./components/listing/catalog-feedback";
 import { Pagination as CatalogPagination } from "@/landing/components/ui/pagination";
-import { ProductCard } from "./components/product/product-card";
+import { ProductListGrid } from "./components/product/product-list-grid";
 import { ProductGridSkeleton } from "./components/product/product-card-skeleton";
 import type { useCatalogNavigation } from "./hooks/use-catalog-navigation";
 import type { CatalogPage } from "./types";
@@ -20,32 +20,29 @@ type CatalogBrowserProps = {
 };
 
 export function CatalogBrowser({ navigation, page, query }: CatalogBrowserProps) {
-
   return (
     <div className="w-full min-w-0">
       {page ? (
         <>
           <div inert={navigation.pending}>
-          <CatalogToolbar
-            currentCount={page.products.length}
-            totalCount={page.pagination.total}
-            onChange={navigation.change}
-            onReset={navigation.reset}
-            query={query}
-          />
+            <CatalogToolbar
+              currentCount={page.products.length}
+              totalCount={page.pagination.total}
+              onChange={navigation.change}
+              onReset={navigation.reset}
+              query={query}
+            />
           </div>
-          {navigation.pending ? <ProductGridSkeleton count={page.products.length || 9} /> : page.products.length > 0 ? (
-            <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">
-              {page.products.map((product) => <ProductCard key={product.id} product={product} />)}
-            </div>
+          {navigation.pending || page.products.length > 0 ? (
+            <ProductListGrid products={page.products} pending={navigation.pending} />
           ) : (
             <CatalogEmptyState hasFilters={Boolean(query.q)} onReset={navigation.reset} />
           )}
           <div inert={navigation.pending}>
-          <CatalogPagination
-            onPage={(pageNumber) => navigation.change({ page: pageNumber })}
-            pagination={page.pagination}
-          />
+            <CatalogPagination
+              onPage={(pageNumber) => navigation.change({ page: pageNumber })}
+              pagination={page.pagination}
+            />
           </div>
         </>
       ) : (

@@ -81,7 +81,7 @@ function CheckoutSessionPage({ session }: { session: CheckoutSessionSnapshot }) 
           noValidate
           onSubmit={checkout.checkInformation}
         >
-          <fieldset disabled={checkout.pending || checkout.blocked} className="min-w-0 space-y-space-lg">
+          <fieldset disabled={checkout.pending || checkout.blocked || checkout.paymentQr.status === "loading"} className="min-w-0 space-y-space-lg">
             <CheckoutCustomerSection
               draft={checkout.draft}
               errors={checkout.errors}

@@ -52,7 +52,8 @@ export function SearchForm({
     return (
       <form
         className="relative flex w-full min-w-0 items-center"
-        aria-busy={pending} onSubmit={submit}
+        aria-busy={pending}
+        onSubmit={submit}
       >
         <Search
           aria-hidden="true"
@@ -62,10 +63,10 @@ export function SearchForm({
         <button
           aria-label="Tìm kiếm"
           disabled={pending}
-          className="absolute right-1 inline-flex min-h-10 min-w-10 items-center justify-center rounded bg-primary px-2 py-1.5 font-label-ui text-label-ui text-secondary-fixed transition-colors hover:bg-primary-container md:px-space-md"
+          className="absolute right-1 inline-flex gap-1 min-h-10 min-w-10 items-center justify-center rounded bg-primary px-2 py-1.5 font-label-ui text-label-ui text-secondary-fixed transition-colors hover:bg-primary-container md:px-space-md"
           type="submit"
         >
-          {pending ? <LoaderCircle aria-hidden="true" className="size-5 motion-safe:animate-spin" /> : <Search aria-hidden="true" className="size-5 md:hidden" />}
+          {pending ? <LoaderCircle aria-hidden="true" className="size-5 shrink-0 motion-safe:animate-spin" /> : <Search aria-hidden="true" className="size-5 md:hidden" />}
           <span className="hidden md:inline">Tìm kiếm</span>
         </button>
       </form>
@@ -86,6 +87,7 @@ export function SearchForm({
           disabled={pending}
           className="mr-1 p-2 text-outline transition-colors hover:text-on-surface"
           onClick={() => {
+            if (pending) return;
             setInputState({ sourceValue: value, draft: "" });
             inputRef.current?.focus();
             onSearch?.("");
@@ -97,7 +99,7 @@ export function SearchForm({
       )}
       <button
         aria-label="Tìm kiếm"
-          disabled={pending}
+        disabled={pending}
         className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg gap-space-xs bg-primary px-3 py-3.5 font-label-ui text-label-ui text-on-primary transition-colors hover:bg-primary-container md:px-space-lg"
         type="submit"
       >
