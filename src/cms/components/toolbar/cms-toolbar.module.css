@@ -52,3 +52,10 @@
 .controls { align-items: flex-end; }
 .search { min-width: min(12rem, 100%); flex: 1 1 16rem; }
 @media (max-width: 767px) { .search { min-width: 0; flex: 1 1 0; } }
+
+.controls, .trailing { border: 0; padding: 0; min-inline-size: 0; }
+.controls { margin: 0; }
+.trailing { margin-block: 0; }
+.spinner { animation: toolbar-spin .8s linear infinite; }
+@keyframes toolbar-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }

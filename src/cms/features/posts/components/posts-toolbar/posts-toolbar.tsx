@@ -10,12 +10,12 @@ import type { PostFilters } from "../../hooks/use-post-filters";
 import { countPostAdvancedFilters, parsePostBoolean } from "../../lib/post-data";
 import type { PostStatus } from "../../types";
 import styles from "./posts-toolbar.module.css";
-export function PostsToolbar({ filters }: { filters: PostFilters }) {
+export function PostsToolbar({ filters, fetching }: { filters: PostFilters; fetching?: boolean }) {
   const draft = useToolbarDraft({ search: filters.search, status: filters.status, showOnLanding: filters.showOnLanding });
   const apply = () => filters.applyFilters(draft.values);
   const clearAll = () => { draft.reset({ search: "", status: undefined, showOnLanding: undefined }); filters.clearFilters(); };
   const clearAdvanced = () => { const next = { search: filters.search, status: undefined, showOnLanding: undefined }; draft.reset(next); filters.applyFilters(next); }; const count = countPostAdvancedFilters(draft.values);
-  return <CmsToolbar label="Bộ lọc bài viết" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
+  return <CmsToolbar fetching={fetching} label="Bộ lọc bài viết" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
     search={<CmsInput aria-label="Tìm kiếm bài viết" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo tiêu đề" type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
     filters={<CmsFilterGroup layout="toolbar" activeCount={count} label="Bộ lọc bài viết" onClear={clearAdvanced} onApply={apply}>
       <CmsSelect aria-label="Lọc theo trạng thái" containerClassName={styles.select} controlSize="sm" options={POST_STATUS_OPTIONS} value={draft.values.status ?? ""} onChange={(event) => draft.set("status", (event.target.value || undefined) as PostStatus | undefined)} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useToolbarPending } from "@/cms/components/toolbar/toolbar-pending-context";
 import { ListFilter, Search, X } from "lucide-react";
 import { useId, useState, type ReactNode } from "react";
 
@@ -29,19 +30,20 @@ export function CmsFilterGroup({
   onApply?: () => void;
   applyDisabled?: boolean;
 }) {
+  const { pending, run } = useToolbarPending();
   const isMobile = useCmsIsMobile();
   const titleId = useId();
   const count = Math.max(0, Math.trunc(activeCount));
   const [popoverState, setPopoverState] = useState({ mobile: false, open: false });
-  const open = popoverState.mobile === isMobile ? popoverState.open : false;
+  const open = !pending && popoverState.mobile === isMobile ? popoverState.open : false;
   if (popoverState.mobile !== isMobile) setPopoverState({ mobile: isMobile, open: false });
 
   if (!isMobile) return <div className={cn(styles.desktop, className)} data-layout={layout}>{children}</div>;
 
   const accessibleLabel = count > 0 ? `${label}, ${count} bộ lọc đã chọn` : label;
-  return <CmsPopover open={open} onOpenChange={(nextOpen) => setPopoverState({ mobile: true, open: nextOpen })}>
+  return <CmsPopover open={open} onOpenChange={(nextOpen) => { if (!pending || !nextOpen) setPopoverState({ mobile: true, open: nextOpen }); }}>
     <CmsPopoverTrigger asChild>
-      <CmsButton aria-label={accessibleLabel} className={styles.trigger} size="icon" title={accessibleLabel} type="button" variant={count ? "secondary" : "outline"}>
+      <CmsButton aria-label={accessibleLabel} className={styles.trigger} disabled={pending} size="icon" title={accessibleLabel} type="button" variant={count ? "secondary" : "outline"}>
         <ListFilter aria-hidden="true" size={18} />
         {count ? <span className={styles.badge} aria-hidden="true">{count}</span> : null}
       </CmsButton>
@@ -57,8 +59,8 @@ export function CmsFilterGroup({
       </header>
       <div className={styles.body} data-layout={layout}>{children}</div>
       {(onClear && count > 0) || onApply ? <footer className={styles.footer}>
-        {onClear && count > 0 ? <CmsButton type="button" size="sm" variant="ghost" onClick={() => { onClear(); setPopoverState({ mobile: true, open: false }); }}><X aria-hidden="true" size={15} /> Xóa bộ lọc</CmsButton> : null}
-        {onApply ? <CmsButton type="button" size="sm" disabled={applyDisabled} onClick={() => { onApply(); setPopoverState({ mobile: true, open: false }); }}><Search aria-hidden="true" size={15} /> Tìm kiếm</CmsButton> : null}
+        {onClear && count > 0 ? <CmsButton type="button" size="sm" variant="ghost" disabled={pending} onClick={() => { run(onClear); setPopoverState({ mobile: true, open: false }); }}><X aria-hidden="true" size={15} /> Xóa bộ lọc</CmsButton> : null}
+        {onApply ? <CmsButton type="button" size="sm" disabled={applyDisabled || pending} onClick={() => { run(onApply); setPopoverState({ mobile: true, open: false }); }}><Search aria-hidden="true" size={15} /> Tìm kiếm</CmsButton> : null}
       </footer> : null}
     </CmsPopoverContent>
   </CmsPopover>;

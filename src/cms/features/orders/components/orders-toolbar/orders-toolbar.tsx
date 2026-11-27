@@ -9,7 +9,7 @@ import { useToolbarDraft } from "@/cms/hooks/use-toolbar-draft";
 import type { OrderFilters } from "../../hooks/use-order-filters";
 import { getDefaultOrderCreatedRange, isValidOrderCreatedRange } from "../../lib/order-format";
 
-export function OrdersToolbar({ filters }: { filters: OrderFilters }) {
+export function OrdersToolbar({ filters, fetching }: { filters: OrderFilters; fetching?: boolean }) {
   const draft = useToolbarDraft({ search: filters.search, createdFrom: filters.createdFrom, createdTo: filters.createdTo, deliveryDate: filters.deliveryDate, deliveryTime: filters.deliveryTime });
   const values = draft.values;
   const defaults = getDefaultOrderCreatedRange();
@@ -24,7 +24,7 @@ export function OrdersToolbar({ filters }: { filters: OrderFilters }) {
     filters.applyFilters(next);
   };
   const count = Number(values.createdFrom !== defaults.createdFrom || values.createdTo !== defaults.createdTo) + Number(Boolean(values.deliveryDate)) + Number(Boolean(values.deliveryTime));
-  return <CmsToolbar label="Bộ lọc đơn hàng" onSearch={() => { if (valid) filters.applyFilters(values); }} searchDisabled={!valid}
+  return <CmsToolbar fetching={fetching} label="Bộ lọc đơn hàng" onSearch={() => { if (valid) filters.applyFilters(values); }} searchDisabled={!valid}
     onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
     search={<CmsInput aria-label="Tìm kiếm đơn hàng" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Số điện thoại hoặc email" type="search" value={values.search} onChange={event => draft.set("search", event.target.value)} />}
     filters={<CmsFilterGroup layout="toolbar" activeCount={count} label="Bộ lọc đơn hàng" onClear={clearAdvanced} onApply={() => { if (valid) filters.applyFilters(values); }} applyDisabled={!valid}>
