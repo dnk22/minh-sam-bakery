@@ -9,6 +9,8 @@ import { cn } from "@/cms/lib/cn";
 
 import styles from "./responsive-modal.module.css";
 
+export type ResponsiveModalSize = "sm" | "md" | "lg" | "xl" | "2xl";
+
 export type ResponsiveModalProps = {
   open?: boolean;
   defaultOpen?: boolean;
@@ -22,6 +24,7 @@ export type ResponsiveModalProps = {
   closeLabel?: string;
   className?: string;
   variant?: "default" | "confirm";
+  size?: ResponsiveModalSize;
   elevated?: boolean;
 };
 
@@ -38,6 +41,7 @@ export function ResponsiveModal({
   closeLabel = "Đóng",
   className,
   variant = "default",
+  size = "md",
   elevated = false,
 }: ResponsiveModalProps) {
   const { direction, theme } = useCmsPreferences();
@@ -65,6 +69,7 @@ export function ResponsiveModal({
           className={cn("cms-portal", styles.content, className)}
           data-cms-theme={theme}
           data-variant={variant}
+          data-size={size}
           data-elevated={elevated || undefined}
           dir={direction}
           aria-describedby={description ? descriptionId : undefined}

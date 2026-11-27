@@ -116,5 +116,5 @@ export function ProductModal({ state, onStateChange, onDelete }: { state: Produc
     {isEditing ? <p className={styles.orphan}>Ảnh đã tải lên có thể vẫn được lưu nếu bạn đóng biểu mẫu hoặc lưu thất bại.</p> : null}
   </form>;
 
-  return <ResponsiveModal className={styles.modal} open={Boolean(state)} onOpenChange={(open) => { if (!open) close(); }} onBeforeClose={confirmDiscard} title={title} description={mode === "detail" ? "Thông tin mới nhất được tải từ hệ thống." : "Các trường bắt buộc phải hợp lệ trước khi lưu."} footer={footer}>{content}</ResponsiveModal>;
+  return <ResponsiveModal size="xl" open={Boolean(state)} onOpenChange={(open) => { if (!open) close(); }} onBeforeClose={confirmDiscard} title={title} description={mode === "detail" ? "Thông tin mới nhất được tải từ hệ thống." : "Các trường bắt buộc phải hợp lệ trước khi lưu."} footer={footer}>{content}</ResponsiveModal>;
 }
