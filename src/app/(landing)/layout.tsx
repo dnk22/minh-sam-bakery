@@ -1,3 +1,5 @@
+import "@/landing/styles/interactive-cursors.css";
+
 import { connection } from "next/server";
 import { Suspense, type ReactNode } from "react";
 

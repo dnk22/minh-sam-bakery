@@ -1,0 +1,30 @@
+/* Scope cursor defaults to storefront and its themed dialog portals.
+ * Keep text fields selectable and non-interactive cards unchanged. */
+@layer base {
+  :where([data-landing-theme-root]) :is(
+    a[href],
+    button,
+    select,
+    summary,
+    input:is([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="file"]),
+    label:has(input:is([type="checkbox"], [type="radio"], [type="file"]), select),
+    [role="button"],
+    [role="link"]
+  ) {
+    cursor: pointer;
+  }
+  :where([data-landing-theme-root]) input[type="file"]:enabled::file-selector-button {
+    cursor: pointer;
+  }
+}
+
+/* Disabled controls take precedence over existing cursor-pointer utilities. */
+:where([data-landing-theme-root]) :is(
+  button:disabled,
+  input:is([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="file"]):disabled,
+  select:disabled,
+  label:has(input:is([type="checkbox"], [type="radio"], [type="file"]):disabled, select:disabled),
+  [aria-disabled="true"]
+) {
+  cursor: not-allowed;
+}
