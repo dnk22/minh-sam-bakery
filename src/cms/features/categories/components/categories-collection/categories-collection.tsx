@@ -66,7 +66,7 @@ export function CategoriesCollection({
   );
   const list = listQuery.data;
   const listItems = list?.items ?? [];
-  const pagination = list
+  const pagination = list && !listQuery.isPlaceholderData
     ? { meta: list.pagination, onPageChange: filters.setPage }
     : undefined;
   const errorMessage =
@@ -128,7 +128,7 @@ export function CategoriesCollection({
       onItemClick={onDetail}
       getItemLabel={(item) => `Xem danh mục ${item.name}`}
       pagination={pagination}
-      loading={listQuery.isLoading}
+      loading={listQuery.isLoading || (listQuery.isFetching && listQuery.isPlaceholderData)}
       error={errorMessage}
       onRetry={() => listQuery.refetch()}
       isFiltered={filters.isFiltered}

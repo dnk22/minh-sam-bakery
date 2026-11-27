@@ -18,7 +18,7 @@ export function SystemConfigsCollection({ filters, listQuery, onDetail, onDelete
   return <ResponsiveCollection<SystemConfig> className={styles.table} columns={columns} data={list?.items ?? []}
     emptyState="Chưa có cấu hình hệ thống nào." error={listQuery.error instanceof Error ? listQuery.error.message : undefined}
     filteredEmptyState="Không có cấu hình phù hợp." getItemKey={(item) => item.id} getItemLabel={(item) => `Xem cấu hình ${item.key}`}
-    getRowId={(item) => item.id} isFiltered={filters.isFiltered} loading={listQuery.isLoading} onItemClick={onDetail}
-    onRetry={() => listQuery.refetch()} pagination={list ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
+    getRowId={(item) => item.id} isFiltered={filters.isFiltered} loading={listQuery.isLoading || (listQuery.isFetching && listQuery.isPlaceholderData)} onItemClick={onDetail}
+    onRetry={() => listQuery.refetch()} pagination={list && !listQuery.isPlaceholderData ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
     renderItem={(item) => <SystemConfigListItem config={item} />} />;
 }

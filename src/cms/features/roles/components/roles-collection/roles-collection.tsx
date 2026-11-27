@@ -31,10 +31,10 @@ export function RolesCollection({ filters, listQuery, onDetail, onDelete }: Role
       getItemLabel={(item) => `Xem vai trò ${item.name}`}
       getRowId={(item) => item.id}
       isFiltered={filters.isFiltered}
-      loading={listQuery.isLoading}
+      loading={listQuery.isLoading || (listQuery.isFetching && listQuery.isPlaceholderData)}
       onItemClick={onDetail}
       onRetry={() => listQuery.refetch()}
-      pagination={list ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
+      pagination={list && !listQuery.isPlaceholderData ? { meta: list.pagination, onPageChange: filters.setPage } : undefined}
       renderAccessory={(item) => <CmsBadge variant={item.isSystem ? "secondary" : "default"}>{item.isSystem ? "Hệ thống" : "Tùy chỉnh"}</CmsBadge>}
       renderItem={(item) => <RoleListItem role={item} />}
     />

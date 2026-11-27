@@ -42,7 +42,7 @@ export function ProductsPage() {
         <div><h1>Sản phẩm</h1><p>Quản lý sản phẩm, giá, hình ảnh và biến thể.</p></div>
         <CmsButton className="cms-page-header-action" type="button" onClick={() => setModal({ mode: "create" })}><Plus aria-hidden="true" size={17} /> Thêm sản phẩm</CmsButton>
       </header>
-      <ProductsToolbar filters={filters} />
+      <ProductsToolbar filters={filters} fetching={listQuery.isFetching} />
       <ProductsCollection filters={filters} listQuery={listQuery} onDetail={openDetail} onDelete={setDeleteTarget} />
       <ProductModal state={modal} onStateChange={setModal} onDelete={setDeleteTarget} />
       <ProductDeleteDialog product={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={deleted} />
