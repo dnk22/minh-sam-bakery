@@ -1,23 +1,23 @@
 import type { CheckoutDraft, CheckoutErrors, CheckoutField } from "./types.ts";
 
-const phonePattern = /^(?:\+84|0)(?:\d[ .-]?){8,10}$/;
+import { normalizeVietnamMobilePhone } from "../../../lib/contracts/order/vietnam-mobile-phone.ts";
+import { isValidReceiveDate, localCalendarDate } from "./utils/checkout-date.ts";
+export { localCalendarDate } from "./utils/checkout-date.ts";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function localCalendarDate(date: Date = new Date()): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+export function validateCheckoutPhone(value: string): string | undefined {
+  if (!value.trim()) return "Vui lòng nhập số điện thoại.";
+  if (!normalizeVietnamMobilePhone(value)) return "Vui lòng nhập số điện thoại di động Việt Nam hợp lệ.";
 }
 
-export function initialCheckoutDraft(): CheckoutDraft {
+export function initialCheckoutDraft(today = localCalendarDate()): CheckoutDraft {
   return {
     fullName: "",
     phone: "",
     email: "",
     fulfillmentMethod: "pickup",
     deliveryAddress: "",
-    receiveDate: "",
+    receiveDate: today,
     deliveryTime: "",
     notes: "",
     paymentMethod: "AT_STORE",
@@ -30,13 +30,13 @@ export function validateCheckoutDraft(
 ): { errors: CheckoutErrors; firstInvalidField?: CheckoutField } {
   const errors: CheckoutErrors = {};
   if (!draft.fullName.trim()) errors.fullName = "Vui lòng nhập họ và tên.";
-  if (!draft.phone.trim()) errors.phone = "Vui lòng nhập số điện thoại.";
-  else if (!phonePattern.test(draft.phone.trim())) errors.phone = "Số điện thoại chưa đúng định dạng.";
+  const phoneError = validateCheckoutPhone(draft.phone);
+  if (phoneError) errors.phone = phoneError;
   if (draft.email.trim() && !emailPattern.test(draft.email.trim())) errors.email = "Email chưa đúng định dạng.";
   if (draft.fulfillmentMethod === "delivery" && !draft.deliveryAddress.trim()) {
     errors.deliveryAddress = "Vui lòng nhập địa chỉ giao hàng.";
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.receiveDate) || Number.isNaN(Date.parse(draft.receiveDate)) || new Date(draft.receiveDate).toISOString().slice(0, 10) !== draft.receiveDate || draft.receiveDate < today) {
+  if (!isValidReceiveDate(draft.receiveDate, today)) {
     errors.receiveDate = draft.fulfillmentMethod === "pickup"
       ? "Vui lòng chọn ngày nhận bánh hợp lệ."
       : "Vui lòng chọn ngày giao bánh hợp lệ.";
@@ -53,7 +53,7 @@ export function normalizeCheckoutDraft(draft: CheckoutDraft): CheckoutDraft {
   return {
     ...draft,
     fullName: draft.fullName.trim().replace(/\s+/g, " "),
-    phone: draft.phone.trim(),
+    phone: normalizeVietnamMobilePhone(draft.phone) ?? draft.phone.trim(),
     email: draft.email.trim().toLowerCase(),
     deliveryAddress: draft.deliveryAddress.trim().replace(/\s+/g, " "),
     deliveryTime: draft.deliveryTime.trim(),

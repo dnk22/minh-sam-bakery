@@ -1,8 +1,9 @@
-import { CalendarDays, MapPin, Store, Truck } from "lucide-react";
+import { MapPin, Store, Truck } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { CheckoutDraft, CheckoutErrors, FulfillmentMethod } from "../types";
 import { CheckoutField, checkoutInputStyles } from "./checkout-field";
+import { CheckoutDateInput } from "./checkout-date-input";
 
 export function CheckoutFulfillmentSection({ draft, errors, today, onUpdate, onFulfillmentChange }: {
   draft: CheckoutDraft;
@@ -14,11 +15,11 @@ export function CheckoutFulfillmentSection({ draft, errors, today, onUpdate, onF
   const isDelivery = draft.fulfillmentMethod === "delivery";
 
   return (
-    <section className="rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm" aria-labelledby="checkout-fulfillment-heading">
+    <section className="min-w-0 rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm" aria-labelledby="checkout-fulfillment-heading">
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary" id="checkout-fulfillment-heading">
         2. Hình thức nhận bánh
       </h2>
-      <fieldset className="grid gap-space-sm sm:grid-cols-2">
+      <fieldset className="grid min-w-0 grid-cols-1 gap-space-sm md:grid-cols-2">
         <legend className="sr-only">Hình thức nhận hàng</legend>
         <FulfillmentOption
           method="pickup"
@@ -58,26 +59,14 @@ export function CheckoutFulfillmentSection({ draft, errors, today, onUpdate, onF
             Địa chỉ và thời gian nhận hàng tại cửa hàng sẽ được xác nhận cùng đơn hàng.
           </div>
         )}
-        <div className="grid gap-space-md sm:grid-cols-2">
+        <div className="grid min-w-0 grid-cols-1 gap-space-md md:grid-cols-2">
           <CheckoutField
             error={errors.receiveDate}
             field="receiveDate"
             label={isDelivery ? "Ngày giao bánh mong muốn" : "Ngày nhận bánh mong muốn"}
             required
           >
-            <span className="relative block">
-              <input
-                className={checkoutInputStyles}
-                data-checkout-field="receiveDate"
-                min={today || undefined}
-                onChange={(event) => onUpdate({ receiveDate: event.target.value })}
-                type="date"
-                value={draft.receiveDate}
-                aria-invalid={Boolean(errors.receiveDate)}
-                aria-describedby={errors.receiveDate ? "checkout-receiveDate-error" : undefined}
-              />
-              <CalendarDays aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-outline" />
-            </span>
+            <CheckoutDateInput value={draft.receiveDate} min={today} error={errors.receiveDate} onChange={receiveDate => onUpdate({ receiveDate })} />
           </CheckoutField>
           <CheckoutField error={errors.deliveryTime} field="deliveryTime" label="Khung giờ mong muốn (tùy chọn)">
             <input
@@ -116,17 +105,17 @@ function FulfillmentOption({ method, selected, onChange, icon, title, descriptio
   description: string;
 }) {
   return (
-    <label className={`flex cursor-pointer items-start gap-space-sm rounded-lg border p-space-md ${selected ? "border-primary bg-surface-container-low" : "border-outline-variant bg-surface"}`}>
+    <label className={`flex min-w-0 cursor-pointer items-start gap-space-sm rounded-lg border p-space-md ${selected ? "border-primary bg-surface-container-low" : "border-outline-variant bg-surface"}`}>
       <input
         checked={selected}
-        className="mt-1 size-4 accent-primary"
+        className="mt-1 size-4 shrink-0 accent-primary"
         name="fulfillmentMethod"
         onChange={() => onChange(method)}
         type="radio"
         value={method}
       />
-      <span className="mt-0.5 text-secondary">{icon}</span>
-      <span>
+      <span className="mt-0.5 shrink-0 text-secondary">{icon}</span>
+      <span className="min-w-0 [overflow-wrap:anywhere]">
         <strong className="block font-label-ui text-label-ui text-primary">{title}</strong>
         <small className="mt-1 block font-body-sm text-body-sm text-on-surface-variant">{description}</small>
       </span>

@@ -1,17 +1,18 @@
 import type { CheckoutDraft, CheckoutErrors } from "../types";
 import { CheckoutField, checkoutInputStyles } from "./checkout-field";
 
-export function CheckoutCustomerSection({ draft, errors, onUpdate }: {
+export function CheckoutCustomerSection({ draft, errors, onUpdate, onPhoneBlur }: {
   draft: CheckoutDraft;
   errors: CheckoutErrors;
   onUpdate: (patch: Partial<CheckoutDraft>) => void;
+  onPhoneBlur: (value: string) => void;
 }) {
   return (
-    <section className="rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm" aria-labelledby="checkout-contact-heading">
+    <section className="min-w-0 rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm" aria-labelledby="checkout-contact-heading">
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary" id="checkout-contact-heading">
         1. Thông tin khách hàng
       </h2>
-      <div className="grid gap-space-md sm:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-space-md sm:grid-cols-2">
         <CheckoutField error={errors.fullName} field="fullName" label="Họ và tên" required>
           <input
             autoComplete="name"
@@ -28,18 +29,20 @@ export function CheckoutCustomerSection({ draft, errors, onUpdate }: {
         <CheckoutField error={errors.phone} field="phone" label="Số điện thoại" required>
           <input
             autoComplete="tel"
+            inputMode="tel"
             className={checkoutInputStyles}
             data-checkout-field="phone"
             maxLength={20}
             onChange={(event) => onUpdate({ phone: event.target.value })}
-            placeholder="Số điện thoại nhận hàng"
+            onBlur={(event) => onPhoneBlur(event.currentTarget.value)}
+            placeholder="Ví dụ: 0901234567"
             type="tel"
             value={draft.phone}
             aria-invalid={Boolean(errors.phone)}
             aria-describedby={errors.phone ? "checkout-phone-error" : undefined}
           />
         </CheckoutField>
-        <div className="sm:col-span-2">
+        <div className="min-w-0 sm:col-span-2">
           <CheckoutField error={errors.email} field="email" label="Email (không bắt buộc)">
             <input
               autoComplete="email"

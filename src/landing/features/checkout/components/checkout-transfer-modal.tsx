@@ -19,9 +19,9 @@ export function CheckoutTransferModal({ qr, upload, total, pending, blocked, err
   const canConfirm = qr.status === "ready" && !pending && !blocked && upload.status === "ready";
   return <CheckoutDialog title="Thanh toán chuyển khoản" description="Chuyển khoản tiền bánh và tải ảnh chứng từ trước khi gửi đơn đặt bánh." onClose={onClose} busy={pending}>
     {unavailable ? <PaymentQrUnavailable onClose={onClose} /> : <>
-      {qr.status === "loading" ? <PaymentQrLoading /> : qr.status === "ready" ? <section className="mt-space-md space-y-3 rounded-xl bg-surface-container-low p-4">
-        <div className="flex justify-between gap-3"><span>Tạm tính tiền bánh</span><strong className="font-price-serif text-primary">{formatVnd(total)}</strong></div>
-        <div className="flex flex-col items-center gap-2 rounded-xl bg-surface-container-lowest p-3">
+      {qr.status === "loading" ? <PaymentQrLoading /> : qr.status === "ready" ? <section className="mt-space-md space-y-3 rounded-xl bg-surface-container-low p-3 sm:p-4">
+        <div className="flex flex-wrap justify-between gap-3"><span>Tạm tính tiền bánh</span><strong className="min-w-0 font-price-serif text-primary [overflow-wrap:anywhere]">{formatVnd(total)}</strong></div>
+        <div className="flex flex-col items-center gap-2 rounded-xl bg-surface-container-lowest p-2 sm:p-3">
           <PaymentQrImage key={qr.config.qrImageUrl} url={qr.config.qrImageUrl} />
         </div>
         <PaymentQrDetails config={qr.config} />
