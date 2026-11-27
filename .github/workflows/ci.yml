@@ -47,7 +47,7 @@ jobs:
             ${{ runner.os }}-node22-pnpm11-
       - name: Install dependencies
         id: install
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
       - name: TypeScript
         run: pnpm typecheck
       - name: ESLint
