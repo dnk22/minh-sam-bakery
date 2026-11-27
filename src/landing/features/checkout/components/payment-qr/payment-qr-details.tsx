@@ -2,6 +2,7 @@
 
 import { Check, Copy } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import type { QrPaymentConfig } from "@/lib/contracts/qr-payment/qr-payment.types";
 
 function PaymentDetailRow({ label, children }: { label: string; children: ReactNode }) {
@@ -21,6 +22,7 @@ function CopyAccountNumber({ value }: { value: string }) {
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
       await navigator.clipboard.writeText(value);
       setStatus("copied");
+      toast.success("Đã sao chép số tài khoản", { id: "landing:copy-account-number" });
     } catch {
       setStatus("failed");
     }
@@ -31,7 +33,6 @@ function CopyAccountNumber({ value }: { value: string }) {
   return (
     <>
       <div className="flex min-w-0 items-center justify-end gap-1">
-        <span className="min-w-0 select-text [overflow-wrap:anywhere]">{value}</span>
         <button
           type="button"
           aria-label="Sao chép số tài khoản"
@@ -41,6 +42,7 @@ function CopyAccountNumber({ value }: { value: string }) {
         >
           {copied ? <Check aria-hidden="true" className="size-4" /> : <Copy aria-hidden="true" className="size-4" />}
         </button>
+        <span className="min-w-0 select-text [overflow-wrap:anywhere]">{value}</span>
       </div>
       <span role="status" className={status === "failed" ? "block text-body-sm font-normal text-error" : "sr-only"}>
         {copied ? "Đã sao chép số tài khoản." : status === "failed" ? "Không thể sao chép. Vui lòng chọn và sao chép số tài khoản thủ công." : ""}
