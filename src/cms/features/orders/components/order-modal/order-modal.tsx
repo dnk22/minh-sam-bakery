@@ -66,7 +66,7 @@ export function OrderModal({ view, state, onStateChange }: {
   </> : null;
 
   return <ResponsiveModal
-    className={styles.modal}
+    size="lg"
     description={action === "detail" ? "Thông tin mới nhất của đơn hàng." : "Xác nhận thay đổi trạng thái đơn hàng."}
     footer={actionFooter}
     onOpenChange={(open) => { if (!open && !mutations.updateStatus.isPending) close(); }}

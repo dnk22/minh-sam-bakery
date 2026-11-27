@@ -92,7 +92,7 @@ export function UserModal({ state, currentUserId, onStateChange, onAction }: {
 
   const title = mode === "create" ? "Thêm tài khoản" : mode === "edit" ? "Chỉnh sửa tài khoản" : manageRole ? "Gán vai trò" : "Chi tiết tài khoản";
   return <ResponsiveModal
-    className={styles.modal}
+    size="lg"
     description={manageRole ? "Chọn vai trò và quyền truy cập mới cho tài khoản." : mode === "detail" ? "Thông tin hiện tại của tài khoản." : "Mật khẩu không được hiển thị lại sau khi lưu."}
     footer={state ? mode === "detail" && user && !manageRole ? <DetailActions user={user} currentUserId={currentUserId} onEdit={() => onStateChange({ mode: "edit", id: user.id })} onRole={() => onStateChange({ mode: "detail", id: user.id, section: "role" })} onAction={onAction} />
       : <CmsButton type="button" variant="outline" disabled={pending || mutations.assignRole.isPending} onClick={async () => {
