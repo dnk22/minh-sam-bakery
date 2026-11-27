@@ -25,11 +25,26 @@ export function PaymentProofUpload({ upload, disabled }: { upload: PaymentUpload
     {upload.file ? <div className="space-y-2 rounded-lg border border-outline-variant p-3">
       <LocalPreview file={upload.file} />
       <div className="flex min-w-0 items-center justify-between gap-2">
-        {upload.status === "uploading" ? <p role="status" className="flex min-w-0 items-center gap-1 font-body-sm text-body-sm text-secondary"><LoaderCircle className="size-4 shrink-0 motion-safe:animate-spin" aria-hidden="true" />Đang tải ảnh...</p> : null}
-      {upload.status === "ready" ? <p role="status" className="flex min-w-0 items-center gap-1 font-body-sm text-body-sm text-primary"><CheckCircle2 className="size-4 shrink-0" aria-hidden="true" /> <span>Đã tải ảnh chứng từ</span></p> : null}
+        {upload.status === "uploading" ? (
+          <p role="status" className="flex min-w-0 items-center gap-1 font-body-sm text-body-sm text-secondary">
+            <LoaderCircle className="size-4 shrink-0 motion-safe:animate-spin" aria-hidden="true" />
+            <span>Đang tải ảnh...</span>
+          </p>
+        ) : null}
+        {upload.status === "ready" ? (
+          <p role="status" className="flex min-w-0 items-center gap-1 font-body-sm text-body-sm text-primary">
+            <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
+            <span>Đã tải ảnh chứng từ</span>
+          </p>
+        ) : null}
         <div className="ml-auto flex shrink-0 items-center gap-2">
-        {upload.status === "failed" ? <button type="button" disabled={disabled} onClick={upload.retry} className="min-h-10 whitespace-nowrap font-body-sm text-body-sm text-primary underline disabled:opacity-50">Thử lại</button> : null}
-        <button type="button" disabled={disabled} onClick={upload.clear} className="flex min-h-10 items-center gap-1 whitespace-nowrap font-body-sm text-body-sm text-error disabled:opacity-50"><Trash2 className="size-4" aria-hidden="true" />Xóa ảnh</button>
+          {upload.status === "failed" ? (
+            <button type="button" disabled={disabled} onClick={upload.retry} className="min-h-10 whitespace-nowrap font-body-sm text-body-sm text-primary underline disabled:opacity-50">Thử lại</button>
+          ) : null}
+          <button type="button" disabled={disabled} onClick={upload.clear} className="flex min-h-10 items-center gap-1 whitespace-nowrap font-body-sm text-body-sm text-error disabled:opacity-50">
+            <Trash2 className="size-4 shrink-0" aria-hidden="true" />
+            Xóa ảnh
+          </button>
         </div>
       </div>
     </div> : null}

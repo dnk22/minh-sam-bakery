@@ -13,7 +13,7 @@ test("Vietnam mobile phone normalization accepts domestic and international disp
     assert.equal(normalizeCheckoutDraft({...initialCheckoutDraft(), phone:value}).phone, "0901234567");
   }
   for (const prefix of ["03", "05", "07", "08", "09"]) assert.equal(isVietnamMobilePhone(prefix+"12345678"), true);
-  for (const value of ["", "0123456789", "0241234567", "090123456", "09012345678", "abcdefghi", "+840901234567", "090/123/4567", "84901234567"]) {
+  for (const value of ["", "0123456789", "0241234567", "090123456", "09012345678", "abcdefghi", "+840901234567", "090/123/4567", "84901234567", "0901234567-"]) {
     assert.equal(normalizeVietnamMobilePhone(value), null);
     assert.ok(validateCheckoutPhone(value));
   }
@@ -24,6 +24,7 @@ test("order wire contract requires canonical domestic mobile phone", () => {
   assert.equal(isCreateOrderInput(input),true);
   assert.equal(isCreateOrderInput({...input,phone:"+84901234567"}),false);
   assert.equal(isCreateOrderInput({...input,phone:"0241234567"}),false);
+  assert.equal(isCreateOrderInput({...input,phone:"0901234567\n"}),false);
 });
 
 test("Vietnam calendar default and restored date are independent of UTC midnight", () => {

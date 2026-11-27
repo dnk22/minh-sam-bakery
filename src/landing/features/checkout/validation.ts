@@ -1,13 +1,15 @@
-import type { CheckoutDraft, CheckoutErrors, CheckoutField } from "./types.ts";
-
 import { normalizeVietnamMobilePhone } from "../../../lib/contracts/order/vietnam-mobile-phone.ts";
+import type { CheckoutDraft, CheckoutErrors, CheckoutField } from "./types.ts";
 import { isValidReceiveDate, localCalendarDate } from "./utils/checkout-date.ts";
+
 export { localCalendarDate } from "./utils/checkout-date.ts";
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function validateCheckoutPhone(value: string): string | undefined {
   if (!value.trim()) return "Vui lòng nhập số điện thoại.";
   if (!normalizeVietnamMobilePhone(value)) return "Vui lòng nhập số điện thoại di động Việt Nam hợp lệ.";
+  return undefined;
 }
 
 export function initialCheckoutDraft(today = localCalendarDate()): CheckoutDraft {
