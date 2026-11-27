@@ -49,7 +49,7 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
   const effectivePaymentMethod = draft.fulfillmentMethod === "delivery" && qrReady ? "BANK_TRANSFER"
     : draft.fulfillmentMethod === "pickup" && paymentQr.status === "unavailable" ? "AT_STORE" : draft.paymentMethod;
   const effectiveDraft = { ...draft, paymentMethod: effectivePaymentMethod };
-  const paymentBlocked = !qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery");
+  const paymentBlocked = paymentQr.status === "loading" || !qrReady && (effectiveDraft.paymentMethod === "BANK_TRANSFER" || effectiveDraft.fulfillmentMethod === "delivery");
   const cartHydrated = useCartHydrated();
   const today = localCalendarDate();
 

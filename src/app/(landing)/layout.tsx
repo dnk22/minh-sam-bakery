@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { Suspense, type ReactNode } from "react";
 
 import { CartHydration } from "@/landing/features/cart/components/cart-hydration";
+import { LandingPageLoading } from "@/landing/components/loading/landing-page-loading";
 import { LandingNotifications } from "@/landing/components/notifications/landing-notifications";
 import { LandingFooter } from "@/landing/components/layout/landing-footer";
 import { LandingHeader } from "@/landing/components/layout/landing-header";
@@ -40,6 +41,7 @@ async function LandingRuntimeLayout({ children }: { children: ReactNode }) {
         {children}
         <LandingFooter />
         <LandingNotifications />
+        <LandingPageLoading />
       </CartHydration>
     </LandingThemeRoot>
   );

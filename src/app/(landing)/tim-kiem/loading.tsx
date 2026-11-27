@@ -1,3 +1,5 @@
+import { ProductGridSkeleton } from "@/landing/features/catalog/components/product/product-card-skeleton";
+
 export default function SearchLoading() {
   return (
     <main aria-busy="true" aria-label="Đang tải kết quả tìm kiếm" className="min-h-screen bg-surface pt-[var(--landing-header-height)]">
@@ -8,11 +10,7 @@ export default function SearchLoading() {
           <div className="h-96 w-full animate-pulse rounded-xl bg-surface-container-lowest lg:w-72 lg:shrink-0" />
           <div className="min-w-0 flex-1">
             <div className="mb-space-lg h-16 animate-pulse rounded-xl bg-surface-container-lowest" />
-            <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }, (_, index) => (
-                <div className="h-80 animate-pulse rounded-xl bg-surface-container-lowest" key={index} />
-              ))}
-            </div>
+            <ProductGridSkeleton />
           </div>
         </div>
       </section>

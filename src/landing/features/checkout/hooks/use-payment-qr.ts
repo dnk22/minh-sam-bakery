@@ -1,5 +1,6 @@
 "use client";
 
+import { pageLoading } from "../../../../shared/stores/page-loading.store.ts";
 import { useEffect, useState } from "react";
 import type { QrPaymentConfig } from "../../../../lib/contracts/qr-payment/qr-payment.types.ts";
 import { getPaymentQr } from "../api/payment-qr.client.ts";
@@ -23,12 +24,13 @@ export function usePaymentQr(sessionId: string | null, enabled: boolean) {
   useEffect(() => {
     if (!enabled || !sessionId) return;
     const controller = new AbortController();
+    const release = pageLoading.begin();
     void loadPaymentQrForSession(sessionId, controller.signal).then(config => {
       if (config) setState({ sessionId, status: "ready", config });
     }).catch(() => {
       if (!controller.signal.aborted && isCurrentCheckoutSession(sessionId)) setState({ sessionId, status: "unavailable" });
-    });
-    return () => controller.abort();
+    }).finally(release);
+    return () => { controller.abort(); release(); };
   }, [enabled, sessionId]);
   return visible;
 }

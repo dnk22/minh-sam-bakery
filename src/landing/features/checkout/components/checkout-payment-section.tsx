@@ -1,4 +1,4 @@
-import { CreditCard, Store, AlertCircle, LoaderCircle } from "lucide-react";
+import { CreditCard, Store, AlertCircle } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { PaymentQrState } from "../hooks/use-payment-qr";
@@ -37,7 +37,6 @@ export function CheckoutPaymentSection({ draft, errors, onUpdate, qrStatus }: {
           note={isDelivery ? "Chỉ áp dụng khi nhận bánh tại cửa hàng" : "Thanh toán khi đến nhận bánh"}
         />
       </fieldset>
-      {qrStatus === "loading" ? <p role="status" className="mt-3 flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant"><LoaderCircle aria-hidden="true" className="size-4 shrink-0 motion-safe:animate-spin" />Đang kiểm tra phương thức chuyển khoản...</p> : null}
       {qrStatus === "unavailable" ? <p role="status" className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 font-body-sm text-body-sm text-amber-800"><AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0" /><span>Phương thức chuyển khoản ngân hàng hiện chưa có sẵn. {isDelivery ? "Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." : "Bạn có thể thanh toán tại cửa hàng."}</span></p> : null}
       {errors.paymentMethod ? (
         <p className="mt-2 font-body-sm text-error" role="alert">{errors.paymentMethod}</p>

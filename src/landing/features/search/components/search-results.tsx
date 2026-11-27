@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 
 import { Pagination } from "@/landing/components/ui/pagination";
+import { ProductGridSkeleton } from "@/landing/features/catalog/components/product/product-card-skeleton";
 import { ProductCard } from "@/landing/features/catalog/components/product/product-card";
 import type { CatalogCategory } from "@/landing/features/catalog/types";
 
@@ -14,12 +15,14 @@ type SearchResultsProps = SearchFilterActions & {
   query: SearchQuery;
   results: GlobalSearchResults | null;
   onRetry: () => void;
+  pending?: boolean;
 };
 
 export function SearchResults({
-  categories, query, results, onChange, onReset, onRetry,
+  categories, query, results, onChange, onReset, onRetry, pending = false,
 }: SearchResultsProps) {
   if (!results) {
+    if (pending) return <ProductGridSkeleton />;
     return (
       <div role="alert" className="rounded-xl bg-surface-container-lowest px-space-lg py-space-xl text-center shadow-sm">
         <h2 className="font-headline-sm text-headline-sm text-primary">Chưa thể tải kết quả tìm kiếm</h2>
@@ -37,6 +40,7 @@ export function SearchResults({
 
   return (
     <>
+      <div inert={pending}>
       <SearchResultsToolbar
         query={query}
         categories={categories}
@@ -45,14 +49,15 @@ export function SearchResults({
         onChange={onChange}
         onReset={onReset}
       />
-      {products.length ? (
+      </div>
+      {pending ? <ProductGridSkeleton count={products.length || 9} /> : products.length ? (
         <div aria-label="Sản phẩm tìm thấy" className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
       ) : (
         <SearchEmptyState hasFilters={hasFilters} onReset={onReset} />
       )}
-      <Pagination pagination={pagination} onPage={(page) => onChange({ page })} />
+      <div inert={pending}><Pagination pagination={pagination} onPage={(page) => onChange({ page })} /></div>
     </>
   );
 }

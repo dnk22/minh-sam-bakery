@@ -49,9 +49,10 @@ export function CategoryStorefrontPage({
             onSearch={(q) => navigation.change({ q })}
             placeholder={`Tìm sản phẩm trong ${category.name}...`}
             value={query.q}
+            pending={navigation.pending}
           />
         </div>
-        <CatalogBrowser basePath={basePath} page={page} query={query} />
+        <CatalogBrowser navigation={navigation} page={page} query={query} />
       </section>
 
       <CrossCategoryDiscovery products={crossCategoryProducts} />
