@@ -2,6 +2,7 @@
 
 import type { ComponentProps, ReactNode } from "react";
 
+import { useToolbarPending } from "@/cms/components/toolbar/toolbar-pending-context";
 import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
 import { cn } from "@/cms/lib/cn";
 
@@ -21,13 +22,15 @@ export function CmsInput({
   className,
   containerClassName,
   controlSize = "default",
-  disabled,
+  disabled: disabledProp,
   id,
   invalid,
   leadingIcon,
   trailingIcon,
   ...props
 }: CmsInputProps) {
+  const { pending } = useToolbarPending();
+  const disabled = disabledProp || pending;
   const field = useCmsFormFieldControl({
     id,
     describedBy: ariaDescribedBy,

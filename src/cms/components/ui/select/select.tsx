@@ -5,6 +5,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useId, useState, type ComponentPropsWithRef, type ReactNode } from "react";
 import { useController, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 
+import { useToolbarPending } from "@/cms/components/toolbar/toolbar-pending-context";
 import { useCmsFormFieldControl } from "@/cms/components/ui/form-field/form-field";
 import { CmsDropdown, CmsDropdownContent, CmsDropdownTrigger } from "@/cms/components/ui/dropdown-menu";
 import { cn } from "@/cms/lib/cn";
@@ -44,7 +45,7 @@ export function CmsSelect({
   containerClassName,
   controlSize = "default",
   defaultValue = "",
-  disabled,
+  disabled: disabledProp,
   id,
   invalid,
   name,
@@ -56,6 +57,8 @@ export function CmsSelect({
   value,
   ...triggerProps
 }: CmsSelectProps) {
+  const { pending } = useToolbarPending();
+  const disabled = disabledProp || pending;
   const field = useCmsFormFieldControl({ id, describedBy, invalid, ariaInvalid });
   const generatedId = useId();
   const menuId = `${field.controlId ?? generatedId}-options`;
@@ -64,14 +67,14 @@ export function CmsSelect({
   const selected = value === undefined ? internalValue : String(value);
   const selectedOption = options.find((option) => String(option.value) === selected);
   const changeValue = (next: string) => {
-    if (next === selected) return;
+    if (disabled || next === selected) return;
     if (value === undefined) setInternalValue(next);
     onValueChange?.(next);
     onChange?.({ target: { value: next } });
   };
 
   return (
-    <CmsDropdown modal={false} onOpenChange={setOpen} open={open}>
+    <CmsDropdown modal={false} onOpenChange={next => setOpen(!disabled && next)} open={!disabled && open}>
       <span className={cn(styles.root, containerClassName)} data-size={controlSize} data-disabled={disabled || undefined} data-invalid={field.invalid || undefined}>
         {name ? <input name={name} type="hidden" value={selected} disabled={disabled} /> : null}
         <CmsDropdownTrigger asChild>
@@ -79,7 +82,7 @@ export function CmsSelect({
             {...triggerProps}
             aria-controls={menuId}
             aria-describedby={field.describedBy}
-            aria-expanded={open}
+            aria-expanded={!disabled && open}
             aria-invalid={field.invalid || undefined}
             aria-label={ariaLabel}
             aria-required={required || undefined}

@@ -1,25 +1,10 @@
 import { createStore } from "zustand/vanilla";
+import { createLoadingOperations } from "./page-loading-operations.ts";
 
 export function createPageLoadingStore() {
   const store = createStore<{ activeCount: number }>(() => ({ activeCount: 0 }));
-  const tokens = new Set<symbol>();
-
-  function begin() {
-    const token = Symbol("page-loading");
-    tokens.add(token);
-    store.setState({ activeCount: tokens.size });
-    return () => {
-      if (tokens.delete(token)) store.setState({ activeCount: tokens.size });
-    };
-  }
-
-  async function run<T>(operation: () => Promise<T>): Promise<T> {
-    const release = begin();
-    try { return await operation(); }
-    finally { release(); }
-  }
-
-  return { store, begin, run };
+  const operations = createLoadingOperations(activeCount => store.setState({ activeCount }));
+  return { store, ...operations };
 }
 
 export const pageLoading = createPageLoadingStore();
