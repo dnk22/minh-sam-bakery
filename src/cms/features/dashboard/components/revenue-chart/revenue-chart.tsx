@@ -12,13 +12,12 @@ const WIDTH = 640, HEIGHT = 240, LEFT = 78, RIGHT = 16, TOP = 16, BOTTOM = 35;
 const compact = new Intl.NumberFormat("vi-VN", { notation: "compact", maximumFractionDigits: 1 });
 const formatPeriod = (period: string) => period.length === 10 ? period.slice(8) + "/" + period.slice(5, 7) : period.slice(5) + "/" + period.slice(0, 4);
 
-export function RevenueChart({ report, range }: { report: DashboardReport; range: DashboardParams }) {
-  const [group, setGroup] = useState<RevenueGroup>("day");
+export function RevenueChart({ report, range, group, onGroupChange }: { report: DashboardReport; range: DashboardParams; group: RevenueGroup; onGroupChange: (group: RevenueGroup) => void }) {
   const [active, setActive] = useState<string | null>(null);
   const gradient = useId();
   const points = revenuePoints(report, group, range);
   const selected = points.find(item => item.period === active);
-  const peak = Math.max(1, ...points.map(item => Number(item.revenue)));
+  const peak = points.reduce((max, item) => Math.max(max, Number(item.revenue)), 1);
   const innerWidth = WIDTH - LEFT - RIGHT, innerHeight = HEIGHT - TOP - BOTTOM;
   const x = (index: number) => LEFT + (points.length === 1 ? innerWidth / 2 : index / Math.max(1, points.length - 1) * innerWidth);
   const y = (value: number) => TOP + innerHeight * (1 - value / peak);
@@ -27,8 +26,8 @@ export function RevenueChart({ report, range }: { report: DashboardReport; range
   const tickStep = Math.max(1, Math.ceil((points.length - 1) / 5));
   return <section className={styles.panel} aria-label="Biểu đồ doanh thu">
     <header className={styles.heading}><div><h2>Doanh thu</h2><p>Đơn hoàn thành · theo ngày tạo đơn</p></div><div className={styles.switch}>
-      <CmsButton type="button" size="sm" variant={group === "day" ? "default" : "outline"} aria-pressed={group === "day"} onClick={() => { setGroup("day"); setActive(null); }}>Ngày</CmsButton>
-      <CmsButton type="button" size="sm" variant={group === "month" ? "default" : "outline"} aria-pressed={group === "month"} onClick={() => { setGroup("month"); setActive(null); }}>Tháng</CmsButton>
+      <CmsButton type="button" size="sm" variant={group === "day" ? "default" : "outline"} aria-pressed={group === "day"} onClick={() => { onGroupChange("day"); setActive(null); }}>Ngày</CmsButton>
+      <CmsButton type="button" size="sm" variant={group === "month" ? "default" : "outline"} aria-pressed={group === "month"} onClick={() => { onGroupChange("month"); setActive(null); }}>Tháng</CmsButton>
     </div></header>
     {!points.length ? <CollectionState kind="empty">Chưa có dữ liệu doanh thu.</CollectionState> : <>
       <div className={styles.chart} onMouseLeave={() => setActive(null)}>

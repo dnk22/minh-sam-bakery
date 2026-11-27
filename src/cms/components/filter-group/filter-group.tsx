@@ -20,6 +20,7 @@ export function CmsFilterGroup({
   onClear,
   onApply,
   applyDisabled,
+  applyLabel = "Tìm kiếm",
 }: {
   activeCount: number;
   children: ReactNode;
@@ -29,6 +30,7 @@ export function CmsFilterGroup({
   onClear?: () => void;
   onApply?: () => void;
   applyDisabled?: boolean;
+  applyLabel?: string;
 }) {
   const { pending, run } = useToolbarPending();
   const isMobile = useCmsIsMobile();
@@ -60,7 +62,7 @@ export function CmsFilterGroup({
       <div className={styles.body} data-layout={layout}>{children}</div>
       {(onClear && count > 0) || onApply ? <footer className={styles.footer}>
         {onClear && count > 0 ? <CmsButton type="button" size="sm" variant="ghost" disabled={pending} onClick={() => { run(onClear); setPopoverState({ mobile: true, open: false }); }}><X aria-hidden="true" size={15} /> Xóa bộ lọc</CmsButton> : null}
-        {onApply ? <CmsButton type="button" size="sm" disabled={applyDisabled || pending} onClick={() => { run(onApply); setPopoverState({ mobile: true, open: false }); }}><Search aria-hidden="true" size={15} /> Tìm kiếm</CmsButton> : null}
+        {onApply ? <CmsButton type="button" size="sm" disabled={applyDisabled || pending} onClick={() => { run(onApply); setPopoverState({ mobile: true, open: false }); }}><Search aria-hidden="true" size={15} /> {applyLabel}</CmsButton> : null}
       </footer> : null}
     </CmsPopoverContent>
   </CmsPopover>;
