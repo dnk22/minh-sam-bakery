@@ -1,7 +1,7 @@
 import type { CheckoutIntent } from "../../cart/types.ts";
 import type { CheckoutDraft } from "../types.ts";
 import type { CreateOrderInput } from "../../../../lib/contracts/order/order.types.ts";
-import { isCreateOrderInput, MOCK_PAYMENT_IMAGE_URL } from "../../../../lib/contracts/order/order.schema.ts";
+import { isCreateOrderInput, isOrderRequestDraft } from "../../../../lib/contracts/order/order.schema.ts";
 
 export function buildOrderRequest(intent: CheckoutIntent, draft: CheckoutDraft): CreateOrderInput {
   const items = intent.items.map(item => {
@@ -14,8 +14,14 @@ export function buildOrderRequest(intent: CheckoutIntent, draft: CheckoutDraft):
     shippingAddress: draft.fulfillmentMethod === "delivery" ? draft.deliveryAddress : null,
     deliveryDate: draft.receiveDate, deliveryTime: draft.deliveryTime || undefined,
     note: draft.notes || undefined, paymentMethod: draft.paymentMethod,
-    ...(draft.paymentMethod === "BANK_TRANSFER" ? { paymentImageUrl: MOCK_PAYMENT_IMAGE_URL } : {}),
   };
-  if (!isCreateOrderInput(input)) throw new Error("Thông tin đặt hàng không hợp lệ. Vui lòng kiểm tra lại.");
+  if (!isOrderRequestDraft(input)) throw new Error("Thông tin đặt hàng không hợp lệ. Vui lòng kiểm tra lại.");
   return input;
+}
+
+/** Finalize only after a successful upload; the BFF also checks the full contract. */
+export function finalizeTransferOrder(input: CreateOrderInput, paymentImageUrl: string): CreateOrderInput {
+  const result = { ...input, paymentImageUrl };
+  if (input.paymentMethod !== "BANK_TRANSFER" || !isCreateOrderInput(result)) throw new Error("Ảnh chứng từ thanh toán không hợp lệ.");
+  return result;
 }
