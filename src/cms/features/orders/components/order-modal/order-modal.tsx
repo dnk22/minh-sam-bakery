@@ -2,7 +2,7 @@
 import { useCmsConfirm } from "@/cms/context/cms-confirm";
 
 
-import { Check, LoaderCircle, Ban } from "lucide-react";
+import { Check, CircleCheck, LoaderCircle, Ban } from "lucide-react";
 
 import { ResponsiveModal } from "@/cms/components/responsive-modal/responsive-modal";
 import { CmsBadge } from "@/cms/components/ui/badge/badge";
@@ -11,9 +11,9 @@ import { CmsButton } from "@/cms/components/ui/button";
 import { getOrderStatusPresentation } from "../../constants";
 import { useOrderMutations } from "../../hooks/use-order-mutations";
 import { useOrderDetail } from "../../hooks/use-orders";
-import { canPerformOrderAction, targetOrderStatus } from "../../lib/order-views";
+import { canPerformOrderAction, targetOrderStatus, ORDER_ACTION_CONFIG } from "../../lib/order-views";
 import { shortOrderId } from "../../lib/order-format";
-import type { OrderModalState, OrderView } from "../../types";
+import type { OrderAction, OrderModalState, OrderView } from "../../types";
 import { OrderDetail } from "../order-detail/order-detail";
 import styles from "./order-modal.module.css";
 
@@ -28,16 +28,16 @@ export function OrderModal({ view, state, onStateChange }: {
   const detail = useOrderDetail(id);
   const order = detail.data;
   const mutations = useOrderMutations();
-  const canConfirm = Boolean(order && canPerformOrderAction(view, order.status, "confirm"));
-  const canReject = Boolean(order && canPerformOrderAction(view, order.status, "reject"));
+  const availableActions = (["confirm", "complete", "reject"] as const).filter(next => order && canPerformOrderAction(view, order.status, next));
+  const actionConfig = action === "detail" ? null : ORDER_ACTION_CONFIG[action];
   const allowed = action === "detail" || Boolean(order && canPerformOrderAction(view, order.status, action));
   const close = () => onStateChange(null);
 
-  const updateStatus = async (nextAction: "confirm" | "reject") => {
+  const updateStatus = async (nextAction: Exclude<OrderAction, "detail">) => {
     if (!order || !canPerformOrderAction(view, order.status, nextAction) || mutations.updateStatus.isPending) return;
     const next = targetOrderStatus(nextAction);
-    const label = nextAction === "confirm" ? "xác nhận" : "từ chối";
-    if (!await askConfirm({ title: nextAction === "reject" ? "Từ chối đơn hàng" : "Xác nhận đơn hàng", message: `Bạn chắc chắn muốn ${label} đơn ${shortOrderId(order.id)} của ${order.fullName || order.phone}?`, confirmLabel: nextAction === "reject" ? "Từ chối đơn" : "Xác nhận đơn", destructive: nextAction === "reject" })) return;
+    const config = ORDER_ACTION_CONFIG[nextAction];
+    if (!await askConfirm({ title: config.title, message: `Bạn chắc chắn muốn ${config.verb} đơn ${shortOrderId(order.id)} của ${order.fullName || order.phone}?`, confirmLabel: config.confirmLabel, destructive: config.destructive })) return;
     try {
       await mutations.updateStatus.mutateAsync({ id: order.id, status: next });
       onStateChange(null);
@@ -52,17 +52,14 @@ export function OrderModal({ view, state, onStateChange }: {
     <CmsButton type="button" variant={action === "reject" ? "destructive" : "default"}
       disabled={mutations.updateStatus.isPending} onClick={() => updateStatus(action)}>
       {mutations.updateStatus.isPending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> :
-        action === "confirm" ? <Check aria-hidden="true" size={16} /> : <Ban aria-hidden="true" size={16} />}
-      {action === "confirm" ? "Xác nhận đơn" : "Từ chối đơn"}
+        <OrderActionIcon action={action} />}
+      {actionConfig?.confirmLabel}
     </CmsButton>
-  </> : order && action === "detail" && (canConfirm || canReject) ? <>
-    {canConfirm ? <CmsButton type="button" onClick={() => onStateChange({ id: order.id, section: "confirm" })}>
-      <Check aria-hidden="true" size={16} /> Xác nhận
-    </CmsButton> : null}
-    {canReject ? <CmsButton type="button" variant="destructive"
-      onClick={() => onStateChange({ id: order.id, section: "reject" })}>
-      <Ban aria-hidden="true" size={16} /> Từ chối
-    </CmsButton> : null}
+  </> : order && action === "detail" && availableActions.length > 0 ? <>
+    {availableActions.map(next => <CmsButton key={next} type="button" variant={ORDER_ACTION_CONFIG[next].destructive ? "destructive" : "default"}
+      disabled={mutations.updateStatus.isPending} onClick={() => onStateChange({ id: order.id, section: next })}>
+      <OrderActionIcon action={next} /> {ORDER_ACTION_CONFIG[next].label}
+    </CmsButton>)}
   </> : null;
 
   return <ResponsiveModal
@@ -71,7 +68,7 @@ export function OrderModal({ view, state, onStateChange }: {
     footer={actionFooter}
     onOpenChange={(open) => { if (!open && !mutations.updateStatus.isPending) close(); }}
     open={Boolean(state)}
-    title={action === "detail" ? "Chi tiết đơn hàng" : action === "confirm" ? "Xác nhận đơn hàng" : "Từ chối đơn hàng"}
+    title={actionConfig?.title ?? "Chi tiết đơn hàng"}
   >
     {!state ? null
       : detail.isLoading ? <p className={styles.state}>Đang tải đơn hàng…</p>
@@ -88,4 +85,9 @@ export function OrderModal({ view, state, onStateChange }: {
         {mutations.updateStatus.error ? <p className={styles.alert} role="alert">{mutations.updateStatus.error instanceof Error ? mutations.updateStatus.error.message : "Không thể cập nhật trạng thái."}</p> : null}
       </section> : <OrderDetail order={order} />}
   </ResponsiveModal>;
+}
+
+function OrderActionIcon({ action }: { action: Exclude<OrderAction, "detail"> }) {
+  const Icon = action === "reject" ? Ban : action === "complete" ? CircleCheck : Check;
+  return <Icon aria-hidden="true" size={16} />;
 }

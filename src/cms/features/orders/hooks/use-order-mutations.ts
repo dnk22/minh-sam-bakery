@@ -4,6 +4,7 @@ import { blockingMutationOptions } from "@/cms/lib/blocking-mutation-options";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { dashboardQueryKeys } from "@/cms/features/dashboard/lib/dashboard-query-keys";
 import { notify } from "@/cms/lib/notifications";
 
 import { updateOrderStatus } from "../api/orders.client";
@@ -21,6 +22,7 @@ export function useOrderMutations() {
         await Promise.all([
           client.invalidateQueries({ queryKey: listsKey }),
           client.invalidateQueries({ queryKey: detailKey }),
+          client.invalidateQueries({ queryKey: dashboardQueryKeys.all }),
         ]);
         notify.success("Đã cập nhật trạng thái đơn hàng.");
       },
