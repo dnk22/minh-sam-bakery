@@ -7,6 +7,7 @@ import type { DashboardParams, DashboardPreset } from "../types";
 export function useDashboardFilters(initial: DashboardParams) {
   const [applied, setApplied] = useState(initial);
   const [draft, setDraft] = useState(initial);
+  const [appliedPreset, setAppliedPreset] = useState<DashboardPreset>("month");
   const [preset, setPreset] = useState<DashboardPreset>("month");
   function selectPreset(next: DashboardPreset) {
     setPreset(next);
@@ -16,5 +17,5 @@ export function useDashboardFilters(initial: DashboardParams) {
     setPreset("custom");
     setDraft(current => ({ ...current, [key]: value }));
   }
-  return { applied, draft, preset, selectPreset, setDate, setTopLimit: (topLimit: number) => setDraft(current => ({ ...current, topLimit })), valid: validDashboardParams(draft), apply: () => setApplied(draft) };
+  return { applied, appliedPreset, draft, preset, selectPreset, setDate, setTopLimit: (topLimit: number) => setDraft(current => ({ ...current, topLimit })), valid: validDashboardParams(draft), apply: () => { setApplied(draft); setAppliedPreset(preset); } };
 }

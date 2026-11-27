@@ -1,9 +1,11 @@
 .main { display: grid; gap: 1rem; min-width: 0; }
 .heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.heading > div { min-width: 0; }
+.refresh { margin-inline-start: auto; flex-shrink: 0; }
 .heading h1 { margin: 0; font-size: 1.5rem; }
 .heading p, .note { margin: .25rem 0 0; color: var(--cms-muted-foreground); font-size: .875rem; }
 .charts { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 1rem; }
 .products { min-width: 0; display: grid; gap: .75rem; }
 .products h2 { margin: 0; font-size: 1rem; }
 @media(max-width: 1023px) { .charts { grid-template-columns: minmax(0,1fr); } }
-@media(max-width: 767px) { .heading { flex-wrap: wrap; } }
+@media(max-width: 767px) { .heading { flex-wrap: wrap; } .heading > div { flex: 1 1 12rem; } }

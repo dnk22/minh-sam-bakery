@@ -2,7 +2,8 @@
 .heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; }
 .heading h2 { margin: 0; font-size: 1rem; }
 .heading p { margin: .3rem 0 0; color: var(--cms-muted-foreground); font-size: .8125rem; }
-.switch { display: flex; gap: .25rem; }
+.heading > div:first-child { min-width: 0; }
+.switch { display: flex; gap: .25rem; margin-inline-start: auto; flex-shrink: 0; justify-content: flex-end; }
 .chart { width: 100%; min-width: 0; height: 280px; }
 .details { font-size: .8125rem; }
 .details summary { cursor: pointer; }

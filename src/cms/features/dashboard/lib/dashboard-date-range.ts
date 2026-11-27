@@ -1,4 +1,4 @@
-import type { DashboardPreset } from "../types.ts";
+import type { DashboardParams, DashboardPreset, RevenueGroup } from "../types.ts";
 
 const DAY_MS = 86_400_000;
 export function isDashboardDate(value: string) {
@@ -26,4 +26,13 @@ export function getDashboardRange(preset: Exclude<DashboardPreset, "custom">, no
     }
     default: return { from: monthStart, to: today };
   }
+}
+
+/** Choose the chart granularity from the applied preset and inclusive calendar range. */
+export function getDefaultRevenueGroup(preset: DashboardPreset, range: Pick<DashboardParams, "from" | "to">): RevenueGroup {
+  if (preset === "year") return "month";
+  if (preset !== "custom") return "day";
+  if (!isDashboardDate(range.from) || !isDashboardDate(range.to) || range.from > range.to) return "day";
+  const days = (Date.parse(range.to + "T00:00:00Z") - Date.parse(range.from + "T00:00:00Z")) / DAY_MS + 1;
+  return days > 31 ? "month" : "day";
 }
