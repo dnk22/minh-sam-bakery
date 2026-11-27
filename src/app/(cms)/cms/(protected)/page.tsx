@@ -1,6 +1,8 @@
-import { LayoutDashboard } from "lucide-react";
-import { ModulePlaceholder } from "@/cms/components/layout/module-placeholder";
+import { connection } from "next/server";
+import { DashboardPage } from "@/cms/features/dashboard/components/dashboard-page/dashboard-page";
+import { getDashboardRange } from "@/cms/features/dashboard/lib/dashboard-date-range";
 
-export default function CmsDashboardPage() {
-  return <ModulePlaceholder description="Điểm vào cho các module quản trị Minh Sâm Bakery trong những phase tiếp theo." icon={LayoutDashboard} title="Dashboard" />;
+export default async function CmsDashboardPage() {
+  await connection();
+  return <DashboardPage initial={{ ...getDashboardRange("month"), topLimit: 10 }}/>;
 }

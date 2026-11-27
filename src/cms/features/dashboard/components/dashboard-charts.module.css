@@ -1,0 +1,19 @@
+.panel { min-width: 0; padding: 1rem; border: 1px solid var(--cms-border); border-radius: var(--cms-radius); background: var(--cms-card); }
+.heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; }
+.heading h2 { margin: 0; font-size: 1rem; }
+.heading p { margin: .3rem 0 0; color: var(--cms-muted-foreground); font-size: .8125rem; }
+.switch { display: flex; gap: .25rem; }
+.chart { width: 100%; min-width: 0; }
+.chart svg { width: 100%; height: auto; display: block; }
+.axis { stroke: var(--cms-border); }
+.axisLabel { fill: var(--cms-muted-foreground); font-size: 11px; }
+.readout { margin: .75rem 0; font-size: .8125rem; color: var(--cms-muted-foreground); overflow-wrap: anywhere; }
+.details { font-size: .8125rem; }
+.details summary { cursor: pointer; }
+.dataList { display: grid; gap: .4rem; max-height: 14rem; overflow-y: auto; margin-top: .5rem; }
+.dataList > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; border-bottom: 1px solid var(--cms-border); padding: .4rem 0; }
+.donut { display: block; width: min(100%, 180px); margin: 0 auto 1rem; }
+.donutTotal { fill: var(--cms-foreground); font-size: 23px; font-weight: 650; }
+.legend { display: grid; gap: .65rem; padding: 0; margin: 0; list-style: none; }
+.legend li { display: grid; grid-template-columns: .65rem minmax(0,1fr) auto; gap: .5rem; align-items: center; font-size: .8125rem; }
+.dot { width: .65rem; height: .65rem; border-radius: 50%; }
