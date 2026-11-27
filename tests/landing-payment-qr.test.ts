@@ -52,3 +52,31 @@ test("image failures stay local and preserve manual bank transfer", () => {
   assert.match(image, /chuyển khoản thủ công/);
   assert.doesNotMatch(modal + hook + controller + page, /onQrUnavailable|markQrUnavailable|markUnavailable/);
 });
+
+test("payment details use 14px body token and copy the unchanged account number", () => {
+  const root = "src/landing/features/checkout/components/";
+  const modal = readFileSync(root + "checkout-transfer-modal.tsx", "utf8");
+  const details = readFileSync(root + "payment-qr/payment-qr-details.tsx", "utf8");
+  const css = readFileSync("src/app/globals.css", "utf8");
+  assert.doesNotMatch(modal, /description="Chuyển khoản tiền bánh/);
+  assert.match(css, /--text-body-md: 14px/);
+  assert.match(details, /font-body-md text-body-md/);
+  assert.match(details, /value=\{config.accountNumber\}/);
+  assert.match(details, /await navigator.clipboard.writeText\(value\)/);
+  assert.match(details, /setStatus\("copied"\)/);
+  assert.match(details, /setStatus\("failed"\)/);
+  assert.match(details, /aria-label="Sao chép số tài khoản"/);
+  assert.match(details, /type="button"/);
+});
+
+test("account copy icon precedes the value and uses the landing auto-dismiss toast", () => {
+  const details = readFileSync("src/landing/features/checkout/components/payment-qr/payment-qr-details.tsx", "utf8");
+  const notifications = readFileSync("src/landing/components/notifications/landing-notifications.tsx", "utf8");
+  const styles = readFileSync("src/landing/components/notifications/landing-notifications.module.css", "utf8");
+  const layout = readFileSync("src/app/(landing)/layout.tsx", "utf8");
+  assert.ok(details.indexOf('aria-label="Sao chép số tài khoản"') < details.indexOf('select-text'));
+  assert.match(details, /await navigator.clipboard.writeText\(value\);\s*setStatus\("copied"\);\s*toast.success\("Đã sao chép số tài khoản"/);
+  assert.match(notifications, /duration=\{2_000\}/);
+  assert.match(styles, /z-index: 110/);
+  assert.match(layout, /<LandingNotifications \/>/);
+});

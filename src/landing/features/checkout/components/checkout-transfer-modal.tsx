@@ -17,7 +17,7 @@ export function CheckoutTransferModal({ qr, upload, total, pending, blocked, err
 }) {
   const unavailable = qr.status === "unavailable";
   const canConfirm = qr.status === "ready" && !pending && !blocked && upload.status === "ready";
-  return <CheckoutDialog title="Thanh toán chuyển khoản" description="Chuyển khoản tiền bánh và tải ảnh chứng từ trước khi gửi đơn đặt bánh." onClose={onClose} busy={pending}>
+  return <CheckoutDialog title="Thanh toán chuyển khoản" onClose={onClose} busy={pending}>
     {unavailable ? <PaymentQrUnavailable onClose={onClose} /> : <>
       {qr.status === "loading" ? <PaymentQrLoading /> : qr.status === "ready" ? <section className="mt-space-md space-y-3 rounded-xl bg-surface-container-low p-3 sm:p-4">
         <div className="flex flex-wrap justify-between gap-3"><span>Tạm tính tiền bánh</span><strong className="min-w-0 font-price-serif text-primary [overflow-wrap:anywhere]">{formatVnd(total)}</strong></div>
