@@ -1,4 +1,6 @@
-export const CATALOG_PAGE_SIZE = 9;
+import { PRODUCT_PAGE_SIZE } from "../../../lib/product-pagination.ts";
+
+export const CATALOG_PAGE_SIZE = PRODUCT_PAGE_SIZE;
 export const MAX_CATALOG_PAGE = 10_000;
 export const MAX_CATALOG_SEARCH_LENGTH = 100;
 

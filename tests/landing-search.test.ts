@@ -53,13 +53,13 @@ test("search query discards invalid sort/price/page and limits search input", ()
 test("API request uses category UUID, server-side sorting and bounded price ranges", () => {
   const base = parseSearchQuery({ q: "kem", category: "banh-kem", page: "2", sort: "price-asc", price: "under-200" });
   assert.deepEqual(searchFilterRequest(base, categories), {
-    search: "kem", categoryId: "category-1", page: 2, limit: 9, maxPrice: 199999.99, sortBy: "price", sort: "asc",
+    search: "kem", categoryId: "category-1", page: 2, limit: 12, maxPrice: 199999.99, sortBy: "price", sort: "asc",
   });
   assert.deepEqual(searchFilterRequest({ ...base, q: "", category: null, price: "200-500", sort: "recent" }, categories), {
-    page: 2, limit: 9, minPrice: 200000, maxPrice: 500000, sortBy: "createdAt", sort: "desc",
+    page: 2, limit: 12, minPrice: 200000, maxPrice: 500000, sortBy: "createdAt", sort: "desc",
   });
   assert.deepEqual(searchFilterRequest({ ...base, price: "over-500", sort: "price-desc" }, categories), {
-    search: "kem", categoryId: "category-1", page: 2, limit: 9, minPrice: 500000.01, sortBy: "price", sort: "desc",
+    search: "kem", categoryId: "category-1", page: 2, limit: 12, minPrice: 500000.01, sortBy: "price", sort: "desc",
   });
 });
 
