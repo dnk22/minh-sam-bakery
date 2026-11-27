@@ -1,5 +1,6 @@
 "use client";
 
+import { withPageLoading } from "@/shared/stores/page-loading.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
@@ -41,7 +42,7 @@ export function useLogin(redirectTo: string) {
   const onValid = async (credentials: LoginCredentials) => {
     form.clearErrors("root.server");
     try {
-      await authApi.login(credentials);
+      await withPageLoading(() => authApi.login(credentials));
       try { persistRememberedEmail(window.localStorage, credentials.email, rememberEmail); } catch { /* Login must succeed even if localStorage cannot be accessed. */ }
       router.replace(redirectTo);
       router.refresh();

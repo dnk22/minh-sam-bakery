@@ -7,7 +7,7 @@ import { themeQueryKeys } from "../lib/theme-query-keys";
 
 export function useThemeActivation() {
   const client = useQueryClient();
-  return useMutation({
+  return useMutation({ meta: { pageLoading: true },
     mutationFn: activateTheme,
     retry: false,
     onSettled: async () => {

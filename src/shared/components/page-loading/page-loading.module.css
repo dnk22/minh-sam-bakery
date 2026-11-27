@@ -1,0 +1,27 @@
+.dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(10rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  padding: 1.5rem;
+  border: 1px solid var(--page-loading-border, var(--color-outline-variant, #d4d4d4));
+  border-radius: var(--page-loading-radius, 0.75rem);
+  background: var(--page-loading-background, var(--color-surface-container-lowest, #fff));
+  color: var(--page-loading-foreground, var(--color-on-surface, #171717));
+  box-shadow: 0 16px 48px rgb(0 0 0 / 20%);
+}
+.dialog:has(p) { width: min(26rem, calc(100% - 2rem)); }
+.dialog::backdrop {
+  background: rgb(0 0 0 / 24%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.content { display: grid; justify-items: center; gap: .75rem; text-align: center; }
+.content h2 { margin: 0; font-size: .875rem; font-weight: 600; line-height: 1.5; }
+.content p { margin: 0; font-size: .875rem; overflow-wrap: anywhere; }
+.spinner { color: var(--page-loading-accent, var(--color-primary, currentColor)); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }

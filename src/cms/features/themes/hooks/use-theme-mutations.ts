@@ -16,17 +16,17 @@ export function useThemeMutations() {
     ]);
   };
   return {
-    create: useMutation({
+    create: useMutation({ meta: { pageLoading: true },
       mutationFn: createTheme,
       onSuccess: async (theme) => { await refresh(theme.id); notify.success("Đã tạo theme nháp."); },
       onError: () => notify.error("Không thể tạo theme. Vui lòng kiểm tra thông tin."),
     }),
-    update: useMutation({
+    update: useMutation({ meta: { pageLoading: true },
       mutationFn: ({ id, input }: { id: string; input: ThemePatchInput }) => updateTheme(id, input),
       onSuccess: async (theme) => { await refresh(theme.id); notify.success("Đã cập nhật theme."); },
       onError: () => notify.error("Không thể cập nhật theme."),
     }),
-    remove: useMutation({
+    remove: useMutation({ meta: { pageLoading: true },
       mutationFn: deleteTheme,
       onSuccess: async (result) => { await refresh(result.id); notify.success("Đã xóa theme."); },
       onError: () => notify.error("Không thể xóa theme."),

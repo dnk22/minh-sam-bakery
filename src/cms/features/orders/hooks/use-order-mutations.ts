@@ -11,7 +11,7 @@ import type { UpdateOrderStatusInput } from "../types";
 export function useOrderMutations() {
   const client = useQueryClient();
   return {
-    updateStatus: useMutation({
+    updateStatus: useMutation({ meta: { pageLoading: true },
       mutationFn: ({ id, status }: { id: string; status: UpdateOrderStatusInput["status"] }) => updateOrderStatus(id, { status }),
       onSuccess: async (order) => {
         client.setQueryData(orderQueryKeys.detail(order.id), order);

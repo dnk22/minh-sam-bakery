@@ -22,9 +22,9 @@ export function useRoleMutations() {
     ]);
   };
   return {
-    create: useMutation({ mutationFn: (input: CreateRoleInput) => createRole(input), onSuccess: async (role) => { await invalidate(role.id); notify.success("Đã tạo vai trò.", "role-save"); }, onError: () => notify.error("Không thể tạo vai trò. Vui lòng thử lại.", "role-save") }),
-    update: useMutation({ mutationFn: ({ id, input }: { id: string; input: UpdateRoleInput }) => updateRole(id, input), onSuccess: async (role) => { await invalidate(role.id); notify.success("Đã cập nhật vai trò.", "role-save"); }, onError: () => notify.error("Không thể cập nhật vai trò. Vui lòng thử lại.", "role-save") }),
-    permissions: useMutation({
+    create: useMutation({ meta: { pageLoading: true }, mutationFn: (input: CreateRoleInput) => createRole(input), onSuccess: async (role) => { await invalidate(role.id); notify.success("Đã tạo vai trò.", "role-save"); }, onError: () => notify.error("Không thể tạo vai trò. Vui lòng thử lại.", "role-save") }),
+    update: useMutation({ meta: { pageLoading: true }, mutationFn: ({ id, input }: { id: string; input: UpdateRoleInput }) => updateRole(id, input), onSuccess: async (role) => { await invalidate(role.id); notify.success("Đã cập nhật vai trò.", "role-save"); }, onError: () => notify.error("Không thể cập nhật vai trò. Vui lòng thử lại.", "role-save") }),
+    permissions: useMutation({ meta: { pageLoading: true },
       mutationFn: ({ id, permissionIds }: { id: string; permissionIds: string[] }) => replaceRolePermissions(id, permissionIds),
       onSuccess: async (_, variables) => {
         await invalidate(variables.id);
@@ -39,6 +39,6 @@ export function useRoleMutations() {
       },
       onError: () => notify.error("Không thể cập nhật phân quyền. Vui lòng thử lại.", "role-save"),
     }),
-    remove: useMutation({ mutationFn: deleteRole, onSuccess: async (result) => { await invalidate(result.id); notify.success("Đã xóa vai trò."); }, onError: () => notify.error("Không thể xóa vai trò. Vui lòng thử lại.") }),
+    remove: useMutation({ meta: { pageLoading: true }, mutationFn: deleteRole, onSuccess: async (result) => { await invalidate(result.id); notify.success("Đã xóa vai trò."); }, onError: () => notify.error("Không thể xóa vai trò. Vui lòng thử lại.") }),
   };
 }

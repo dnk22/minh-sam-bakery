@@ -28,8 +28,8 @@ export function useCategoryMutations() {
     ]);
   };
   return {
-    create: useMutation({ mutationFn: createCategory, onSuccess: async (category) => { client.setQueryData(categoryQueryKeys.detail(category.id), category); await invalidate(category.id); notify.success("Đã thêm danh mục."); }, onError: () => notify.error("Không thể thêm danh mục. Vui lòng thử lại.") }),
-    update: useMutation({ mutationFn: ({ id, input }: { id: string; input: Partial<CategoryWriteInput> }) => updateCategory(id, input), onSuccess: async (category) => { client.setQueryData(categoryQueryKeys.detail(category.id), category); await invalidate(category.id); notify.success("Đã cập nhật danh mục."); }, onError: () => notify.error("Không thể cập nhật danh mục. Vui lòng thử lại.") }),
-    remove: useMutation({ mutationFn: deleteCategory, onSuccess: async (result) => { await invalidate(result.id); notify.success("Đã xóa danh mục."); }, onError: () => notify.error("Không thể xóa danh mục. Vui lòng thử lại.") }),
+    create: useMutation({ meta: { pageLoading: true }, mutationFn: createCategory, onSuccess: async (category) => { client.setQueryData(categoryQueryKeys.detail(category.id), category); await invalidate(category.id); notify.success("Đã thêm danh mục."); }, onError: () => notify.error("Không thể thêm danh mục. Vui lòng thử lại.") }),
+    update: useMutation({ meta: { pageLoading: true }, mutationFn: ({ id, input }: { id: string; input: Partial<CategoryWriteInput> }) => updateCategory(id, input), onSuccess: async (category) => { client.setQueryData(categoryQueryKeys.detail(category.id), category); await invalidate(category.id); notify.success("Đã cập nhật danh mục."); }, onError: () => notify.error("Không thể cập nhật danh mục. Vui lòng thử lại.") }),
+    remove: useMutation({ meta: { pageLoading: true }, mutationFn: deleteCategory, onSuccess: async (result) => { await invalidate(result.id); notify.success("Đã xóa danh mục."); }, onError: () => notify.error("Không thể xóa danh mục. Vui lòng thử lại.") }),
   };
 }
