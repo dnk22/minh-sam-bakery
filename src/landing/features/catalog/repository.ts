@@ -39,13 +39,11 @@ export const getCatalogProduct = cache(async (categorySlug: string, productSlug:
   fetchProduct(categorySlug, productSlug),
 );
 
-export async function getCrossCategoryProducts(categorySlug: string, limit = 4) {
-  if (limit <= 0) return [];
+export async function getCrossCategoryProducts(categorySlug: string) {
   const response = await fetchRelatedOtherCategoryProducts(categorySlug);
   return normalizeCrossCategoryProducts(
     response.items.map(adaptProduct),
     categorySlug,
-    Math.min(limit, 4),
   );
 }
 
