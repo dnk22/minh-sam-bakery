@@ -13,6 +13,7 @@ type CmsToolbarProps = {
   label: string;
   onSearch: () => void;
   searchDisabled?: boolean;
+  searchLabel?: string;
   fetching?: boolean;
   onClear?: () => void;
   search: ReactNode;
@@ -22,7 +23,7 @@ type CmsToolbarProps = {
   feedback?: ReactNode;
 };
 
-export function CmsToolbar({ label, search, filters, actions, trailing, feedback, onSearch, searchDisabled, onClear, fetching = false }: CmsToolbarProps) {
+export function CmsToolbar({ label, search, filters, actions, trailing, feedback, onSearch, searchDisabled, searchLabel, onClear, fetching = false }: CmsToolbarProps) {
   const state = useToolbarSearchPending(fetching);
   return (
     <ToolbarPendingContext value={state}>
@@ -31,7 +32,7 @@ export function CmsToolbar({ label, search, filters, actions, trailing, feedback
           <fieldset disabled={state.pending} className={styles.controls}>
             <div className={styles.search}>{search}</div>
             {filters}
-            <CmsToolbarSearchButton disabled={searchDisabled || state.pending} pending={state.pending} />
+            <CmsToolbarSearchButton disabled={searchDisabled || state.pending} pending={state.pending} label={searchLabel} />
             {onClear ? <CmsButton type="button" className={styles.clear} variant="ghost" aria-label="Xóa tất cả bộ lọc" title="Xóa tất cả bộ lọc" onClick={() => state.run(onClear)}><X aria-hidden="true" size={16} /><span className={styles.submitLabel}>Xóa tất cả</span></CmsButton> : null}
             {actions ? <div className={styles.actions}>{actions}</div> : null}
           </fieldset>
