@@ -2,22 +2,39 @@ import "server-only";
 
 import { backendAssetUrl } from "@/lib/api/client";
 import type { ProductResponseDto } from "@/lib/api/types";
-import { adaptProduct, adaptVariant } from "@/landing/features/catalog/adapters";
+import {
+  adaptProduct,
+  adaptVariant,
+} from "@/landing/features/catalog/adapters";
 import type { CatalogProduct } from "@/landing/features/catalog/types";
 import { routes } from "@/landing/lib/routes";
 
 import type { FixedPriceProductDetail, PresentationCard } from "./types";
 
-export function adaptApiProductDetail(dto: ProductResponseDto, related: CatalogProduct[]): FixedPriceProductDetail {
+export function adaptApiProductDetail(
+  dto: ProductResponseDto,
+  related: CatalogProduct[],
+): FixedPriceProductDetail {
   const catalog = adaptProduct(dto);
-  const sortedImages = [...dto.images].sort((a, b) => Number(b.isCover) - Number(a.isCover) || a.sortOrder - b.sortOrder);
-  const gallery = sortedImages.map((image) => ({ src: backendAssetUrl(image.url) ?? catalog.image, alt: image.alt ?? catalog.name }));
-  const activeVariants = dto.variants.filter((variant) => variant.status === "ACTIVE").sort((a, b) => a.sortOrder - b.sortOrder).map(adaptVariant);
+  const sortedImages = [...dto.images].sort(
+    (a, b) =>
+      Number(b.isCover) - Number(a.isCover) || a.sortOrder - b.sortOrder,
+  );
+  const gallery = sortedImages.map((image) => ({
+    src: backendAssetUrl(image.url) ?? catalog.image,
+    alt: image.alt ?? catalog.name,
+  }));
+  const activeVariants = dto.variants
+    .filter((variant) => variant.status === "ACTIVE")
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(adaptVariant);
   return {
     catalog,
     categoryLabel: dto.categoryName,
     heroImage: gallery[0] ?? { src: catalog.image, alt: catalog.imageAlt },
-    gallery: gallery.length ? gallery : [{ src: catalog.image, alt: catalog.imageAlt }],
+    gallery: gallery.length
+      ? gallery
+      : [{ src: catalog.image, alt: catalog.imageAlt }],
     pricing: {
       variants: activeVariants.length
         ? activeVariants.map((variant) => ({
@@ -42,12 +59,20 @@ export function adaptApiProductDetail(dto: ProductResponseDto, related: CatalogP
           })),
     },
     presentation: {
-      eyebrow: `DÒNG ${dto.categoryName.toLocaleUpperCase("vi")} • SẢN PHẨM MINH SÂM`,
+      eyebrow: dto.categoryName.toLocaleUpperCase("vi"),
       checkoutAvailable: catalog.pricing.available,
-      checkoutUnavailableMessage: "Hiện chưa có quy cách sản phẩm khả dụng. Vui lòng chọn sản phẩm khác.",
-      priceUnitLabel: dto.variants.filter((variant) => variant.status === "ACTIVE").length > 1 ? "/ quy cách đã chọn" : "/ sản phẩm",
-      productionNote: dto.isBestSeller ? "Sản phẩm bán chạy" : dto.isFeatured ? "Sản phẩm nổi bật" : "Giá từ hệ thống",
-      availabilityNote: "Vui lòng liên hệ để xác nhận tồn kho",
+      checkoutUnavailableMessage:
+        "Hiện chưa có quy cách sản phẩm khả dụng. Vui lòng chọn sản phẩm khác.",
+      priceUnitLabel:
+        dto.variants.filter((variant) => variant.status === "ACTIVE").length > 1
+          ? ""
+          : "/ sản phẩm",
+      productionNote: dto.isBestSeller
+        ? "Sản phẩm bán chạy"
+        : dto.isFeatured
+          ? "Sản phẩm nổi bật"
+          : "",
+      availabilityNote: "",
       pairingEyebrow: "THÔNG TIN SẢN PHẨM",
       pairingTitle: dto.name,
       pairingDescription: dto.description ?? dto.shortDescription ?? "",

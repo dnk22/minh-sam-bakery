@@ -21,8 +21,14 @@ export function FixedPriceProductPage({ product }: { product: FixedPriceProductD
       </section> : null}
 
       {product.relatedProducts.length > 0 ? <section className="mx-auto w-full max-w-[1360px] px-margin pb-space-xl md:px-margin-tablet lg:px-margin-desktop">
-        <div className="mb-space-md flex items-center justify-between"><div><span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">BỘ SƯU TẬP TƯƠNG ĐỒNG</span><h2 className="mt-1 font-headline-md text-headline-md text-primary">Có Thể Bạn Cũng Thích</h2></div><Link className="flex items-center gap-1 font-label-ui text-body-sm font-semibold text-primary hover:text-on-primary-container" href={routes.category(product.catalog.categorySlug)}>Xem tất cả sản phẩm <ChevronRight className="size-[18px]" /></Link></div>
-        <div className="grid grid-cols-2 gap-gutter-desktop md:grid-cols-4">{product.relatedProducts.map((card) => card.catalogProduct ? <ProductCard imageAspect="square" key={card.title} product={card.catalogProduct} /> : <RelatedProductCard card={card} key={card.title} />)}</div>
+        <div className="mb-space-md">
+          <span className="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-secondary">BỘ SƯU TẬP TƯƠNG ĐỒNG</span>
+          <div className="mt-1 flex items-center justify-between gap-3">
+            <h2 className="min-w-0 font-headline-md text-[24px] leading-tight text-primary sm:text-headline-md">Có Thể Bạn Cũng Thích</h2>
+            <Link className="flex shrink-0 items-center gap-0.5 whitespace-nowrap font-label-ui text-[12px] font-semibold text-primary hover:text-on-primary-container sm:gap-1 sm:text-body-sm" href={routes.category(product.catalog.categorySlug)}>Xem tất cả sản phẩm <ChevronRight aria-hidden="true" className="size-4 sm:size-[18px]" /></Link>
+          </div>
+        </div>
+        <div className={`grid gap-gutter-desktop ${product.relatedProducts.length === 1 ? "grid-cols-1" : "grid-cols-2"} md:grid-cols-4`}>{product.relatedProducts.map((card) => card.catalogProduct ? <ProductCard imageAspect="square" key={card.title} product={card.catalogProduct} /> : <RelatedProductCard card={card} key={card.title} />)}</div>
       </section> : null}
     </main>
   );

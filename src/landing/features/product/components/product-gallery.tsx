@@ -8,9 +8,10 @@ import type { ProductImage } from "../types";
 type ProductGalleryProps = {
   heroImage: ProductImage;
   images: ProductImage[];
+  productionNote: string;
 };
 
-export function ProductGallery({ heroImage, images }: ProductGalleryProps) {
+export function ProductGallery({ heroImage, images, productionNote }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeImage = images[activeIndex] ?? heroImage;
 
@@ -22,9 +23,11 @@ export function ProductGallery({ heroImage, images }: ProductGalleryProps) {
           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           src={activeImage.src}
         />
-        <span className="pointer-events-none absolute top-4 left-4 rounded-sm bg-primary-container/90 px-3 py-1 font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-on-primary shadow-sm">
-          Minh Sâm Bakery
-        </span>
+        {productionNote ? (
+          <span className="pointer-events-none absolute top-4 left-4 rounded-sm bg-primary-container/90 px-3 py-1 font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-on-primary shadow-sm">
+            {productionNote}
+          </span>
+        ) : null}
       </div>
       {images.length > 1 ? (
         <div className="grid grid-cols-5 gap-2.5 sm:gap-space-sm">
