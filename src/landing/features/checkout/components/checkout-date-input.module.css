@@ -1,0 +1,32 @@
+/* Native date controls on iOS have an intrinsic minimum width. */
+.input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 48px;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-inline-end: 2.5rem;
+  position: relative;
+}
+
+.input::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: start;
+}
+
+.input::-webkit-datetime-edit {
+  min-width: 0;
+  padding: 0;
+}
+
+.input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  cursor: pointer;
+}

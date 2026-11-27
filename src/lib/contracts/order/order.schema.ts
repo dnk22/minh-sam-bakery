@@ -1,5 +1,6 @@
 import type { CreateOrderInput, Order, OrderItem, OrderStatus } from "./order.types.ts";
 
+import { isVietnamMobilePhone } from "./vietnam-mobile-phone.ts";
 import { isPaymentProofUrl } from "./payment-proof.ts";
 
 const decimal = /^(?:0|[1-9]\d*)(?:\.\d+)?$/;
@@ -31,7 +32,7 @@ export function isOrderRequestDraft(v: unknown): v is CreateOrderInput {
   if (!v.items.every(x => x.quantity <= 20) || new Set(v.items.map(x => JSON.stringify([x.productId,x.variantId]))).size !== v.items.length) return false;
   if (Object.keys(v).some(key => !["items","fullName","phone","email","fulfillmentMethod","shippingAddress","deliveryDate","deliveryTime","paymentMethod","paymentImageUrl","note"].includes(key)) ||
       v.items.some(x => Object.keys(x).some(key => !["productId","variantId","quantity"].includes(key)))) return false;
-  return nonempty(v.fullName) && v.fullName.length <= 100 && str(v.phone) && /^(?:\+84|0)(?:\d[ .-]?){8,10}$/.test(v.phone) &&
+  return nonempty(v.fullName) && v.fullName.length <= 100 && isVietnamMobilePhone(v.phone) &&
     (v.email === undefined || (str(v.email) && v.email.length <= 150 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email))) &&
     fulfillment(v.fulfillmentMethod) && payment(v.paymentMethod) &&
     (v.fulfillmentMethod === "DELIVERY" ? nonempty(v.shippingAddress) && v.shippingAddress.length <= 250 && v.paymentMethod === "BANK_TRANSFER" : v.shippingAddress == null) &&

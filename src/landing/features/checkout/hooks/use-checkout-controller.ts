@@ -2,6 +2,7 @@
 
 import { type FormEvent, useEffect, useState, useSyncExternalStore } from "react";
 
+import { normalizeVietnamMobilePhone } from "@/lib/contracts/order/vietnam-mobile-phone";
 import { useCartHydrated } from "@/landing/features/cart/components/cart-hydration";
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
 import type { CreateOrderInput } from "@/lib/contracts/order/order.types";
@@ -19,7 +20,7 @@ import {
   type CheckoutSessionSnapshot,
 } from "../store/checkout-session-store";
 import type { CheckoutDraft, CheckoutErrors, CheckoutField, FulfillmentMethod } from "../types";
-import { initialCheckoutDraft, localCalendarDate, normalizeCheckoutDraft, validateCheckoutDraft } from "../validation";
+import { initialCheckoutDraft, localCalendarDate, normalizeCheckoutDraft, validateCheckoutDraft, validateCheckoutPhone } from "../validation";
 
 // The session is read only after hydration. The external-store snapshot is a
 // stable boolean, not a freshly allocated object.
@@ -75,6 +76,18 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
         delete next.receiveDate;
         delete next.paymentMethod;
       }
+      return next;
+    });
+  };
+
+  const validatePhoneOnBlur = (value: string) => {
+    const message = validateCheckoutPhone(value);
+    const normalized = normalizeVietnamMobilePhone(value);
+    if (normalized) setDraft(current => ({ ...current, phone: normalized }));
+    setErrors(current => {
+      const next = { ...current };
+      if (message) next.phone = message;
+      else delete next.phone;
       return next;
     });
   };
@@ -143,6 +156,7 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
     errors,
     today,
     updateDraft,
+    validatePhoneOnBlur,
     chooseFulfillment,
     checkInformation,
   };

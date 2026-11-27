@@ -1,3 +1,4 @@
+import { restoreReceiveDate } from "../utils/checkout-date.ts";
 import type { CheckoutDraft } from "../types.ts";
 
 export const CHECKOUT_DRAFT_KEY = "minh-sam-checkout-contact-v1";
@@ -34,7 +35,8 @@ export function readCheckoutDraft(): CheckoutDraft | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.sessionStorage.getItem(CHECKOUT_DRAFT_KEY);
-    return raw ? parseCheckoutDraft(JSON.parse(raw) as unknown) : null;
+    const saved = raw ? parseCheckoutDraft(JSON.parse(raw) as unknown) : null;
+    return saved ? { ...saved, receiveDate: restoreReceiveDate(saved.receiveDate) } : null;
   } catch {
     return null;
   }

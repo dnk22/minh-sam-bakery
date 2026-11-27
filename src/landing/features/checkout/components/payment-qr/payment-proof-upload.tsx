@@ -24,12 +24,28 @@ export function PaymentProofUpload({ upload, disabled }: { upload: PaymentUpload
     <p className="font-body-sm text-body-sm text-on-surface-variant">Tải ảnh giao dịch thành công để cửa hàng đối soát. Chỉ gửi thông tin liên quan đến giao dịch này.</p>
     {upload.file ? <div className="space-y-2 rounded-lg border border-outline-variant p-3">
       <LocalPreview file={upload.file} />
-      <p className="break-all font-body-sm text-body-sm">{upload.file.name}</p>
-      {upload.status === "uploading" ? <p role="status" className="flex items-center gap-2 text-secondary"><LoaderCircle className="size-4 motion-safe:animate-spin" aria-hidden="true" />Đang tải ảnh...</p> : null}
-      {upload.status === "ready" ? <p role="status" className="flex items-center gap-2 font-body-sm text-primary"><CheckCircle2 className="size-4" aria-hidden="true" />Đã tải ảnh chứng từ.</p> : null}
-      <div className="flex flex-wrap items-center gap-3">
-        {upload.status === "failed" ? <button type="button" disabled={disabled} onClick={upload.retry} className="min-h-10 text-primary underline disabled:opacity-50">Thử lại</button> : null}
-        <button type="button" disabled={disabled} onClick={upload.clear} className="flex min-h-10 items-center gap-1 text-error disabled:opacity-50"><Trash2 className="size-4" aria-hidden="true" />Xóa ảnh</button>
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        {upload.status === "uploading" ? (
+          <p role="status" className="flex min-w-0 items-center gap-1 font-body-sm text-body-sm text-secondary">
+            <LoaderCircle className="size-4 shrink-0 motion-safe:animate-spin" aria-hidden="true" />
+            <span>Đang tải ảnh...</span>
+          </p>
+        ) : null}
+        {upload.status === "ready" ? (
+          <p role="status" className="flex min-w-0 items-center gap-1 font-body-sm text-body-sm text-primary">
+            <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
+            <span>Đã tải ảnh chứng từ</span>
+          </p>
+        ) : null}
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          {upload.status === "failed" ? (
+            <button type="button" disabled={disabled} onClick={upload.retry} className="min-h-10 whitespace-nowrap font-body-sm text-body-sm text-primary underline disabled:opacity-50">Thử lại</button>
+          ) : null}
+          <button type="button" disabled={disabled} onClick={upload.clear} className="flex min-h-10 items-center gap-1 whitespace-nowrap font-body-sm text-body-sm text-error disabled:opacity-50">
+            <Trash2 className="size-4 shrink-0" aria-hidden="true" />
+            Xóa ảnh
+          </button>
+        </div>
       </div>
     </div> : null}
     <label className={`flex min-h-20 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-outline-variant p-3 text-center text-primary focus-within:ring-2 focus-within:ring-primary ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>

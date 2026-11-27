@@ -16,7 +16,7 @@ export function PaymentQrImage({ url }: { url: string }) {
 
   const loaded = status === "loaded";
   return <>
-    <div className="relative mx-auto size-48 max-w-full rounded-lg bg-white p-2" aria-busy={!loaded}>
+    <div className="relative mx-auto aspect-square w-48 max-w-full rounded-lg bg-white p-2" aria-busy={!loaded}>
       {!loaded ? <div aria-hidden="true" className="absolute inset-2 rounded bg-surface-container-high motion-safe:animate-pulse" /> : null}
       <Image src={url} alt="Mã QR chuyển khoản Minh Sâm" width={192} height={192} unoptimized
         className={`relative h-full w-full object-contain ${loaded ? "opacity-100" : "opacity-0"}`}

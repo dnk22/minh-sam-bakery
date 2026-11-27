@@ -21,7 +21,7 @@ export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, err
 
   return (
     <aside
-      className="sticky top-24 rounded-xl bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm"
+      className="min-w-0 rounded-xl lg:sticky lg:top-24 bg-surface-container-lowest p-space-md sm:p-space-lg shadow-sm"
       aria-label="Tóm tắt đơn thanh toán"
     >
       <h2 className="mb-space-md font-headline-md text-headline-sm text-primary">Đơn hàng của bạn</h2>
@@ -31,7 +31,7 @@ export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, err
             <div className="size-16 shrink-0 overflow-hidden rounded-lg bg-surface-container">
               <SafeImage alt={item.productImageAlt} className="size-full object-cover" src={item.productImage} />
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 [overflow-wrap:anywhere]">
               <span className="block font-label-ui text-label-ui text-primary">{item.productName}</span>
               <span className="mt-0.5 block font-body-sm text-[12px] text-on-surface-variant">
                 {item.variantLabel} × {item.quantity}
@@ -54,9 +54,9 @@ export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, err
         </div>
       </div>
       <div className="my-space-lg border-t border-outline-variant" />
-      <div className="flex items-baseline justify-between gap-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="font-headline-sm text-headline-sm font-semibold text-primary">Tạm tính</span>
-        <strong className="font-price-serif text-[24px] text-primary">{formatVnd(subtotal)}</strong>
+        <strong className="font-price-serif text-[20px] text-primary [overflow-wrap:anywhere] sm:text-[24px]">{formatVnd(subtotal)}</strong>
       </div>
       <button
         className="mt-space-lg flex min-h-12 w-full items-center justify-center rounded-lg bg-primary px-space-lg font-label-ui text-label-ui font-semibold text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
@@ -65,7 +65,7 @@ export function CheckoutOrderSummary({ intent, isDelivery, pending, blocked, err
       >
         {pending ? "Đang gửi đơn..." : "Đặt hàng"}
       </button>
-      {error ? <p className="mt-space-md text-error" role="alert">{error}</p> : null}
+      {error ? <p className="mt-space-md text-error [overflow-wrap:anywhere]" role="alert">{error}</p> : null}
       <Link
         className="mt-space-md flex items-center justify-center gap-2 font-body-sm text-secondary hover:underline"
         href={intent.source === "cart" ? routes.cart : checkoutReturnTo(intent.returnTo)}

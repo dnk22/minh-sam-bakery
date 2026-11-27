@@ -77,7 +77,7 @@ function CheckoutSessionPage({ session }: { session: CheckoutSessionSnapshot }) 
           </p>
         </div>
         <form
-          className="grid items-start gap-gutter-desktop lg:grid-cols-[minmax(0,1fr)_minmax(310px,400px)]"
+          className="grid min-w-0 grid-cols-1 items-start gap-gutter-desktop lg:grid-cols-[minmax(0,1fr)_minmax(310px,400px)]"
           noValidate
           onSubmit={checkout.checkInformation}
         >
@@ -86,6 +86,7 @@ function CheckoutSessionPage({ session }: { session: CheckoutSessionSnapshot }) 
               draft={checkout.draft}
               errors={checkout.errors}
               onUpdate={checkout.updateDraft}
+              onPhoneBlur={checkout.validatePhoneOnBlur}
             />
             <CheckoutFulfillmentSection
               draft={checkout.draft}
