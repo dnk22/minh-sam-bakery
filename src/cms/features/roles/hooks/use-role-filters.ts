@@ -7,7 +7,7 @@ export type RoleFilters = {
   search: string;
   page: number;
   isFiltered: boolean;
-  setSearch: (value: string) => void;
+  applyFilters: (values: Pick<RoleFilters, "search">) => void; setSearch: (value: string) => void;
   setPage: (value: number) => void;
   clearFilters: () => void;
 };
@@ -40,6 +40,7 @@ export function useRoleFilters(): RoleFilters {
     search,
     page,
     isFiltered: Boolean(search),
+    applyFilters: useCallback((values: Pick<RoleFilters, "search">) => updateUrl({ search: values.search.trim() || null }, true), [updateUrl]),
     setSearch: useCallback((value: string) => updateUrl({ search: value || null }, true), [updateUrl]),
     setPage: useCallback((value: number) => updateUrl({ page: value }), [updateUrl]),
     clearFilters: useCallback(() => updateUrl({ search: null }, true), [updateUrl]),

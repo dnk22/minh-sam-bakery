@@ -14,6 +14,7 @@ export type OrderFilters = {
   deliveryTime: string;
   page: number;
   isFiltered: boolean;
+  applyFilters: (values: Pick<OrderFilters, "search" | "createdFrom" | "createdTo" | "deliveryDate" | "deliveryTime">) => void;
   setSearch: (value: string) => void;
   setCreatedRange: (range: { createdFrom: string; createdTo: string }) => void;
   setDeliveryDate: (value?: string) => void;
@@ -52,6 +53,16 @@ export function useOrderFilters(): OrderFilters {
     search, createdFrom, createdTo, deliveryDate, deliveryTime, page,
     isFiltered: Boolean(search || deliveryDate || deliveryTime ||
       createdFrom !== initial.createdFrom || createdTo !== initial.createdTo),
+    applyFilters: useCallback((values: Pick<OrderFilters, "search" | "createdFrom" | "createdTo" | "deliveryDate" | "deliveryTime">) => {
+      if (!isValidOrderCreatedRange(values.createdFrom, values.createdTo)) return;
+      commit(query => {
+        query.set("createdFrom", values.createdFrom);
+        query.set("createdTo", values.createdTo);
+        for (const [key, value] of Object.entries({ search: values.search.trim(), deliveryDate: values.deliveryDate, deliveryTime: values.deliveryTime.trim() })) {
+          if (value) query.set(key, value); else query.delete(key);
+        }
+      }, true);
+    }, [commit]),
     setSearch: useCallback((value: string) => commit((query) => value ? query.set("search", value) : query.delete("search"), true), [commit]),
     setCreatedRange: useCallback(({ createdFrom: from, createdTo: to }) => {
       if (!isValidOrderCreatedRange(from, to)) return;

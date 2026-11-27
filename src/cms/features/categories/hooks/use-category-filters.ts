@@ -21,7 +21,7 @@ export type CategoryFilters = {
   view: CategoryView;
   page: number;
   isFiltered: boolean;
-  setSearch: (value: string) => void;
+  applyFilters: (values: Pick<CategoryFilters, "search" | "status">) => void; setSearch: (value: string) => void;
   setStatus: (value?: CategoryStatus) => void;
   setView: (value: CategoryView) => void;
   setPage: (value: number) => void;
@@ -74,6 +74,7 @@ export function useCategoryFilters(): CategoryFilters {
     view,
     page,
     isFiltered: Boolean(search || status),
+    applyFilters: useCallback((values: Pick<CategoryFilters, "search" | "status">) => updateUrl({ search: values.search.trim() || null, status: values.status ?? null }, true), [updateUrl]),
     setSearch: useCallback(
       (value: string) => updateUrl({ search: value || null }, true),
       [updateUrl],

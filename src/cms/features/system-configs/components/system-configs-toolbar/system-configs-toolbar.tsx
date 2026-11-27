@@ -1,20 +1,21 @@
 "use client";
+import { CmsToolbar } from "@/cms/components/toolbar/cms-toolbar";
+import { useToolbarDraft } from "@/cms/hooks/use-toolbar-draft";
 
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 
-import { CmsButton } from "@/cms/components/ui/button";
 import { CmsInput } from "@/cms/components/ui/input/input";
 
 import type { SystemConfigFilters } from "../../hooks/use-system-config-filters";
-import { useSystemConfigSearch } from "../../hooks/use-system-config-search";
-import styles from "./system-configs-toolbar.module.css";
 
 export function SystemConfigsToolbar({ filters }: { filters: SystemConfigFilters }) {
-  const search = useSystemConfigSearch({ value: filters.search, onCommit: filters.setSearch });
-  return <section className={styles.toolbar} aria-label="Bộ lọc cấu hình hệ thống">
-    <CmsInput aria-label="Tìm kiếm cấu hình" containerClassName={styles.search} controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />}
-      onBlur={search.onBlur} onChange={(event) => search.onChange(event.target.value)} onFocus={search.onFocus}
-      placeholder="Tìm theo khóa hoặc mô tả" type="search" value={search.draft} />
-    {filters.isFiltered ? <CmsButton type="button" size="sm" variant="ghost" onClick={filters.clearFilters}><X aria-hidden="true" size={15} /> Xóa tìm kiếm</CmsButton> : null}
-  </section>;
+  const draft = useToolbarDraft({ search: filters.search });
+  const apply = () => filters.applyFilters(draft.values);
+  const clearAll = () => { draft.reset({ search: "" }); filters.clearFilters(); };
+  
+  return <CmsToolbar label="Bộ lọc cấu hình hệ thống" onSearch={apply} onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
+    search={<CmsInput aria-label="Tìm kiếm cấu hình" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Tìm theo khóa hoặc mô tả" type="search" value={draft.values.search} onChange={event => draft.set("search", event.target.value)} />}
+    
+    
+  />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ListFilter, X } from "lucide-react";
+import { ListFilter, Search, X } from "lucide-react";
 import { useId, useState, type ReactNode } from "react";
 
 import { CmsButton } from "@/cms/components/ui/button";
@@ -17,6 +17,8 @@ export function CmsFilterGroup({
   layout = "legacy",
   label,
   onClear,
+  onApply,
+  applyDisabled,
 }: {
   activeCount: number;
   children: ReactNode;
@@ -24,6 +26,8 @@ export function CmsFilterGroup({
   layout?: "legacy" | "toolbar";
   label: string;
   onClear?: () => void;
+  onApply?: () => void;
+  applyDisabled?: boolean;
 }) {
   const isMobile = useCmsIsMobile();
   const titleId = useId();
@@ -34,7 +38,7 @@ export function CmsFilterGroup({
 
   if (!isMobile) return <div className={cn(styles.desktop, className)} data-layout={layout}>{children}</div>;
 
-  const accessibleLabel = count > 0 ? `${label}, ${count} bộ lọc đang áp dụng` : label;
+  const accessibleLabel = count > 0 ? `${label}, ${count} bộ lọc đã chọn` : label;
   return <CmsPopover open={open} onOpenChange={(nextOpen) => setPopoverState({ mobile: true, open: nextOpen })}>
     <CmsPopoverTrigger asChild>
       <CmsButton aria-label={accessibleLabel} className={styles.trigger} size="icon" title={accessibleLabel} type="button" variant={count ? "secondary" : "outline"}>
@@ -52,8 +56,9 @@ export function CmsFilterGroup({
         </CmsPopoverClose>
       </header>
       <div className={styles.body} data-layout={layout}>{children}</div>
-      {onClear && count > 0 ? <footer className={styles.footer}>
-        <CmsButton type="button" size="sm" variant="ghost" onClick={onClear}><X aria-hidden="true" size={15} /> Xóa bộ lọc</CmsButton>
+      {(onClear && count > 0) || onApply ? <footer className={styles.footer}>
+        {onClear && count > 0 ? <CmsButton type="button" size="sm" variant="ghost" onClick={() => { onClear(); setPopoverState({ mobile: true, open: false }); }}><X aria-hidden="true" size={15} /> Xóa bộ lọc</CmsButton> : null}
+        {onApply ? <CmsButton type="button" size="sm" disabled={applyDisabled} onClick={() => { onApply(); setPopoverState({ mobile: true, open: false }); }}><Search aria-hidden="true" size={15} /> Tìm kiếm</CmsButton> : null}
       </footer> : null}
     </CmsPopoverContent>
   </CmsPopover>;

@@ -12,7 +12,7 @@ export type UserFilters = {
   roleId?: string;
   page: number;
   isFiltered: boolean;
-  setSearch: (value: string) => void;
+  applyFilters: (values: Pick<UserFilters, "search" | "status" | "roleId">) => void; setSearch: (value: string) => void;
   setStatus: (value?: UserStatus) => void;
   setRoleId: (value?: string) => void;
   setPage: (value: number) => void;
@@ -47,6 +47,7 @@ export function useUserFilters(): UserFilters {
   return {
     search, status, roleId, page,
     isFiltered: Boolean(search || status || roleId),
+    applyFilters: useCallback((values: Pick<UserFilters, "search" | "status" | "roleId">) => updateUrl({ search: values.search.trim() || null, status: values.status ?? null, roleId: values.roleId ?? null }, true), [updateUrl]),
     setSearch: useCallback((value: string) => updateUrl({ search: value || null }, true), [updateUrl]),
     setStatus: useCallback((value?: UserStatus) => updateUrl({ status: value ?? null }, true), [updateUrl]),
     setRoleId: useCallback((value?: string) => updateUrl({ roleId: value ?? null }, true), [updateUrl]),

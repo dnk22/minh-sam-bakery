@@ -1,77 +1,38 @@
 "use client";
 
-import { Search, X } from "lucide-react";
-import { useState } from "react";
-
+import { Search } from "lucide-react";
+import { CmsToolbar } from "@/cms/components/toolbar/cms-toolbar";
+import { CmsToolbarField } from "@/cms/components/toolbar/cms-toolbar-field";
 import { CmsFilterGroup } from "@/cms/components/filter-group/filter-group";
-import { CmsButton } from "@/cms/components/ui/button";
-import { CmsFormField } from "@/cms/components/ui/form-field/form-field";
 import { CmsInput } from "@/cms/components/ui/input/input";
-
+import { useToolbarDraft } from "@/cms/hooks/use-toolbar-draft";
 import type { OrderFilters } from "../../hooks/use-order-filters";
-import { useOrderSearch } from "../../hooks/use-order-search";
-import { countOrderAdvancedFilters } from "../../lib/order-data";
-import { isValidOrderCreatedRange } from "../../lib/order-format";
-import styles from "./orders-toolbar.module.css";
-
-function OrderDateRange({ filters }: { filters: OrderFilters }) {
-  const [draft, setDraft] = useState({ createdFrom: filters.createdFrom, createdTo: filters.createdTo });
-  const valid = isValidOrderCreatedRange(draft.createdFrom, draft.createdTo);
-  const changed = draft.createdFrom !== filters.createdFrom || draft.createdTo !== filters.createdTo;
-
-  return <div className={styles.dateRange} role="group" aria-label="Khoảng ngày tạo đơn">
-    <CmsFormField htmlFor="order-created-from" label="Tạo từ ngày" required>
-      <CmsInput
-        id="order-created-from"
-        type="date"
-        max={draft.createdTo}
-        value={draft.createdFrom}
-        onChange={(event) => setDraft((current) => ({ ...current, createdFrom: event.target.value }))}
-      />
-    </CmsFormField>
-    <CmsFormField htmlFor="order-created-to" label="Đến ngày" required>
-      <CmsInput
-        id="order-created-to"
-        type="date"
-        min={draft.createdFrom}
-        value={draft.createdTo}
-        onChange={(event) => setDraft((current) => ({ ...current, createdTo: event.target.value }))}
-      />
-    </CmsFormField>
-    <CmsButton type="button" variant="outline" disabled={!valid || !changed} onClick={() => filters.setCreatedRange(draft)}>
-      Áp dụng
-    </CmsButton>
-    {!valid ? <p className={styles.dateError} role="alert">Chọn đủ hai ngày, đúng thứ tự và không quá 30 ngày.</p> : null}
-  </div>;
-}
+import { getDefaultOrderCreatedRange, isValidOrderCreatedRange } from "../../lib/order-format";
 
 export function OrdersToolbar({ filters }: { filters: OrderFilters }) {
-  const search = useOrderSearch({ value: filters.search, onCommit: filters.setSearch });
-  const advancedCount = countOrderAdvancedFilters(filters);
-
-  return <section className={styles.toolbar} aria-label="Bộ lọc đơn hàng">
-    <OrderDateRange key={`${filters.createdFrom}:${filters.createdTo}`} filters={filters} />
-    <div className={styles.controls}>
-      <CmsFormField className={styles.searchField} htmlFor="order-search" label="Tìm kiếm">
-        <CmsInput id="order-search" containerClassName={styles.search} controlSize="sm"
-          leadingIcon={<Search aria-hidden="true" size={17} />}
-          onBlur={search.onBlur} onChange={(event) => search.onChange(event.target.value)}
-          onFocus={search.onFocus} placeholder="Số điện thoại hoặc email" type="search" value={search.draft} />
-      </CmsFormField>
-      <CmsFilterGroup activeCount={advancedCount} label="Bộ lọc đơn hàng" onClear={filters.clearAdvancedFilters}>
-        <CmsFormField htmlFor="order-delivery-date" label="Ngày giao">
-          <CmsInput id="order-delivery-date" containerClassName={styles.date} controlSize="sm"
-            onChange={(event) => filters.setDeliveryDate(event.target.value || undefined)}
-            type="date" value={filters.deliveryDate ?? ""} />
-        </CmsFormField>
-        <CmsFormField htmlFor="order-delivery-time" label="Khung giờ">
-          <CmsInput id="order-delivery-time" containerClassName={styles.time} controlSize="sm"
-            onChange={(event) => filters.setDeliveryTime(event.target.value.trim())}
-            placeholder="VD: 09:00-11:00" value={filters.deliveryTime} />
-        </CmsFormField>
-      </CmsFilterGroup>
-      {filters.isFiltered ? <CmsButton className={styles.clearAll} type="button" size="sm"
-        variant="ghost" onClick={filters.clearFilters}><X aria-hidden="true" size={15} /> Xóa bộ lọc</CmsButton> : null}
-    </div>
-  </section>;
+  const draft = useToolbarDraft({ search: filters.search, createdFrom: filters.createdFrom, createdTo: filters.createdTo, deliveryDate: filters.deliveryDate, deliveryTime: filters.deliveryTime });
+  const values = draft.values;
+  const defaults = getDefaultOrderCreatedRange();
+  const valid = isValidOrderCreatedRange(values.createdFrom, values.createdTo);
+  const clearAll = () => {
+    draft.reset({ search: "", ...getDefaultOrderCreatedRange(), deliveryDate: undefined, deliveryTime: "" });
+    filters.clearFilters();
+  };
+  const clearAdvanced = () => {
+    const next = { search: filters.search, ...getDefaultOrderCreatedRange(), deliveryDate: undefined, deliveryTime: "" };
+    draft.reset(next);
+    filters.applyFilters(next);
+  };
+  const count = Number(values.createdFrom !== defaults.createdFrom || values.createdTo !== defaults.createdTo) + Number(Boolean(values.deliveryDate)) + Number(Boolean(values.deliveryTime));
+  return <CmsToolbar label="Bộ lọc đơn hàng" onSearch={() => { if (valid) filters.applyFilters(values); }} searchDisabled={!valid}
+    onClear={filters.isFiltered || draft.changed ? clearAll : undefined}
+    search={<CmsInput aria-label="Tìm kiếm đơn hàng" controlSize="sm" leadingIcon={<Search aria-hidden="true" size={17} />} placeholder="Số điện thoại hoặc email" type="search" value={values.search} onChange={event => draft.set("search", event.target.value)} />}
+    filters={<CmsFilterGroup layout="toolbar" activeCount={count} label="Bộ lọc đơn hàng" onClear={clearAdvanced} onApply={() => { if (valid) filters.applyFilters(values); }} applyDisabled={!valid}>
+      <CmsToolbarField size="compact" label={<label htmlFor="order-created-from">Từ ngày</label>}><CmsInput id="order-created-from" type="date" controlSize="sm" max={values.createdTo} value={values.createdFrom} onChange={event => draft.set("createdFrom", event.target.value)} /></CmsToolbarField>
+      <CmsToolbarField size="compact" label={<label htmlFor="order-created-to">Đến ngày</label>}><CmsInput id="order-created-to" type="date" controlSize="sm" min={values.createdFrom} value={values.createdTo} onChange={event => draft.set("createdTo", event.target.value)} /></CmsToolbarField>
+      <CmsToolbarField size="compact" label={<label htmlFor="order-delivery-date">Ngày giao</label>}><CmsInput id="order-delivery-date" aria-label="Ngày giao" title="Ngày giao" type="date" controlSize="sm" value={values.deliveryDate ?? ""} onChange={event => draft.set("deliveryDate", event.target.value || undefined)} /></CmsToolbarField>
+      <CmsToolbarField size="compact" label={<label htmlFor="order-delivery-time">Khung giờ giao</label>}><CmsInput id="order-delivery-time" aria-label="Khung giờ giao" placeholder="VD: 09:00-11:00" controlSize="sm" value={values.deliveryTime} onChange={event => draft.set("deliveryTime", event.target.value)} /></CmsToolbarField>
+    </CmsFilterGroup>}
+    feedback={!valid ? <p role="alert" style={{ color: "var(--cms-destructive)", margin: 0 }}>Chọn đủ hai ngày, đúng thứ tự và không quá 30 ngày.</p> : null}
+  />;
 }

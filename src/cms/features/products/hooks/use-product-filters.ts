@@ -8,7 +8,7 @@ import type { ProductStatus } from "../types";
 
 export type ProductFilters = {
   search: string; status?: ProductStatus; categoryId?: string; isFeatured?: boolean; isBestSeller?: boolean; page: number; isFiltered: boolean;
-  setSearch: (value: string) => void; setStatus: (value?: ProductStatus) => void; setCategoryId: (value?: string) => void;
+  applyFilters: (values: Pick<ProductFilters, "search" | "status" | "categoryId" | "isFeatured" | "isBestSeller">) => void; setSearch: (value: string) => void; setStatus: (value?: ProductStatus) => void; setCategoryId: (value?: string) => void;
   setFeatured: (value?: boolean) => void; setBestSeller: (value?: boolean) => void; setPage: (value: number) => void; clearFilters: () => void;
   clearAdvancedFilters: () => void;
 };
@@ -40,6 +40,7 @@ export function useProductFilters(): ProductFilters {
   return {
     search, status, categoryId, isFeatured, isBestSeller, page,
     isFiltered: Boolean(search || status || categoryId || isFeatured !== undefined || isBestSeller !== undefined),
+    applyFilters: useCallback((values: Pick<ProductFilters, "search" | "status" | "categoryId" | "isFeatured" | "isBestSeller">) => update({ search: values.search.trim() || null, status: values.status ?? null, categoryId: values.categoryId ?? null, isFeatured: values.isFeatured ?? null, isBestSeller: values.isBestSeller ?? null }, true), [update]),
     setSearch: useCallback((value: string) => update({ search: value || null }, true), [update]),
     setStatus: useCallback((value?: ProductStatus) => update({ status: value ?? null }, true), [update]),
     setCategoryId: useCallback((value?: string) => update({ categoryId: value ?? null }, true), [update]),
