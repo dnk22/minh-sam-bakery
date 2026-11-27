@@ -82,9 +82,9 @@ test("checkout page delegates form state, sections and summary to focused module
   assert.equal(existsSync(`${componentDir}/checkout-flow-provider.tsx`), false);
 });
 
-test("order mapper uses real variant IDs, quantities and mock transfer URL only for transfer", async () => {
-  const { buildOrderRequest } = await import("../src/landing/features/checkout/utils/order-request-mapper.ts");
-  const { MOCK_PAYMENT_IMAGE_URL, isCreateOrderInput } = await import("../src/lib/contracts/order/order.schema.ts");
+test("order mapper requires a real receipt only when finalizing bank transfer", async () => {
+  const { buildOrderRequest, finalizeTransferOrder } = await import("../src/landing/features/checkout/utils/order-request-mapper.ts");
+  const { isCreateOrderInput } = await import("../src/lib/contracts/order/order.schema.ts");
   const line = { key: '["p","v"]', productId:"p", variantId:"v", quantity:2, categorySlug:"cake", productSlug:"cake", productName:"Bánh", productImage:"", productImageAlt:"", variantLabel:"L", availableVariants:[], originalPrice:100, effectivePrice:90, selected:true };
   const intent = { source:"cart" as const, items:[line] };
   const draft = { ...initialCheckoutDraft(), fullName:"Nguyễn An", phone:"0901234567", receiveDate:"2026-12-01" };
@@ -94,7 +94,14 @@ test("order mapper uses real variant IDs, quantities and mock transfer URL only 
   assert.equal(pickup.shippingAddress,null);
   assert.equal(pickup.paymentImageUrl,undefined);
   const transfer = buildOrderRequest(intent,{...draft,fulfillmentMethod:"delivery",deliveryAddress:"Hà Nội",paymentMethod:"BANK_TRANSFER"});
-  assert.equal(transfer.paymentImageUrl,MOCK_PAYMENT_IMAGE_URL);
+  assert.equal(transfer.paymentImageUrl,undefined);
+  assert.equal(isCreateOrderInput(transfer),false);
+  const finalized = finalizeTransferOrder(transfer, "/uploads/payments/qr/receipt.png");
+  assert.equal(finalized.paymentImageUrl,"/uploads/payments/qr/receipt.png");
+  assert.equal(isCreateOrderInput(finalized),true);
+  assert.throws(()=>finalizeTransferOrder(transfer,"https://example.invalid/checkout/mock-transfer.png"));
+  assert.throws(()=>finalizeTransferOrder(pickup,"/uploads/payments/qr/receipt.png"));
+  assert.equal(isCreateOrderInput({...pickup,paymentImageUrl:finalized.paymentImageUrl}),false);
   assert.equal(transfer.shippingAddress,"Hà Nội");
   assert.throws(()=>buildOrderRequest({...intent,items:[{...line,variantId:null}]},draft));
   assert.equal(isCreateOrderInput({...pickup,totalAmount:1}),false);

@@ -1,6 +1,9 @@
 import type { CreateOrderInput, Order, OrderItem, OrderStatus } from "./order.types.ts";
 
+import { isPaymentProofUrl } from "./payment-proof.ts";
+
 const decimal = /^(?:0|[1-9]\d*)(?:\.\d+)?$/;
+// Legacy CMS display only; never accepted for new checkout requests.
 export const MOCK_PAYMENT_IMAGE_URL = "https://example.invalid/checkout/mock-transfer.png";
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown): v is string => typeof v === "string";
@@ -23,7 +26,7 @@ export function isOrder(v: unknown): v is Order {
     (v.deliveryDate == null || date(v.deliveryDate)) && str(v.createdAt) && !Number.isNaN(Date.parse(v.createdAt)) &&
     str(v.updatedAt) && !Number.isNaN(Date.parse(v.updatedAt));
 }
-export function isCreateOrderInput(v: unknown): v is CreateOrderInput {
+export function isOrderRequestDraft(v: unknown): v is CreateOrderInput {
   if (!record(v) || !Array.isArray(v.items) || !v.items.length || v.items.length > 100 || !v.items.every(item)) return false;
   if (!v.items.every(x => x.quantity <= 20) || new Set(v.items.map(x => JSON.stringify([x.productId,x.variantId]))).size !== v.items.length) return false;
   if (Object.keys(v).some(key => !["items","fullName","phone","email","fulfillmentMethod","shippingAddress","deliveryDate","deliveryTime","paymentMethod","paymentImageUrl","note"].includes(key)) ||
@@ -34,5 +37,10 @@ export function isCreateOrderInput(v: unknown): v is CreateOrderInput {
     (v.fulfillmentMethod === "DELIVERY" ? nonempty(v.shippingAddress) && v.shippingAddress.length <= 250 && v.paymentMethod === "BANK_TRANSFER" : v.shippingAddress == null) &&
     date(v.deliveryDate) && (v.deliveryTime === undefined || str(v.deliveryTime) && v.deliveryTime.length <= 100) &&
     (v.note === undefined || str(v.note) && v.note.length <= 500) &&
-    (v.paymentMethod === "BANK_TRANSFER" ? v.paymentImageUrl === MOCK_PAYMENT_IMAGE_URL : v.paymentImageUrl === undefined);
+    (v.paymentMethod === "BANK_TRANSFER" ? v.paymentImageUrl === undefined || isPaymentProofUrl(v.paymentImageUrl) : v.paymentImageUrl === undefined);
+}
+
+/** Strict wire contract: bank transfers require a real uploaded receipt. */
+export function isCreateOrderInput(v: unknown): v is CreateOrderInput {
+  return isOrderRequestDraft(v) && (v.paymentMethod !== "BANK_TRANSFER" || isPaymentProofUrl(v.paymentImageUrl));
 }

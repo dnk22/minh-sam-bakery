@@ -5,7 +5,8 @@ import { type FormEvent, useEffect, useState, useSyncExternalStore } from "react
 import { useCartHydrated } from "@/landing/features/cart/components/cart-hydration";
 import { useCartStore } from "@/landing/features/cart/store/cart-store";
 import type { CreateOrderInput } from "@/lib/contracts/order/order.types";
-import { buildOrderRequest } from "../utils/order-request-mapper";
+import { buildOrderRequest, finalizeTransferOrder } from "../utils/order-request-mapper";
+import { usePaymentUpload } from "./use-payment-upload";
 import { usePaymentQr } from "./use-payment-qr";
 import { useCreateOrder } from "./use-create-order";
 import { checkoutReturnTo, receiptOrigin, saveReceiptOrigin, clearReceiptOrigin, clearCartOrigin } from "../store/checkout-return";
@@ -40,6 +41,7 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
   const [transferInput, setTransferInput] = useState<CreateOrderInput | null>(null);
   const [restoredBlocked] = useState(() => Boolean(intent && isCheckoutSessionPending(intent.sessionId)));
   const submission = useCreateOrder(intent?.sessionId ?? null);
+  const paymentUpload = usePaymentUpload(intent?.sessionId ?? null);
   const paymentQr = usePaymentQr(intent?.sessionId ?? null, !receipt);
   const qrReady = paymentQr.status === "ready";
   // A restored transfer draft must not stay selected when QR is unavailable.
@@ -104,7 +106,7 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
     try {
       const input = buildOrderRequest(intent, normalized);
       if (input.paymentMethod === "BANK_TRANSFER") setTransferInput(input);
-      else void submit(input);
+      else { paymentUpload.clear(); void submit(input); }
     } catch (error) { submission.setError(error instanceof Error ? error.message : "Thông tin đặt hàng không hợp lệ."); }
   };
 
@@ -127,7 +129,12 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
     blocked: restoredBlocked || submission.uncertain || Boolean(intent?.source === "cart" && !cartHydrated),
     submitError: submission.error || (restoredBlocked ? "Chưa xác minh được lần đặt hàng này. Vui lòng kiểm tra với cửa hàng trước khi bắt đầu đơn hàng mới." : ""),
     closeTransfer: () => { if (!submission.pending) setTransferInput(null); },
-    confirmTransfer: () => { if (transferInput && !restoredBlocked && qrReady) void submit(transferInput); },
+    paymentUpload,
+    confirmTransfer: () => {
+      if (!transferInput || restoredBlocked || submission.pending || submission.uncertain || !qrReady || paymentUpload.status !== "ready") return;
+      try { void submit(finalizeTransferOrder(transferInput, paymentUpload.url)); }
+      catch (error) { submission.setError(error instanceof Error ? error.message : "Ảnh chứng từ không hợp lệ."); }
+    },
     closeReceipt: () => { clearCheckoutReceipt(); clearReceiptOrigin(); },
     intent,
     draft: effectiveDraft,
