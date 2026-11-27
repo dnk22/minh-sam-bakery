@@ -60,7 +60,7 @@ export function SystemConfigModal({ state, onStateChange, onDelete }: { state: S
 
   const title = mode === "create" ? "Thêm cấu hình" : mode === "edit" ? "Chỉnh sửa cấu hình" : "Chi tiết cấu hình";
   return <ResponsiveModal open={Boolean(state)} onOpenChange={(open) => { if (!open) close(); }} onBeforeClose={confirmDiscard} title={title}
-    description={mode === "detail" ? "Giá trị đầy đủ đang lưu trên hệ thống." : "Nhập giá trị cấu hình dưới dạng văn bản."} className={styles.modal}
+    description={mode === "detail" ? "Giá trị đầy đủ đang lưu trên hệ thống." : "Nhập giá trị cấu hình dưới dạng văn bản."} size="lg"
     footer={state ? isEditing ? <><CmsButton type="button" variant="outline" disabled={pending} onClick={async () => { if (await confirmDiscard()) close(); }}>Hủy</CmsButton>
       <CmsButton type="submit" form={FORM_ID} disabled={pending}>{pending ? <LoaderCircle className={styles.spin} aria-hidden="true" size={16} /> : null}Lưu cấu hình</CmsButton></>
       : config ? <><CmsButton type="button" variant="outline" onClick={() => onDelete(config)}><Trash2 aria-hidden="true" size={16} /> Xóa</CmsButton>

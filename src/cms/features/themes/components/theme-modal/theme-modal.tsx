@@ -113,7 +113,7 @@ export function ThemeModal({ state, onStateChange, onDelete, onActivate }: {
       open={Boolean(state)}
       onOpenChange={(open) => { if (!open && !pending) close(); }}
       onBeforeClose={async () => !pending && await confirmDiscard()}
-      className={styles.modal}
+      size="xl"
       title={title}
       description={isEditing ? "Chọn 14 core colors và 2 font, hoặc import JSON. Lưu theme ở trạng thái nháp." : "Thông tin theme hiện tại từ Backend."}
       footer={!state ? null : isEditing ? <>
