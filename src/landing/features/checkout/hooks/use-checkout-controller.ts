@@ -106,7 +106,7 @@ export function useCheckoutController(session: CheckoutSessionSnapshot) {
     setDraft(normalized);
     if (paymentQr.status === "loading") return;
     if (paymentBlocked) {
-      setErrors({ ...result.errors, paymentMethod: paymentQr.status === "loading" ? "Đang kiểm tra phương thức chuyển khoản." : "Chuyển khoản ngân hàng chưa có sẵn. Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." });
+      setErrors({ ...result.errors, paymentMethod: "Chuyển khoản ngân hàng chưa có sẵn. Vui lòng chọn nhận bánh tại cửa hàng hoặc quay lại sau." });
       return;
     }
     setErrors(result.errors);
